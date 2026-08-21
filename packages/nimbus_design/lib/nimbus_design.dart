@@ -4,5 +4,11 @@
 /// concurrent phases appending to this barrel merge cleanly.
 library;
 
+export 'src/colors.dart';
 export 'src/theme.dart';
 export 'src/tokens.dart';
+export 'src/typography.dart';
+export 'src/widgets/nimbus_empty_state.dart';
+export 'src/widgets/nimbus_error_state.dart';
+export 'src/widgets/nimbus_loading_list.dart';
+export 'src/widgets/nimbus_undo_snackbar.dart';

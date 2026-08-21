@@ -1,20 +1,56 @@
 import 'package:flutter/material.dart';
 
+import 'colors.dart';
 import 'tokens.dart';
+import 'typography.dart';
 
 abstract final class NimbusTheme {
-  static ThemeData light() => _base(Brightness.light);
-  static ThemeData dark() => _base(Brightness.dark);
+  static ThemeData light() =>
+      _base(NimbusColors.lightScheme, NimbusColors.lightSemantics);
 
-  static ThemeData _base(Brightness brightness) {
-    final scheme = ColorScheme.fromSeed(
-      seedColor: NimbusTokens.seed,
-      brightness: brightness,
-    );
+  static ThemeData dark() =>
+      _base(NimbusColors.darkScheme, NimbusColors.darkSemantics);
+
+  static ThemeData _base(ColorScheme scheme, NimbusSemanticColors semantics) {
+    final text = NimbusTypography.textTheme(scheme);
     return ThemeData(
       colorScheme: scheme,
       useMaterial3: true,
+      textTheme: text,
+      extensions: <ThemeExtension<dynamic>>[semantics],
+      // Standard rather than compact: dynamic type is a stated requirement and
+      // compact density fights it from the first notch of enlargement.
       visualDensity: VisualDensity.standard,
+      snackBarTheme: const SnackBarThemeData(
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(
+          borderRadius: NimbusTokens.borderRadiusMd,
+        ),
+      ),
+      chipTheme: ChipThemeData(
+        labelStyle: text.labelLarge,
+        shape: const RoundedRectangleBorder(
+          borderRadius: NimbusTokens.borderRadiusLg,
+        ),
+      ),
+      filledButtonTheme: FilledButtonThemeData(
+        style: FilledButton.styleFrom(
+          minimumSize:
+              const Size(NimbusTokens.minTapTarget, NimbusTokens.minTapTarget),
+          shape: const RoundedRectangleBorder(
+            borderRadius: NimbusTokens.borderRadiusMd,
+          ),
+        ),
+      ),
+      listTileTheme: const ListTileThemeData(
+        minVerticalPadding: NimbusTokens.space2,
+      ),
+      cardTheme: const CardThemeData(
+        elevation: NimbusTokens.elevationCard,
+        shape: RoundedRectangleBorder(
+          borderRadius: NimbusTokens.borderRadiusMd,
+        ),
+      ),
     );
   }
 }
