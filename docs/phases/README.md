@@ -39,14 +39,14 @@ Single source of truth. Update it in the commit that finishes a phase.
 
 | Phase | Brief | Status | Gate tag |
 |---|---|---|---|
-| 0 — Foundation | [phase-0-foundation.md](phase-0-foundation.md) | Not started | `phase-0-complete` |
-| 1 — Expenses | [phase-1-expenses.md](phase-1-expenses.md) | Blocked on 0 | `phase-1-complete` |
-| 2 — Capture | [phase-2-capture.md](phase-2-capture.md) | Blocked on 0 | `phase-2-complete` |
+| 0 — Foundation | [phase-0-foundation.md](phase-0-foundation.md) | **Complete** (2026-08-21) | `phase-0-complete` |
+| 1 — Expenses | [phase-1-expenses.md](phase-1-expenses.md) | Ready | `phase-1-complete` |
+| 2 — Capture | [phase-2-capture.md](phase-2-capture.md) | Ready | `phase-2-complete` |
 | 3 — Analytics | [phase-3-analytics.md](phase-3-analytics.md) | Blocked on 1 | `phase-3-complete` |
 | 4 — Trackers | [phase-4-trackers.md](phase-4-trackers.md) | Blocked on 1 | `phase-4-complete` |
 | 5 — Goals & limits | [phase-5-goals.md](phase-5-goals.md) | Blocked on 3, 4 | `phase-5-complete` |
 | 6 — Outside the app | [phase-6-outside-the-app.md](phase-6-outside-the-app.md) | Blocked on 1, 4, 5 | `phase-6-complete` |
-| 7 — Backup | [phase-7-backup.md](phase-7-backup.md) | Blocked on 0 | `phase-7-complete` |
+| 7 — Backup | [phase-7-backup.md](phase-7-backup.md) | Ready | `phase-7-complete` |
 | 8 — Public release | [phase-8-public-release.md](phase-8-public-release.md) | Blocked on all | `phase-8-complete` |
 
 ---
