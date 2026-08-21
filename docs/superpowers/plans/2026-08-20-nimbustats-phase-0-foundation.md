@@ -176,8 +176,26 @@ Invoke-WebRequest -Uri "https://dl.google.com/android/repository/$zip" -OutFile 
 Expand-Archive -Path "$env:TEMP\cmdline.zip" -DestinationPath "$env:TEMP\cmdline" -Force
 Move-Item "$env:TEMP\cmdline\cmdline-tools" "C:\dev\android-sdk\cmdline-tools\latest"
 [Environment]::SetEnvironmentVariable("ANDROID_HOME", "C:\dev\android-sdk", "User")
-[Environment]::SetEnvironmentVariable("JAVA_HOME", (Split-Path (Split-Path (Get-Command java).Source)), "User")
+
+# JAVA_HOME must point at a real JDK -- a directory containing bin\javac.exe.
+# Do NOT derive it from (Get-Command java).Source. On Windows that resolves to
+# Oracle's shim, C:\Program Files\Common Files\Oracle\Java\javapath, whose
+# parent is not a JDK at all. Verified on this machine on 2026-08-21: the
+# naive expression yielded "C:\Program Files\Common Files\Oracle\Java", which
+# would have failed Gradle later with an unhelpful error.
+$jdk = Get-ChildItem "C:\Program Files\Java" -Directory |
+       Where-Object { Test-Path (Join-Path $_.FullName "bin\javac.exe") } |
+       Sort-Object Name -Descending | Select-Object -First 1
+if (-not $jdk) { throw "No JDK containing bin\javac.exe found under C:\Program Files\Java" }
+"JAVA_HOME -> $($jdk.FullName)"        # expect C:\Program Files\Java\jdk-17.0.2
+[Environment]::SetEnvironmentVariable("JAVA_HOME", $jdk.FullName, "User")
 ```
+
+The `throw` is deliberate: a JAVA_HOME silently set to a non-JDK is worse than
+a failed install, because the failure surfaces much later and points nowhere
+near the cause. Note also that a JRE 8 is present on this machine
+(`C:\Program Files\Java\jre1.8.0_481`) — the `javac.exe` filter is what keeps
+it from being selected.
 
 Open a new terminal, then:
 
