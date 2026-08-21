@@ -200,11 +200,17 @@ it from being selected.
 Open a new terminal, then:
 
 ```powershell
-& "$env:ANDROID_HOME\cmdline-tools\latest\bin\sdkmanager.bat" "platform-tools" "platforms;android-36" "build-tools;36.0.0"
+& "$env:ANDROID_HOME\cmdline-tools\latest\bin\sdkmanager.bat" "platform-tools" "platforms;android-36" "build-tools;36.1.0"
 flutter config --android-sdk C:\dev\android-sdk
 ```
 
 Expected: `adb` resolves from `C:\dev\android-sdk\platform-tools`.
+
+Versions confirmed against `sdkmanager --list` on 2026-08-21: `android-36` is the
+newest platform, and the newest **stable** build-tools pairing is `36.1.0` —
+`36.0.0` exists only as `36.0.0-rc5`, so the value in an earlier draft of this
+plan would not have installed. Re-check with `sdkmanager --list` rather than
+trusting these numbers if the toolchain is reinstalled later.
 
 - [ ] **Step 3: Operator accepts Android licences (interactive — must be run by a human)**
 
