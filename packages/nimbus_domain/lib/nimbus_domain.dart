@@ -5,4 +5,6 @@
 library;
 
 export 'src/money/currency.dart';
+export 'src/money/digits.dart';
 export 'src/money/money.dart';
+export 'src/money/money_format.dart';
