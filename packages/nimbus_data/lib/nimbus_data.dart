@@ -7,4 +7,6 @@ library;
 export 'src/database/app_database.dart';
 export 'src/database/columns.dart';
 export 'src/database/converters.dart';
+export 'src/tables/payment_methods_table.dart';
+export 'src/tables/transactions_table.dart';
 export 'src/tree/materialized_path.dart';

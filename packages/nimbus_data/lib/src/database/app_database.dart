@@ -1,13 +1,28 @@
 import 'package:drift/drift.dart';
+import 'package:nimbus_domain/nimbus_domain.dart';
 
 import '../tables/categories_table.dart';
+import '../tables/payment_methods_table.dart';
 import '../tables/settings_table.dart';
 import '../tables/tags_table.dart';
+import '../tables/transaction_tags_table.dart';
+import '../tables/transactions_table.dart';
 import '../tree/materialized_path.dart';
+// Used by the generated part, which resolves imports through this library.
+import 'converters.dart';
 
 part 'app_database.g.dart';
 
-@DriftDatabase(tables: [Settings, Categories, Tags])
+@DriftDatabase(
+  tables: [
+    Settings,
+    Categories,
+    Tags,
+    PaymentMethods,
+    Transactions,
+    TransactionTags,
+  ],
+)
 class AppDatabase extends _$AppDatabase {
   AppDatabase(super.e);
 
@@ -34,6 +49,7 @@ class AppDatabase extends _$AppDatabase {
   late final SettingsDao settingsDao = SettingsDao(this);
   late final CategoriesDao categoriesDao = CategoriesDao(this);
   late final TagsDao tagsDao = TagsDao(this);
+  late final TransactionsDao transactionsDao = TransactionsDao(this);
 }
 
 /// Application settings. Reads return null for an absent key rather than
@@ -329,4 +345,117 @@ class TagsDao {
       }
     });
   }
+}
+
+/// Transactions and their tag links.
+class TransactionsDao {
+  TransactionsDao(this._db);
+
+  final AppDatabase _db;
+
+  Future<void> insertTransaction({
+    required String id,
+    required TxDirection direction,
+    required Money amount,
+    required String currencyCode,
+    required int occurredAtUtc,
+    required DateKey localDateKey,
+    required String categoryId,
+    required TxSource source,
+    bool isConfirmed = true,
+    String? paymentMethodId,
+    String? merchant,
+    String? note,
+  }) async {
+    final now = DateTime.now().millisecondsSinceEpoch;
+    await _db.into(_db.transactions).insert(
+          TransactionsCompanion.insert(
+            id: id,
+            direction: direction,
+            amount: amount,
+            currencyCode: currencyCode,
+            occurredAtUtc: occurredAtUtc,
+            localDateKey: localDateKey,
+            categoryId: categoryId,
+            source: source,
+            isConfirmed: Value(isConfirmed),
+            paymentMethodId: Value(paymentMethodId),
+            merchant: Value(merchant),
+            note: Value(note),
+            createdAt: now,
+            updatedAt: now,
+          ),
+        );
+  }
+
+  Future<Transaction?> byId(String id) =>
+      (_db.select(_db.transactions)..where((t) => t.id.equals(id)))
+          .getSingleOrNull();
+
+  /// The period query, exposed so callers can compose further filters on it and
+  /// so a test can assert its query plan still uses the date index.
+  SimpleSelectStatement<$TransactionsTable, Transaction> inRangeQuery(
+    DateRange range, {
+    bool confirmedOnly = false,
+  }) {
+    final query = _db.select(_db.transactions)
+      ..where((t) => t.localDateKey.isBetweenValues(
+            range.startInclusive.value,
+            range.endInclusive.value,
+          ))
+      ..where((t) => t.deletedAt.isNull())
+      ..orderBy([(t) => OrderingTerm.desc(t.localDateKey)]);
+    if (confirmedOnly) {
+      query.where((t) => t.isConfirmed.equals(true));
+    }
+    return query;
+  }
+
+  Future<List<Transaction>> inRange(
+    DateRange range, {
+    bool confirmedOnly = false,
+  }) =>
+      inRangeQuery(range, confirmedOnly: confirmedOnly).get();
+
+  /// Sums in Dart rather than in SQL, which means the whole range crosses the
+  /// boundary to be added up. Fine at Phase 0 sizes and it keeps the exact
+  /// integer arithmetic in one place; when analytics arrives this should become
+  /// a SUM() aggregate so a year of rows is one row on the wire.
+  ///
+  /// Note it counts income and expense alike, and includes unconfirmed rows.
+  /// Deciding what a "total" means is analytics' job, not storage's.
+  Future<Money> totalInRange(DateRange range) async {
+    final rows = await inRange(range);
+    return Money.sum(rows.map((t) => t.amount));
+  }
+
+  /// Replaces the whole tag set for a transaction. Duplicates in [tagIds] are
+  /// collapsed, and the join table's composite key would reject them anyway.
+  Future<void> setTags(String transactionId, List<String> tagIds) async {
+    await _db.transaction(() async {
+      await (_db.delete(_db.transactionTags)
+            ..where((t) => t.transactionId.equals(transactionId)))
+          .go();
+      for (final tagId in tagIds.toSet()) {
+        await _db.into(_db.transactionTags).insert(
+              TransactionTagsCompanion.insert(
+                transactionId: transactionId,
+                tagId: tagId,
+              ),
+            );
+      }
+    });
+  }
+
+  Future<List<String>> tagsOf(String transactionId) async {
+    final rows = await (_db.select(_db.transactionTags)
+          ..where((t) => t.transactionId.equals(transactionId)))
+        .get();
+    return rows.map((r) => r.tagId).toList();
+  }
+
+  /// A hard delete. `transaction_tags.transaction_id` is ON DELETE CASCADE, so
+  /// the links go with the row.
+  Future<void> deleteTransaction(String id) =>
+      (_db.delete(_db.transactions)..where((t) => t.id.equals(id))).go();
 }
