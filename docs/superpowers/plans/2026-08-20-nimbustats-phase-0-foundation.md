@@ -89,26 +89,90 @@ Nothing is installed on this machine — no Flutter, no Dart, no Android SDK, no
 - Consumes: nothing
 - Produces: a working `flutter` on PATH at 3.47.1 with `flutter doctor` reporting no blocking issues; `docs/DEVELOPMENT.md` recording the exact versions installed.
 
+- [ ] **Step 0: Network precondition — Google endpoints must be reachable**
+
+**This gate is real and it has already failed once.** On 2026-08-21 the machine's
+exit IP was `31.171.100.118` (geolocated to Azerbaijan) and Google answered
+`403 — We're sorry, but this service is not available in your location` for
+every endpoint Phase 0 needs. Nothing below can proceed through a blocked route.
+
+Run this first. All three must succeed:
+
+```powershell
+foreach ($u in @(
+  "https://storage.googleapis.com/flutter_infra_release/releases/releases_windows.json",
+  "https://pub.dev/api/packages/drift",
+  "https://developer.android.com/studio"
+)) {
+  try {
+    $r = Invoke-WebRequest -Uri $u -Method Head -TimeoutSec 20 -UseBasicParsing
+    "OK   $($r.StatusCode)  $u"
+  } catch {
+    "FAIL $($_.Exception.Response.StatusCode.value__)  $u"
+  }
+}
+```
+
+Expected: three `OK 200` lines. Any `FAIL 403` means the exit IP is in a region
+Google refuses to serve — **change the VPN exit to a country Google serves and
+re-run.** `pub.dev` matters most: every `flutter pub get` for the life of this
+project goes through it.
+
+Do **not** work around a 403 with a third-party Flutter or pub mirror. That
+means trusting an unknown party with the toolchain and every dependency in the
+app — a supply-chain compromise is not worth avoiding a VPN reconnect.
+
 - [ ] **Step 1: Operator installs the Flutter SDK**
 
-Run in PowerShell:
+Derive the download URL from the release manifest rather than hardcoding it —
+a pinned URL goes stale silently, which is exactly how the Android URL in an
+earlier draft of this plan became a 404.
 
 ```powershell
 New-Item -ItemType Directory -Force C:\dev | Out-Null
-Invoke-WebRequest -Uri "https://storage.googleapis.com/flutter_infra_release/releases/stable/windows/flutter_windows_3.47.1-stable.zip" -OutFile "$env:TEMP\flutter.zip"
+$rel    = Invoke-RestMethod "https://storage.googleapis.com/flutter_infra_release/releases/releases_windows.json"
+$stable = $rel.releases | Where-Object { $_.hash -eq $rel.current_release.stable } | Select-Object -First 1
+"stable version: $($stable.version)"      # expect 3.47.1
+Invoke-WebRequest -Uri "$($rel.base_url)/$($stable.archive)" -OutFile "$env:TEMP\flutter.zip"
 Expand-Archive -Path "$env:TEMP\flutter.zip" -DestinationPath C:\dev -Force
 [Environment]::SetEnvironmentVariable("Path", "$([Environment]::GetEnvironmentVariable('Path','User'));C:\dev\flutter\bin", "User")
 ```
 
-Expected: `C:\dev\flutter\bin\flutter.bat` exists. **Open a new terminal** so the PATH change takes effect.
+Expected: `C:\dev\flutter\bin\flutter.bat` exists. **Open a new terminal** so the
+PATH change takes effect.
 
-If the download 403s or stalls, the VPN route is the cause (this machine reaches Google endpoints through an Istanbul exit and the route is not always stable). Reconnect and retry — do not substitute a third-party mirror, which would mean trusting an unknown party with the toolchain supply chain.
+If `$stable.version` is **not** 3.47.1, stop. Either pin to 3.47.1 explicitly by
+selecting that entry from `$rel.releases`, or update the pin in Global
+Constraints and `docs/DEVELOPMENT.md` deliberately — do not let the toolchain
+version drift as a side effect of an install.
+
+The manifest field names above (`base_url`, `current_release.stable`,
+`releases[].hash/.archive/.version`) could not be verified from this machine
+because the endpoint was geo-blocked at planning time. If the shape differs,
+print `$rel | ConvertTo-Json -Depth 3 | Select-Object -First 40` and adapt.
 
 - [ ] **Step 2: Operator installs the Android SDK command-line tools**
 
+The zip filename carries a build number that changes with every release, so it
+**must not be hardcoded** — the build number in an earlier draft of this plan
+was verified on 2026-08-21 and returned a hard `404`. Read the current one off
+the official page instead:
+
+```powershell
+$page = Invoke-WebRequest "https://developer.android.com/studio" -UseBasicParsing
+$zip  = ([regex]::Matches($page.Content, 'commandlinetools-win-\d+_latest\.zip') |
+         Select-Object -First 1).Value
+"resolved: $zip"     # must be non-empty before continuing
+```
+
+If `$zip` comes back empty, the page layout changed — open
+<https://developer.android.com/studio#command-line-tools-only> in a browser and
+copy the "Command line tools only" Windows link by hand rather than guessing a
+build number.
+
 ```powershell
 New-Item -ItemType Directory -Force C:\dev\android-sdk\cmdline-tools | Out-Null
-Invoke-WebRequest -Uri "https://dl.google.com/android/repository/commandlinetools-win-11076708_latest.zip" -OutFile "$env:TEMP\cmdline.zip"
+Invoke-WebRequest -Uri "https://dl.google.com/android/repository/$zip" -OutFile "$env:TEMP\cmdline.zip"
 Expand-Archive -Path "$env:TEMP\cmdline.zip" -DestinationPath "$env:TEMP\cmdline" -Force
 Move-Item "$env:TEMP\cmdline\cmdline-tools" "C:\dev\android-sdk\cmdline-tools\latest"
 [Environment]::SetEnvironmentVariable("ANDROID_HOME", "C:\dev\android-sdk", "User")
