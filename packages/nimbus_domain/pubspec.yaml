@@ -1,0 +1,18 @@
+name: nimbus_domain
+description: Pure-Dart domain layer — money, calendars, entitlements.
+version: 0.0.0
+publish_to: none
+resolution: workspace
+
+environment:
+  sdk: ^3.13.0
+
+# NOTE: this package is deliberately free of flutter, drift, sqlite3,
+# flutter_riverpod, nimbus_data and nimbus_design. That is asserted by
+# test/architecture_test.dart at the workspace root.
+dependencies:
+  shamsi_date: ^1.1.1
+  meta: ^1.15.0
+
+dev_dependencies:
+  test: ^1.25.0

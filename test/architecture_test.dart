@@ -1,0 +1,58 @@
+import 'dart:io';
+
+import 'package:test/test.dart';
+import 'package:yaml/yaml.dart';
+
+/// Reads the runtime (non-dev) dependency names declared by a package.
+///
+/// Boundaries are asserted here rather than left to convention because folder
+/// conventions erode under deadline pressure and pubspec rules do not.
+Set<String> runtimeDeps(String packagePath) {
+  final file = File('$packagePath/pubspec.yaml');
+  if (!file.existsSync()) {
+    fail('missing pubspec at $packagePath');
+  }
+  final doc = loadYaml(file.readAsStringSync()) as YamlMap;
+  final deps = doc['dependencies'];
+  if (deps is! YamlMap) return <String>{};
+  return deps.keys.cast<String>().toSet();
+}
+
+void main() {
+  test('nimbus_domain is pure Dart with no infrastructure dependencies', () {
+    final deps = runtimeDeps('packages/nimbus_domain');
+    for (final forbidden in [
+      'flutter',
+      'drift',
+      'sqlite3',
+      'flutter_riverpod',
+      'nimbus_data',
+      'nimbus_design',
+    ]) {
+      expect(deps, isNot(contains(forbidden)),
+          reason: 'nimbus_domain must stay pure; remove $forbidden');
+    }
+  });
+
+  test('nimbus_data is pure Dart and never reaches the UI', () {
+    final deps = runtimeDeps('packages/nimbus_data');
+    for (final forbidden in [
+      'flutter',
+      'flutter_riverpod',
+      'path_provider',
+      'nimbus_design',
+    ]) {
+      expect(deps, isNot(contains(forbidden)),
+          reason: 'nimbus_data must stay pure; remove $forbidden');
+    }
+    expect(deps, contains('nimbus_domain'));
+  });
+
+  test('nimbus_design never touches persistence', () {
+    final deps = runtimeDeps('packages/nimbus_design');
+    for (final forbidden in ['drift', 'sqlite3', 'nimbus_data']) {
+      expect(deps, isNot(contains(forbidden)),
+          reason: 'nimbus_design is presentation only; remove $forbidden');
+    }
+  });
+}

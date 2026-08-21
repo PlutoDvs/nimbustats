@@ -1,0 +1,16 @@
+name: nimbustats_workspace
+publish_to: none
+
+environment:
+  sdk: ^3.13.0
+
+workspace:
+  - packages/nimbus_domain
+  - packages/nimbus_data
+  - packages/nimbus_design
+  - app
+
+dev_dependencies:
+  test: ^1.25.0
+  yaml: ^3.1.2
+  lints: ^5.0.0

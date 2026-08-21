@@ -1,0 +1,30 @@
+name: nimbustats
+description: Daily life tracking — expenses, habits, and goals.
+version: 0.1.0
+publish_to: none
+resolution: workspace
+
+environment:
+  sdk: ^3.13.0
+
+# The only package permitted to depend on all three layers.
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+  nimbus_domain: ^0.0.0
+  nimbus_data: ^0.0.0
+  nimbus_design: ^0.0.0
+  flutter_riverpod: ^3.4.2
+  path_provider: ^2.1.6
+  intl: ^0.20.3
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^5.0.0
+
+flutter:
+  uses-material-design: true
+  generate: true

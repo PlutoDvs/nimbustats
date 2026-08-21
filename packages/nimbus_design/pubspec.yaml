@@ -1,0 +1,19 @@
+name: nimbus_design
+description: Design tokens, theme, and shared presentation widgets.
+version: 0.0.0
+publish_to: none
+resolution: workspace
+
+environment:
+  sdk: ^3.13.0
+
+# NOTE: presentation only. No drift, no sqlite3, no nimbus_data. Asserted by
+# test/architecture_test.dart at the workspace root.
+dependencies:
+  flutter:
+    sdk: flutter
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^5.0.0

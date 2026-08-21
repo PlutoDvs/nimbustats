@@ -1,0 +1,24 @@
+# Dart / Flutter build output
+.dart_tool/
+build/
+.flutter-plugins
+.flutter-plugins-dependencies
+
+# Generated code (*.g.dart) is deliberately NOT ignored: CI does not run
+# build_runner, so drift's generated sources must be committed.
+
+# Android
+app/android/.gradle/
+app/android/local.properties
+app/android/key.properties
+*.keystore
+*.jks
+
+# IDE
+.idea/
+.vscode/
+*.iml
+
+# OS
+Thumbs.db
+.DS_Store

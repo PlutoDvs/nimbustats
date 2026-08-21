@@ -1,0 +1,48 @@
+name: CI
+on: [push, pull_request]
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: 3.47.1
+          channel: stable
+
+      - run: flutter pub get
+
+      - run: dart analyze --fatal-infos
+
+      - name: Architecture boundaries
+        run: dart test test/architecture_test.dart
+
+      # `dart test` exits 65 when a package has no test/ directory, so packages
+      # are tested only once they have tests -- and every skip is printed. A
+      # silent skip would read as "covered" when it is not.
+      #
+      # NOTE: nimbus_data's tests compile SQLite from source via drift's build
+      # hooks (native_toolchain_c), so the runner needs a C toolchain. Ubuntu
+      # runners ship gcc; a slimmer image would not.
+      - name: Package tests
+        run: |
+          set -euo pipefail
+          for pkg in packages/nimbus_domain packages/nimbus_data; do
+            if [ -d "$pkg/test" ]; then
+              echo "::group::dart test $pkg"
+              (cd "$pkg" && dart test)
+              echo "::endgroup::"
+            else
+              echo "SKIPPED: $pkg has no test/ directory yet"
+            fi
+          done
+
+      - name: App tests
+        run: |
+          set -euo pipefail
+          if [ -d app/test ]; then
+            (cd app && flutter test)
+          else
+            echo "SKIPPED: app has no test/ directory yet"
+          fi

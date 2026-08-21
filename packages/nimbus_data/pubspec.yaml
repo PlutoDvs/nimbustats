@@ -1,0 +1,22 @@
+name: nimbus_data
+description: Pure-Dart persistence layer — drift tables, DAOs, capture ingestion.
+version: 0.0.0
+publish_to: none
+resolution: workspace
+
+environment:
+  sdk: ^3.13.0
+
+# NOTE: pure Dart. No flutter, no flutter_riverpod, no path_provider — the
+# database file path is injected by the app layer. Asserted by
+# test/architecture_test.dart at the workspace root.
+dependencies:
+  nimbus_domain: ^0.0.0
+  drift: ^2.34.3
+  sqlite3: ^3.5.2
+  uuid: ^4.6.0
+
+dev_dependencies:
+  test: ^1.25.0
+  drift_dev: ^2.34.5
+  build_runner: ^2.16.0
