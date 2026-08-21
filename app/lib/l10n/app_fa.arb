@@ -1,0 +1,12 @@
+{
+  "@@locale": "fa",
+  "appTitle": "NimbuStats",
+  "addExpense": "افزودن هزینه",
+  "amount": "مبلغ",
+  "category": "دسته‌بندی",
+  "uncategorized": "دسته‌بندی‌نشده",
+  "currency_toman": "تومان",
+  "currency_usd": "دلار",
+  "currency_eur": "یورو",
+  "currency_try": "لیر"
+}

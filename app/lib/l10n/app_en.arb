@@ -1,0 +1,12 @@
+{
+  "@@locale": "en",
+  "appTitle": "NimbuStats",
+  "addExpense": "Add expense",
+  "amount": "Amount",
+  "category": "Category",
+  "uncategorized": "Uncategorized",
+  "currency_toman": "Toman",
+  "currency_usd": "USD",
+  "currency_eur": "EUR",
+  "currency_try": "TRY"
+}
