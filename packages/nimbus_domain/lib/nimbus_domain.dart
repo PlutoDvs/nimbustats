@@ -4,6 +4,9 @@
 /// concurrent phases appending to this barrel merge cleanly.
 library;
 
+export 'src/calendar/calendar.dart';
+export 'src/calendar/date_key.dart';
+export 'src/calendar/gregorian_calendar.dart';
 export 'src/money/currency.dart';
 export 'src/money/digits.dart';
 export 'src/money/money.dart';
