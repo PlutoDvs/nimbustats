@@ -14,7 +14,7 @@ blocked, and who can unblock it.
 | D3 | pub.dev archive access depends on the VPN exit node | Adding any new package, Phase 2 onward | Operator (network) |
 | D4 | Claude Design token sheet does not exist | Nothing hard-blocked; visual polish | Operator (design) |
 | D5 | Router error screen has no localized copy | Nothing; tidy-up | Phase 1 Task 15 |
-| D6 | Flutter-specific lints are not active | Widget code quality from Task 6 on | Phase 1, before Task 6 |
+| D6 | ~~Flutter-specific lints are not active~~ | — | **Resolved 2026-08-22** |
 
 ---
 
@@ -163,31 +163,51 @@ title and a "go home" action in the same commit.
 
 ---
 
-## D6 — Flutter-specific lints are not active
+## D6 — Flutter-specific lints are not active — RESOLVED
 
-**Status:** open. Should be resolved **before Phase 1 Task 6**, which is where
-widget code starts in volume.
+**Status:** resolved 2026-08-22, before Phase 1 Task 6.
 
 `flutter create` generated an `app/analysis_options.yaml` that would have
 silently replaced the root config for the whole app package — dropping
 `strict-casts`, `strict-inference`, `strict-raw-types`, and the `avoid_print` /
-`empty_catches` / `unawaited_futures` **errors**. It was deleted so the root
-config governs, which was the right call.
+`empty_catches` / `unawaited_futures` severities. Deleting it was right, but it
+left `flutter_lints` declared and unused, so Flutter's own lints were inert.
 
-The side effect: `flutter_lints` is a declared dev dependency of `app` and
-`nimbus_design` but nothing includes it, so Flutter-specific lints are inert.
-The one that matters is **`use_build_context_synchronously`**, which catches
-using a `BuildContext` across an `await` — a real crash source, and Tasks 6
-through 15 are almost entirely async handlers that touch `context` afterwards.
+**Fix.** `app/` and `packages/nimbus_design/` each carry an
+`analysis_options.yaml` that includes *both* rule sets. The analyzer supports a
+list of includes and later entries win, so the workspace root comes last and
+stays authoritative:
 
-Two ways out, and the choice should be deliberate:
+```yaml
+include:
+  - package:flutter_lints/flutter.yaml
+  - ../analysis_options.yaml
+```
 
-1. Add the Flutter lint rules to the **root** `analysis_options.yaml`, keeping
-   one config for the workspace. Root would then depend on `flutter_lints`
-   resolving for non-Flutter packages, which needs checking.
-2. Give `app/` and `packages/nimbus_design/` an `analysis_options.yaml` that
-   includes `package:flutter_lints/flutter.yaml` **and** restates the root's
-   strict analyzer settings. Costs duplication that can drift.
+No duplicated settings, so nothing can drift.
 
-Whichever is chosen, the acceptance test is the same: a file using `context`
-after an `await` must produce an analyzer error.
+**A second hole was found while verifying the first.** `unawaited_futures` was
+listed under `analyzer: errors:` at the root but was never *enabled* under
+`linter: rules:` — and it ships in neither `lints/recommended` nor
+`flutter_lints`. A severity override for a disabled rule does nothing, so the
+project had believed since Phase 0 that it errored on fire-and-forget futures
+and it never had. It is now requested by name at the root.
+
+That one mattered more than the lint it was found alongside: a dropped future
+in this codebase loses a database write *and* the error explaining it.
+
+**Verified by probe, not by assumption.** A scratch file violating all four
+rules was analyzed before and after. Before: `No issues found`. After: four
+diagnostics — `strict-casts`, `unawaited_futures`, `avoid_print` as errors, and
+`use_build_context_synchronously` as an info. The probe was deleted; if these
+ever need re-checking, recreate it rather than trusting this note.
+
+Two details worth keeping:
+
+- `use_build_context_synchronously` reports at `info` severity, which is not a
+  weakness here: the definition-of-done gate runs `dart analyze --fatal-infos`,
+  so an info already fails the build.
+- `unawaited_futures` only fires inside `async` bodies. A fire-and-forget call
+  from a synchronous function is still invisible to it.
+
+---

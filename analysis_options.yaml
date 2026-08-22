@@ -6,6 +6,9 @@ analyzer:
     strict-inference: true
     strict-raw-types: true
   errors:
+    # Severity overrides only take effect for rules that are *enabled*. Both
+    # avoid_print and empty_catches come from lints/recommended; unawaited_futures
+    # does not, and is enabled explicitly in the linter section below.
     avoid_print: error
     empty_catches: error
     unawaited_futures: error
@@ -17,3 +20,7 @@ linter:
     - avoid_dynamic_calls
     - throw_in_finally
     - only_throw_errors
+    # Ships in no ruleset, so it has to be requested by name. A dropped future
+    # here loses a database write *and* the error that explains it -- exactly
+    # the silent failure this project's rules exist to prevent.
+    - unawaited_futures
