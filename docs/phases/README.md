@@ -6,6 +6,7 @@ parallel without stepping on each other.
 
 **Spec:** `docs/superpowers/specs/2026-08-20-nimbustats-design.md`
 **Shared rules every phase obeys:** [`CONVENTIONS.md`](CONVENTIONS.md)
+**Blocked work carried forward:** [`DEFERRED.md`](DEFERRED.md)
 
 ---
 
