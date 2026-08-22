@@ -125,6 +125,35 @@ abstract final class NimbusColors {
     skeleton: Color(0xFFE3E7E4),
   );
 
+  /// The palette a category, tag, or payment method can be tinted with.
+  ///
+  /// Named rather than free-form so the colour picker, the seeded default
+  /// tree, and any future import all draw from one set -- and so no screen
+  /// ever holds a raw hex literal, which `app/test/ux_rules_test.dart`
+  /// enforces.
+  ///
+  /// PROVISIONAL, like the rest of this file. These are mid-tone hues chosen
+  /// to stay distinguishable from each other on both surfaces; a real token
+  /// sheet should replace them wholesale.
+  static const categorySwatches = <String, Color>{
+    'orange': Color(0xFFEF6C00),
+    'blue': Color(0xFF1565C0),
+    'purple': Color(0xFF6A1B9A),
+    'pink': Color(0xFFC2185B),
+    'teal': Color(0xFF00838F),
+    'indigo': Color(0xFF4527A0),
+    'green': Color(0xFF2E7D32),
+    'slate': Color(0xFF546E7A),
+    'brown': Color(0xFF6D4C41),
+    'amber': Color(0xFF8A6A00),
+  };
+
+  /// Fallback tint for a node whose colour was never set.
+  static const defaultSwatch = Color(0xFF9E9E9E);
+
+  static Color swatch(String name) =>
+      categorySwatches[name] ?? defaultSwatch;
+
   static const darkSemantics = NimbusSemanticColors(
     expense: Color(0xFFFF8A80),
     income: Color(0xFF6EE7B7),

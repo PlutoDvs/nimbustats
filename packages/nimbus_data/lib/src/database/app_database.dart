@@ -144,6 +144,8 @@ class CategoriesDao {
     required String? parentId,
     String iconKey = 'tag',
     int color = 0xFF9E9E9E,
+    int sortOrder = 0,
+    String kind = 'expense',
   }) async {
     String path;
     if (parentId == null) {
@@ -165,10 +167,55 @@ class CategoriesDao {
             depth: MaterializedPath.depthOf(path),
             iconKey: Value(iconKey),
             color: Value(color),
+            sortOrder: Value(sortOrder),
+            kind: Value(kind),
             createdAt: now,
             updatedAt: now,
           ),
         );
+  }
+
+  /// Every live category, ordered the way a picker or a manager wants them.
+  Future<List<Category>> allLive({bool includeArchived = true}) {
+    final query = _db.select(_db.categories)
+      ..where((t) => t.deletedAt.isNull())
+      ..orderBy([
+        (t) => OrderingTerm.asc(t.sortOrder),
+        (t) => OrderingTerm.asc(t.name),
+      ]);
+    if (!includeArchived) query.where((t) => t.archived.equals(false));
+    return query.get();
+  }
+
+  Future<void> rename(String id, String name) =>
+      (_db.update(_db.categories)..where((t) => t.id.equals(id))).write(
+        CategoriesCompanion(
+          name: Value(name),
+          updatedAt: Value(DateTime.now().millisecondsSinceEpoch),
+        ),
+      );
+
+  /// Soft-deletes [id] and every live descendant, returning exactly the ids it
+  /// touched so an undo can restore that set and nothing else.
+  ///
+  /// Rows already soft-deleted are excluded -- [subtreeQuery] filters them --
+  /// because restoring them would resurrect something the user deleted
+  /// separately and earlier.
+  Future<List<String>> softDeleteSubtree(String id) async {
+    final node = await byId(id);
+    if (node == null) return const [];
+    return _db.transaction(() async {
+      final affected = await subtreeQuery(node.path).get();
+      final now = DateTime.now().millisecondsSinceEpoch;
+      for (final row in affected) {
+        await (_db.update(_db.categories)..where((t) => t.id.equals(row.id)))
+            .write(CategoriesCompanion(
+          deletedAt: Value(now),
+          updatedAt: Value(now),
+        ));
+      }
+      return affected.map((r) => r.id).toList();
+    });
   }
 
   Future<List<Category>> subtreeOf(String id) async {

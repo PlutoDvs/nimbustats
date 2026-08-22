@@ -147,9 +147,12 @@ Name them exactly as written; later briefs reference these identifiers.
 - **Pagination from day one.** The spec says "never load all transactions". Use
   keyset pagination on `(local_date_key, id)`, not `LIMIT/OFFSET` — offset
   degrades exactly when the user has enough history for the app to matter.
-- **The "Uncategorized" system row.** Phase 0 creates it; Phase 1 must make it
-  undeletable and unrenameable, and must never show it in the picker as a
-  normal choice. Every chart depends on `category_id` being non-null.
+- **The "Uncategorized" system row.** *Phase 1* creates it — Phase 0 shipped the
+  `categories` table but no seeding code at all, so the row did not exist
+  (corrected 2026-08-22). It uses the reserved id `system-uncategorized` rather
+  than an `is_system` column, which would have cost schema v2 and the schema
+  lock for one boolean. Phase 1 must make it undeletable and unrenameable, and
+  must never show it in the picker as a normal choice. Every chart depends on `category_id` being non-null.
 - **Moving a subtree rebuilds materialized paths transactionally.** Phase 0
   built the helper and its recursive-CTE oracle test. Phase 1 must exercise it
   through the UI path and assert descendants moved with the parent.

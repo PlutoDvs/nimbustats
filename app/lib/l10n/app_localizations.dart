@@ -98,12 +98,6 @@ abstract class AppLocalizations {
     Locale('fa'),
   ];
 
-  /// No description provided for @appTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'NimbuStats'**
-  String get appTitle;
-
   /// No description provided for @addExpense.
   ///
   /// In en, this message translates to:
@@ -116,29 +110,17 @@ abstract class AppLocalizations {
   /// **'Amount'**
   String get amount;
 
+  /// No description provided for @appTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'NimbuStats'**
+  String get appTitle;
+
   /// No description provided for @category.
   ///
   /// In en, this message translates to:
   /// **'Category'**
   String get category;
-
-  /// No description provided for @uncategorized.
-  ///
-  /// In en, this message translates to:
-  /// **'Uncategorized'**
-  String get uncategorized;
-
-  /// No description provided for @currency_toman.
-  ///
-  /// In en, this message translates to:
-  /// **'Toman'**
-  String get currency_toman;
-
-  /// No description provided for @currency_usd.
-  ///
-  /// In en, this message translates to:
-  /// **'USD'**
-  String get currency_usd;
 
   /// No description provided for @currency_eur.
   ///
@@ -146,11 +128,179 @@ abstract class AppLocalizations {
   /// **'EUR'**
   String get currency_eur;
 
+  /// No description provided for @currency_toman.
+  ///
+  /// In en, this message translates to:
+  /// **'Toman'**
+  String get currency_toman;
+
   /// No description provided for @currency_try.
   ///
   /// In en, this message translates to:
   /// **'TRY'**
   String get currency_try;
+
+  /// No description provided for @currency_usd.
+  ///
+  /// In en, this message translates to:
+  /// **'USD'**
+  String get currency_usd;
+
+  /// No description provided for @seedCategoryEducation.
+  ///
+  /// In en, this message translates to:
+  /// **'Education'**
+  String get seedCategoryEducation;
+
+  /// No description provided for @seedCategoryEntertainment.
+  ///
+  /// In en, this message translates to:
+  /// **'Entertainment'**
+  String get seedCategoryEntertainment;
+
+  /// No description provided for @seedCategoryFood.
+  ///
+  /// In en, this message translates to:
+  /// **'Food & drink'**
+  String get seedCategoryFood;
+
+  /// No description provided for @seedCategoryFoodCoffee.
+  ///
+  /// In en, this message translates to:
+  /// **'Coffee'**
+  String get seedCategoryFoodCoffee;
+
+  /// No description provided for @seedCategoryFoodDining.
+  ///
+  /// In en, this message translates to:
+  /// **'Dining out'**
+  String get seedCategoryFoodDining;
+
+  /// No description provided for @seedCategoryFoodGroceries.
+  ///
+  /// In en, this message translates to:
+  /// **'Groceries'**
+  String get seedCategoryFoodGroceries;
+
+  /// No description provided for @seedCategoryFreelance.
+  ///
+  /// In en, this message translates to:
+  /// **'Freelance'**
+  String get seedCategoryFreelance;
+
+  /// No description provided for @seedCategoryGifts.
+  ///
+  /// In en, this message translates to:
+  /// **'Gifts & charity'**
+  String get seedCategoryGifts;
+
+  /// No description provided for @seedCategoryHealth.
+  ///
+  /// In en, this message translates to:
+  /// **'Health'**
+  String get seedCategoryHealth;
+
+  /// No description provided for @seedCategoryHealthDoctor.
+  ///
+  /// In en, this message translates to:
+  /// **'Doctor'**
+  String get seedCategoryHealthDoctor;
+
+  /// No description provided for @seedCategoryHealthPharmacy.
+  ///
+  /// In en, this message translates to:
+  /// **'Pharmacy'**
+  String get seedCategoryHealthPharmacy;
+
+  /// No description provided for @seedCategoryHome.
+  ///
+  /// In en, this message translates to:
+  /// **'Home'**
+  String get seedCategoryHome;
+
+  /// No description provided for @seedCategoryHomeInternet.
+  ///
+  /// In en, this message translates to:
+  /// **'Internet & phone'**
+  String get seedCategoryHomeInternet;
+
+  /// No description provided for @seedCategoryHomeRent.
+  ///
+  /// In en, this message translates to:
+  /// **'Rent'**
+  String get seedCategoryHomeRent;
+
+  /// No description provided for @seedCategoryHomeUtilities.
+  ///
+  /// In en, this message translates to:
+  /// **'Utilities'**
+  String get seedCategoryHomeUtilities;
+
+  /// No description provided for @seedCategoryOther.
+  ///
+  /// In en, this message translates to:
+  /// **'Other'**
+  String get seedCategoryOther;
+
+  /// No description provided for @seedCategoryOtherIncome.
+  ///
+  /// In en, this message translates to:
+  /// **'Other income'**
+  String get seedCategoryOtherIncome;
+
+  /// No description provided for @seedCategorySalary.
+  ///
+  /// In en, this message translates to:
+  /// **'Salary'**
+  String get seedCategorySalary;
+
+  /// No description provided for @seedCategoryShopping.
+  ///
+  /// In en, this message translates to:
+  /// **'Shopping'**
+  String get seedCategoryShopping;
+
+  /// No description provided for @seedCategoryShoppingClothing.
+  ///
+  /// In en, this message translates to:
+  /// **'Clothing'**
+  String get seedCategoryShoppingClothing;
+
+  /// No description provided for @seedCategoryShoppingElectronics.
+  ///
+  /// In en, this message translates to:
+  /// **'Electronics'**
+  String get seedCategoryShoppingElectronics;
+
+  /// No description provided for @seedCategoryTransport.
+  ///
+  /// In en, this message translates to:
+  /// **'Transport'**
+  String get seedCategoryTransport;
+
+  /// No description provided for @seedCategoryTransportFuel.
+  ///
+  /// In en, this message translates to:
+  /// **'Fuel'**
+  String get seedCategoryTransportFuel;
+
+  /// No description provided for @seedCategoryTransportPublic.
+  ///
+  /// In en, this message translates to:
+  /// **'Public transport'**
+  String get seedCategoryTransportPublic;
+
+  /// No description provided for @seedCategoryTransportTaxi.
+  ///
+  /// In en, this message translates to:
+  /// **'Taxi'**
+  String get seedCategoryTransportTaxi;
+
+  /// No description provided for @uncategorized.
+  ///
+  /// In en, this message translates to:
+  /// **'Uncategorized'**
+  String get uncategorized;
 }
 
 class _AppLocalizationsDelegate
