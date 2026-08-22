@@ -91,6 +91,27 @@ class SettingsDao {
       _db.into(_db.settings).insertOnConflictUpdate(
             SettingsCompanion.insert(key: key, value: value),
           );
+
+  Future<Map<String, String>> getAll() async {
+    final rows = await _db.select(_db.settings).get();
+    return {for (final row in rows) row.key: row.value};
+  }
+
+  /// Emits the whole settings map on every change.
+  ///
+  /// Settings are a handful of rows, so re-reading all of them costs less than
+  /// tracking which key moved -- and the app's typed view is derived from the
+  /// whole map anyway.
+  Stream<Map<String, String>> watchAll() =>
+      _db.select(_db.settings).watch().map(
+            (rows) => {for (final row in rows) row.key: row.value},
+          );
+
+  /// Drops every setting, returning the app to its documented defaults.
+  ///
+  /// The recovery path for a value that is present but unparseable, which the
+  /// app refuses to silently replace.
+  Future<void> clear() => _db.delete(_db.settings).go();
 }
 
 /// The category tree.
