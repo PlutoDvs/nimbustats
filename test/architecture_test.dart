@@ -48,6 +48,23 @@ void main() {
     expect(deps, contains('nimbus_domain'));
   });
 
+  test('app reaches the database only through nimbus_data', () {
+    // `app` may depend on all three packages -- that is the point of it. What
+    // it must not do is depend on drift or sqlite3 directly: the moment a
+    // screen can construct a NativeDatabase, the "UI cannot import the
+    // database" boundary is decoration rather than a rule. Database
+    // construction lives behind AppDatabase.openAtPath / .openInMemory.
+    final deps = runtimeDeps('app');
+    for (final forbidden in ['drift', 'sqlite3']) {
+      expect(deps, isNot(contains(forbidden)),
+          reason: 'app must open the database through AppDatabase.openAtPath; '
+              'remove $forbidden');
+    }
+    expect(deps, contains('nimbus_domain'));
+    expect(deps, contains('nimbus_data'));
+    expect(deps, contains('nimbus_design'));
+  });
+
   test('nimbus_design never touches persistence', () {
     final deps = runtimeDeps('packages/nimbus_design');
     for (final forbidden in ['drift', 'sqlite3', 'nimbus_data']) {

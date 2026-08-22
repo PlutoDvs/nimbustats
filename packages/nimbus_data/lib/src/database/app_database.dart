@@ -1,4 +1,7 @@
+import 'dart:io';
+
 import 'package:drift/drift.dart';
+import 'package:drift/native.dart';
 import 'package:nimbus_domain/nimbus_domain.dart';
 
 import '../tables/categories_table.dart';
@@ -25,6 +28,24 @@ part 'app_database.g.dart';
 )
 class AppDatabase extends _$AppDatabase {
   AppDatabase(super.e);
+
+  /// Opens the database stored at [path].
+  ///
+  /// The app layer owns *where* the file lives -- it is the only layer allowed
+  /// to know the platform's directory conventions, and it has `path_provider`
+  /// for the purpose. This factory owns *how* it is opened. Keeping
+  /// [NativeDatabase] behind this boundary is what lets
+  /// `test/architecture_test.dart` assert that `app` depends on neither
+  /// `drift` nor `sqlite3`: a screen that could construct a database would
+  /// make the "UI cannot import the database" rule decoration.
+  factory AppDatabase.openAtPath(String path) =>
+      AppDatabase(NativeDatabase(File(path)));
+
+  /// An in-memory database, fresh per call.
+  ///
+  /// Lives here rather than in a test helper so the app package can build one
+  /// for its own widget tests without taking on a `drift` dependency.
+  factory AppDatabase.openInMemory() => AppDatabase(NativeDatabase.memory());
 
   @override
   int get schemaVersion => 1;
