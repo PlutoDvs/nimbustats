@@ -63,6 +63,10 @@ void main() {
     expect(deps, contains('nimbus_domain'));
     expect(deps, contains('nimbus_data'));
     expect(deps, contains('nimbus_design'));
+    // go_router is Phase 1's one new runtime dependency. Asserting it is
+    // present keeps the routing decision visible to anyone reading the
+    // boundary rules rather than buried in a pubspec.
+    expect(deps, contains('go_router'));
   });
 
   test('nimbus_design never touches persistence', () {

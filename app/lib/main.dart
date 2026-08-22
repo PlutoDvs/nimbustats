@@ -1,26 +1,27 @@
 import 'package:flutter/material.dart';
-import 'package:nimbus_design/nimbus_design.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:nimbus_data/nimbus_data.dart';
+import 'package:path/path.dart' as p;
+import 'package:path_provider/path_provider.dart';
 
-import 'l10n/app_localizations.dart';
+import 'app.dart';
+import 'bootstrap/database_provider.dart';
 
-void main() => runApp(const NimbuStatsApp());
+/// Bootstrap only.
+///
+/// The app layer owns *where* the database file lives, because it is the only
+/// layer allowed to know the platform's directory conventions and the only one
+/// with `path_provider`. `nimbus_data` receives the path and decides how to
+/// open it. Everything else the app needs is resolved through providers, so
+/// this function stays short enough to be obviously correct.
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
 
-/// Phase 0 shell. The home screen is deliberately a placeholder -- the real
-/// screens arrive in Phase 1, against the contract in
-/// docs/superpowers/screen-contract.md.
-class NimbuStatsApp extends StatelessWidget {
-  const NimbuStatsApp({super.key});
+  final dir = await getApplicationDocumentsDirectory();
+  final db = AppDatabase.openAtPath(p.join(dir.path, 'nimbustats.sqlite'));
 
-  @override
-  Widget build(BuildContext context) => MaterialApp(
-        onGenerateTitle: (context) => AppLocalizations.of(context).appTitle,
-        theme: NimbusTheme.light(),
-        darkTheme: NimbusTheme.dark(),
-        localizationsDelegates: AppLocalizations.localizationsDelegates,
-        supportedLocales: AppLocalizations.supportedLocales,
-        // Persian by default so right-to-left is the path exercised every day,
-        // rather than a mode that breaks the first time someone switches to it.
-        locale: const Locale('fa'),
-        home: const Scaffold(body: Center(child: Text('NimbuStats'))),
-      );
+  runApp(ProviderScope(
+    overrides: [appDatabaseProvider.overrideWithValue(db)],
+    child: const NimbuStatsApp(),
+  ));
 }
