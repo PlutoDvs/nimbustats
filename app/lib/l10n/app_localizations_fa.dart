@@ -311,13 +311,44 @@ class AppLocalizationsFa extends AppLocalizations {
   String get txDateLabel => 'تاریخ';
 
   @override
+  String get txDaySubtotal => 'مجموع روز';
+
+  @override
   String get txDirectionExpense => 'هزینه';
 
   @override
   String get txDirectionIncome => 'درآمد';
 
   @override
+  String get txFilterAll => 'همه';
+
+  @override
+  String get txFilterDirection => 'نوع';
+
+  @override
+  String get txFilterTitle => 'فیلترها';
+
+  @override
+  String get txListEmptyMessage =>
+      'اولین هزینه‌تان را ثبت کنید تا اینجا نمایش داده شود.';
+
+  @override
+  String get txListEmptyTitle => 'هنوز تراکنشی ثبت نشده';
+
+  @override
+  String get txListErrorTitle => 'بارگذاری تراکنش‌ها ممکن نشد';
+
+  @override
+  String get txListTitle => 'تراکنش‌ها';
+
+  @override
+  String get txLoadMore => 'بارگذاری بیشتر';
+
+  @override
   String get txMerchantLabel => 'فروشنده';
+
+  @override
+  String get txMonthTotal => 'این ماه';
 
   @override
   String get txMoreDetails => 'جزئیات بیشتر';
@@ -333,6 +364,9 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get txSaved => 'ذخیره شد';
+
+  @override
+  String get txSearchHint => 'جست‌وجوی فروشنده یا یادداشت';
 
   @override
   String get txTagsLabel => 'برچسب‌ها';

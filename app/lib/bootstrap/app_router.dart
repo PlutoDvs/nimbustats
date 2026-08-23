@@ -29,36 +29,12 @@ final appRouterProvider =
       ...categoryRoutes,
       ...tagRoutes,
       ...paymentMethodRoutes,
-      GoRoute(
-        path: '/',
-        name: 'home',
-        builder: (context, state) => const ShellPlaceholder(),
-      ),
     ],
     errorBuilder: (context, state) => const RouteNotFoundScreen(),
   );
   ref.onDispose(router.dispose);
   return router;
 });
-
-/// Replaced by the transaction list in Task 13. It exists so the shell has
-/// something to render before any feature does.
-class ShellPlaceholder extends StatelessWidget {
-  const ShellPlaceholder({super.key});
-
-  @override
-  Widget build(BuildContext context) => Scaffold(
-        body: const Center(child: Text('NimbuStats')),
-        // The first tap of the three-tap golden path. Lives here until Task 13
-        // replaces this placeholder with the real list, which keeps the same
-        // key so the tap-count test carries over unchanged.
-        floatingActionButton: FloatingActionButton(
-          key: const Key('tx-add-fab'),
-          onPressed: () => context.push(addTransactionRoute),
-          child: const Icon(Icons.add),
-        ),
-      );
-}
 
 /// The router's error state.
 ///

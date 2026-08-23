@@ -312,13 +312,44 @@ class AppLocalizationsEn extends AppLocalizations {
   String get txDateLabel => 'Date';
 
   @override
+  String get txDaySubtotal => 'Day total';
+
+  @override
   String get txDirectionExpense => 'Expense';
 
   @override
   String get txDirectionIncome => 'Income';
 
   @override
+  String get txFilterAll => 'All';
+
+  @override
+  String get txFilterDirection => 'Direction';
+
+  @override
+  String get txFilterTitle => 'Filters';
+
+  @override
+  String get txListEmptyMessage =>
+      'Log your first expense and it will appear here.';
+
+  @override
+  String get txListEmptyTitle => 'No transactions yet';
+
+  @override
+  String get txListErrorTitle => 'Could not load transactions';
+
+  @override
+  String get txListTitle => 'Transactions';
+
+  @override
+  String get txLoadMore => 'Load more';
+
+  @override
   String get txMerchantLabel => 'Merchant';
+
+  @override
+  String get txMonthTotal => 'This month';
 
   @override
   String get txMoreDetails => 'More details';
@@ -334,6 +365,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get txSaved => 'Saved';
+
+  @override
+  String get txSearchHint => 'Search merchant or note';
 
   @override
   String get txTagsLabel => 'Tags';

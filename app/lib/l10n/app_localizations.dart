@@ -644,6 +644,12 @@ abstract class AppLocalizations {
   /// **'Date'**
   String get txDateLabel;
 
+  /// No description provided for @txDaySubtotal.
+  ///
+  /// In en, this message translates to:
+  /// **'Day total'**
+  String get txDaySubtotal;
+
   /// No description provided for @txDirectionExpense.
   ///
   /// In en, this message translates to:
@@ -656,11 +662,65 @@ abstract class AppLocalizations {
   /// **'Income'**
   String get txDirectionIncome;
 
+  /// No description provided for @txFilterAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get txFilterAll;
+
+  /// No description provided for @txFilterDirection.
+  ///
+  /// In en, this message translates to:
+  /// **'Direction'**
+  String get txFilterDirection;
+
+  /// No description provided for @txFilterTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Filters'**
+  String get txFilterTitle;
+
+  /// No description provided for @txListEmptyMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Log your first expense and it will appear here.'**
+  String get txListEmptyMessage;
+
+  /// No description provided for @txListEmptyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No transactions yet'**
+  String get txListEmptyTitle;
+
+  /// No description provided for @txListErrorTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load transactions'**
+  String get txListErrorTitle;
+
+  /// No description provided for @txListTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Transactions'**
+  String get txListTitle;
+
+  /// No description provided for @txLoadMore.
+  ///
+  /// In en, this message translates to:
+  /// **'Load more'**
+  String get txLoadMore;
+
   /// No description provided for @txMerchantLabel.
   ///
   /// In en, this message translates to:
   /// **'Merchant'**
   String get txMerchantLabel;
+
+  /// No description provided for @txMonthTotal.
+  ///
+  /// In en, this message translates to:
+  /// **'This month'**
+  String get txMonthTotal;
 
   /// No description provided for @txMoreDetails.
   ///
@@ -691,6 +751,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Saved'**
   String get txSaved;
+
+  /// No description provided for @txSearchHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search merchant or note'**
+  String get txSearchHint;
 
   /// No description provided for @txTagsLabel.
   ///
