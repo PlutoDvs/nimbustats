@@ -13,7 +13,7 @@ blocked, and who can unblock it.
 | D2 | Gradle distribution needs manual seeding on a fresh machine | Any new dev machine or CI | Operator (network) |
 | D3 | pub.dev archive access depends on the VPN exit node | Adding any new package, Phase 2 onward | Operator (network) |
 | D4 | Claude Design token sheet does not exist | Nothing hard-blocked; visual polish | Operator (design) |
-| D5 | Router error screen has no localized copy | Nothing; tidy-up | Phase 1 Task 15 |
+| D5 | ~~Router error screen has no localized copy~~ | — | **Resolved 2026-08-24** |
 | D6 | ~~Flutter-specific lints are not active~~ | — | **Resolved 2026-08-22** |
 
 ---
@@ -150,16 +150,18 @@ Vazirmatn is the obvious upgrade.
 
 ---
 
-## D5 — Router error screen has no localized copy
+## D5 — Router error screen has no localized copy — RESOLVED
 
-**Status:** open, scheduled.
+**Status:** resolved 2026-08-24, in Phase 1 Task 15.
 
-`app/lib/bootstrap/app_router.dart`'s `RouteNotFoundScreen` renders an icon and
-nothing else. "No hardcoded UI text, ever" has no exception for screens users
-are not supposed to reach, and no ARB keys existed when the router landed.
+`RouteNotFoundScreen` rendered an icon and nothing else, because no ARB keys
+existed when the router landed and "no hardcoded UI text, ever" has no
+exception for screens users are not supposed to reach.
 
-Phase 1 Task 15 adds the settings and onboarding strings; give this screen a
-title and a "go home" action in the same commit.
+It now uses `NimbusEmptyState` with `routeNotFoundTitle`, `routeNotFoundBody`,
+and a `routeNotFoundGoHome` action that navigates to the transaction list. A
+dead end with no exit is worse than the wrong screen, so the action matters as
+much as the copy.
 
 ---
 

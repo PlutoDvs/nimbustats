@@ -117,6 +117,34 @@ class AppLocalizationsEn extends AppLocalizations {
   String get currency_usd => 'USD';
 
   @override
+  String get onboardingCalendarTitle => 'Calendar';
+
+  @override
+  String get onboardingCurrencyTitle => 'Currency';
+
+  @override
+  String get onboardingFinish => 'Start';
+
+  @override
+  String get onboardingLocaleTitle => 'Language';
+
+  @override
+  String get onboardingSeedFailed => 'Setup did not finish';
+
+  @override
+  String get onboardingSeeding => 'Setting up…';
+
+  @override
+  String get onboardingSkip => 'Skip';
+
+  @override
+  String get onboardingWelcomeBody =>
+      'A few quick choices — or skip and start logging.';
+
+  @override
+  String get onboardingWelcomeTitle => 'Welcome to NimbuStats';
+
+  @override
   String payDeleted(String name) {
     return 'Deleted $name';
   }
@@ -169,6 +197,15 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get payNone => 'None';
+
+  @override
+  String get routeNotFoundBody => 'That screen does not exist.';
+
+  @override
+  String get routeNotFoundGoHome => 'Go to transactions';
+
+  @override
+  String get routeNotFoundTitle => 'Nothing here';
 
   @override
   String get seedCategoryEducation => 'Education';
@@ -244,6 +281,51 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get seedCategoryTransportTaxi => 'Taxi';
+
+  @override
+  String get settingsCalendar => 'Calendar';
+
+  @override
+  String get settingsCalendarGregorian => 'Gregorian';
+
+  @override
+  String get settingsCalendarJalali => 'Jalali';
+
+  @override
+  String get settingsCurrency => 'Currency';
+
+  @override
+  String get settingsDebugSeed => 'Seed 5,000 demo transactions';
+
+  @override
+  String get settingsFirstDayOfWeek => 'First day of week';
+
+  @override
+  String get settingsLocale => 'Language';
+
+  @override
+  String get settingsProBadge => 'Pro — free during early access';
+
+  @override
+  String get settingsReset => 'Reset settings';
+
+  @override
+  String get settingsSaveFailed => 'Could not save that change';
+
+  @override
+  String get settingsTheme => 'Theme';
+
+  @override
+  String get settingsThemeDark => 'Dark';
+
+  @override
+  String get settingsThemeLight => 'Light';
+
+  @override
+  String get settingsThemeSystem => 'System';
+
+  @override
+  String get settingsTitle => 'Settings';
 
   @override
   String tagCreateInline(String name) {

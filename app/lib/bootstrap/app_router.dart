@@ -1,9 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:nimbus_design/nimbus_design.dart';
+
+import '../l10n/app_localizations.dart';
 
 import '../features/categories/routes.dart';
+import '../features/onboarding/routes.dart';
 import '../features/payment_methods/routes.dart';
+import '../features/settings/routes.dart';
 import '../features/tags/routes.dart';
 import '../features/transactions/routes.dart';
 
@@ -23,12 +28,12 @@ final appRouterProvider =
     initialLocation: initialLocation ?? '/',
     routes: <RouteBase>[
       // Feature route lists are appended here, one per line, as each lands:
-      //   ...settingsRoutes       (Task 15)
-      //   ...onboardingRoutes     (Task 15)
       ...transactionRoutes,
       ...categoryRoutes,
       ...tagRoutes,
       ...paymentMethodRoutes,
+      ...settingsRoutes,
+      ...onboardingRoutes,
     ],
     errorBuilder: (context, state) => const RouteNotFoundScreen(),
   );
@@ -38,22 +43,24 @@ final appRouterProvider =
 
 /// The router's error state.
 ///
-/// Localized copy arrives in Task 15, when the settings feature adds the ARB
-/// keys; until then this renders an icon and nothing else rather than a
-/// hardcoded English string, because "no hardcoded UI text, ever" has no
-/// exception for screens users are not supposed to reach.
+/// Copy arrived with the settings feature's ARB keys (deferred item D5). It
+/// renders a title and a way back, because a dead end with no exit is worse
+/// than the wrong screen.
 class RouteNotFoundScreen extends StatelessWidget {
   const RouteNotFoundScreen({super.key});
 
   @override
-  Widget build(BuildContext context) => Scaffold(
-        key: const Key('router-error'),
-        body: Center(
-          child: Icon(
-            Icons.explore_off_outlined,
-            size: 48,
-            color: Theme.of(context).colorScheme.outline,
-          ),
-        ),
-      );
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    return Scaffold(
+      key: const Key('router-error'),
+      body: NimbusEmptyState(
+        icon: Icons.explore_off_outlined,
+        title: l10n.routeNotFoundTitle,
+        message: l10n.routeNotFoundBody,
+        actionLabel: l10n.routeNotFoundGoHome,
+        onAction: () => context.go(transactionListRoute),
+      ),
+    );
+  }
 }

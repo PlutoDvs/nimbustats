@@ -117,6 +117,34 @@ class AppLocalizationsFa extends AppLocalizations {
   String get currency_usd => 'دلار';
 
   @override
+  String get onboardingCalendarTitle => 'تقویم';
+
+  @override
+  String get onboardingCurrencyTitle => 'واحد پول';
+
+  @override
+  String get onboardingFinish => 'شروع';
+
+  @override
+  String get onboardingLocaleTitle => 'زبان';
+
+  @override
+  String get onboardingSeedFailed => 'آماده‌سازی کامل نشد';
+
+  @override
+  String get onboardingSeeding => 'در حال آماده‌سازی…';
+
+  @override
+  String get onboardingSkip => 'رد کردن';
+
+  @override
+  String get onboardingWelcomeBody =>
+      'چند انتخاب کوتاه — یا رد کنید و شروع کنید.';
+
+  @override
+  String get onboardingWelcomeTitle => 'به نیمبوستتس خوش آمدید';
+
+  @override
   String payDeleted(String name) {
     return '$name حذف شد';
   }
@@ -169,6 +197,15 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get payNone => 'هیچ‌کدام';
+
+  @override
+  String get routeNotFoundBody => 'چنین صفحه‌ای وجود ندارد.';
+
+  @override
+  String get routeNotFoundGoHome => 'رفتن به تراکنش‌ها';
+
+  @override
+  String get routeNotFoundTitle => 'چیزی اینجا نیست';
 
   @override
   String get seedCategoryEducation => 'آموزش';
@@ -244,6 +281,51 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get seedCategoryTransportTaxi => 'تاکسی';
+
+  @override
+  String get settingsCalendar => 'تقویم';
+
+  @override
+  String get settingsCalendarGregorian => 'میلادی';
+
+  @override
+  String get settingsCalendarJalali => 'شمسی';
+
+  @override
+  String get settingsCurrency => 'واحد پول';
+
+  @override
+  String get settingsDebugSeed => 'ساخت ۵۰۰۰ تراکنش نمونه';
+
+  @override
+  String get settingsFirstDayOfWeek => 'اولین روز هفته';
+
+  @override
+  String get settingsLocale => 'زبان';
+
+  @override
+  String get settingsProBadge => 'حرفه‌ای — رایگان در دسترسی زودهنگام';
+
+  @override
+  String get settingsReset => 'بازنشانی تنظیمات';
+
+  @override
+  String get settingsSaveFailed => 'این تغییر ذخیره نشد';
+
+  @override
+  String get settingsTheme => 'پوسته';
+
+  @override
+  String get settingsThemeDark => 'تیره';
+
+  @override
+  String get settingsThemeLight => 'روشن';
+
+  @override
+  String get settingsThemeSystem => 'سیستم';
+
+  @override
+  String get settingsTitle => 'تنظیمات';
 
   @override
   String tagCreateInline(String name) {

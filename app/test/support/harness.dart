@@ -22,7 +22,9 @@ Future<AppDatabase> pumpApp(
   List<Override> overrides = const [],
   bool seedFirstRun = false,
   String? initialLocation,
-  Locale locale = const Locale('en'),
+  /// Null lets the app take its locale from settings, which is what a test
+  /// about locale switching needs.
+  Locale? locale = const Locale('en'),
   void Function(ProviderContainer container)? onContainer,
 }) async {
   final db = database ?? AppDatabase.openInMemory();
@@ -33,7 +35,8 @@ Future<AppDatabase> pumpApp(
   // the reserved Uncategorized row every transaction falls back to.
   if (seedFirstRun) {
     await FirstRunController(db)
-        .ensureSeeded(await AppLocalizations.delegate.load(locale));
+        .ensureSeeded(await AppLocalizations.delegate
+        .load(locale ?? const Locale('fa')));
   }
 
   // Mirrors main(): a harness that retried where production does not

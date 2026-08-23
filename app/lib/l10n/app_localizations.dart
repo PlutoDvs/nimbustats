@@ -290,6 +290,60 @@ abstract class AppLocalizations {
   /// **'USD'**
   String get currency_usd;
 
+  /// No description provided for @onboardingCalendarTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Calendar'**
+  String get onboardingCalendarTitle;
+
+  /// No description provided for @onboardingCurrencyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Currency'**
+  String get onboardingCurrencyTitle;
+
+  /// No description provided for @onboardingFinish.
+  ///
+  /// In en, this message translates to:
+  /// **'Start'**
+  String get onboardingFinish;
+
+  /// No description provided for @onboardingLocaleTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Language'**
+  String get onboardingLocaleTitle;
+
+  /// No description provided for @onboardingSeedFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Setup did not finish'**
+  String get onboardingSeedFailed;
+
+  /// No description provided for @onboardingSeeding.
+  ///
+  /// In en, this message translates to:
+  /// **'Setting up…'**
+  String get onboardingSeeding;
+
+  /// No description provided for @onboardingSkip.
+  ///
+  /// In en, this message translates to:
+  /// **'Skip'**
+  String get onboardingSkip;
+
+  /// No description provided for @onboardingWelcomeBody.
+  ///
+  /// In en, this message translates to:
+  /// **'A few quick choices — or skip and start logging.'**
+  String get onboardingWelcomeBody;
+
+  /// No description provided for @onboardingWelcomeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Welcome to NimbuStats'**
+  String get onboardingWelcomeTitle;
+
   /// No description provided for @payDeleted.
   ///
   /// In en, this message translates to:
@@ -391,6 +445,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'None'**
   String get payNone;
+
+  /// No description provided for @routeNotFoundBody.
+  ///
+  /// In en, this message translates to:
+  /// **'That screen does not exist.'**
+  String get routeNotFoundBody;
+
+  /// No description provided for @routeNotFoundGoHome.
+  ///
+  /// In en, this message translates to:
+  /// **'Go to transactions'**
+  String get routeNotFoundGoHome;
+
+  /// No description provided for @routeNotFoundTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing here'**
+  String get routeNotFoundTitle;
 
   /// No description provided for @seedCategoryEducation.
   ///
@@ -541,6 +613,96 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Taxi'**
   String get seedCategoryTransportTaxi;
+
+  /// No description provided for @settingsCalendar.
+  ///
+  /// In en, this message translates to:
+  /// **'Calendar'**
+  String get settingsCalendar;
+
+  /// No description provided for @settingsCalendarGregorian.
+  ///
+  /// In en, this message translates to:
+  /// **'Gregorian'**
+  String get settingsCalendarGregorian;
+
+  /// No description provided for @settingsCalendarJalali.
+  ///
+  /// In en, this message translates to:
+  /// **'Jalali'**
+  String get settingsCalendarJalali;
+
+  /// No description provided for @settingsCurrency.
+  ///
+  /// In en, this message translates to:
+  /// **'Currency'**
+  String get settingsCurrency;
+
+  /// No description provided for @settingsDebugSeed.
+  ///
+  /// In en, this message translates to:
+  /// **'Seed 5,000 demo transactions'**
+  String get settingsDebugSeed;
+
+  /// No description provided for @settingsFirstDayOfWeek.
+  ///
+  /// In en, this message translates to:
+  /// **'First day of week'**
+  String get settingsFirstDayOfWeek;
+
+  /// No description provided for @settingsLocale.
+  ///
+  /// In en, this message translates to:
+  /// **'Language'**
+  String get settingsLocale;
+
+  /// No description provided for @settingsProBadge.
+  ///
+  /// In en, this message translates to:
+  /// **'Pro — free during early access'**
+  String get settingsProBadge;
+
+  /// No description provided for @settingsReset.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset settings'**
+  String get settingsReset;
+
+  /// No description provided for @settingsSaveFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not save that change'**
+  String get settingsSaveFailed;
+
+  /// No description provided for @settingsTheme.
+  ///
+  /// In en, this message translates to:
+  /// **'Theme'**
+  String get settingsTheme;
+
+  /// No description provided for @settingsThemeDark.
+  ///
+  /// In en, this message translates to:
+  /// **'Dark'**
+  String get settingsThemeDark;
+
+  /// No description provided for @settingsThemeLight.
+  ///
+  /// In en, this message translates to:
+  /// **'Light'**
+  String get settingsThemeLight;
+
+  /// No description provided for @settingsThemeSystem.
+  ///
+  /// In en, this message translates to:
+  /// **'System'**
+  String get settingsThemeSystem;
+
+  /// No description provided for @settingsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Settings'**
+  String get settingsTitle;
 
   /// No description provided for @tagCreateInline.
   ///
