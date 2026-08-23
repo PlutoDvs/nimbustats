@@ -6,7 +6,6 @@ import 'package:nimbus_design/nimbus_design.dart';
 
 import '../../../../l10n/app_localizations.dart';
 import '../../data/category_tree.dart';
-import 'icon_picker.dart';
 
 /// What a row's overflow menu can do.
 enum CategoryRowAction { rename, appearance, move, archive, unarchive, delete }
@@ -66,7 +65,7 @@ class CategoryRow extends StatelessWidget {
           // as well would only make a screen reader repeat itself.
           ExcludeSemantics(
             child: Icon(
-              categoryIconFor(category.iconKey),
+              nimbusIconFor(category.iconKey),
               color: Color(category.color),
             ),
           ),

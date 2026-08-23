@@ -71,5 +71,47 @@
   "seedCategoryTransportFuel": "Fuel",
   "seedCategoryTransportPublic": "Public transport",
   "seedCategoryTransportTaxi": "Taxi",
+  "tagCreateInline": "Create “{name}”",
+  "@tagCreateInline": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "tagDeleted": "Deleted {name}",
+  "@tagDeleted": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "tagEditTitle": "Edit tag",
+  "tagEmptyAction": "New tag",
+  "tagEmptyMessage": "Tags group expenses across categories, like travel or gift.",
+  "tagEmptyTitle": "No tags yet",
+  "tagErrorTitle": "Could not load tags",
+  "tagManagerTitle": "Tags",
+  "tagMoreCount": "+{count}",
+  "@tagMoreCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "tagNameLabel": "Name",
+  "tagNewTitle": "New tag",
+  "tagPickerSearchHint": "Search or create",
+  "tagPickerTitle": "Tags",
+  "tagUsageCount": "{count, plural, =1{1 use} other{{count} uses}}",
+  "@tagUsageCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "uncategorized": "Uncategorized"
 }

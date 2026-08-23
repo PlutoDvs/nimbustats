@@ -3,60 +3,46 @@ import 'package:nimbus_data/nimbus_data.dart';
 import 'package:nimbus_design/nimbus_design.dart';
 
 import '../../../../l10n/app_localizations.dart';
-import '../../data/category_repository.dart';
+import '../../data/tag_repository.dart';
 
-/// Opens the create/edit sheet.
-///
-/// One sheet for both, because they differ only in which fields start filled.
-/// [category] null means create; [parentId] is where a newly created node
-/// lands.
-Future<void> showCategoryEditorSheet(
+/// Opens the create/edit sheet for a tag.
+Future<void> showTagEditorSheet(
   BuildContext context, {
-  required CategoryRepository repository,
-  Category? category,
+  required TagRepository repository,
+  Tag? tag,
   String? parentId,
 }) =>
     showModalBottomSheet<void>(
       context: context,
-      // The sheet grows a keyboard and two wrapping pickers, so it has to be
-      // free to take more than half the screen rather than clipping.
       isScrollControlled: true,
-      builder: (context) => CategoryEditorSheet(
+      builder: (context) => TagEditorSheet(
         repository: repository,
-        category: category,
+        tag: tag,
         parentId: parentId,
       ),
     );
 
-class CategoryEditorSheet extends StatefulWidget {
-  const CategoryEditorSheet({
+class TagEditorSheet extends StatefulWidget {
+  const TagEditorSheet({
     super.key,
     required this.repository,
-    this.category,
+    this.tag,
     this.parentId,
   });
 
-  final CategoryRepository repository;
-  final Category? category;
+  final TagRepository repository;
+  final Tag? tag;
   final String? parentId;
 
   @override
-  State<CategoryEditorSheet> createState() => _CategoryEditorSheetState();
+  State<TagEditorSheet> createState() => _TagEditorSheetState();
 }
 
-class _CategoryEditorSheetState extends State<CategoryEditorSheet> {
+class _TagEditorSheetState extends State<TagEditorSheet> {
   late final TextEditingController _name =
-      TextEditingController(text: widget.category?.name ?? '');
-  late String _iconKey = widget.category?.iconKey ?? 'tag';
-  late int _color =
-      widget.category?.color ?? NimbusColors.defaultSwatch.toARGB32();
-
-  /// The system row can be recoloured but not renamed, so the field is
-  /// disabled rather than left to fail on save. The repository still guards
-  /// it; this is what stops the UI from offering the attempt.
-  bool get _nameEditable =>
-      widget.category == null ||
-      !SystemCategoryIds.isSystem(widget.category!.id);
+      TextEditingController(text: widget.tag?.name ?? '');
+  late String _iconKey = widget.tag?.iconKey ?? 'tag';
+  late int _color = widget.tag?.color ?? NimbusColors.defaultSwatch.toARGB32();
 
   @override
   void dispose() {
@@ -66,19 +52,16 @@ class _CategoryEditorSheetState extends State<CategoryEditorSheet> {
 
   Future<void> _save() async {
     final navigator = Navigator.of(context);
-    final existing = widget.category;
+    final existing = widget.tag;
     final name = _name.text.trim();
 
     if (existing == null) {
       if (name.isEmpty) return;
-      await widget.repository.create(
-        name: name,
-        parentId: widget.parentId,
-        iconKey: _iconKey,
-        color: _color,
-      );
+      // findOrCreate rather than create: someone typing a name that already
+      // exists means that tag, and a second row would split its history.
+      await widget.repository.findOrCreate(name, parentId: widget.parentId);
     } else {
-      if (_nameEditable && name.isNotEmpty && name != existing.name) {
+      if (name.isNotEmpty && name != existing.name) {
         await widget.repository.rename(existing.id, name);
       }
       if (_iconKey != existing.iconKey || _color != existing.color) {
@@ -107,20 +90,17 @@ class _CategoryEditorSheetState extends State<CategoryEditorSheet> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Text(
-              widget.category == null
-                  ? l10n.categoryNewTitle
-                  : l10n.categoryEditTitle,
+              widget.tag == null ? l10n.tagNewTitle : l10n.tagEditTitle,
               style: theme.textTheme.titleMedium,
             ),
             const SizedBox(height: NimbusTokens.space4),
             TextField(
-              key: const Key('category-name-field'),
+              key: const Key('tag-name-field'),
               controller: _name,
-              enabled: _nameEditable,
-              autofocus: _nameEditable,
+              autofocus: true,
               textInputAction: TextInputAction.done,
               decoration: InputDecoration(
-                labelText: l10n.categoryNameLabel,
+                labelText: l10n.tagNameLabel,
                 border: const OutlineInputBorder(),
               ),
               onSubmitted: (_) => _save(),
@@ -147,7 +127,7 @@ class _CategoryEditorSheetState extends State<CategoryEditorSheet> {
                 ),
                 const SizedBox(width: NimbusTokens.space2),
                 FilledButton(
-                  key: const Key('category-save'),
+                  key: const Key('tag-save'),
                   onPressed: _save,
                   child: Text(l10n.commonSave),
                 ),

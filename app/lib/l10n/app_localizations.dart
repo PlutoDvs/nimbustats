@@ -440,6 +440,90 @@ abstract class AppLocalizations {
   /// **'Taxi'**
   String get seedCategoryTransportTaxi;
 
+  /// No description provided for @tagCreateInline.
+  ///
+  /// In en, this message translates to:
+  /// **'Create “{name}”'**
+  String tagCreateInline(String name);
+
+  /// No description provided for @tagDeleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Deleted {name}'**
+  String tagDeleted(String name);
+
+  /// No description provided for @tagEditTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit tag'**
+  String get tagEditTitle;
+
+  /// No description provided for @tagEmptyAction.
+  ///
+  /// In en, this message translates to:
+  /// **'New tag'**
+  String get tagEmptyAction;
+
+  /// No description provided for @tagEmptyMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Tags group expenses across categories, like travel or gift.'**
+  String get tagEmptyMessage;
+
+  /// No description provided for @tagEmptyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No tags yet'**
+  String get tagEmptyTitle;
+
+  /// No description provided for @tagErrorTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load tags'**
+  String get tagErrorTitle;
+
+  /// No description provided for @tagManagerTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Tags'**
+  String get tagManagerTitle;
+
+  /// No description provided for @tagMoreCount.
+  ///
+  /// In en, this message translates to:
+  /// **'+{count}'**
+  String tagMoreCount(int count);
+
+  /// No description provided for @tagNameLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Name'**
+  String get tagNameLabel;
+
+  /// No description provided for @tagNewTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'New tag'**
+  String get tagNewTitle;
+
+  /// No description provided for @tagPickerSearchHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search or create'**
+  String get tagPickerSearchHint;
+
+  /// No description provided for @tagPickerTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Tags'**
+  String get tagPickerTitle;
+
+  /// No description provided for @tagUsageCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 use} other{{count} uses}}'**
+  String tagUsageCount(int count);
+
   /// No description provided for @uncategorized.
   ///
   /// In en, this message translates to:

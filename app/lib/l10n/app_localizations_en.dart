@@ -192,5 +192,62 @@ class AppLocalizationsEn extends AppLocalizations {
   String get seedCategoryTransportTaxi => 'Taxi';
 
   @override
+  String tagCreateInline(String name) {
+    return 'Create “$name”';
+  }
+
+  @override
+  String tagDeleted(String name) {
+    return 'Deleted $name';
+  }
+
+  @override
+  String get tagEditTitle => 'Edit tag';
+
+  @override
+  String get tagEmptyAction => 'New tag';
+
+  @override
+  String get tagEmptyMessage =>
+      'Tags group expenses across categories, like travel or gift.';
+
+  @override
+  String get tagEmptyTitle => 'No tags yet';
+
+  @override
+  String get tagErrorTitle => 'Could not load tags';
+
+  @override
+  String get tagManagerTitle => 'Tags';
+
+  @override
+  String tagMoreCount(int count) {
+    return '+$count';
+  }
+
+  @override
+  String get tagNameLabel => 'Name';
+
+  @override
+  String get tagNewTitle => 'New tag';
+
+  @override
+  String get tagPickerSearchHint => 'Search or create';
+
+  @override
+  String get tagPickerTitle => 'Tags';
+
+  @override
+  String tagUsageCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count uses',
+      one: '1 use',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String get uncategorized => 'Uncategorized';
 }

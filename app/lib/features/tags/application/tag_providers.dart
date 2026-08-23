@@ -24,3 +24,12 @@ final tagSuggestionsProvider = StreamProvider<List<Tag>>((ref) {
   ref.keepAlive();
   return ref.watch(tagRepositoryProvider).watchSuggestions();
 });
+
+/// Every live tag, ranked the same way, for the picker.
+///
+/// Unbounded on purpose: the picker has a search field, and a truncated list
+/// would hide the very tag someone is typing the name of.
+final tagPickerOptionsProvider = StreamProvider<List<Tag>>((ref) {
+  ref.keepAlive();
+  return ref.watch(tagRepositoryProvider).watchSuggestions(limit: null);
+});

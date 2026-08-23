@@ -1,7 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:nimbus_design/nimbus_design.dart';
+import '../colors.dart';
+import '../tokens.dart';
 
 /// The single place a stored icon key becomes an [IconData].
+///
+/// Shared by categories and tags, which both persist icon keys. Two maps would
+/// mean the same key rendering differently depending on which screen you were
+/// looking at.
 ///
 /// Icon keys are persisted, so they arrive from three directions that must all
 /// resolve identically: first-run seeding, a Phase 2 merchant rule, and a
@@ -9,7 +14,7 @@ import 'package:nimbus_design/nimbus_design.dart';
 ///
 /// Const `IconData` only -- these are all tree-shakeable constants, which is
 /// why the map is a literal rather than something built at runtime.
-const categoryIcons = <String, IconData>{
+const nimbusIcons = <String, IconData>{
   'tag': Icons.label_outline,
   'restaurant': Icons.restaurant,
   'restaurant_menu': Icons.restaurant_menu,
@@ -45,8 +50,8 @@ const categoryIcons = <String, IconData>{
 /// version's backup, say -- must not take the category manager down, so this
 /// degrades to a neutral glyph and the row still renders its name and its
 /// actions.
-IconData categoryIconFor(String key) =>
-    categoryIcons[key] ?? Icons.label_outline;
+IconData nimbusIconFor(String key) =>
+    nimbusIcons[key] ?? Icons.label_outline;
 
 /// A wrapping grid of selectable icons.
 class IconPicker extends StatelessWidget {
@@ -75,7 +80,7 @@ class IconPicker extends StatelessWidget {
         spacing: NimbusTokens.space2,
         runSpacing: NimbusTokens.space2,
         children: [
-          for (final entry in categoryIcons.entries)
+          for (final entry in nimbusIcons.entries)
             IconButton(
               key: Key('icon-option-${entry.key}'),
               icon: Icon(entry.value),

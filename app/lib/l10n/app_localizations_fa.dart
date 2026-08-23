@@ -192,5 +192,61 @@ class AppLocalizationsFa extends AppLocalizations {
   String get seedCategoryTransportTaxi => 'تاکسی';
 
   @override
+  String tagCreateInline(String name) {
+    return 'ساخت «$name»';
+  }
+
+  @override
+  String tagDeleted(String name) {
+    return '$name حذف شد';
+  }
+
+  @override
+  String get tagEditTitle => 'ویرایش برچسب';
+
+  @override
+  String get tagEmptyAction => 'برچسب جدید';
+
+  @override
+  String get tagEmptyMessage =>
+      'برچسب‌ها هزینه‌ها را فراتر از دسته‌بندی گروه‌بندی می‌کنند، مثل سفر یا هدیه.';
+
+  @override
+  String get tagEmptyTitle => 'هنوز برچسبی ندارید';
+
+  @override
+  String get tagErrorTitle => 'بارگذاری برچسب‌ها ممکن نشد';
+
+  @override
+  String get tagManagerTitle => 'برچسب‌ها';
+
+  @override
+  String tagMoreCount(int count) {
+    return '+$count';
+  }
+
+  @override
+  String get tagNameLabel => 'نام';
+
+  @override
+  String get tagNewTitle => 'برچسب جدید';
+
+  @override
+  String get tagPickerSearchHint => 'جست‌وجو یا ساخت';
+
+  @override
+  String get tagPickerTitle => 'برچسب‌ها';
+
+  @override
+  String tagUsageCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count بار استفاده',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String get uncategorized => 'دسته‌بندی‌نشده';
 }

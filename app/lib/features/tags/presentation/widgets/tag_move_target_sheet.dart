@@ -4,50 +4,46 @@ import 'package:flutter/material.dart';
 import 'package:nimbus_design/nimbus_design.dart';
 
 import '../../../../l10n/app_localizations.dart';
-import '../../data/category_repository.dart';
-import '../../data/category_tree.dart';
+import '../../data/tag_repository.dart';
+import '../../data/tag_tree.dart';
 
 /// Opens the "Move to…" sheet for [moving].
-Future<void> showMoveTargetSheet(
+Future<void> showTagMoveTargetSheet(
   BuildContext context, {
-  required CategoryRepository repository,
-  required List<CategoryNode> tree,
-  required CategoryNode moving,
+  required TagRepository repository,
+  required List<TagNode> tree,
+  required TagNode moving,
 }) =>
     showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
-      builder: (context) => MoveTargetSheet(
+      builder: (context) => TagMoveTargetSheet(
         repository: repository,
         tree: tree,
         moving: moving,
       ),
     );
 
-/// Every category as a flat, indented list of drop targets, plus the root.
+/// Drop targets for re-parenting a tag, invalid ones disabled up front.
 ///
-/// Targets that would produce an invalid tree are rendered disabled rather
-/// than accepted and then undone: the screen contract calls surfacing an
-/// invalid drop as an after-the-fact error toast unacceptable, and
-/// [CategoryTree.canMove] answers the question without touching the database.
-///
-/// This is also what makes re-parenting reachable without a drag, which is the
-/// only way it works for anyone using a screen reader or switch control.
-class MoveTargetSheet extends StatelessWidget {
-  const MoveTargetSheet({
+/// Same rule as the category manager: an invalid drop is refused before it
+/// happens rather than undone afterwards, and this sheet is also how the move
+/// is reachable without a drag at all.
+class TagMoveTargetSheet extends StatelessWidget {
+  const TagMoveTargetSheet({
     super.key,
     required this.repository,
     required this.tree,
     required this.moving,
   });
 
-  final CategoryRepository repository;
-  final List<CategoryNode> tree;
-  final CategoryNode moving;
+  final TagRepository repository;
+  final List<TagNode> tree;
+  final TagNode moving;
 
   Future<void> _moveTo(BuildContext context, String? parentId) async {
     final navigator = Navigator.of(context);
-    await repository.move(moving.category.id, parentId);
+    await repository.move(moving.value.id, parentId);
     navigator.pop();
   }
 
@@ -55,9 +51,9 @@ class MoveTargetSheet extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final theme = Theme.of(context);
-    final rootEnabled = CategoryTree.canMove(
+    final rootEnabled = TagTree.canMove(
       tree: tree,
-      id: moving.category.id,
+      id: moving.value.id,
       newParentId: null,
     );
 
@@ -68,19 +64,17 @@ class MoveTargetSheet extends StatelessWidget {
         children: [
           Padding(
             padding: const EdgeInsets.all(NimbusTokens.space4),
-            child: Text(
-              l10n.commonMoveTo,
-              style: theme.textTheme.titleMedium,
-            ),
+            child:
+                Text(l10n.commonMoveTo, style: theme.textTheme.titleMedium),
           ),
           ListTile(
-            key: const Key('move-target-root'),
+            key: const Key('tag-move-target-root'),
             enabled: rootEnabled,
             leading: const Icon(Icons.vertical_align_top),
             title: Text(l10n.categoryMoveToRoot),
             onTap: rootEnabled ? () => _moveTo(context, null) : null,
           ),
-          for (final node in CategoryTree.flatten(tree))
+          for (final node in TagTree.flatten(tree))
             _target(context, l10n, node),
         ],
       ),
@@ -90,21 +84,19 @@ class MoveTargetSheet extends StatelessWidget {
   Widget _target(
     BuildContext context,
     AppLocalizations l10n,
-    CategoryNode node,
+    TagNode node,
   ) {
-    final enabled = CategoryTree.canMove(
+    final enabled = TagTree.canMove(
       tree: tree,
-      id: moving.category.id,
-      newParentId: node.category.id,
+      id: moving.value.id,
+      newParentId: node.value.id,
     );
     final indent = math.min(node.depth, NimbusTokens.maxTreeIndentDepth) *
         NimbusTokens.indentPerLevel;
 
     return ListTile(
-      key: Key('move-target-${node.category.id}'),
+      key: Key('tag-move-target-${node.value.id}'),
       enabled: enabled,
-      // Why it is unavailable, rather than leaving the user to guess -- a
-      // dimmed row with no explanation reads as a bug.
       subtitle: enabled ? null : Text(l10n.categoryMoveInvalid),
       leading: Row(
         mainAxisSize: MainAxisSize.min,
@@ -112,18 +104,15 @@ class MoveTargetSheet extends StatelessWidget {
           SizedBox(width: indent),
           ExcludeSemantics(
             child: Icon(
-              nimbusIconFor(node.category.iconKey),
-              color: Color(node.category.color),
+              nimbusIconFor(node.value.iconKey),
+              color: Color(node.value.color),
             ),
           ),
         ],
       ),
-      title: Text(
-        node.category.name,
-        maxLines: 1,
-        overflow: TextOverflow.ellipsis,
-      ),
-      onTap: enabled ? () => _moveTo(context, node.category.id) : null,
+      title:
+          Text(node.value.name, maxLines: 1, overflow: TextOverflow.ellipsis),
+      onTap: enabled ? () => _moveTo(context, node.value.id) : null,
     );
   }
 }

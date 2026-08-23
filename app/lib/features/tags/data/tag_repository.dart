@@ -23,22 +23,24 @@ final class TagRepository {
   /// "stop offering me this" without losing what it already labels.
   ///
   /// Bounded by [limit]: an unbounded suggestion list is a list nobody reads.
-  Future<List<Tag>> suggestions({int limit = 8}) async =>
+  Future<List<Tag>> suggestions({int? limit = 8}) async =>
       _ranked(await _dao.allLive(includeArchived: false), limit);
 
   /// [suggestions] as a stream, so a tag created inline while adding an
   /// expense changes what the next expense is offered without anyone
   /// remembering to invalidate anything.
-  Stream<List<Tag>> watchSuggestions({int limit = 8}) => _dao
+  Stream<List<Tag>> watchSuggestions({int? limit = 8}) => _dao
       .watchAll(includeArchived: false)
       .map((live) => _ranked(live, limit));
 
-  static List<Tag> _ranked(List<Tag> live, int limit) {
+  /// A null [limit] means every live tag, which is what the picker wants:
+  /// it is searchable, so truncating it would hide tags the user typed at.
+  static List<Tag> _ranked(List<Tag> live, int? limit) {
     final ranked = [...live]..sort((a, b) {
         final byUsage = b.usageCount.compareTo(a.usageCount);
         return byUsage != 0 ? byUsage : b.updatedAt.compareTo(a.updatedAt);
       });
-    return ranked.take(limit).toList();
+    return limit == null ? ranked : ranked.take(limit).toList();
   }
 
   /// Returns the tag called [name] under [parentId], creating it if it is not
