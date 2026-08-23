@@ -117,6 +117,60 @@ class AppLocalizationsEn extends AppLocalizations {
   String get currency_usd => 'USD';
 
   @override
+  String payDeleted(String name) {
+    return 'Deleted $name';
+  }
+
+  @override
+  String get payEditTitle => 'Edit payment method';
+
+  @override
+  String get payEmptyAction => 'New payment method';
+
+  @override
+  String get payEmptyMessage =>
+      'Add cash, a card, or a bank account to see where your money goes out from.';
+
+  @override
+  String get payEmptyTitle => 'No payment methods';
+
+  @override
+  String get payErrorTitle => 'Could not load payment methods';
+
+  @override
+  String get payKindBank => 'Bank';
+
+  @override
+  String get payKindCard => 'Card';
+
+  @override
+  String get payKindCash => 'Cash';
+
+  @override
+  String get payKindLabel => 'Type';
+
+  @override
+  String get payKindOther => 'Other';
+
+  @override
+  String get payLast4Invalid => 'Enter exactly four digits';
+
+  @override
+  String get payLast4Label => 'Last 4 digits';
+
+  @override
+  String get payManagerTitle => 'Payment methods';
+
+  @override
+  String get payNameLabel => 'Name';
+
+  @override
+  String get payNewTitle => 'New payment method';
+
+  @override
+  String get payNone => 'None';
+
+  @override
   String get seedCategoryEducation => 'Education';
 
   @override

@@ -117,6 +117,60 @@ class AppLocalizationsFa extends AppLocalizations {
   String get currency_usd => 'دلار';
 
   @override
+  String payDeleted(String name) {
+    return '$name حذف شد';
+  }
+
+  @override
+  String get payEditTitle => 'ویرایش روش پرداخت';
+
+  @override
+  String get payEmptyAction => 'روش پرداخت جدید';
+
+  @override
+  String get payEmptyMessage =>
+      'نقدی، کارت یا حساب بانکی اضافه کنید تا ببینید پول از کجا خارج می‌شود.';
+
+  @override
+  String get payEmptyTitle => 'روش پرداختی ثبت نشده';
+
+  @override
+  String get payErrorTitle => 'بارگذاری روش‌های پرداخت ممکن نشد';
+
+  @override
+  String get payKindBank => 'بانک';
+
+  @override
+  String get payKindCard => 'کارت';
+
+  @override
+  String get payKindCash => 'نقدی';
+
+  @override
+  String get payKindLabel => 'نوع';
+
+  @override
+  String get payKindOther => 'سایر';
+
+  @override
+  String get payLast4Invalid => 'دقیقاً چهار رقم وارد کنید';
+
+  @override
+  String get payLast4Label => 'چهار رقم آخر';
+
+  @override
+  String get payManagerTitle => 'روش‌های پرداخت';
+
+  @override
+  String get payNameLabel => 'نام';
+
+  @override
+  String get payNewTitle => 'روش پرداخت جدید';
+
+  @override
+  String get payNone => 'هیچ‌کدام';
+
+  @override
   String get seedCategoryEducation => 'آموزش';
 
   @override

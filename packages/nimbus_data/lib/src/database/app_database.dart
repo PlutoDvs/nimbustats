@@ -71,6 +71,7 @@ class AppDatabase extends _$AppDatabase {
   late final CategoriesDao categoriesDao = CategoriesDao(this);
   late final TagsDao tagsDao = TagsDao(this);
   late final TransactionsDao transactionsDao = TransactionsDao(this);
+  late final PaymentMethodsDao paymentMethodsDao = PaymentMethodsDao(this);
 }
 
 /// Application settings. Reads return null for an absent key rather than
@@ -412,6 +413,117 @@ class CategoriesDao {
         );
       }
     });
+  }
+}
+
+/// Payment methods.
+///
+/// Flat, unlike categories and tags: a payment method answers "where did this
+/// go out from", and nothing in this app ever needs one nested inside another.
+/// There are no balances and no reconciliation either, by design -- nothing
+/// here has to be made to add up.
+class PaymentMethodsDao {
+  PaymentMethodsDao(this._db);
+
+  final AppDatabase _db;
+
+  Future<PaymentMethod?> byId(String id) =>
+      (_db.select(_db.paymentMethods)..where((t) => t.id.equals(id)))
+          .getSingleOrNull();
+
+  /// The live query behind both [allLive] and [watchAll], so a one-shot read
+  /// and a stream cannot disagree about what "live" means.
+  SimpleSelectStatement<$PaymentMethodsTable, PaymentMethod> _liveQuery({
+    required bool includeArchived,
+  }) {
+    final query = _db.select(_db.paymentMethods)
+      ..where((t) => t.deletedAt.isNull())
+      ..orderBy([(t) => OrderingTerm.asc(t.name)]);
+    if (!includeArchived) query.where((t) => t.archived.equals(false));
+    return query;
+  }
+
+  Future<List<PaymentMethod>> allLive({bool includeArchived = true}) =>
+      _liveQuery(includeArchived: includeArchived).get();
+
+  Stream<List<PaymentMethod>> watchAll({bool includeArchived = true}) =>
+      _liveQuery(includeArchived: includeArchived).watch();
+
+  /// Inserts a method.
+  ///
+  /// [last4] is constrained to exactly four characters by the column itself,
+  /// so a caller that bypasses the repository still cannot store a full card
+  /// number. The repository is what makes sure those four characters are
+  /// Latin digits.
+  Future<void> insertMethod({
+    required String id,
+    required String name,
+    required PaymentMethodKind kind,
+    String? last4,
+    int color = 0xFF9E9E9E,
+    String iconKey = 'card',
+  }) async {
+    final now = DateTime.now().millisecondsSinceEpoch;
+    await _db.into(_db.paymentMethods).insert(
+          PaymentMethodsCompanion.insert(
+            id: id,
+            name: name,
+            kind: kind,
+            last4: Value(last4),
+            color: Value(color),
+            iconKey: Value(iconKey),
+            createdAt: now,
+            updatedAt: now,
+          ),
+        );
+  }
+
+  /// Named [updateMethod] rather than `update` to pair with [insertMethod],
+  /// and so it never reads as drift's own `update`.
+  Future<void> updateMethod(
+    String id, {
+    String? name,
+    PaymentMethodKind? kind,
+    String? last4,
+    int? color,
+    String? iconKey,
+  }) =>
+      (_db.update(_db.paymentMethods)..where((t) => t.id.equals(id))).write(
+        PaymentMethodsCompanion(
+          name: name == null ? const Value.absent() : Value(name),
+          kind: kind == null ? const Value.absent() : Value(kind),
+          last4: last4 == null ? const Value.absent() : Value(last4),
+          color: color == null ? const Value.absent() : Value(color),
+          iconKey: iconKey == null ? const Value.absent() : Value(iconKey),
+          updatedAt: Value(DateTime.now().millisecondsSinceEpoch),
+        ),
+      );
+
+  Future<void> setArchived(String id, bool archived) =>
+      (_db.update(_db.paymentMethods)..where((t) => t.id.equals(id))).write(
+        PaymentMethodsCompanion(
+          archived: Value(archived),
+          updatedAt: Value(DateTime.now().millisecondsSinceEpoch),
+        ),
+      );
+
+  Future<void> softDelete(String id) {
+    final now = DateTime.now().millisecondsSinceEpoch;
+    return (_db.update(_db.paymentMethods)..where((t) => t.id.equals(id)))
+        .write(PaymentMethodsCompanion(
+      deletedAt: Value(now),
+      updatedAt: Value(now),
+    ));
+  }
+
+  Future<void> restoreAll(List<String> ids) async {
+    if (ids.isEmpty) return;
+    await (_db.update(_db.paymentMethods)..where((t) => t.id.isIn(ids))).write(
+      PaymentMethodsCompanion(
+        deletedAt: const Value(null),
+        updatedAt: Value(DateTime.now().millisecondsSinceEpoch),
+      ),
+    );
   }
 }
 

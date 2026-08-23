@@ -290,6 +290,108 @@ abstract class AppLocalizations {
   /// **'USD'**
   String get currency_usd;
 
+  /// No description provided for @payDeleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Deleted {name}'**
+  String payDeleted(String name);
+
+  /// No description provided for @payEditTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit payment method'**
+  String get payEditTitle;
+
+  /// No description provided for @payEmptyAction.
+  ///
+  /// In en, this message translates to:
+  /// **'New payment method'**
+  String get payEmptyAction;
+
+  /// No description provided for @payEmptyMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Add cash, a card, or a bank account to see where your money goes out from.'**
+  String get payEmptyMessage;
+
+  /// No description provided for @payEmptyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No payment methods'**
+  String get payEmptyTitle;
+
+  /// No description provided for @payErrorTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load payment methods'**
+  String get payErrorTitle;
+
+  /// No description provided for @payKindBank.
+  ///
+  /// In en, this message translates to:
+  /// **'Bank'**
+  String get payKindBank;
+
+  /// No description provided for @payKindCard.
+  ///
+  /// In en, this message translates to:
+  /// **'Card'**
+  String get payKindCard;
+
+  /// No description provided for @payKindCash.
+  ///
+  /// In en, this message translates to:
+  /// **'Cash'**
+  String get payKindCash;
+
+  /// No description provided for @payKindLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Type'**
+  String get payKindLabel;
+
+  /// No description provided for @payKindOther.
+  ///
+  /// In en, this message translates to:
+  /// **'Other'**
+  String get payKindOther;
+
+  /// No description provided for @payLast4Invalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter exactly four digits'**
+  String get payLast4Invalid;
+
+  /// No description provided for @payLast4Label.
+  ///
+  /// In en, this message translates to:
+  /// **'Last 4 digits'**
+  String get payLast4Label;
+
+  /// No description provided for @payManagerTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment methods'**
+  String get payManagerTitle;
+
+  /// No description provided for @payNameLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Name'**
+  String get payNameLabel;
+
+  /// No description provided for @payNewTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'New payment method'**
+  String get payNewTitle;
+
+  /// No description provided for @payNone.
+  ///
+  /// In en, this message translates to:
+  /// **'None'**
+  String get payNone;
+
   /// No description provided for @seedCategoryEducation.
   ///
   /// In en, this message translates to:

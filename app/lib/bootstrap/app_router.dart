@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../features/categories/routes.dart';
+import '../features/payment_methods/routes.dart';
 import '../features/tags/routes.dart';
 
 /// Composes the per-feature route lists into the app's router.
@@ -22,11 +23,11 @@ final appRouterProvider =
     routes: <RouteBase>[
       // Feature route lists are appended here, one per line, as each lands:
       //   ...transactionRoutes    (Task 12)
-      //   ...paymentMethodRoutes  (Task 9)
       //   ...settingsRoutes       (Task 15)
       //   ...onboardingRoutes     (Task 15)
       ...categoryRoutes,
       ...tagRoutes,
+      ...paymentMethodRoutes,
       GoRoute(
         path: '/',
         name: 'home',

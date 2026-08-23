@@ -46,6 +46,30 @@
   "currency_toman": "Toman",
   "currency_try": "TRY",
   "currency_usd": "USD",
+  "payDeleted": "Deleted {name}",
+  "@payDeleted": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "payEditTitle": "Edit payment method",
+  "payEmptyAction": "New payment method",
+  "payEmptyMessage": "Add cash, a card, or a bank account to see where your money goes out from.",
+  "payEmptyTitle": "No payment methods",
+  "payErrorTitle": "Could not load payment methods",
+  "payKindBank": "Bank",
+  "payKindCard": "Card",
+  "payKindCash": "Cash",
+  "payKindLabel": "Type",
+  "payKindOther": "Other",
+  "payLast4Invalid": "Enter exactly four digits",
+  "payLast4Label": "Last 4 digits",
+  "payManagerTitle": "Payment methods",
+  "payNameLabel": "Name",
+  "payNewTitle": "New payment method",
+  "payNone": "None",
   "seedCategoryEducation": "Education",
   "seedCategoryEntertainment": "Entertainment",
   "seedCategoryFood": "Food & drink",
