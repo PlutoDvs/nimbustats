@@ -771,6 +771,12 @@ class TagsDao {
 }
 
 /// Transactions and their tag links.
+/// A keyset cursor: the last row a page returned.
+///
+/// Declared here so `nimbus_data` and `app` name the same shape rather than
+/// each inventing its own pair.
+typedef TransactionCursorRow = ({DateKey dateKey, String id});
+
 class TransactionsDao {
   TransactionsDao(this._db);
 
@@ -789,6 +795,10 @@ class TransactionsDao {
     String? paymentMethodId,
     String? merchant,
     String? note,
+    int tzOffsetMinutes = 0,
+    Necessity? necessity,
+    Satisfaction? satisfaction,
+    String? captureId,
   }) async {
     final now = DateTime.now().millisecondsSinceEpoch;
     await _db.into(_db.transactions).insert(
@@ -799,12 +809,16 @@ class TransactionsDao {
             currencyCode: currencyCode,
             occurredAtUtc: occurredAtUtc,
             localDateKey: localDateKey,
+            tzOffsetMinutes: Value(tzOffsetMinutes),
             categoryId: categoryId,
             source: source,
             isConfirmed: Value(isConfirmed),
             paymentMethodId: Value(paymentMethodId),
             merchant: Value(merchant),
             note: Value(note),
+            necessity: Value(necessity),
+            satisfaction: Value(satisfaction),
+            captureId: Value(captureId),
             createdAt: now,
             updatedAt: now,
           ),
@@ -875,6 +889,191 @@ class TransactionsDao {
           ..where((t) => t.transactionId.equals(transactionId)))
         .get();
     return rows.map((r) => r.tagId).toList();
+  }
+
+  /// Keyset pagination over `(local_date_key DESC, id DESC)`.
+  ///
+  /// Not LIMIT/OFFSET. Offset re-counts every skipped row on each page, so it
+  /// degrades exactly when the user has enough history for the app to be worth
+  /// using -- and it repeats or drops rows whenever a write lands between two
+  /// page fetches, which for this app is the normal case rather than the edge.
+  ///
+  /// UUIDv7 ids are time-ordered, so `id` is a meaningful tiebreaker within a
+  /// day rather than an arbitrary one.
+  Future<List<Transaction>> pageAfter({
+    required DateRange range,
+    TransactionCursorRow? after,
+    int limit = 40,
+    TxDirection? direction,
+    String? categoryId,
+    String? searchText,
+    bool confirmedOnly = false,
+  }) {
+    final query = _db.select(_db.transactions)
+      ..where((t) => t.deletedAt.isNull())
+      ..where((t) => t.localDateKey.isBetweenValues(
+            range.startInclusive.value,
+            range.endInclusive.value,
+          ))
+      ..orderBy([
+        (t) => OrderingTerm.desc(t.localDateKey),
+        (t) => OrderingTerm.desc(t.id),
+      ])
+      ..limit(limit);
+
+    if (after != null) {
+      query.where((t) =>
+          t.localDateKey.isSmallerThanValue(after.dateKey.value) |
+          (t.localDateKey.equals(after.dateKey.value) &
+              t.id.isSmallerThanValue(after.id)));
+    }
+    if (direction != null) {
+      query.where((t) => t.direction.equalsValue(direction));
+    }
+    if (categoryId != null) query.where((t) => t.categoryId.equals(categoryId));
+    if (confirmedOnly) query.where((t) => t.isConfirmed.equals(true));
+
+    final needle = searchText?.trim();
+    if (needle != null && needle.isNotEmpty) {
+      // Wildcards in user input match literally. A backslash escapes `%`, `_`,
+      // and itself, and SQLite needs the ESCAPE clause spelled out for that to
+      // hold -- without it, someone typing `%` matches every row they own and
+      // the search silently stops being a search.
+      final escaped = needle
+          .replaceAll(r'\', r'\\')
+          .replaceAll('%', r'\%')
+          .replaceAll('_', r'\_');
+      final pattern = '%$escaped%';
+      query.where((t) =>
+          t.merchant.like(pattern, escapeChar: r'\') |
+          t.note.like(pattern, escapeChar: r'\'));
+    }
+    return query.get();
+  }
+
+  /// A period total as one SUM.
+  ///
+  /// [totalInRange] pulls every row across the boundary and adds them in Dart,
+  /// which was fine at Phase 0 volumes and is not fine at five thousand.
+  Future<Money> sumInRange(
+    DateRange range, {
+    TxDirection? direction,
+    bool confirmedOnly = false,
+  }) async {
+    final total = _db.transactions.amount.sum();
+    final query = _db.selectOnly(_db.transactions)..addColumns([total]);
+    var predicate = _db.transactions.deletedAt.isNull() &
+        _db.transactions.localDateKey.isBetweenValues(
+          range.startInclusive.value,
+          range.endInclusive.value,
+        );
+    if (direction != null) {
+      predicate = predicate & _db.transactions.direction.equalsValue(direction);
+    }
+    if (confirmedOnly) {
+      predicate = predicate & _db.transactions.isConfirmed.equals(true);
+    }
+    query.where(predicate);
+    final row = await query.getSingle();
+    // The sum comes back as raw minor units -- SQL adds integers, and the
+    // column's converter applies per row, not to an aggregate. Wrapped here so
+    // the value is Money before it leaves this method and never spends a
+    // moment as a number that could be mistaken for a double.
+    //
+    // An empty range sums to NULL in SQL, which is zero money, not an error.
+    return Money(row.read(total) ?? 0);
+  }
+
+  /// Writes every mutable field. An argument left null is left alone.
+  Future<void> updateTransaction(
+    String id, {
+    Money? amount,
+    TxDirection? direction,
+    String? categoryId,
+    int? occurredAtUtc,
+    DateKey? localDateKey,
+    int? tzOffsetMinutes,
+    String? paymentMethodId,
+    String? merchant,
+    String? note,
+    Necessity? necessity,
+    Satisfaction? satisfaction,
+    bool? isConfirmed,
+  }) =>
+      (_db.update(_db.transactions)..where((t) => t.id.equals(id))).write(
+        TransactionsCompanion(
+          amount: amount == null ? const Value.absent() : Value(amount),
+          direction:
+              direction == null ? const Value.absent() : Value(direction),
+          categoryId:
+              categoryId == null ? const Value.absent() : Value(categoryId),
+          occurredAtUtc: occurredAtUtc == null
+              ? const Value.absent()
+              : Value(occurredAtUtc),
+          localDateKey:
+              localDateKey == null ? const Value.absent() : Value(localDateKey),
+          tzOffsetMinutes: tzOffsetMinutes == null
+              ? const Value.absent()
+              : Value(tzOffsetMinutes),
+          paymentMethodId: paymentMethodId == null
+              ? const Value.absent()
+              : Value(paymentMethodId),
+          merchant: merchant == null ? const Value.absent() : Value(merchant),
+          note: note == null ? const Value.absent() : Value(note),
+          necessity:
+              necessity == null ? const Value.absent() : Value(necessity),
+          satisfaction: satisfaction == null
+              ? const Value.absent()
+              : Value(satisfaction),
+          isConfirmed:
+              isConfirmed == null ? const Value.absent() : Value(isConfirmed),
+          updatedAt: Value(DateTime.now().millisecondsSinceEpoch),
+        ),
+      );
+
+  Future<void> softDelete(String id) {
+    final now = DateTime.now().millisecondsSinceEpoch;
+    return (_db.update(_db.transactions)..where((t) => t.id.equals(id)))
+        .write(TransactionsCompanion(
+      deletedAt: Value(now),
+      updatedAt: Value(now),
+    ));
+  }
+
+  Future<void> restore(String id) =>
+      (_db.update(_db.transactions)..where((t) => t.id.equals(id))).write(
+        TransactionsCompanion(
+          deletedAt: const Value(null),
+          updatedAt: Value(DateTime.now().millisecondsSinceEpoch),
+        ),
+      );
+
+  /// The most recent category choices, newest first -- the raw material the
+  /// Phase 1 category predictor ranks.
+  ///
+  /// Returns only the three fields the predictor reads rather than whole rows,
+  /// so a prediction never drags an amount or a note across the boundary.
+  Future<List<({String categoryId, String? merchant, DateTime occurredAt})>>
+      recentCategoryUsage({int limit = 200}) async {
+    final query = _db.select(_db.transactions)
+      ..where((t) => t.deletedAt.isNull())
+      ..orderBy([
+        (t) => OrderingTerm.desc(t.localDateKey),
+        (t) => OrderingTerm.desc(t.id),
+      ])
+      ..limit(limit);
+    final rows = await query.get();
+    return [
+      for (final row in rows)
+        (
+          categoryId: row.categoryId,
+          merchant: row.merchant,
+          occurredAt: DateTime.fromMillisecondsSinceEpoch(
+            row.occurredAtUtc,
+            isUtc: true,
+          ),
+        ),
+    ];
   }
 
   /// A hard delete. `transaction_tags.transaction_id` is ON DELETE CASCADE, so
