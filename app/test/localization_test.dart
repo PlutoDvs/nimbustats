@@ -58,4 +58,30 @@ void main() {
     final fa = keysOf('lib/l10n/app_fa.arb');
     expect(fa, en, reason: 'fa and en must define the same message keys');
   });
+
+  test('no ARB value is left as its English text in the Persian bundle', () {
+    // gen_l10n does not fail on an untranslated string, so a key copied across
+    // and forgotten looks fine right up until a Farsi user sees English.
+    Map<String, String> valuesOf(String path) {
+      final decoded =
+          jsonDecode(File(path).readAsStringSync()) as Map<String, dynamic>;
+      return {
+        for (final entry in decoded.entries)
+          if (!entry.key.startsWith('@')) entry.key: entry.value as String,
+      };
+    }
+
+    final en = valuesOf('lib/l10n/app_en.arb');
+    final fa = valuesOf('lib/l10n/app_fa.arb');
+    // Brand names and format-only strings legitimately match across bundles.
+    const allowed = {'appTitle', 'tagMoreCount'};
+
+    final untranslated = <String>[];
+    for (final key in en.keys) {
+      if (allowed.contains(key)) continue;
+      if (en[key] == fa[key]) untranslated.add(key);
+    }
+    expect(untranslated, isEmpty,
+        reason: 'these keys are still English in the fa bundle: $untranslated');
+  });
 }

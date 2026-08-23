@@ -41,7 +41,7 @@ Single source of truth. Update it in the commit that finishes a phase.
 | Phase | Brief | Status | Gate tag |
 |---|---|---|---|
 | 0 — Foundation | [phase-0-foundation.md](phase-0-foundation.md) | **Complete** (2026-08-21) | `phase-0-complete` |
-| 1 — Expenses | [phase-1-expenses.md](phase-1-expenses.md) | Ready | `phase-1-complete` |
+| 1 — Expenses | [phase-1-expenses.md](phase-1-expenses.md) | **Code complete, gate blocked** (2026-08-24) — all 16 tasks shipped and green; 4 of 10 UX criteria need hardware and are blocked by [D1](DEFERRED.md#d1--android-build-unverified-google-maven-unreachable) | `phase-1-complete` |
 | 2 — Capture | [phase-2-capture.md](phase-2-capture.md) | Ready | `phase-2-complete` |
 | 3 — Analytics | [phase-3-analytics.md](phase-3-analytics.md) | Blocked on 1 | `phase-3-complete` |
 | 4 — Trackers | [phase-4-trackers.md](phase-4-trackers.md) | Blocked on 1 | `phase-4-complete` |

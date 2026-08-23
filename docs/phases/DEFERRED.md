@@ -61,6 +61,9 @@ country or provider. Then:
 cd app && flutter build apk --debug
 ```
 
+**Rechecked 2026-08-24:** still 404. Phase 1's code is complete and green
+(342 tests) but its gate tag is withheld on this alone.
+
 **What stays unverifiable until then:** the four hardware UX acceptance
 criteria in Phase 1 Task 16 — cold start under 1 s, 60 fps on 5,000 rows, any
 expense in 5 s, and the three-tap path confirmed on a device. Phase 1 cannot be

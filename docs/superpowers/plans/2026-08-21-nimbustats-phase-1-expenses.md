@@ -4835,16 +4835,50 @@ means the phase is not done.
 
 | Criterion | Target | Measured | Verified by |
 |---|---|---|---|
-| Repeat purchase | ≤ 3 taps | | widget test + device |
-| Any expense | ≤ 5 s | | device stopwatch |
-| Cold start to usable list | < 1 s | | `am start -W` ×5 |
-| List frame times | 60 fps at 5,000 rows | | DevTools |
-| Amount is the only required field | pass | | widget test |
-| Keypad opens focused on amount | pass | | widget test |
-| No spinner on save | pass | | widget test |
-| Undo, never confirm | pass | | `ux_rules_test.dart` |
-| Primary actions in bottom third | pass | | widget test |
-| Haptic on capture | pass | | widget test |
+| Repeat purchase | ≤ 3 taps | **3 taps** (software) | `add_transaction_screen_test.dart` — "a repeat purchase takes three taps" |
+| Any expense | ≤ 5 s | **not measured — blocked by D1** | device stopwatch |
+| Cold start to usable list | < 1 s | **not measured — blocked by D1** | `am start -W` ×5 |
+| List frame times | 60 fps at 5,000 rows | **not measured — blocked by D1** | DevTools |
+| Amount is the only required field | pass | **pass** | `add_transaction_screen_test.dart` |
+| Keypad opens focused on amount | pass | **pass** | `add_transaction_screen_test.dart` |
+| No spinner on save | pass | **pass** | `add_transaction_screen_test.dart` |
+| Undo, never confirm | pass | **pass** | `ux_rules_test.dart` — source-level, whole `lib/` |
+| Primary actions in bottom third | pass | **pass** | `add_transaction_screen_test.dart` |
+| Haptic on capture | pass | **pass** | `add_transaction_screen_test.dart` |
+
+**Six of ten measured. The remaining four need hardware and are blocked by
+deferred item D1** — Google Maven is unreachable from this network, so the
+Android toolchain has never resolved AGP and no APK has ever been built. Those
+four are the reason `phase-1-complete` is not tagged: the phase's own definition
+of done requires them measured on a device rather than on an emulator, and
+writing "probably fine" in this table would defeat the purpose of the table.
+
+Rechecked 2026-08-24: `maven.google.com/androidx/core/core/1.13.1/core-1.13.1.pom`
+still returns 404 with the ~1449-byte interception body. The moment that returns
+200, the runbook in Step 4 is what closes this out.
+
+### Definition-of-done gate, run 2026-08-24
+
+| Suite | Result |
+|---|---|
+| `dart analyze --fatal-infos` (workspace) | clean |
+| `flutter analyze` (`app`, `nimbus_design`) | clean |
+| `test/architecture_test.dart` | 4 passed |
+| `nimbus_domain` | 67 passed |
+| `nimbus_data` | 80 passed |
+| `nimbus_design` | 20 passed |
+| `app` | 171 passed |
+| **Total** | **342 passed** |
+
+Structural claims re-verified by grep and by test, not by review:
+
+- `insertTransaction` appears nowhere in `app/lib` outside
+  `data/transaction_repository.dart` — the single-write-path guarantee holds.
+- `ux_rules_test.dart` proves no confirmation dialog, no DAO reference from a
+  presentation file, no raw `Color(0x…)` literal outside `nimbus_design`, and
+  no `drift`/`sqlite3` import anywhere in the app package.
+- Schema stayed at **v1**. Phase 0 created every table Phase 1 needed, exactly
+  as the brief predicted; no version was consumed from the v2–v9 reservation.
 
 - [ ] **Step 6: Reconcile the screen contract**
 
