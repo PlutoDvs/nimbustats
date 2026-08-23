@@ -137,5 +137,17 @@
       }
     }
   },
+  "txAmountInvalid": "Enter a valid amount",
+  "txCategoryMore": "More…",
+  "txDateLabel": "Date",
+  "txDirectionExpense": "Expense",
+  "txDirectionIncome": "Income",
+  "txMerchantLabel": "Merchant",
+  "txMoreDetails": "More details",
+  "txNoteLabel": "Note",
+  "txPaymentMethodLabel": "Payment method",
+  "txSaveFailed": "Could not save",
+  "txSaved": "Saved",
+  "txTagsLabel": "Tags",
   "uncategorized": "Uncategorized"
 }

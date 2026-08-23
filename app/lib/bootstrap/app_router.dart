@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../features/categories/routes.dart';
 import '../features/payment_methods/routes.dart';
 import '../features/tags/routes.dart';
+import '../features/transactions/routes.dart';
 
 /// Composes the per-feature route lists into the app's router.
 ///
@@ -22,9 +23,9 @@ final appRouterProvider =
     initialLocation: initialLocation ?? '/',
     routes: <RouteBase>[
       // Feature route lists are appended here, one per line, as each lands:
-      //   ...transactionRoutes    (Task 12)
       //   ...settingsRoutes       (Task 15)
       //   ...onboardingRoutes     (Task 15)
+      ...transactionRoutes,
       ...categoryRoutes,
       ...tagRoutes,
       ...paymentMethodRoutes,
@@ -46,8 +47,17 @@ class ShellPlaceholder extends StatelessWidget {
   const ShellPlaceholder({super.key});
 
   @override
-  Widget build(BuildContext context) =>
-      const Scaffold(body: Center(child: Text('NimbuStats')));
+  Widget build(BuildContext context) => Scaffold(
+        body: const Center(child: Text('NimbuStats')),
+        // The first tap of the three-tap golden path. Lives here until Task 13
+        // replaces this placeholder with the real list, which keeps the same
+        // key so the tap-count test carries over unchanged.
+        floatingActionButton: FloatingActionButton(
+          key: const Key('tx-add-fab'),
+          onPressed: () => context.push(addTransactionRoute),
+          child: const Icon(Icons.add),
+        ),
+      );
 }
 
 /// The router's error state.

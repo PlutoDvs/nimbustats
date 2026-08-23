@@ -303,5 +303,41 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get txAmountInvalid => 'Enter a valid amount';
+
+  @override
+  String get txCategoryMore => 'More…';
+
+  @override
+  String get txDateLabel => 'Date';
+
+  @override
+  String get txDirectionExpense => 'Expense';
+
+  @override
+  String get txDirectionIncome => 'Income';
+
+  @override
+  String get txMerchantLabel => 'Merchant';
+
+  @override
+  String get txMoreDetails => 'More details';
+
+  @override
+  String get txNoteLabel => 'Note';
+
+  @override
+  String get txPaymentMethodLabel => 'Payment method';
+
+  @override
+  String get txSaveFailed => 'Could not save';
+
+  @override
+  String get txSaved => 'Saved';
+
+  @override
+  String get txTagsLabel => 'Tags';
+
+  @override
   String get uncategorized => 'Uncategorized';
 }

@@ -88,5 +88,17 @@
   "tagPickerSearchHint": "جست‌وجو یا ساخت",
   "tagPickerTitle": "برچسب‌ها",
   "tagUsageCount": "{count, plural, other{{count} بار استفاده}}",
+  "txAmountInvalid": "مبلغ معتبر وارد کنید",
+  "txCategoryMore": "بیشتر…",
+  "txDateLabel": "تاریخ",
+  "txDirectionExpense": "هزینه",
+  "txDirectionIncome": "درآمد",
+  "txMerchantLabel": "فروشنده",
+  "txMoreDetails": "جزئیات بیشتر",
+  "txNoteLabel": "یادداشت",
+  "txPaymentMethodLabel": "روش پرداخت",
+  "txSaveFailed": "ذخیره نشد",
+  "txSaved": "ذخیره شد",
+  "txTagsLabel": "برچسب‌ها",
   "uncategorized": "دسته‌بندی‌نشده"
 }

@@ -302,5 +302,41 @@ class AppLocalizationsFa extends AppLocalizations {
   }
 
   @override
+  String get txAmountInvalid => 'مبلغ معتبر وارد کنید';
+
+  @override
+  String get txCategoryMore => 'بیشتر…';
+
+  @override
+  String get txDateLabel => 'تاریخ';
+
+  @override
+  String get txDirectionExpense => 'هزینه';
+
+  @override
+  String get txDirectionIncome => 'درآمد';
+
+  @override
+  String get txMerchantLabel => 'فروشنده';
+
+  @override
+  String get txMoreDetails => 'جزئیات بیشتر';
+
+  @override
+  String get txNoteLabel => 'یادداشت';
+
+  @override
+  String get txPaymentMethodLabel => 'روش پرداخت';
+
+  @override
+  String get txSaveFailed => 'ذخیره نشد';
+
+  @override
+  String get txSaved => 'ذخیره شد';
+
+  @override
+  String get txTagsLabel => 'برچسب‌ها';
+
+  @override
   String get uncategorized => 'دسته‌بندی‌نشده';
 }

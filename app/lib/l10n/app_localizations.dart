@@ -626,6 +626,78 @@ abstract class AppLocalizations {
   /// **'{count, plural, =1{1 use} other{{count} uses}}'**
   String tagUsageCount(int count);
 
+  /// No description provided for @txAmountInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a valid amount'**
+  String get txAmountInvalid;
+
+  /// No description provided for @txCategoryMore.
+  ///
+  /// In en, this message translates to:
+  /// **'More…'**
+  String get txCategoryMore;
+
+  /// No description provided for @txDateLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Date'**
+  String get txDateLabel;
+
+  /// No description provided for @txDirectionExpense.
+  ///
+  /// In en, this message translates to:
+  /// **'Expense'**
+  String get txDirectionExpense;
+
+  /// No description provided for @txDirectionIncome.
+  ///
+  /// In en, this message translates to:
+  /// **'Income'**
+  String get txDirectionIncome;
+
+  /// No description provided for @txMerchantLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Merchant'**
+  String get txMerchantLabel;
+
+  /// No description provided for @txMoreDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'More details'**
+  String get txMoreDetails;
+
+  /// No description provided for @txNoteLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Note'**
+  String get txNoteLabel;
+
+  /// No description provided for @txPaymentMethodLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment method'**
+  String get txPaymentMethodLabel;
+
+  /// No description provided for @txSaveFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not save'**
+  String get txSaveFailed;
+
+  /// No description provided for @txSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved'**
+  String get txSaved;
+
+  /// No description provided for @txTagsLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Tags'**
+  String get txTagsLabel;
+
   /// No description provided for @uncategorized.
   ///
   /// In en, this message translates to:
