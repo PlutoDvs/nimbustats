@@ -650,6 +650,18 @@ abstract class AppLocalizations {
   /// **'Day total'**
   String get txDaySubtotal;
 
+  /// No description provided for @txDeleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Deleted'**
+  String get txDeleted;
+
+  /// No description provided for @txDetailTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Transaction'**
+  String get txDetailTitle;
+
   /// No description provided for @txDirectionExpense.
   ///
   /// In en, this message translates to:
@@ -661,6 +673,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Income'**
   String get txDirectionIncome;
+
+  /// No description provided for @txEditTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit'**
+  String get txEditTitle;
 
   /// No description provided for @txFilterAll.
   ///
@@ -728,6 +746,30 @@ abstract class AppLocalizations {
   /// **'More details'**
   String get txMoreDetails;
 
+  /// No description provided for @txNecessityAvoidable.
+  ///
+  /// In en, this message translates to:
+  /// **'Avoidable'**
+  String get txNecessityAvoidable;
+
+  /// No description provided for @txNecessityLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Was it needed?'**
+  String get txNecessityLabel;
+
+  /// No description provided for @txNecessityNeeded.
+  ///
+  /// In en, this message translates to:
+  /// **'Needed'**
+  String get txNecessityNeeded;
+
+  /// No description provided for @txNecessityOptional.
+  ///
+  /// In en, this message translates to:
+  /// **'Optional'**
+  String get txNecessityOptional;
+
   /// No description provided for @txNoteLabel.
   ///
   /// In en, this message translates to:
@@ -739,6 +781,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Payment method'**
   String get txPaymentMethodLabel;
+
+  /// No description provided for @txSatisfactionGlad.
+  ///
+  /// In en, this message translates to:
+  /// **'Glad'**
+  String get txSatisfactionGlad;
+
+  /// No description provided for @txSatisfactionLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'How do you feel about it?'**
+  String get txSatisfactionLabel;
+
+  /// No description provided for @txSatisfactionNeutral.
+  ///
+  /// In en, this message translates to:
+  /// **'Neutral'**
+  String get txSatisfactionNeutral;
+
+  /// No description provided for @txSatisfactionRegret.
+  ///
+  /// In en, this message translates to:
+  /// **'Regret'**
+  String get txSatisfactionRegret;
 
   /// No description provided for @txSaveFailed.
   ///

@@ -249,7 +249,9 @@ class _List extends ConsumerWidget {
                 transaction: transaction,
                 category: categories[transaction.categoryId],
                 formatter: formatter,
-                onTap: () {},
+                onTap: () => context.push(
+                  '$transactionDetailRoute/${transaction.id}',
+                ),
               );
             },
           ),

@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:nimbus_data/nimbus_data.dart';
 
 import '../../../bootstrap/database_provider.dart';
 import '../../settings/application/settings_providers.dart';
@@ -17,3 +18,16 @@ final transactionRepositoryProvider = Provider<TransactionRepository>((ref) {
     ref.watch(currencyProvider),
   );
 });
+
+/// One transaction, for the detail screen.
+///
+/// A family rather than a single provider, so opening two details in a row
+/// does not make the second wait on the first being disposed.
+final transactionByIdProvider =
+    FutureProvider.family<Transaction?, String>((ref, id) async =>
+        ref.watch(appDatabaseProvider).transactionsDao.byId(id));
+
+/// The tag ids attached to one transaction.
+final transactionTagsProvider =
+    FutureProvider.family<List<String>, String>((ref, id) =>
+        ref.watch(transactionRepositoryProvider).tagsOf(id));

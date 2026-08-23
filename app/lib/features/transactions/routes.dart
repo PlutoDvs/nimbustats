@@ -1,6 +1,7 @@
 import 'package:go_router/go_router.dart';
 
 import 'presentation/add_transaction_screen.dart';
+import 'presentation/transaction_detail_screen.dart';
 import 'presentation/transaction_list_screen.dart';
 
 /// The list is the app's home screen.
@@ -27,5 +28,11 @@ final transactionRoutes = <RouteBase>[
       // ships rather than requiring this screen to change then.
       initialAmount: state.uri.queryParameters['amount'],
     ),
+  ),
+  GoRoute(
+    path: '$transactionDetailRoute/:id',
+    name: 'tx-detail',
+    builder: (context, state) =>
+        TransactionDetailScreen(id: state.pathParameters['id']!),
   ),
 ];

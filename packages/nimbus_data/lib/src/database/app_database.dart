@@ -1031,6 +1031,36 @@ class TransactionsDao {
         ),
       );
 
+  /// Writes the two reflection axes, including clearing them.
+  ///
+  /// Separate from [updateTransaction], where a null argument means "leave
+  /// alone". These two must be settable *to* null: Phase 3's regret matrix
+  /// reports unlabelled spending separately rather than dropping it, so "no
+  /// answer" is a real value a user has to be able to get back to.
+  Future<void> setReflection(
+    String id, {
+    required Necessity? necessity,
+    required Satisfaction? satisfaction,
+  }) =>
+      (_db.update(_db.transactions)..where((t) => t.id.equals(id))).write(
+        TransactionsCompanion(
+          necessity: Value(necessity),
+          satisfaction: Value(satisfaction),
+          updatedAt: Value(DateTime.now().millisecondsSinceEpoch),
+        ),
+      );
+
+  /// Writes the note, including clearing it. Same reasoning as
+  /// [setReflection]: an emptied note has to become null rather than staying
+  /// whatever it was.
+  Future<void> setNote(String id, String? note) =>
+      (_db.update(_db.transactions)..where((t) => t.id.equals(id))).write(
+        TransactionsCompanion(
+          note: Value(note),
+          updatedAt: Value(DateTime.now().millisecondsSinceEpoch),
+        ),
+      );
+
   Future<void> softDelete(String id) {
     final now = DateTime.now().millisecondsSinceEpoch;
     return (_db.update(_db.transactions)..where((t) => t.id.equals(id)))

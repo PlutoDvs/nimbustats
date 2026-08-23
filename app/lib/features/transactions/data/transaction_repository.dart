@@ -95,6 +95,23 @@ final class TransactionRepository {
     }
   }
 
+  /// Sets both reflection axes, either of which may be null.
+  ///
+  /// Null means "not answered" and is a value the user can return to, not an
+  /// absence they are stuck outside of.
+  Future<void> setReflection(
+    String id, {
+    required Necessity? necessity,
+    required Satisfaction? satisfaction,
+  }) =>
+      _dao.setReflection(id, necessity: necessity, satisfaction: satisfaction);
+
+  Future<void> setNote(String id, String? note) => _dao.setNote(id, note);
+
+  /// Changes the amount, leaving everything else alone.
+  Future<void> setAmount(String id, Money amount) =>
+      _dao.updateTransaction(id, amount: amount);
+
   Future<void> softDelete(String id) => _dao.softDelete(id);
 
   Future<void> restore(String id) => _dao.restore(id);

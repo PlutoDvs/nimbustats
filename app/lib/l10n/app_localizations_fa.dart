@@ -314,10 +314,19 @@ class AppLocalizationsFa extends AppLocalizations {
   String get txDaySubtotal => 'مجموع روز';
 
   @override
+  String get txDeleted => 'حذف شد';
+
+  @override
+  String get txDetailTitle => 'تراکنش';
+
+  @override
   String get txDirectionExpense => 'هزینه';
 
   @override
   String get txDirectionIncome => 'درآمد';
+
+  @override
+  String get txEditTitle => 'ویرایش';
 
   @override
   String get txFilterAll => 'همه';
@@ -354,10 +363,34 @@ class AppLocalizationsFa extends AppLocalizations {
   String get txMoreDetails => 'جزئیات بیشتر';
 
   @override
+  String get txNecessityAvoidable => 'قابل اجتناب';
+
+  @override
+  String get txNecessityLabel => 'لازم بود؟';
+
+  @override
+  String get txNecessityNeeded => 'لازم';
+
+  @override
+  String get txNecessityOptional => 'اختیاری';
+
+  @override
   String get txNoteLabel => 'یادداشت';
 
   @override
   String get txPaymentMethodLabel => 'روش پرداخت';
+
+  @override
+  String get txSatisfactionGlad => 'راضی';
+
+  @override
+  String get txSatisfactionLabel => 'چه حسی درباره‌اش دارید؟';
+
+  @override
+  String get txSatisfactionNeutral => 'خنثی';
+
+  @override
+  String get txSatisfactionRegret => 'پشیمان';
 
   @override
   String get txSaveFailed => 'ذخیره نشد';

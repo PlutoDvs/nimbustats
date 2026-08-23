@@ -315,10 +315,19 @@ class AppLocalizationsEn extends AppLocalizations {
   String get txDaySubtotal => 'Day total';
 
   @override
+  String get txDeleted => 'Deleted';
+
+  @override
+  String get txDetailTitle => 'Transaction';
+
+  @override
   String get txDirectionExpense => 'Expense';
 
   @override
   String get txDirectionIncome => 'Income';
+
+  @override
+  String get txEditTitle => 'Edit';
 
   @override
   String get txFilterAll => 'All';
@@ -355,10 +364,34 @@ class AppLocalizationsEn extends AppLocalizations {
   String get txMoreDetails => 'More details';
 
   @override
+  String get txNecessityAvoidable => 'Avoidable';
+
+  @override
+  String get txNecessityLabel => 'Was it needed?';
+
+  @override
+  String get txNecessityNeeded => 'Needed';
+
+  @override
+  String get txNecessityOptional => 'Optional';
+
+  @override
   String get txNoteLabel => 'Note';
 
   @override
   String get txPaymentMethodLabel => 'Payment method';
+
+  @override
+  String get txSatisfactionGlad => 'Glad';
+
+  @override
+  String get txSatisfactionLabel => 'How do you feel about it?';
+
+  @override
+  String get txSatisfactionNeutral => 'Neutral';
+
+  @override
+  String get txSatisfactionRegret => 'Regret';
 
   @override
   String get txSaveFailed => 'Could not save';

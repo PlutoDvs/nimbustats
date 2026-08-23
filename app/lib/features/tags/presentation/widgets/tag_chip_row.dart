@@ -52,10 +52,18 @@ class TagChip extends StatelessWidget {
 /// the rest collapse into a `+N`, so the row's height is the same whether a
 /// transaction carries one tag or fifty.
 class TagChipRow extends StatelessWidget {
-  const TagChipRow({super.key, required this.tags, this.maxVisible = 4});
+  const TagChipRow({
+    super.key,
+    required this.tags,
+    this.maxVisible = 4,
+    this.moreKey,
+  });
 
   final List<Tag> tags;
   final int maxVisible;
+
+  /// Key for the `+N` affordance, so a screen can pin it by its own name.
+  final Key? moreKey;
 
   @override
   Widget build(BuildContext context) {
@@ -78,6 +86,7 @@ class TagChipRow extends StatelessWidget {
         if (remainder > 0)
           Text(
             l10n.tagMoreCount(remainder),
+            key: moreKey,
             style: theme.textTheme.bodySmall
                 ?.copyWith(color: theme.colorScheme.onSurfaceVariant),
           ),
