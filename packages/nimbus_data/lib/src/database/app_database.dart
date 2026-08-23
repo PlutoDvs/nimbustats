@@ -437,6 +437,7 @@ class TagsDao {
     required String? parentId,
     String iconKey = 'tag',
     int color = 0xFF9E9E9E,
+    int sortOrder = 0,
   }) async {
     String path;
     if (parentId == null) {
@@ -458,11 +459,145 @@ class TagsDao {
             depth: MaterializedPath.depthOf(path),
             iconKey: Value(iconKey),
             color: Value(color),
+            sortOrder: Value(sortOrder),
             createdAt: now,
             updatedAt: now,
           ),
         );
   }
+
+  /// The live-tag query behind both [allLive] and [watchAll]. See
+  /// [CategoriesDao] for why the two share one builder.
+  SimpleSelectStatement<$TagsTable, Tag> _liveQuery({
+    required bool includeArchived,
+  }) {
+    final query = _db.select(_db.tags)
+      ..where((t) => t.deletedAt.isNull())
+      ..orderBy([
+        (t) => OrderingTerm.asc(t.sortOrder),
+        (t) => OrderingTerm.asc(t.name),
+      ]);
+    if (!includeArchived) query.where((t) => t.archived.equals(false));
+    return query;
+  }
+
+  Future<List<Tag>> allLive({bool includeArchived = true}) =>
+      _liveQuery(includeArchived: includeArchived).get();
+
+  Stream<List<Tag>> watchAll({bool includeArchived = true}) =>
+      _liveQuery(includeArchived: includeArchived).watch();
+
+  Future<void> rename(String id, String name) =>
+      (_db.update(_db.tags)..where((t) => t.id.equals(id))).write(
+        TagsCompanion(
+          name: Value(name),
+          updatedAt: Value(DateTime.now().millisecondsSinceEpoch),
+        ),
+      );
+
+  Future<void> updateAppearance(String id, {String? iconKey, int? color}) =>
+      (_db.update(_db.tags)..where((t) => t.id.equals(id))).write(
+        TagsCompanion(
+          iconKey: iconKey == null ? const Value.absent() : Value(iconKey),
+          color: color == null ? const Value.absent() : Value(color),
+          updatedAt: Value(DateTime.now().millisecondsSinceEpoch),
+        ),
+      );
+
+  /// Archives or unarchives [id] and every live descendant, returning the ids
+  /// it touched. See [CategoriesDao.setArchivedSubtree].
+  Future<List<String>> setArchivedSubtree(String id, bool archived) async {
+    final node = await byId(id);
+    if (node == null) return const [];
+    return _db.transaction(() async {
+      final affected = await subtreeQuery(node.path).get();
+      final now = DateTime.now().millisecondsSinceEpoch;
+      for (final row in affected) {
+        await (_db.update(_db.tags)..where((t) => t.id.equals(row.id)))
+            .write(TagsCompanion(
+          archived: Value(archived),
+          updatedAt: Value(now),
+        ));
+      }
+      return affected.map((r) => r.id).toList();
+    });
+  }
+
+  /// Soft-deletes [id] and every live descendant, returning exactly the ids it
+  /// touched. See [CategoriesDao.softDeleteSubtree].
+  Future<List<String>> softDeleteSubtree(String id) async {
+    final node = await byId(id);
+    if (node == null) return const [];
+    return _db.transaction(() async {
+      final affected = await subtreeQuery(node.path).get();
+      final now = DateTime.now().millisecondsSinceEpoch;
+      for (final row in affected) {
+        await (_db.update(_db.tags)..where((t) => t.id.equals(row.id)))
+            .write(TagsCompanion(
+          deletedAt: Value(now),
+          updatedAt: Value(now),
+        ));
+      }
+      return affected.map((r) => r.id).toList();
+    });
+  }
+
+  Future<void> restoreAll(List<String> ids) async {
+    if (ids.isEmpty) return;
+    await (_db.update(_db.tags)..where((t) => t.id.isIn(ids))).write(
+      TagsCompanion(
+        deletedAt: const Value(null),
+        updatedAt: Value(DateTime.now().millisecondsSinceEpoch),
+      ),
+    );
+  }
+
+  Future<void> reorderSiblings(String? parentId, List<String> orderedIds) =>
+      _db.transaction(() async {
+        final now = DateTime.now().millisecondsSinceEpoch;
+        for (var i = 0; i < orderedIds.length; i++) {
+          await (_db.update(_db.tags)
+                ..where((t) => t.id.equals(orderedIds[i])))
+              .write(TagsCompanion(
+            sortOrder: Value(i),
+            updatedAt: Value(now),
+          ));
+        }
+      });
+
+  /// Bumps a tag's usage counter by one.
+  ///
+  /// A single `SET usage_count = usage_count + 1` rather than a read, add, and
+  /// write: two transactions tagged at once would otherwise both read the same
+  /// value and one increment would vanish.
+  Future<void> incrementUsage(String id) => _db.customUpdate(
+        'UPDATE tags SET usage_count = usage_count + 1, updated_at = ?2 '
+        'WHERE id = ?1',
+        variables: [
+          Variable<String>(id),
+          Variable<int>(DateTime.now().millisecondsSinceEpoch),
+        ],
+        updates: {_db.tags},
+      );
+
+  /// Rebuilds every usage count from the join table, which is the truth.
+  ///
+  /// `usage_count` is a denormalised cache that exists so ranking suggestions
+  /// does not join on every keystroke. A cache that cannot be rebuilt is a
+  /// number nobody trusts, so this is the way back: tags with no links are set
+  /// to zero rather than left at whatever they had drifted to.
+  Future<void> recomputeUsageCounts() => _db.transaction(() async {
+        final now = DateTime.now().millisecondsSinceEpoch;
+        await _db.customUpdate(
+          '''
+          UPDATE tags SET usage_count = (
+            SELECT COUNT(*) FROM transaction_tags WHERE tag_id = tags.id
+          ), updated_at = ?1
+          ''',
+          variables: [Variable<int>(now)],
+          updates: {_db.tags},
+        );
+      });
 
   Future<List<Tag>> subtreeOf(String id) async {
     final node = await byId(id);
