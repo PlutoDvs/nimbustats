@@ -97,16 +97,6 @@ void main() {
     expect((await dao.byId('food'))!.sortOrder, 1);
   });
 
-  test('childCounts counts live children per parent', () async {
-    final counts = await dao.childCounts();
-    expect(counts['food'], 1);
-    expect(counts['dining'], 1);
-    expect(counts['transport'], isNull);
-
-    await dao.softDeleteSubtree('fast');
-    expect((await dao.childCounts())['dining'], isNull);
-  });
-
   test('watchAll emits on every write', () async {
     final seen = <int>[];
     final sub = dao.watchAll().listen((rows) => seen.add(rows.length));

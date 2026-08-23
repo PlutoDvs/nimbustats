@@ -283,25 +283,6 @@ class CategoriesDao {
         }
       });
 
-  /// Live child count per parent id. One grouped query rather than N counts,
-  /// because the manager screen needs every number at once and O(N) round
-  /// trips over a tree is the wrong shape at any size.
-  ///
-  /// A parent with no live children is absent from the map rather than present
-  /// with zero.
-  Future<Map<String, int>> childCounts() async {
-    final parent = _db.categories.parentId;
-    final count = _db.categories.id.count();
-    final query = _db.selectOnly(_db.categories)
-      ..addColumns([parent, count])
-      ..where(_db.categories.deletedAt.isNull() & parent.isNotNull())
-      ..groupBy([parent]);
-    final rows = await query.get();
-    return {
-      for (final row in rows) row.read(parent)!: row.read(count)!,
-    };
-  }
-
   /// Soft-deletes [id] and every live descendant, returning exactly the ids it
   /// touched so an undo can restore that set and nothing else.
   ///
