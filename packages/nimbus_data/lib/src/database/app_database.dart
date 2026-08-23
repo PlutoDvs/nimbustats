@@ -175,8 +175,12 @@ class CategoriesDao {
         );
   }
 
-  /// Every live category, ordered the way a picker or a manager wants them.
-  Future<List<Category>> allLive({bool includeArchived = true}) {
+  /// The live-category query behind both [allLive] and [watchAll], so a
+  /// one-shot read and a stream can never disagree about what "live" means or
+  /// what order rows arrive in.
+  SimpleSelectStatement<$CategoriesTable, Category> _liveQuery({
+    required bool includeArchived,
+  }) {
     final query = _db.select(_db.categories)
       ..where((t) => t.deletedAt.isNull())
       ..orderBy([
@@ -184,8 +188,20 @@ class CategoriesDao {
         (t) => OrderingTerm.asc(t.name),
       ]);
     if (!includeArchived) query.where((t) => t.archived.equals(false));
-    return query.get();
+    return query;
   }
+
+  /// Every live category, ordered the way a picker or a manager wants them.
+  Future<List<Category>> allLive({bool includeArchived = true}) =>
+      _liveQuery(includeArchived: includeArchived).get();
+
+  /// [allLive] as a stream that re-emits after every write to the table.
+  ///
+  /// The manager screen and the category picker both watch rather than reload,
+  /// so an edit made in one is visible in the other without either knowing the
+  /// other exists.
+  Stream<List<Category>> watchAll({bool includeArchived = true}) =>
+      _liveQuery(includeArchived: includeArchived).watch();
 
   Future<void> rename(String id, String name) =>
       (_db.update(_db.categories)..where((t) => t.id.equals(id))).write(
@@ -194,6 +210,96 @@ class CategoriesDao {
           updatedAt: Value(DateTime.now().millisecondsSinceEpoch),
         ),
       );
+
+  /// Changes icon, colour, or both. An argument left null is left alone rather
+  /// than cleared -- the recolour sheet and the icon picker are separate
+  /// actions, and either must be able to write without knowing the other's
+  /// current value.
+  Future<void> updateAppearance(String id, {String? iconKey, int? color}) =>
+      (_db.update(_db.categories)..where((t) => t.id.equals(id))).write(
+        CategoriesCompanion(
+          iconKey: iconKey == null ? const Value.absent() : Value(iconKey),
+          color: color == null ? const Value.absent() : Value(color),
+          updatedAt: Value(DateTime.now().millisecondsSinceEpoch),
+        ),
+      );
+
+  /// Archives or unarchives [id] and every live descendant, returning the ids
+  /// it touched so the caller can undo exactly that set.
+  ///
+  /// The subtree moves as one because a picker that hides Food while still
+  /// offering Food > Dining is incoherent. Archiving is not deletion: these
+  /// rows still resolve through [byId], so historical transactions keep their
+  /// labels.
+  Future<List<String>> setArchivedSubtree(String id, bool archived) async {
+    final node = await byId(id);
+    if (node == null) return const [];
+    return _db.transaction(() async {
+      final affected = await subtreeQuery(node.path).get();
+      final now = DateTime.now().millisecondsSinceEpoch;
+      for (final row in affected) {
+        await (_db.update(_db.categories)..where((t) => t.id.equals(row.id)))
+            .write(CategoriesCompanion(
+          archived: Value(archived),
+          updatedAt: Value(now),
+        ));
+      }
+      return affected.map((r) => r.id).toList();
+    });
+  }
+
+  /// Un-deletes exactly [ids] -- the set returned by [softDeleteSubtree].
+  ///
+  /// Takes the explicit set rather than re-deriving the subtree, because the
+  /// subtree at undo time is not the subtree that was deleted: a child the
+  /// user had deleted separately and earlier must stay deleted.
+  Future<void> restoreAll(List<String> ids) async {
+    if (ids.isEmpty) return;
+    final now = DateTime.now().millisecondsSinceEpoch;
+    await (_db.update(_db.categories)..where((t) => t.id.isIn(ids))).write(
+      CategoriesCompanion(
+        deletedAt: const Value(null),
+        updatedAt: Value(now),
+      ),
+    );
+  }
+
+  /// Writes a dense 0..n-1 order over [orderedIds].
+  ///
+  /// Dense rather than sparse (10, 20, 30) on purpose: a sibling list is
+  /// short, reordering is rare and user-initiated, and a dense sequence has no
+  /// renumbering edge case to get wrong later.
+  Future<void> reorderSiblings(String? parentId, List<String> orderedIds) =>
+      _db.transaction(() async {
+        final now = DateTime.now().millisecondsSinceEpoch;
+        for (var i = 0; i < orderedIds.length; i++) {
+          await (_db.update(_db.categories)
+                ..where((t) => t.id.equals(orderedIds[i])))
+              .write(CategoriesCompanion(
+            sortOrder: Value(i),
+            updatedAt: Value(now),
+          ));
+        }
+      });
+
+  /// Live child count per parent id. One grouped query rather than N counts,
+  /// because the manager screen needs every number at once and O(N) round
+  /// trips over a tree is the wrong shape at any size.
+  ///
+  /// A parent with no live children is absent from the map rather than present
+  /// with zero.
+  Future<Map<String, int>> childCounts() async {
+    final parent = _db.categories.parentId;
+    final count = _db.categories.id.count();
+    final query = _db.selectOnly(_db.categories)
+      ..addColumns([parent, count])
+      ..where(_db.categories.deletedAt.isNull() & parent.isNotNull())
+      ..groupBy([parent]);
+    final rows = await query.get();
+    return {
+      for (final row in rows) row.read(parent)!: row.read(count)!,
+    };
+  }
 
   /// Soft-deletes [id] and every live descendant, returning exactly the ids it
   /// touched so an undo can restore that set and nothing else.
