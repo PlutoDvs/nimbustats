@@ -22,6 +22,89 @@ class AppLocalizationsFa extends AppLocalizations {
   String get category => 'دسته‌بندی';
 
   @override
+  String get categoryArchivedBadge => 'بایگانی‌شده';
+
+  @override
+  String categoryChildCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count زیر‌دسته',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get categoryColorLabel => 'رنگ';
+
+  @override
+  String categoryDeleted(String name) {
+    return '$name حذف شد';
+  }
+
+  @override
+  String get categoryEditTitle => 'ویرایش دسته‌بندی';
+
+  @override
+  String get categoryEmptyAction => 'دسته‌بندی جدید';
+
+  @override
+  String get categoryEmptyMessage =>
+      'دسته‌بندی‌ها هزینه‌های شما را گروه‌بندی می‌کنند. اولین مورد را بسازید.';
+
+  @override
+  String get categoryEmptyTitle => 'دسته‌بندی‌ای وجود ندارد';
+
+  @override
+  String get categoryErrorTitle => 'بارگذاری دسته‌بندی‌ها ممکن نشد';
+
+  @override
+  String get categoryIconLabel => 'نماد';
+
+  @override
+  String get categoryManagerTitle => 'دسته‌بندی‌ها';
+
+  @override
+  String get categoryMoveInvalid =>
+      'یک دسته‌بندی نمی‌تواند درون خودش قرار گیرد';
+
+  @override
+  String get categoryMoveToRoot => 'انتقال به سطح اول';
+
+  @override
+  String get categoryNameLabel => 'نام';
+
+  @override
+  String get categoryNewTitle => 'دسته‌بندی جدید';
+
+  @override
+  String get commonArchive => 'بایگانی';
+
+  @override
+  String get commonCancel => 'انصراف';
+
+  @override
+  String get commonDelete => 'حذف';
+
+  @override
+  String get commonMoveTo => 'انتقال به…';
+
+  @override
+  String get commonRename => 'تغییر نام';
+
+  @override
+  String get commonRetry => 'تلاش دوباره';
+
+  @override
+  String get commonSave => 'ذخیره';
+
+  @override
+  String get commonUnarchive => 'خروج از بایگانی';
+
+  @override
+  String get commonUndo => 'بازگردانی';
+
+  @override
   String get currency_eur => 'یورو';
 
   @override

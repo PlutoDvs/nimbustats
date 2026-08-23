@@ -4,6 +4,44 @@
   "amount": "Amount",
   "appTitle": "NimbuStats",
   "category": "Category",
+  "categoryArchivedBadge": "Archived",
+  "categoryChildCount": "{count, plural, =1{1 subcategory} other{{count} subcategories}}",
+  "@categoryChildCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "categoryColorLabel": "Colour",
+  "categoryDeleted": "Deleted {name}",
+  "@categoryDeleted": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "categoryEditTitle": "Edit category",
+  "categoryEmptyAction": "New category",
+  "categoryEmptyMessage": "Categories group your spending. Create your first one.",
+  "categoryEmptyTitle": "No categories",
+  "categoryErrorTitle": "Could not load categories",
+  "categoryIconLabel": "Icon",
+  "categoryManagerTitle": "Categories",
+  "categoryMoveInvalid": "A category cannot move inside itself",
+  "categoryMoveToRoot": "Move to top level",
+  "categoryNameLabel": "Name",
+  "categoryNewTitle": "New category",
+  "commonArchive": "Archive",
+  "commonCancel": "Cancel",
+  "commonDelete": "Delete",
+  "commonMoveTo": "Move to…",
+  "commonRename": "Rename",
+  "commonRetry": "Retry",
+  "commonSave": "Save",
+  "commonUnarchive": "Unarchive",
+  "commonUndo": "Undo",
   "currency_eur": "EUR",
   "currency_toman": "Toman",
   "currency_try": "TRY",

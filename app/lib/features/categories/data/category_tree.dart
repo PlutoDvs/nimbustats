@@ -63,6 +63,24 @@ abstract final class CategoryTree {
     return nodesUnder(null, 0);
   }
 
+  /// Depth-first flattening, parents immediately before their children.
+  ///
+  /// The manager renders the tree as a flat list because
+  /// `ReorderableListView` needs a flat child list; each node still carries
+  /// its own depth, so nothing about the hierarchy is lost.
+  static List<CategoryNode> flatten(List<CategoryNode> tree) {
+    final out = <CategoryNode>[];
+    void walk(List<CategoryNode> nodes) {
+      for (final node in nodes) {
+        out.add(node);
+        walk(node.children);
+      }
+    }
+
+    walk(tree);
+    return out;
+  }
+
   /// Whether [id] may be dropped under [newParentId], where null means the
   /// root.
   ///
@@ -82,6 +100,50 @@ abstract final class CategoryTree {
     final node = find(tree, id);
     if (node == null) return false;
     return !_contains(node.children, newParentId);
+  }
+
+  /// The sibling order produced by dragging the row at [oldIndex] of [flat] to
+  /// [newIndex], or null when the drag must be refused.
+  ///
+  /// [newIndex] follows `ReorderableListView.onReorderItem`: it is already
+  /// adjusted for the removal of the dragged row, so there is no off-by-one to
+  /// apply here.
+  ///
+  /// A drag that crosses sibling groups is refused rather than interpreted.
+  /// Dropping a child among the roots could mean re-parent or could mean
+  /// reorder, and guessing wrong silently rearranges the user's tree; "Move
+  /// to..." makes the intent explicit.
+  ///
+  /// The system row is excluded from the returned order and cannot itself be
+  /// dragged: it holds sortOrder -1, which is what keeps it above a dense
+  /// 0..n-1 sibling sequence.
+  static ({String? parentId, List<String> orderedIds})? reorderedSiblings({
+    required List<CategoryNode> flat,
+    required int oldIndex,
+    required int newIndex,
+  }) {
+    if (oldIndex == newIndex) return null;
+    if (oldIndex < 0 || oldIndex >= flat.length) return null;
+    if (newIndex < 0 || newIndex >= flat.length) return null;
+
+    final moving = flat[oldIndex].category;
+    final target = flat[newIndex].category;
+    if (SystemCategoryIds.isSystem(moving.id)) return null;
+    if (moving.parentId != target.parentId) return null;
+
+    final orderedIds = flat
+        .map((n) => n.category)
+        .where((c) =>
+            c.parentId == moving.parentId && !SystemCategoryIds.isSystem(c.id))
+        .map((c) => c.id)
+        .toList();
+    final from = orderedIds.indexOf(moving.id);
+    final to = orderedIds.indexOf(target.id);
+    if (from < 0 || to < 0) return null;
+
+    orderedIds.removeAt(from);
+    orderedIds.insert(to, moving.id);
+    return (parentId: moving.parentId, orderedIds: orderedIds);
   }
 
   /// The node for [id], or null if it is not in [tree].

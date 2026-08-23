@@ -122,6 +122,150 @@ abstract class AppLocalizations {
   /// **'Category'**
   String get category;
 
+  /// No description provided for @categoryArchivedBadge.
+  ///
+  /// In en, this message translates to:
+  /// **'Archived'**
+  String get categoryArchivedBadge;
+
+  /// No description provided for @categoryChildCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 subcategory} other{{count} subcategories}}'**
+  String categoryChildCount(int count);
+
+  /// No description provided for @categoryColorLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Colour'**
+  String get categoryColorLabel;
+
+  /// No description provided for @categoryDeleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Deleted {name}'**
+  String categoryDeleted(String name);
+
+  /// No description provided for @categoryEditTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit category'**
+  String get categoryEditTitle;
+
+  /// No description provided for @categoryEmptyAction.
+  ///
+  /// In en, this message translates to:
+  /// **'New category'**
+  String get categoryEmptyAction;
+
+  /// No description provided for @categoryEmptyMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Categories group your spending. Create your first one.'**
+  String get categoryEmptyMessage;
+
+  /// No description provided for @categoryEmptyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No categories'**
+  String get categoryEmptyTitle;
+
+  /// No description provided for @categoryErrorTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load categories'**
+  String get categoryErrorTitle;
+
+  /// No description provided for @categoryIconLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Icon'**
+  String get categoryIconLabel;
+
+  /// No description provided for @categoryManagerTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Categories'**
+  String get categoryManagerTitle;
+
+  /// No description provided for @categoryMoveInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'A category cannot move inside itself'**
+  String get categoryMoveInvalid;
+
+  /// No description provided for @categoryMoveToRoot.
+  ///
+  /// In en, this message translates to:
+  /// **'Move to top level'**
+  String get categoryMoveToRoot;
+
+  /// No description provided for @categoryNameLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Name'**
+  String get categoryNameLabel;
+
+  /// No description provided for @categoryNewTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'New category'**
+  String get categoryNewTitle;
+
+  /// No description provided for @commonArchive.
+  ///
+  /// In en, this message translates to:
+  /// **'Archive'**
+  String get commonArchive;
+
+  /// No description provided for @commonCancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get commonCancel;
+
+  /// No description provided for @commonDelete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get commonDelete;
+
+  /// No description provided for @commonMoveTo.
+  ///
+  /// In en, this message translates to:
+  /// **'Move to…'**
+  String get commonMoveTo;
+
+  /// No description provided for @commonRename.
+  ///
+  /// In en, this message translates to:
+  /// **'Rename'**
+  String get commonRename;
+
+  /// No description provided for @commonRetry.
+  ///
+  /// In en, this message translates to:
+  /// **'Retry'**
+  String get commonRetry;
+
+  /// No description provided for @commonSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get commonSave;
+
+  /// No description provided for @commonUnarchive.
+  ///
+  /// In en, this message translates to:
+  /// **'Unarchive'**
+  String get commonUnarchive;
+
+  /// No description provided for @commonUndo.
+  ///
+  /// In en, this message translates to:
+  /// **'Undo'**
+  String get commonUndo;
+
   /// No description provided for @currency_eur.
   ///
   /// In en, this message translates to:

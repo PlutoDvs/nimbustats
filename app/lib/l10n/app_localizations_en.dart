@@ -22,6 +22,89 @@ class AppLocalizationsEn extends AppLocalizations {
   String get category => 'Category';
 
   @override
+  String get categoryArchivedBadge => 'Archived';
+
+  @override
+  String categoryChildCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count subcategories',
+      one: '1 subcategory',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get categoryColorLabel => 'Colour';
+
+  @override
+  String categoryDeleted(String name) {
+    return 'Deleted $name';
+  }
+
+  @override
+  String get categoryEditTitle => 'Edit category';
+
+  @override
+  String get categoryEmptyAction => 'New category';
+
+  @override
+  String get categoryEmptyMessage =>
+      'Categories group your spending. Create your first one.';
+
+  @override
+  String get categoryEmptyTitle => 'No categories';
+
+  @override
+  String get categoryErrorTitle => 'Could not load categories';
+
+  @override
+  String get categoryIconLabel => 'Icon';
+
+  @override
+  String get categoryManagerTitle => 'Categories';
+
+  @override
+  String get categoryMoveInvalid => 'A category cannot move inside itself';
+
+  @override
+  String get categoryMoveToRoot => 'Move to top level';
+
+  @override
+  String get categoryNameLabel => 'Name';
+
+  @override
+  String get categoryNewTitle => 'New category';
+
+  @override
+  String get commonArchive => 'Archive';
+
+  @override
+  String get commonCancel => 'Cancel';
+
+  @override
+  String get commonDelete => 'Delete';
+
+  @override
+  String get commonMoveTo => 'Move to…';
+
+  @override
+  String get commonRename => 'Rename';
+
+  @override
+  String get commonRetry => 'Retry';
+
+  @override
+  String get commonSave => 'Save';
+
+  @override
+  String get commonUnarchive => 'Unarchive';
+
+  @override
+  String get commonUndo => 'Undo';
+
+  @override
   String get currency_eur => 'EUR';
 
   @override

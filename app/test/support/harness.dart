@@ -6,6 +6,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:nimbus_data/nimbus_data.dart';
 import 'package:nimbustats/app.dart';
 import 'package:nimbustats/bootstrap/database_provider.dart';
+import 'package:nimbustats/bootstrap/provider_retry.dart';
 
 /// Pumps the real app against a fresh in-memory database.
 ///
@@ -24,7 +25,9 @@ Future<AppDatabase> pumpApp(
   final db = database ?? AppDatabase.openInMemory();
   if (database == null) addTearDown(db.close);
 
-  final container = ProviderContainer(overrides: [
+  // Mirrors main(): a harness that retried where production does not
+  // would pass while the shipped app behaved differently.
+  final container = ProviderContainer(retry: nimbusNoRetry, overrides: [
     appDatabaseProvider.overrideWithValue(db),
     ...overrides,
   ]);

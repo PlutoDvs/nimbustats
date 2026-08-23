@@ -6,6 +6,7 @@ import 'package:path_provider/path_provider.dart';
 
 import 'app.dart';
 import 'bootstrap/database_provider.dart';
+import 'bootstrap/provider_retry.dart';
 
 /// Bootstrap only.
 ///
@@ -21,6 +22,7 @@ Future<void> main() async {
   final db = AppDatabase.openAtPath(p.join(dir.path, 'nimbustats.sqlite'));
 
   runApp(ProviderScope(
+    retry: nimbusNoRetry,
     overrides: [appDatabaseProvider.overrideWithValue(db)],
     child: const NimbuStatsApp(),
   ));
