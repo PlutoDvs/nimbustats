@@ -28,6 +28,18 @@ git tag --list 'phase-*-complete'   # must include phase-0-complete and phase-1-
 dart analyze --fatal-infos
 ```
 
+> **Amended 2026-08-29 — `phase-1-complete` is waived, for the engine only.**
+> That tag is withheld on **D1** alone (Google Maven unreachable), and the four
+> criteria it waits on are hardware *performance* measurements that cannot
+> affect whether an analytics engine compiles and passes tests against Phase 1's
+> DAOs — which are merged on `main` and green. The waiver covers **tasks 1–8**
+> and nothing else; it does not waive Phase 3's own gate, which still needs
+> `phase-1-complete` to exist. Rationale and limits: `DEFERRED.md` §D1.
+>
+> **Tasks 9–14 are separately blocked by D7** — `fl_chart` is in neither the
+> lockfile nor the local pub cache, and D3 currently returns 403 from pub.dev
+> for archives *and* metadata. Build the engine; the charts wait.
+
 You need **real data** to design against. If Phase 1 has been in daily use,
 work from that database (a copy). If not, seed a realistic one — a few thousand
 transactions across a two-year span, an uneven category tree, and transactions

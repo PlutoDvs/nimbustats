@@ -13,6 +13,7 @@ blocked, and who can unblock it.
 | D2 | Gradle distribution needs manual seeding on a fresh machine | Any new dev machine or CI | Operator (network) |
 | D3 | pub.dev archive access depends on the VPN exit node | Adding any new package, Phase 2 onward | Operator (network) |
 | D4 | Claude Design token sheet does not exist | Nothing hard-blocked; visual polish | Operator (design) |
+| D7 | `fl_chart` unavailable — Phase 3's charts and dashboard | Phase 3 tasks 9–14 | Operator (network, via D3) |
 | D5 | ~~Router error screen has no localized copy~~ | — | **Resolved 2026-08-24** |
 | D6 | ~~Flutter-specific lints are not active~~ | — | **Resolved 2026-08-22** |
 
@@ -70,6 +71,27 @@ expense in 5 s, and the three-tap path confirmed on a device. Phase 1 cannot be
 tagged complete without them, because its own definition of done requires them
 measured on hardware rather than on an emulator.
 
+**Consequence accepted 2026-08-29 — the Phase 3 prerequisite is waived.**
+Phase 3's brief requires `phase-1-complete` before starting. That tag is
+withheld on this item alone, and the four criteria it is waiting for are
+*hardware performance measurements*: none of them affects whether an analytics
+engine compiles and passes tests against Phase 1's DAOs and value types, which
+are merged on `main` and green.
+
+Waiving it is therefore narrow and deliberate, not a shortcut:
+
+- It covers **Phase 3's engine only** — `QuerySpec`, `PeriodBoundaries`, the
+  SQL compiler, and schema v20. Phase 3's own charts are separately blocked by
+  **D7**, so no UI is being built on an unverified foundation either way.
+- It does **not** waive Phase 3's own gate. `phase-3-complete` is withheld
+  until `phase-1-complete` exists, because a Phase 3 acceptance run measures
+  chart performance on the same hardware.
+- If a hardware criterion later fails and forces a Phase 1 change, the risk is
+  contained: the engine depends on Phase 1's *query surface*, not its screens,
+  and a frame-rate or cold-start fix does not change a DAO signature.
+
+Anything beyond the engine still waits for the tag.
+
 ---
 
 ## D2 — Gradle distribution needs manual seeding on a fresh machine
@@ -103,7 +125,11 @@ toolchain is proven end to end.
 
 ## D3 — pub.dev archive access depends on the VPN exit node
 
-**Status:** open, currently working.
+**Status:** open, and **not** currently working. Rechecked 2026-08-29: both
+`https://pub.dev/api/archives/<pkg>.tar.gz` and
+`https://pub.dev/api/packages/<pkg>` return **403**, so metadata resolution is
+failing too — worse than the partial failure first recorded below. No new
+package can be added at all right now. This is what blocks **D7**.
 
 On a Hetzner exit (`91.107.187.87`), pub.dev's CDN rate-limited the IP:
 metadata resolved fine, tarballs returned 403 after a handful of requests. The
@@ -214,5 +240,40 @@ Two details worth keeping:
   so an info already fails the build.
 - `unawaited_futures` only fires inside `async` bodies. A fire-and-forget call
   from a synchronous function is still invisible to it.
+
+---
+
+## D7 — `fl_chart` unavailable: Phase 3 cannot draw
+
+**Status:** open. Found 2026-08-29 at Phase 3 kickoff.
+
+The spec's stack decision names `fl_chart` for charts. It is in neither
+`pubspec.lock` nor the local pub cache, and **D3** currently returns 403 from
+pub.dev for both archives *and* metadata, so it cannot be added:
+
+```bash
+curl -sL -o /dev/null -w "%{http_code}\n" https://pub.dev/api/packages/fl_chart
+```
+
+`200` means D3 has cleared and this is unblocked too.
+
+**What this blocks:** Phase 3 tasks 9–14 — the breakdown screen, trends,
+period comparison, the tag × category cross-tab, patterns, the necessity ×
+satisfaction matrix, saved-view UI, and the dashboard.
+
+**What it does not block:** tasks 1–8, the whole engine — `QuerySpec`,
+`PeriodBoundaries`, the SQL compiler, group-by dimensions, the tag
+double-count and rollup correctness tests, `EXPLAIN QUERY PLAN` assertions,
+and schema v20 `saved_views`. None of that draws anything.
+
+This is the better half to build first regardless of the network: the brief's
+two silent-correctness traps — tag double-counting and nested-tag rollup — live
+in the engine, and the charts are supposed to render what the engine already
+proved correct.
+
+**Note for whoever picks the UI up:** the engine returns `trueTotal` alongside
+its buckets precisely so a tag chart can disclose that its slices do not sum to
+the total. Wiring a pie chart without that disclosure is the bug the trap list
+is warning about, not a polish item.
 
 ---
