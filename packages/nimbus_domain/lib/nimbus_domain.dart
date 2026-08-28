@@ -14,6 +14,7 @@ export 'src/money/currency.dart';
 export 'src/money/digits.dart';
 export 'src/money/money.dart';
 export 'src/money/money_format.dart';
+export 'src/parsing/message_normalizer.dart';
 export 'src/prediction/category_observation.dart';
 export 'src/prediction/category_predictor.dart';
 export 'src/prediction/mru_frequency_predictor.dart';

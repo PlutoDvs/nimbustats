@@ -99,7 +99,6 @@ import 'package:test/test.dart';
 
 /// Invisible characters are written as escapes so a reader can see what a
 /// failing expectation is actually about.
-const zwnj = '\u{200C}';
 const rlm = '\u{200F}';
 const lrm = '\u{200E}';
 const bom = '\u{FEFF}';
@@ -127,14 +126,14 @@ void main() {
     test('bidi controls are removed, not turned into spaces', () {
       // A stray space here would break an otherwise-correct template, and
       // these marks are invisible in every log you would debug it with.
-      expect(MessageNormalizer.normalize('$rlm123$lrm,456$bom'), '123,456');
+      expect(MessageNormalizer.normalize('${rlm}123$lrm,456$bom'), '123,456');
     });
 
     test('ZWNJ and a real space normalize to the same text', () {
       // Banks spell the same compound word both ways across message
       // revisions. Folding both to a space makes one template cover both.
       expect(
-        MessageNormalizer.normalize('خرید${zwnj}اینترنتی'),
+        MessageNormalizer.normalize('خرید\u{200C}اینترنتی'),
         MessageNormalizer.normalize('خرید اینترنتی'),
       );
     });
@@ -156,7 +155,7 @@ void main() {
       // Templates are generated from normalized text and matched against
       // normalized text. If normalize were not a fixed point, a message could
       // match on capture and fail on re-parse after a bug fix.
-      const raw = '  بانك${zwnj}ملي \u{06F1}\u{06F2}\u{06F3}$rlm\nریال ';
+      const raw = '  بانك\u{200C}ملي \u{06F1}\u{06F2}\u{06F3}$rlm\nریال ';
       final once = MessageNormalizer.normalize(raw);
       expect(MessageNormalizer.normalize(once), once);
     });
