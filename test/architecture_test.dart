@@ -32,6 +32,14 @@ void main() {
       expect(deps, isNot(contains(forbidden)),
           reason: 'nimbus_domain must stay pure; remove $forbidden');
     }
+    // crypto is Phase 2A's one new runtime dependency. captured_messages
+    // .dedup_hash is UNIQUE at the database level, so a hash collision does
+    // not merely risk a duplicate -- it makes the second message unstorable
+    // and loses the raw text. SHA-256 rather than a hand-rolled 64-bit hash
+    // is the difference between that being impossible and being unlikely.
+    // Asserting it here keeps the decision visible in the boundary rules
+    // rather than buried in a pubspec.
+    expect(deps, contains('crypto'));
   });
 
   test('nimbus_data is pure Dart and never reaches the UI', () {

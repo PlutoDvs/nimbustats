@@ -13,6 +13,11 @@ environment:
 dependencies:
   shamsi_date: ^1.1.1
   meta: ^1.15.0
+  # dedup_hash is UNIQUE at the database level, so a collision does not merely
+  # risk a duplicate -- it makes the colliding message unstorable and loses the
+  # raw text. SHA-256 is the difference between that being impossible and being
+  # unlikely. Asserted by test/architecture_test.dart.
+  crypto: ^3.0.7
 
 dev_dependencies:
   test: ^1.25.0
