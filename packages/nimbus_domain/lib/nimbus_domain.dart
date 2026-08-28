@@ -19,6 +19,7 @@ export 'src/parsing/date_parser.dart';
 export 'src/parsing/direction_rule.dart';
 export 'src/parsing/field_role.dart';
 export 'src/parsing/message_normalizer.dart';
+export 'src/parsing/message_template.dart';
 export 'src/parsing/message_tokenizer.dart';
 export 'src/parsing/parsed_direction.dart';
 export 'src/parsing/regex_generator.dart';
