@@ -14,6 +14,7 @@ export 'src/money/currency.dart';
 export 'src/money/digits.dart';
 export 'src/money/money.dart';
 export 'src/money/money_format.dart';
+export 'src/parsing/field_role.dart';
 export 'src/parsing/message_normalizer.dart';
 export 'src/parsing/message_tokenizer.dart';
 export 'src/parsing/token.dart';
