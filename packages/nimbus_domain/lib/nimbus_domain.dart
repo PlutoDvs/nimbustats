@@ -17,6 +17,7 @@ export 'src/money/money_format.dart';
 export 'src/parsing/field_role.dart';
 export 'src/parsing/message_normalizer.dart';
 export 'src/parsing/message_tokenizer.dart';
+export 'src/parsing/regex_generator.dart';
 export 'src/parsing/token.dart';
 export 'src/prediction/category_observation.dart';
 export 'src/prediction/category_predictor.dart';
