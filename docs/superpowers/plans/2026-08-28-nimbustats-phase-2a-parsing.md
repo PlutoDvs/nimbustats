@@ -1225,8 +1225,19 @@ void main() {
           const Money(123450));
     });
 
+    test('a lone separator with a three-digit group is read as grouping', () {
+      // '12.505' cannot be a USD fraction -- USD has two decimal digits, so
+      // twelve-point-five-oh-five is not expressible. Grouping is the only
+      // valid reading, and pinning it here stops a later "fix" from turning
+      // 12,505 into 12.50.
+      expect(AmountParser.parse('12.505', currency: Currency.usd),
+          const Money(1250500));
+    });
+
     test('more fraction digits than the currency allows throws', () {
-      expect(() => AmountParser.parse('12.505', currency: Currency.usd),
+      // Four digits cannot be a thousands group, so this is unambiguously a
+      // fraction -- and too long a one to represent without rounding.
+      expect(() => AmountParser.parse('12.5055', currency: Currency.usd),
           throwsFormatException);
     });
 
