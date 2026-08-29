@@ -4,6 +4,9 @@
 /// concurrent phases appending to this barrel merge cleanly.
 library;
 
+export 'src/analytics/aggregate.dart';
+export 'src/analytics/amount_range.dart';
+export 'src/analytics/reflection_levels.dart';
 export 'src/calendar/calendar.dart';
 export 'src/calendar/date_key.dart';
 export 'src/calendar/gregorian_calendar.dart';
