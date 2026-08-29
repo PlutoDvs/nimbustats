@@ -6,6 +6,7 @@ library;
 
 export 'src/analytics/aggregate.dart';
 export 'src/analytics/amount_range.dart';
+export 'src/analytics/analytics_result.dart';
 export 'src/analytics/group_by.dart';
 export 'src/analytics/period_boundaries.dart';
 export 'src/analytics/query_filters.dart';
