@@ -13,7 +13,7 @@ sealed class GroupBy {
 
   factory GroupBy.fromJson(Map<String, Object?> json) => switch (json['kind']) {
         'none' => const GroupByNone(),
-        'category' => GroupByCategory(json['depth']! as int),
+        'category' => GroupByCategory(_depthOf(json['depth'])),
         'tag' => const GroupByTag(),
         'period' => GroupByPeriod(_periodOf(json['period'])),
         'paymentMethod' => const GroupByPaymentMethod(),
@@ -28,6 +28,11 @@ sealed class GroupBy {
   String get kind;
 
   Map<String, Object?> toJson() => {'kind': kind};
+
+  static int _depthOf(Object? raw) => raw is int
+      ? raw
+      : throw FormatException('category group-by needs an int depth, got '
+          '"$raw"');
 
   static PeriodType _periodOf(Object? raw) {
     for (final period in PeriodType.values) {

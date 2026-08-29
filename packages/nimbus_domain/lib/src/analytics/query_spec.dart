@@ -2,6 +2,7 @@ import 'package:meta/meta.dart';
 
 import 'aggregate.dart';
 import 'group_by.dart';
+import 'json_support.dart';
 import 'query_filters.dart';
 
 /// One analytical question: what to include, how to bucket it, what to compute.
@@ -18,10 +19,8 @@ final class QuerySpec {
   });
 
   factory QuerySpec.fromJson(Map<String, Object?> json) => QuerySpec(
-        filters: QueryFilters.fromJson(
-            (json['filters']! as Map).cast<String, Object?>()),
-        groupBy:
-            GroupBy.fromJson((json['groupBy']! as Map).cast<String, Object?>()),
+        filters: QueryFilters.fromJson(jsonMapOf(json['filters'], 'filters')),
+        groupBy: GroupBy.fromJson(jsonMapOf(json['groupBy'], 'groupBy')),
         aggregate: _aggregateOf(json['aggregate']),
       );
 

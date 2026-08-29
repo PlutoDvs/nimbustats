@@ -79,6 +79,22 @@ void main() {
           throwsFormatException);
     });
 
+    test('a malformed nested value throws FormatException', () {
+      // Same reason as QuerySpec: a stored filter set that lost its shape must
+      // be reportable, not fatal.
+      final malformed = <Map<String, Object?>>[
+        {'dateRange': 'not a map'},
+        {'dateRange': <String, Object?>{'start': 20260101}}, // no end
+        {'dateRange': <String, Object?>{'start': 'x', 'end': 1}},
+        {'tags': 'not a map'},
+        {'amountRange': 'not a map'},
+      ];
+      for (final json in malformed) {
+        expect(() => QueryFilters.fromJson(json), throwsFormatException,
+            reason: 'did not reject $json as a FormatException');
+      }
+    });
+
     test('value equality covers every field', () {
       const a = QueryFilters(direction: MoneyDirection.expense);
       const b = QueryFilters(direction: MoneyDirection.income);

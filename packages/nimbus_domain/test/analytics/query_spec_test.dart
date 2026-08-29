@@ -91,6 +91,31 @@ void main() {
       }
     });
 
+    test('a malformed document throws FormatException, not a TypeError', () {
+      // Decision 1 says fromJson throws on a missing required field. A bare
+      // null-check throws a TypeError instead, which is an Error rather than
+      // an Exception -- so a caller that reasonably catches Exception around
+      // a stored spec would not catch it, and the app would die on a corrupt
+      // row instead of reporting it.
+      final malformed = <Map<String, Object?>>[
+        {'nope': 1},
+        {'groupBy': {'kind': 'none'}, 'aggregate': 'sum'}, // no filters
+        {'filters': <String, Object?>{}, 'aggregate': 'sum'}, // no groupBy
+        {'filters': 'not a map', 'groupBy': {'kind': 'none'}, 'aggregate': 'sum'},
+      ];
+      for (final json in malformed) {
+        expect(() => QuerySpec.fromJson(json), throwsFormatException,
+            reason: 'did not reject $json as a FormatException');
+      }
+    });
+
+    test('a category group-by missing its depth throws FormatException', () {
+      expect(() => GroupBy.fromJson({'kind': 'category'}),
+          throwsFormatException);
+      expect(() => GroupBy.fromJson({'kind': 'category', 'depth': 'two'}),
+          throwsFormatException);
+    });
+
     test('an unknown aggregate throws', () {
       expect(
           () => QuerySpec.fromJson({

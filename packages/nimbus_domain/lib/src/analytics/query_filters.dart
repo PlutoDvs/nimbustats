@@ -2,6 +2,7 @@ import 'package:meta/meta.dart';
 
 import '../calendar/date_key.dart';
 import 'amount_range.dart';
+import 'json_support.dart';
 import 'reflection_levels.dart';
 import 'tag_filter.dart';
 
@@ -33,7 +34,7 @@ final class QueryFilters {
         categorySubtreePaths: _stringsOf(json['categorySubtreePaths']),
         tags: json['tags'] == null
             ? null
-            : TagFilter.fromJson((json['tags']! as Map).cast<String, Object?>()),
+            : TagFilter.fromJson(jsonMapOf(json['tags'], 'tags')),
         paymentMethodIds: _stringsOf(json['paymentMethodIds']),
         necessity: _stringsOf(json['necessity'])
             .map((v) => _enumOf(NecessityLevel.values, v, 'necessity'))
@@ -44,7 +45,7 @@ final class QueryFilters {
         amountRange: json['amountRange'] == null
             ? null
             : AmountRange.fromJson(
-                (json['amountRange']! as Map).cast<String, Object?>()),
+                jsonMapOf(json['amountRange'], 'amountRange')),
         confirmedOnly: json['confirmedOnly'] as bool? ?? false,
         searchText: json['searchText'] as String?,
       );
@@ -87,9 +88,16 @@ final class QueryFilters {
 
   static DateRange? _rangeOf(Object? value) {
     if (value == null) return null;
-    final map = (value as Map).cast<String, Object?>();
-    return DateRange(
-        DateKey(map['start']! as int), DateKey(map['end']! as int));
+    final map = jsonMapOf(value, 'dateRange');
+    final start = map['start'];
+    final end = map['end'];
+    if (start is! int || end is! int) {
+      // Both ends are required. Defaulting one would quietly widen or narrow
+      // every result computed from the restored filter set.
+      throw FormatException('dateRange needs int start and end, got '
+          '"$start" and "$end"');
+    }
+    return DateRange(DateKey(start), DateKey(end));
   }
 
   static List<String> _stringsOf(Object? value) => switch (value) {
