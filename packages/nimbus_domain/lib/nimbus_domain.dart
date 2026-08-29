@@ -6,7 +6,9 @@ library;
 
 export 'src/analytics/aggregate.dart';
 export 'src/analytics/amount_range.dart';
+export 'src/analytics/group_by.dart';
 export 'src/analytics/query_filters.dart';
+export 'src/analytics/query_spec.dart';
 export 'src/analytics/reflection_levels.dart';
 export 'src/analytics/tag_filter.dart';
 export 'src/calendar/calendar.dart';
