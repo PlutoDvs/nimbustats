@@ -23,6 +23,14 @@ blocked, and who can unblock it.
 
 **Status:** open. Found 2026-08-22 during Phase 1 Task 2.
 
+**Re-checked 2026-08-29** at the end of the Phase 3 engine work. Still open,
+and note that a bare `curl` against
+`https://maven.google.com/androidx/core/core/1.13.1/core-1.13.1.pom` is **not**
+a valid probe for this: it returns 404, meaning the host answered and the path
+is simply wrong (that repository serves artifacts under
+`dl.google.com/dl/android/maven2/...`). A 404 there is evidence of nothing.
+Only a real Gradle resolution closes this item.
+
 Gradle runs, then fails to resolve the Android Gradle Plugin:
 
 ```
