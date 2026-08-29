@@ -57,7 +57,7 @@ front so parallel phases never contend for the same number.
 | 0 — Foundation | v1 | **v1** | settings, categories, tags, payment_methods, transactions, transaction_tags |
 | 1 — Expenses | v2–v9 | — | (none expected; Phase 0 creates what Phase 1 needs) |
 | 2 — Capture | v10–v19 | — | captured_messages, message_templates, merchant_rules |
-| 3 — Analytics | v20–v29 | — | saved_views |
+| 3 — Analytics | v20–v29 | **v20** | saved_views |
 | 4 — Trackers | v30–v39 | — | trackers, tracker_entries |
 | 5 — Goals | v40–v49 | — | goals, goal_period_results |
 | 6 — Outside the app | v50–v59 | — | (none expected) |

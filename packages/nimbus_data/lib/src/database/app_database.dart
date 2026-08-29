@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:drift/drift.dart';
@@ -5,7 +6,9 @@ import 'package:drift/native.dart';
 import 'package:nimbus_domain/nimbus_domain.dart';
 
 import '../tables/categories_table.dart';
+import '../analytics/saved_view.dart';
 import '../tables/payment_methods_table.dart';
+import '../tables/saved_views_table.dart';
 import '../tables/settings_table.dart';
 import '../tables/tags_table.dart';
 import '../tables/transaction_tags_table.dart';
@@ -24,6 +27,7 @@ part 'app_database.g.dart';
     PaymentMethods,
     Transactions,
     TransactionTags,
+    SavedViews,
   ],
 )
 class AppDatabase extends _$AppDatabase {
@@ -48,17 +52,30 @@ class AppDatabase extends _$AppDatabase {
   factory AppDatabase.openInMemory() => AppDatabase(NativeDatabase.memory());
 
   @override
-  int get schemaVersion => 1;
+  int get schemaVersion => 20;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
         onCreate: (m) async {
           await m.createAll();
         },
-        // No onUpgrade at v1: there is nothing to upgrade from. drift's default
-        // throws when a version bump arrives without a strategy, so a future
-        // phase that raises schemaVersion and forgets the migration fails
-        // loudly on open rather than quietly running against the wrong schema.
+        onUpgrade: (m, from, to) async {
+          // v1 -> v20: Phase 3 adds saved_views. Phases 1 and 2 consumed no
+          // schema version, so there is no intermediate step to write. The
+          // reserved per-phase ranges in CONVENTIONS.md are what make that
+          // safe rather than lucky: two branches both bumping to v2 would
+          // produce a merge in which one migration silently disappears, and
+          // the failure lands on a user's device, not in CI.
+          if (from < 20) {
+            await m.createTable(savedViews);
+            // createTable does not bring the table's indexes with it, but a
+            // fresh install's createAll does. Without this line an upgraded
+            // device runs the pinned-views query without its index while a
+            // new install has it -- two populations on different schemas,
+            // which is exactly what the migration test exists to catch.
+            await m.create(idxSavedViewsPinned);
+          }
+        },
         beforeOpen: (details) async {
           await customStatement('PRAGMA foreign_keys = ON');
         },
@@ -72,6 +89,7 @@ class AppDatabase extends _$AppDatabase {
   late final TagsDao tagsDao = TagsDao(this);
   late final TransactionsDao transactionsDao = TransactionsDao(this);
   late final PaymentMethodsDao paymentMethodsDao = PaymentMethodsDao(this);
+  late final SavedViewsDao savedViewsDao = SavedViewsDao(this);
 }
 
 /// Application settings. Reads return null for an absent key rather than
@@ -1110,4 +1128,85 @@ class TransactionsDao {
   /// the links go with the row.
   Future<void> deleteTransaction(String id) =>
       (_db.delete(_db.transactions)..where((t) => t.id.equals(id))).go();
+}
+
+
+/// Named `QuerySpec`s the user pinned.
+///
+/// Reads parse the stored JSON here rather than handing `specJson` outward, so
+/// there is one place that decides what a malformed row means and no caller can
+/// forget to look.
+class SavedViewsDao {
+  SavedViewsDao(this._db);
+
+  final AppDatabase _db;
+
+  Future<SavedView?> byId(String id) async {
+    final row = await (_db.select(_db.savedViews)
+          ..where((t) => t.id.equals(id))
+          ..where((t) => t.deletedAt.isNull()))
+        .getSingleOrNull();
+    return row == null ? null : _parse(row);
+  }
+
+  /// Pinned views, in the order the user arranged them.
+  Future<List<SavedView>> pinned() async {
+    final rows = await (_db.select(_db.savedViews)
+          ..where((t) => t.deletedAt.isNull())
+          ..where((t) => t.pinned.equals(true))
+          ..orderBy([(t) => OrderingTerm.asc(t.sortOrder)]))
+        .get();
+    return rows.map(_parse).toList();
+  }
+
+  /// Inserts or replaces the view with [id].
+  ///
+  /// The spec is serialized here so a caller cannot store a hand-built string
+  /// that no longer parses.
+  Future<void> upsert({
+    required String id,
+    required String name,
+    required QuerySpec spec,
+    required String chartType,
+    required bool pinned,
+    required int sortOrder,
+  }) {
+    final now = DateTime.now().millisecondsSinceEpoch;
+    return _db.into(_db.savedViews).insertOnConflictUpdate(
+          SavedViewsCompanion.insert(
+            id: id,
+            name: name,
+            specJson: jsonEncode(spec.toJson()),
+            chartType: chartType,
+            pinned: Value(pinned),
+            sortOrder: Value(sortOrder),
+            createdAt: now,
+            updatedAt: now,
+          ),
+        );
+  }
+
+  Future<void> softDelete(String id) {
+    final now = DateTime.now().millisecondsSinceEpoch;
+    return (_db.update(_db.savedViews)..where((t) => t.id.equals(id)))
+        .write(SavedViewsCompanion(
+      deletedAt: Value(now),
+      updatedAt: Value(now),
+    ));
+  }
+
+  /// Parses a stored row.
+  ///
+  /// A malformed spec throws. Substituting a default would render some other
+  /// chart under the name the user gave this one, which is worse than an
+  /// error because it looks like it worked.
+  static SavedView _parse(SavedViewRow row) => SavedView(
+        id: row.id,
+        name: row.name,
+        spec: QuerySpec.fromJson(
+            jsonDecode(row.specJson) as Map<String, Object?>),
+        chartType: row.chartType,
+        pinned: row.pinned,
+        sortOrder: row.sortOrder,
+      );
 }

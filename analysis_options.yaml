@@ -1,6 +1,12 @@
 include: package:lints/recommended.yaml
 
 analyzer:
+  exclude:
+    # Written by `drift_dev schema generate` for the migration test and
+    # regenerated whenever a schema version is added. It is drift's code, held
+    # to drift's style, and editing it to satisfy this project's stricter rules
+    # would be undone by the next regeneration.
+    - packages/nimbus_data/test/generated/**
   language:
     strict-casts: true
     strict-inference: true
