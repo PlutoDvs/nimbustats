@@ -4,8 +4,10 @@
 /// concurrent phases appending to this barrel merge cleanly.
 library;
 
+export 'src/analytics/analytics_engine.dart';
 export 'src/analytics/analytics_predicates.dart';
 export 'src/analytics/compiled_query.dart';
+export 'src/analytics/group_expressions.dart';
 export 'src/database/app_database.dart';
 export 'src/database/columns.dart';
 export 'src/database/converters.dart';
