@@ -16,6 +16,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get amount => 'Amount';
 
   @override
+  String get analyticsEmptyBody =>
+      'Record a few expenses and your spending breakdown appears here.';
+
+  @override
+  String get analyticsEmptyTitle => 'Nothing to chart yet';
+
+  @override
   String get appTitle => 'NimbuStats';
 
   @override
@@ -115,6 +122,15 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get currency_usd => 'USD';
+
+  @override
+  String get navAnalytics => 'Analytics';
+
+  @override
+  String get navHome => 'Home';
+
+  @override
+  String get navSettings => 'Settings';
 
   @override
   String get onboardingCalendarTitle => 'Calendar';
@@ -476,10 +492,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get txSatisfactionRegret => 'Regret';
 
   @override
-  String get txSaveFailed => 'Could not save';
+  String get txSaved => 'Saved';
 
   @override
-  String get txSaved => 'Saved';
+  String get txSaveFailed => 'Could not save';
 
   @override
   String get txSearchHint => 'Search merchant or note';

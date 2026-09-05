@@ -13,13 +13,19 @@ const addTransactionRoute = '/add';
 /// declared; Phase 6's widget deep-links to `$transactionDetailRoute/<id>`.
 const transactionDetailRoute = '/tx';
 
-/// This feature's routes, composed into the app router by `app_router.dart`.
-final transactionRoutes = <RouteBase>[
+/// The list is a nav-shell destination, so it keeps the bottom bar.
+final transactionShellRoutes = <RouteBase>[
   GoRoute(
     path: transactionListRoute,
     name: 'home',
     builder: (context, state) => const TransactionListScreen(),
   ),
+];
+
+/// Full-screen tasks, pushed over the shell rather than living inside it: both
+/// of these own the whole screen, and adding an expense already carries its
+/// own bottom bar for the save action.
+final transactionRoutes = <RouteBase>[
   GoRoute(
     path: addTransactionRoute,
     name: 'tx-add',

@@ -16,6 +16,13 @@ class AppLocalizationsFa extends AppLocalizations {
   String get amount => 'مبلغ';
 
   @override
+  String get analyticsEmptyBody =>
+      'چند هزینه ثبت کنید تا تفکیک خرج‌هایتان اینجا نمایش داده شود.';
+
+  @override
+  String get analyticsEmptyTitle => 'هنوز چیزی برای نمودار نیست';
+
+  @override
   String get appTitle => 'NimbuStats';
 
   @override
@@ -115,6 +122,15 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get currency_usd => 'دلار';
+
+  @override
+  String get navAnalytics => 'تحلیل‌ها';
+
+  @override
+  String get navHome => 'خانه';
+
+  @override
+  String get navSettings => 'تنظیمات';
 
   @override
   String get onboardingCalendarTitle => 'تقویم';
@@ -475,10 +491,10 @@ class AppLocalizationsFa extends AppLocalizations {
   String get txSatisfactionRegret => 'پشیمان';
 
   @override
-  String get txSaveFailed => 'ذخیره نشد';
+  String get txSaved => 'ذخیره شد';
 
   @override
-  String get txSaved => 'ذخیره شد';
+  String get txSaveFailed => 'ذخیره نشد';
 
   @override
   String get txSearchHint => 'جست‌وجوی فروشنده یا یادداشت';

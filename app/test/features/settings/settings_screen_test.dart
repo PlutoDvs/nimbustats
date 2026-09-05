@@ -84,6 +84,15 @@ void main() {
   testWidgets('settings reaches the three managers', (tester) async {
     await pumpApp(tester, seedFirstRun: true, initialLocation: '/settings');
 
+    // Scrolled to, not tapped blind: the nav shell took roughly a nav bar's
+    // height off the viewport, and a ListView does not build what is below the
+    // fold, so this tile is genuinely absent from the tree until scrolled into
+    // view. That is what a user does too.
+    await tester.scrollUntilVisible(
+      find.byKey(const Key('settings-tags')),
+      200,
+      scrollable: find.byType(Scrollable).first,
+    );
     await tester.tap(find.byKey(const Key('settings-tags')));
     await tester.pumpAndSettle();
     expect(find.text('Tags'), findsWidgets);

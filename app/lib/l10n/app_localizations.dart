@@ -110,6 +110,18 @@ abstract class AppLocalizations {
   /// **'Amount'**
   String get amount;
 
+  /// No description provided for @analyticsEmptyBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Record a few expenses and your spending breakdown appears here.'**
+  String get analyticsEmptyBody;
+
+  /// No description provided for @analyticsEmptyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing to chart yet'**
+  String get analyticsEmptyTitle;
+
   /// No description provided for @appTitle.
   ///
   /// In en, this message translates to:
@@ -289,6 +301,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'USD'**
   String get currency_usd;
+
+  /// No description provided for @navAnalytics.
+  ///
+  /// In en, this message translates to:
+  /// **'Analytics'**
+  String get navAnalytics;
+
+  /// No description provided for @navHome.
+  ///
+  /// In en, this message translates to:
+  /// **'Home'**
+  String get navHome;
+
+  /// No description provided for @navSettings.
+  ///
+  /// In en, this message translates to:
+  /// **'Settings'**
+  String get navSettings;
 
   /// No description provided for @onboardingCalendarTitle.
   ///
@@ -968,17 +998,17 @@ abstract class AppLocalizations {
   /// **'Regret'**
   String get txSatisfactionRegret;
 
-  /// No description provided for @txSaveFailed.
-  ///
-  /// In en, this message translates to:
-  /// **'Could not save'**
-  String get txSaveFailed;
-
   /// No description provided for @txSaved.
   ///
   /// In en, this message translates to:
   /// **'Saved'**
   String get txSaved;
+
+  /// No description provided for @txSaveFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not save'**
+  String get txSaveFailed;
 
   /// No description provided for @txSearchHint.
   ///

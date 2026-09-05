@@ -5,6 +5,9 @@ import 'package:nimbus_design/nimbus_design.dart';
 
 import '../l10n/app_localizations.dart';
 
+import 'app_shell.dart';
+
+import '../features/analytics/routes.dart';
 import '../features/categories/routes.dart';
 import '../features/onboarding/routes.dart';
 import '../features/payment_methods/routes.dart';
@@ -27,12 +30,23 @@ final appRouterProvider =
   final router = GoRouter(
     initialLocation: initialLocation ?? '/',
     routes: <RouteBase>[
-      // Feature route lists are appended here, one per line, as each lands:
+      // The nav-shell destinations. A feature contributes at most one, and
+      // whether a screen belongs here or below is the whole distinction: these
+      // keep the bottom bar, everything below covers it.
+      ShellRoute(
+        builder: (context, state, child) => AppShell(child: child),
+        routes: <RouteBase>[
+          ...transactionShellRoutes,
+          ...analyticsShellRoutes,
+          ...settingsShellRoutes,
+        ],
+      ),
+      // Full-screen routes, pushed over the shell. Appended one per line as
+      // each feature lands:
       ...transactionRoutes,
       ...categoryRoutes,
       ...tagRoutes,
       ...paymentMethodRoutes,
-      ...settingsRoutes,
       ...onboardingRoutes,
     ],
     errorBuilder: (context, state) => const RouteNotFoundScreen(),
