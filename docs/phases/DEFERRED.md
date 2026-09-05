@@ -11,11 +11,11 @@ blocked, and who can unblock it.
 |---|---|---|---|
 | D1 | Android build unverified — Google Maven unreachable | Phase 1 Task 16, every APK build | Operator (network) |
 | D2 | Gradle distribution needs manual seeding on a fresh machine | Any new dev machine or CI | Operator (network) |
-| D3 | pub.dev archive access depends on the VPN exit node | Adding any new package, Phase 2 onward | Operator (network) |
 | D4 | Claude Design token sheet does not exist | Nothing hard-blocked; visual polish | Operator (design) |
-| D7 | `fl_chart` unavailable — Phase 3's charts and dashboard | Phase 3 tasks 9–14 | Operator (network, via D3) |
+| D3 | ~~pub.dev archive access depends on the VPN exit node~~ | — | **Resolved 2026-09-05** |
 | D5 | ~~Router error screen has no localized copy~~ | — | **Resolved 2026-08-24** |
 | D6 | ~~Flutter-specific lints are not active~~ | — | **Resolved 2026-08-22** |
+| D7 | ~~`fl_chart` unavailable — Phase 3's charts and dashboard~~ | — | **Resolved 2026-09-05** |
 
 ---
 
@@ -30,6 +30,30 @@ a valid probe for this: it returns 404, meaning the host answered and the path
 is simply wrong (that repository serves artifacts under
 `dl.google.com/dl/android/maven2/...`). A 404 there is evidence of nothing.
 Only a real Gradle resolution closes this item.
+
+**Re-checked 2026-09-05** on a new exit node — the one that cleared D3 and D7.
+pub.dev went to 200; Google did not move. Confirmed by the real Gradle
+resolution, which failed with the identical error recorded below.
+
+That run also produced a *sound* curl probe, which the 2026-08-29 note above
+correctly said the old one was not. Ask for a Google-hosted path that
+unquestionably exists and compare the response size:
+
+```bash
+curl -sL -o /dev/null -w "%{http_code} %{size_download}B\n" \
+  https://dl.google.com/android/repository/repository2-1.xml
+```
+
+On 2026-09-05 this returned `404 1449B` — and so did
+`dl.google.com/dl/android/maven2/androidx/core/core/1.13.1/core-1.13.1.pom` and
+`maven.google.com/androidx/core/core/1.13.1/core-1.13.1.pom`. Three different
+Google paths, two of which certainly exist, all answering with the same
+1,449-byte generic Google error page, while `services.gradle.org` returned 200
+and 2 MB from the same node. Identical sizes across paths that should differ is
+interception; it is not three coincidental 404s.
+
+`200` means the interception is gone. Still run the Gradle build to close the
+item — the probe can only tell you when it is worth trying.
 
 Gradle runs, then fails to resolve the Android Gradle Plugin:
 
@@ -131,13 +155,31 @@ toolchain is proven end to end.
 
 ---
 
-## D3 — pub.dev archive access depends on the VPN exit node
+## D3 — pub.dev archive access depends on the VPN exit node — RESOLVED
 
-**Status:** open, and **not** currently working. Rechecked 2026-08-29: both
-`https://pub.dev/api/archives/<pkg>.tar.gz` and
-`https://pub.dev/api/packages/<pkg>` return **403**, so metadata resolution is
-failing too — worse than the partial failure first recorded below. No new
-package can be added at all right now. This is what blocks **D7**.
+**Status:** resolved 2026-09-05 by an operator exit-node change. Both
+`https://pub.dev/api/packages/fl_chart` and
+`https://pub.dev/api/archives/crypto-3.0.6.tar.gz` returned **200** with real
+bodies (90,863 B and 612,122 B), where on 2026-08-29 both returned 403.
+
+**The window was treated as temporary, because it has closed before.** This
+item is resolved by an exit node, not by a fix, so the same node change that
+opened it can close it again. Everything foreseeably needed was pulled while it
+held:
+
+- `fl_chart 1.2.0` added to `app/pubspec.yaml` — the one third-party package
+  the spec names. Resolves **D7**.
+- `cryptography 2.9.0`, `pointycastle 4.0.0`, `file_picker 12.2.0` and
+  `share_plus 13.3.0` downloaded to the **local pub cache only**, via
+  `dart pub cache add`. No pubspec references them and no stack decision has
+  been made — they are Phase 7 candidates (AEAD + KDF, and the export/restore
+  file flow), cached so that Phase 7's kickoff can choose between them offline
+  rather than needing this node back.
+
+If a later phase needs a package that is not already cached, expect to need a
+tolerated exit node again. Check first, and pull everything in one window.
+
+**Kept for whoever hits this again**, since the failure mode is confusing:
 
 On a Hetzner exit (`91.107.187.87`), pub.dev's CDN rate-limited the IP:
 metadata resolved fine, tarballs returned 403 after a handful of requests. The
@@ -251,33 +293,36 @@ Two details worth keeping:
 
 ---
 
-## D7 — `fl_chart` unavailable: Phase 3 cannot draw
+## D7 — `fl_chart` unavailable: Phase 3 cannot draw — RESOLVED
 
-**Status:** open. Found 2026-08-29 at Phase 3 kickoff.
+**Status:** resolved 2026-09-05, when **D3** cleared. `fl_chart 1.2.0` is now a
+dependency of `app/` (it brings `equatable 2.1.0` transitively). The lockfile
+change was purely additive — 17 insertions, no deletions, no existing package's
+version moved — and `dart analyze --fatal-infos` stayed clean.
 
-The spec's stack decision names `fl_chart` for charts. It is in neither
-`pubspec.lock` nor the local pub cache, and **D3** currently returns 403 from
-pub.dev for both archives *and* metadata, so it cannot be added:
+Found 2026-08-29 at Phase 3 kickoff: the spec's stack decision names `fl_chart`
+for charts, and it was in neither `pubspec.lock` nor the local pub cache while
+pub.dev returned 403 for archives *and* metadata.
 
-```bash
-curl -sL -o /dev/null -w "%{http_code}\n" https://pub.dev/api/packages/fl_chart
-```
-
-`200` means D3 has cleared and this is unblocked too.
-
-**What this blocks:** Phase 3 tasks 9–14 — the breakdown screen, trends,
+**What this unblocks:** Phase 3 tasks 9–14 — the breakdown screen, trends,
 period comparison, the tag × category cross-tab, patterns, the necessity ×
 satisfaction matrix, saved-view UI, and the dashboard.
 
-**What it does not block:** tasks 1–8, the whole engine — `QuerySpec`,
-`PeriodBoundaries`, the SQL compiler, group-by dimensions, the tag
-double-count and rollup correctness tests, `EXPLAIN QUERY PLAN` assertions,
-and schema v20 `saved_views`. None of that draws anything.
+**Note that these are unblocked for development but not for their gate.**
+Charts render and assert on the host through widget and golden tests, which
+need no APK. Phase 3's *acceptance* run measures chart performance on hardware,
+so `phase-3-complete` still waits on **D1** — as it already did.
 
-This is the better half to build first regardless of the network: the brief's
-two silent-correctness traps — tag double-counting and nested-tag rollup — live
-in the engine, and the charts are supposed to render what the engine already
-proved correct.
+**It never blocked tasks 1–8**, the whole engine, which shipped on 2026-08-29
+while this was open — `QuerySpec`, `PeriodBoundaries`, the SQL compiler,
+group-by dimensions, the tag double-count and rollup correctness tests,
+`EXPLAIN QUERY PLAN` assertions, and schema v20 `saved_views`. None of it draws
+anything.
+
+Building that half first turned out to be right on its own merits rather than
+only as a way around the network: the brief's two silent-correctness traps —
+tag double-counting and nested-tag rollup — live in the engine, and the charts
+now have a proven-correct thing to render.
 
 **Note for whoever picks the UI up:** the engine returns `trueTotal` alongside
 its buckets precisely so a tag chart can disclose that its slices do not sum to
