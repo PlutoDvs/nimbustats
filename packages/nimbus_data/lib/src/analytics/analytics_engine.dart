@@ -101,6 +101,12 @@ final class AnalyticsEngine {
           satisfaction: _levelOf(SatisfactionLevel.values, row.data['bucket2']),
         ),
       GroupByPeriod() => PeriodKey(periods[bucket! as int]),
+      GroupByTagCrossCategory() => TagCategoryKey(
+          tagId: bucket! as String,
+          tagPath: row.data['bucket2']! as String,
+          categoryId: row.data['bucket3']! as String,
+          categoryPath: row.data['bucket4']! as String,
+        ),
     };
   }
 

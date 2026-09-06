@@ -78,6 +78,8 @@ abstract final class GroupExpressions {
             variables: const [],
           ),
         GroupByPeriod(:final period) => _periodFragment(period, span, calendar),
+        GroupByTagCrossCategory(:final depth) =>
+          _tagCrossCategoryFragment(depth),
       };
 
   /// Groups on the ancestor category at [depth], not on the leaf.
@@ -96,6 +98,30 @@ abstract final class GroupExpressions {
         selectSql: 'a.id AS bucket, a.path AS bucket2',
         groupSql: 'bucket, bucket2',
         joinSql: ' JOIN categories c ON c.id = t.category_id'
+            ' JOIN categories a ON a.deleted_at IS NULL'
+            ' AND a.depth = min(c.depth, ?)'
+            ' AND substr(c.path, 1, length(a.path)) = a.path',
+        variables: [Variable.withInt(depth)],
+      );
+
+  /// Tag x category in one statement.
+  ///
+  /// Both joins of the single-axis fragments, side by side: the tag join
+  /// multiplies each transaction by its tags, and the ancestor self-join rolls
+  /// the category up exactly as [_categoryFragment] does. The row
+  /// multiplication is the intended behaviour here rather than a bug -- it is
+  /// what a cross-tab is -- and it is why the caller must disclose that the
+  /// cells do not reconcile with the total.
+  ///
+  /// Four aliases because each axis carries an id and a path: the id keys the
+  /// cell and the path is what a drill-down needs to filter a subtree.
+  static GroupFragment _tagCrossCategoryFragment(int depth) => (
+        selectSql: 'tg.id AS bucket, tg.path AS bucket2, '
+            'a.id AS bucket3, a.path AS bucket4',
+        groupSql: 'bucket, bucket2, bucket3, bucket4',
+        joinSql: ' JOIN transaction_tags tt ON tt.transaction_id = t.id'
+            ' JOIN tags tg ON tg.id = tt.tag_id AND tg.deleted_at IS NULL'
+            ' JOIN categories c ON c.id = t.category_id'
             ' JOIN categories a ON a.deleted_at IS NULL'
             ' AND a.depth = min(c.depth, ?)'
             ' AND substr(c.path, 1, length(a.path)) = a.path',

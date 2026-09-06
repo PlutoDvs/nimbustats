@@ -21,6 +21,8 @@ sealed class GroupBy {
         'reflection' => const GroupByReflection(),
         'hourOfDay' => const GroupByHourOfDay(),
         'dayOfWeek' => const GroupByDayOfWeek(),
+        'tagCrossCategory' =>
+          GroupByTagCrossCategory(_depthOf(json['depth'])),
         final other => throw FormatException('unknown group-by kind "$other"'),
       };
 
@@ -174,4 +176,43 @@ final class GroupByDayOfWeek extends GroupBy {
   int get hashCode => kind.hashCode;
   @override
   String toString() => 'GroupByDayOfWeek()';
+}
+
+/// Tag x category: one bucket per pair, with the category rolled up to
+/// [depth].
+///
+/// A concrete pair rather than a generic cross-product of any two dimensions,
+/// following [GroupByReflection], which is likewise two axes in one key rather
+/// than a mechanism. Nothing in the app asks to cross arbitrary dimensions,
+/// and a generic version would have to reject the combinations that make no
+/// sense -- a period crossed with itself, a cross-tab of a cross-tab -- for a
+/// generality no caller wants.
+///
+/// **Buckets on this dimension overlap**, because one axis is tags: a
+/// transaction tagged twice appears in two rows of the matrix. `QuerySpec`
+/// reports this through `isTagDimension`, and a transaction with no tags at
+/// all appears in no cell -- which is why the cells cannot be reconciled with
+/// the total by arithmetic and the UI has to say so.
+final class GroupByTagCrossCategory extends GroupBy {
+  GroupByTagCrossCategory(this.depth) {
+    if (depth < 0) {
+      throw ArgumentError.value(depth, 'depth', 'must not be negative');
+    }
+  }
+
+  /// Depth of the category axis, with the same meaning as in
+  /// [GroupByCategory].
+  final int depth;
+
+  @override
+  String get kind => 'tagCrossCategory';
+  @override
+  Map<String, Object?> toJson() => {'kind': kind, 'depth': depth};
+  @override
+  bool operator ==(Object other) =>
+      other is GroupByTagCrossCategory && other.depth == depth;
+  @override
+  int get hashCode => Object.hash(kind, depth);
+  @override
+  String toString() => 'GroupByTagCrossCategory($depth)';
 }

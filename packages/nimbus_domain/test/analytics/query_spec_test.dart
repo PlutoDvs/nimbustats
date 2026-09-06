@@ -12,7 +12,26 @@ final everyDimension = <GroupBy>[
   GroupByReflection(),
   GroupByHourOfDay(),
   GroupByDayOfWeek(),
+  GroupByTagCrossCategory(1),
 ];
+
+/// Exhaustive over the sealed family on purpose.
+///
+/// Adding a GroupBy case makes this switch non-exhaustive, which is a compile
+/// error rather than a test that quietly keeps passing with one dimension
+/// untested.
+String kindOf(GroupBy dimension) => switch (dimension) {
+      GroupByNone() => 'none',
+      GroupByCategory() => 'category',
+      GroupByTag() => 'tag',
+      GroupByPeriod() => 'period',
+      GroupByPaymentMethod() => 'paymentMethod',
+      GroupByMerchant() => 'merchant',
+      GroupByReflection() => 'reflection',
+      GroupByHourOfDay() => 'hourOfDay',
+      GroupByDayOfWeek() => 'dayOfWeek',
+      GroupByTagCrossCategory() => 'tagCrossCategory',
+    };
 
 void main() {
   group('GroupBy', () {
@@ -48,9 +67,18 @@ void main() {
     });
 
     test('every case is covered by this test', () {
-      // Guards against a dimension being added without a round-trip test.
+      // Two guards, because the first one alone is not enough. Distinct kinds
+      // only prove the list has no duplicates -- a dimension added to the
+      // library and forgotten here would still pass.
       expect(everyDimension.map((d) => d.kind).toSet(),
           hasLength(everyDimension.length));
+
+      // The real guard is the switch in `kindOf` below: GroupBy is sealed, so
+      // adding a case makes that switch non-exhaustive and this file stops
+      // compiling. Comparing its output against the list catches the case
+      // where somebody adds the branch but not the fixture.
+      expect(everyDimension.map(kindOf).toSet(),
+          everyDimension.map((d) => d.kind).toSet());
     });
   });
 
@@ -79,13 +107,20 @@ void main() {
       expect(QuerySpec.fromJson(spec.toJson()), spec);
     });
 
-    test('isTagDimension is true only for the tag grouping', () {
+    test('isTagDimension is true for exactly the dimensions with a tag axis',
+        () {
+      // Both of them: a tag breakdown, and the tag x category cross-tab, whose
+      // rows overlap for the same reason. Written as an explicit type test
+      // rather than reading the flag back off the spec, so this asserts the
+      // intended set rather than restating the implementation.
       for (final dimension in everyDimension) {
         final spec = QuerySpec(
             filters: const QueryFilters(),
             groupBy: dimension,
             aggregate: Aggregate.sum);
-        expect(spec.isTagDimension, dimension is GroupByTag,
+        final hasTagAxis =
+            dimension is GroupByTag || dimension is GroupByTagCrossCategory;
+        expect(spec.isTagDimension, hasTagAxis,
             reason: '$dimension reported the wrong tag-dimension answer, and '
                 'that flag is what makes a chart disclose double-counting');
       }

@@ -135,6 +135,33 @@ final class DayOfWeekKey extends BucketKey {
   String toString() => 'DayOfWeekKey($weekday)';
 }
 
+/// One cell of a tag x category matrix.
+final class TagCategoryKey extends BucketKey {
+  const TagCategoryKey({
+    required this.tagId,
+    required this.tagPath,
+    required this.categoryId,
+    required this.categoryPath,
+  });
+
+  final String tagId;
+  final String tagPath;
+  final String categoryId;
+  final String categoryPath;
+
+  @override
+  bool operator ==(Object other) =>
+      other is TagCategoryKey &&
+      other.tagId == tagId &&
+      other.tagPath == tagPath &&
+      other.categoryId == categoryId &&
+      other.categoryPath == categoryPath;
+  @override
+  int get hashCode => Object.hash(tagId, tagPath, categoryId, categoryPath);
+  @override
+  String toString() => 'TagCategoryKey($tagId, $categoryId)';
+}
+
 /// One row of an answer.
 @immutable
 final class Bucket {

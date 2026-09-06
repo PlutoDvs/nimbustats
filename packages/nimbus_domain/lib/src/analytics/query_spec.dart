@@ -31,7 +31,8 @@ final class QuerySpec {
   /// True when buckets on this dimension can overlap, so their sum exceeds the
   /// true total. Exposed as one predicate rather than left to callers to
   /// rediscover with a type check -- a chart that forgets is a chart that lies.
-  bool get isTagDimension => groupBy is GroupByTag;
+  bool get isTagDimension =>
+      groupBy is GroupByTag || groupBy is GroupByTagCrossCategory;
 
   Map<String, Object?> toJson() => {
         'filters': filters.toJson(),
