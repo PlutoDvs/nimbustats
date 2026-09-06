@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'chart_palette.dart';
 import 'colors.dart';
 import 'tokens.dart';
 import 'typography.dart';
@@ -17,7 +18,13 @@ abstract final class NimbusTheme {
       colorScheme: scheme,
       useMaterial3: true,
       textTheme: text,
-      extensions: <ThemeExtension<dynamic>>[semantics],
+      // The chart palette is identical in both themes -- it is banded to clear
+      // non-text contrast against either surface -- so it is registered here
+      // rather than passed in per scheme like the semantic colours.
+      extensions: <ThemeExtension<dynamic>>[
+        semantics,
+        NimbusChartColors.standard,
+      ],
       // Standard rather than compact: dynamic type is a stated requirement and
       // compact density fights it from the first notch of enlargement.
       visualDensity: VisualDensity.standard,
