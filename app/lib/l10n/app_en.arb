@@ -6,6 +6,8 @@
   "analyticsEmptyTitle": "Nothing to chart yet",
   "analyticsErrorTitle": "Could not load analytics",
   "analyticsOverlapDisclosure": "These add up to more than the total: a transaction with several tags is counted under each of them.",
+  "analyticsTabBreakdown": "Breakdown",
+  "analyticsTabTrends": "Trends",
   "appTitle": "NimbuStats",
   "breakdownAllCategories": "All categories",
   "breakdownConfirmedOnly": "Confirmed only",
@@ -181,6 +183,9 @@
       }
     }
   },
+  "trendsCurrentPeriod": "This month",
+  "trendsDeltaNoBaseline": "No spending to compare",
+  "trendsPreviousPeriod": "Last month",
   "txAmountInvalid": "Enter a valid amount",
   "txCategoryMore": "More…",
   "txDateLabel": "Date",

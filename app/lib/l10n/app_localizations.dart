@@ -134,6 +134,18 @@ abstract class AppLocalizations {
   /// **'These add up to more than the total: a transaction with several tags is counted under each of them.'**
   String get analyticsOverlapDisclosure;
 
+  /// No description provided for @analyticsTabBreakdown.
+  ///
+  /// In en, this message translates to:
+  /// **'Breakdown'**
+  String get analyticsTabBreakdown;
+
+  /// No description provided for @analyticsTabTrends.
+  ///
+  /// In en, this message translates to:
+  /// **'Trends'**
+  String get analyticsTabTrends;
+
   /// No description provided for @appTitle.
   ///
   /// In en, this message translates to:
@@ -847,6 +859,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{count, plural, =1{1 use} other{{count} uses}}'**
   String tagUsageCount(int count);
+
+  /// No description provided for @trendsCurrentPeriod.
+  ///
+  /// In en, this message translates to:
+  /// **'This month'**
+  String get trendsCurrentPeriod;
+
+  /// No description provided for @trendsDeltaNoBaseline.
+  ///
+  /// In en, this message translates to:
+  /// **'No spending to compare'**
+  String get trendsDeltaNoBaseline;
+
+  /// No description provided for @trendsPreviousPeriod.
+  ///
+  /// In en, this message translates to:
+  /// **'Last month'**
+  String get trendsPreviousPeriod;
 
   /// No description provided for @txAmountInvalid.
   ///

@@ -30,6 +30,12 @@ class AppLocalizationsFa extends AppLocalizations {
       'جمع این‌ها از کل بیشتر است: تراکنشی که چند برچسب دارد زیر هر کدام شمرده می‌شود.';
 
   @override
+  String get analyticsTabBreakdown => 'تفکیک';
+
+  @override
+  String get analyticsTabTrends => 'روند';
+
+  @override
   String get appTitle => 'NimbuStats';
 
   @override
@@ -421,6 +427,15 @@ class AppLocalizationsFa extends AppLocalizations {
     );
     return '$_temp0';
   }
+
+  @override
+  String get trendsCurrentPeriod => 'این ماه';
+
+  @override
+  String get trendsDeltaNoBaseline => 'چیزی برای مقایسه نیست';
+
+  @override
+  String get trendsPreviousPeriod => 'ماه گذشته';
 
   @override
   String get txAmountInvalid => 'مبلغ معتبر وارد کنید';

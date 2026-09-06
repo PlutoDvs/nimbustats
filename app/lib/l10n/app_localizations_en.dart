@@ -30,6 +30,12 @@ class AppLocalizationsEn extends AppLocalizations {
       'These add up to more than the total: a transaction with several tags is counted under each of them.';
 
   @override
+  String get analyticsTabBreakdown => 'Breakdown';
+
+  @override
+  String get analyticsTabTrends => 'Trends';
+
+  @override
   String get appTitle => 'NimbuStats';
 
   @override
@@ -423,6 +429,15 @@ class AppLocalizationsEn extends AppLocalizations {
     );
     return '$_temp0';
   }
+
+  @override
+  String get trendsCurrentPeriod => 'This month';
+
+  @override
+  String get trendsDeltaNoBaseline => 'No spending to compare';
+
+  @override
+  String get trendsPreviousPeriod => 'Last month';
 
   @override
   String get txAmountInvalid => 'Enter a valid amount';
