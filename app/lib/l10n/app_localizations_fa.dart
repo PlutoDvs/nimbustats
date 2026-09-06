@@ -23,7 +23,30 @@ class AppLocalizationsFa extends AppLocalizations {
   String get analyticsEmptyTitle => 'هنوز چیزی برای نمودار نیست';
 
   @override
+  String get analyticsErrorTitle => 'تحلیل‌ها بارگذاری نشد';
+
+  @override
+  String get analyticsOverlapDisclosure =>
+      'جمع این‌ها از کل بیشتر است: تراکنشی که چند برچسب دارد زیر هر کدام شمرده می‌شود.';
+
+  @override
   String get appTitle => 'NimbuStats';
+
+  @override
+  String get breakdownAllCategories => 'همه دسته‌ها';
+
+  @override
+  String get breakdownConfirmedOnly => 'فقط تأییدشده';
+
+  @override
+  String breakdownTransactionCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count تراکنش',
+    );
+    return '$_temp0';
+  }
 
   @override
   String get category => 'دسته‌بندی';

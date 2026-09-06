@@ -122,11 +122,41 @@ abstract class AppLocalizations {
   /// **'Nothing to chart yet'**
   String get analyticsEmptyTitle;
 
+  /// No description provided for @analyticsErrorTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load analytics'**
+  String get analyticsErrorTitle;
+
+  /// No description provided for @analyticsOverlapDisclosure.
+  ///
+  /// In en, this message translates to:
+  /// **'These add up to more than the total: a transaction with several tags is counted under each of them.'**
+  String get analyticsOverlapDisclosure;
+
   /// No description provided for @appTitle.
   ///
   /// In en, this message translates to:
   /// **'NimbuStats'**
   String get appTitle;
+
+  /// No description provided for @breakdownAllCategories.
+  ///
+  /// In en, this message translates to:
+  /// **'All categories'**
+  String get breakdownAllCategories;
+
+  /// No description provided for @breakdownConfirmedOnly.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirmed only'**
+  String get breakdownConfirmedOnly;
+
+  /// No description provided for @breakdownTransactionCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 transaction} other{{count} transactions}}'**
+  String breakdownTransactionCount(int count);
 
   /// No description provided for @category.
   ///

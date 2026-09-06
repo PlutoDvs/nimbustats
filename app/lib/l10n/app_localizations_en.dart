@@ -23,7 +23,31 @@ class AppLocalizationsEn extends AppLocalizations {
   String get analyticsEmptyTitle => 'Nothing to chart yet';
 
   @override
+  String get analyticsErrorTitle => 'Could not load analytics';
+
+  @override
+  String get analyticsOverlapDisclosure =>
+      'These add up to more than the total: a transaction with several tags is counted under each of them.';
+
+  @override
   String get appTitle => 'NimbuStats';
+
+  @override
+  String get breakdownAllCategories => 'All categories';
+
+  @override
+  String get breakdownConfirmedOnly => 'Confirmed only';
+
+  @override
+  String breakdownTransactionCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count transactions',
+      one: '1 transaction',
+    );
+    return '$_temp0';
+  }
 
   @override
   String get category => 'Category';

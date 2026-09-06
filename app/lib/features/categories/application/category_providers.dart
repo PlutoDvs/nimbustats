@@ -18,3 +18,20 @@ final categoryTreeProvider = StreamProvider<List<CategoryNode>>((ref) {
   ref.keepAlive();
   return ref.watch(categoryRepositoryProvider).watchTree();
 });
+
+/// Every category by id, for turning an id a query returned back into a name.
+///
+/// Built from [categoryTreeProvider], which includes archived rows. That is
+/// the point: archived is a *picker* concern, and dropping those here would
+/// silently shrink last month's spending the moment somebody tidied their
+/// tree. The nodes are kept whole rather than reduced to names so a caller can
+/// also ask whether a category has children -- which is what tells a
+/// breakdown row whether it can be drilled into.
+final categoryNodesByIdProvider =
+    Provider<AsyncValue<Map<String, CategoryNode>>>(
+  (ref) => ref.watch(categoryTreeProvider).whenData(
+        (tree) => {
+          for (final node in CategoryTree.flatten(tree)) node.category.id: node,
+        },
+      ),
+);

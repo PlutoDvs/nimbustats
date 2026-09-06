@@ -4,7 +4,19 @@
   "amount": "Amount",
   "analyticsEmptyBody": "Record a few expenses and your spending breakdown appears here.",
   "analyticsEmptyTitle": "Nothing to chart yet",
+  "analyticsErrorTitle": "Could not load analytics",
+  "analyticsOverlapDisclosure": "These add up to more than the total: a transaction with several tags is counted under each of them.",
   "appTitle": "NimbuStats",
+  "breakdownAllCategories": "All categories",
+  "breakdownConfirmedOnly": "Confirmed only",
+  "breakdownTransactionCount": "{count, plural, =1{1 transaction} other{{count} transactions}}",
+  "@breakdownTransactionCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "category": "Category",
   "categoryArchivedBadge": "Archived",
   "categoryChildCount": "{count, plural, =1{1 subcategory} other{{count} subcategories}}",
