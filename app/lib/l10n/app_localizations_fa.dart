@@ -33,6 +33,9 @@ class AppLocalizationsFa extends AppLocalizations {
   String get analyticsTabBreakdown => 'تفکیک';
 
   @override
+  String get analyticsTabCrossTab => 'برچسب × دسته';
+
+  @override
   String get analyticsTabTrends => 'روند';
 
   @override
@@ -139,6 +142,13 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get commonUndo => 'بازگردانی';
+
+  @override
+  String get crossTabDisclosure =>
+      'تراکنشی که چند برچسب دارد زیر هر کدام شمرده می‌شود، پس جمع این خانه‌ها از کل بیشتر است. خرج بدون برچسب در هیچ‌کدام نمی‌آید.';
+
+  @override
+  String get crossTabRowTotal => 'جمع برچسب';
 
   @override
   String get currency_eur => 'یورو';

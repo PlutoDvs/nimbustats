@@ -140,6 +140,12 @@ abstract class AppLocalizations {
   /// **'Breakdown'**
   String get analyticsTabBreakdown;
 
+  /// No description provided for @analyticsTabCrossTab.
+  ///
+  /// In en, this message translates to:
+  /// **'Tags × categories'**
+  String get analyticsTabCrossTab;
+
   /// No description provided for @analyticsTabTrends.
   ///
   /// In en, this message translates to:
@@ -319,6 +325,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Undo'**
   String get commonUndo;
+
+  /// No description provided for @crossTabDisclosure.
+  ///
+  /// In en, this message translates to:
+  /// **'A transaction with several tags is counted under each of them, so these cells add up to more than the total. Untagged spending appears in none of them.'**
+  String get crossTabDisclosure;
+
+  /// No description provided for @crossTabRowTotal.
+  ///
+  /// In en, this message translates to:
+  /// **'Tag total'**
+  String get crossTabRowTotal;
 
   /// No description provided for @currency_eur.
   ///

@@ -33,6 +33,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get analyticsTabBreakdown => 'Breakdown';
 
   @override
+  String get analyticsTabCrossTab => 'Tags × categories';
+
+  @override
   String get analyticsTabTrends => 'Trends';
 
   @override
@@ -140,6 +143,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get commonUndo => 'Undo';
+
+  @override
+  String get crossTabDisclosure =>
+      'A transaction with several tags is counted under each of them, so these cells add up to more than the total. Untagged spending appears in none of them.';
+
+  @override
+  String get crossTabRowTotal => 'Tag total';
 
   @override
   String get currency_eur => 'EUR';

@@ -4,12 +4,15 @@ import 'package:nimbus_design/nimbus_design.dart';
 
 import '../../../l10n/app_localizations.dart';
 import '../../categories/application/category_providers.dart';
+import '../../tags/application/tag_providers.dart';
 import '../../settings/application/settings_providers.dart';
 import '../application/analytics_providers.dart';
 import '../application/breakdown_controller.dart';
+import '../application/cross_tab_controller.dart';
 import '../application/period_label.dart';
 import '../application/trends_controller.dart';
 import 'widgets/breakdown_body.dart';
+import 'widgets/cross_tab_body.dart';
 import 'widgets/trends_body.dart';
 
 /// The analytics destination.
@@ -25,7 +28,7 @@ class AnalyticsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     return DefaultTabController(
-      length: 2,
+      length: 3,
       child: Scaffold(
         key: const Key('analytics-screen'),
         appBar: AppBar(
@@ -40,6 +43,10 @@ class AnalyticsScreen extends StatelessWidget {
                 key: const Key('analytics-tab-trends'),
                 text: l10n.analyticsTabTrends,
               ),
+              Tab(
+                key: const Key('analytics-tab-crosstab'),
+                text: l10n.analyticsTabCrossTab,
+              ),
             ],
           ),
         ),
@@ -47,7 +54,7 @@ class AnalyticsScreen extends StatelessWidget {
           child: TabBarView(
             // Breakdown lands first: "where did it go" is the question
             // somebody opening analytics already has.
-            children: [_BreakdownTab(), _TrendsTab()],
+            children: [_BreakdownTab(), _TrendsTab(), _CrossTabTab()],
           ),
         ),
       ),
@@ -156,6 +163,58 @@ class _TrendsTab extends ConsumerWidget {
               formatter: ref.watch(moneyFormatterProvider),
             ),
           ),
+        ),
+      ],
+    );
+  }
+}
+
+class _CrossTabTab extends ConsumerWidget {
+  const _CrossTabTab();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final view = ref.watch(crossTabControllerProvider);
+    final controller = ref.read(crossTabControllerProvider.notifier);
+    final result = ref.watch(analyticsResultProvider(view.spec));
+    final categories = ref.watch(categoryNodesByIdProvider);
+    final tags = ref.watch(tagNodesByIdProvider);
+
+    return Column(
+      children: [
+        _ConfirmedOnlySwitch(
+          value: view.confirmedOnly,
+          onChanged: (value) => controller.setConfirmedOnly(value: value),
+          tileKey: const Key('crosstab-confirmed-only'),
+        ),
+        Expanded(
+          // Three futures, one screen: the cells, and the names for each axis.
+          // A matrix labelled with raw ids is not a partial answer, it is an
+          // unreadable one.
+          child: switch ((result, categories, tags)) {
+            (AsyncError(:final error), _, _) ||
+            (_, AsyncError(:final error), _) ||
+            (_, _, AsyncError(:final error)) =>
+              NimbusErrorState(
+                title: AppLocalizations.of(context).analyticsErrorTitle,
+                detail: error.toString(),
+                retryLabel: AppLocalizations.of(context).commonRetry,
+                onRetry: () =>
+                    ref.invalidate(analyticsResultProvider(view.spec)),
+              ),
+            (
+              AsyncData(value: final data),
+              AsyncData(value: final byCategory),
+              AsyncData(value: final byTag)
+            ) =>
+              CrossTabBody(
+                result: data,
+                categoriesById: byCategory,
+                tagsById: byTag,
+                formatter: ref.watch(moneyFormatterProvider),
+              ),
+            _ => const NimbusLoadingList(),
+          },
         ),
       ],
     );

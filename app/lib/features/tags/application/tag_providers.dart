@@ -15,6 +15,17 @@ final tagTreeProvider = StreamProvider<List<TagNode>>((ref) {
   return ref.watch(tagRepositoryProvider).watchTree();
 });
 
+/// Every tag by id, for turning an id a query returned back into a name.
+///
+/// From [tagTreeProvider], which includes archived tags. Same reason as the
+/// category map: archived is a picker concern, and dropping those here would
+/// silently shrink history the moment somebody tidied their tags.
+final tagNodesByIdProvider = Provider<AsyncValue<Map<String, TagNode>>>(
+  (ref) => ref.watch(tagTreeProvider).whenData(
+        (tree) => {for (final node in TagTree.flatten(tree)) node.value.id: node},
+      ),
+);
+
 /// Tags to offer on the add screen, best first.
 ///
 /// A stream rather than a one-shot read: creating a tag inline while adding an
