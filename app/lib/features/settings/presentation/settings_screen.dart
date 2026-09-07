@@ -154,10 +154,22 @@ class _Body extends ConsumerWidget {
           tileKey: const Key('settings-first-day'),
           title: l10n.settingsFirstDayOfWeek,
           value: settings.firstDayOfWeek,
-          options: const [
-            (value: DateTime.saturday, key: Key('first-day-6'), label: 'Sat'),
-            (value: DateTime.sunday, key: Key('first-day-7'), label: 'Sun'),
-            (value: DateTime.monday, key: Key('first-day-1'), label: 'Mon'),
+          options: [
+            (
+              value: DateTime.saturday,
+              key: const Key('first-day-6'),
+              label: l10n.weekdaySaturday
+            ),
+            (
+              value: DateTime.sunday,
+              key: const Key('first-day-7'),
+              label: l10n.weekdaySunday
+            ),
+            (
+              value: DateTime.monday,
+              key: const Key('first-day-1'),
+              label: l10n.weekdayMonday
+            ),
           ],
           onSelected: (value) =>
               _save(context, ref, settings.copyWith(firstDayOfWeek: value)),

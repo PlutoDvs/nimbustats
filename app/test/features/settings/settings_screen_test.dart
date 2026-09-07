@@ -81,6 +81,23 @@ void main() {
     expect(find.text('Pro — free during early access'), findsOneWidget);
   });
 
+  testWidgets('the first-day options are localized, not English literals',
+      (tester) async {
+    // These were hardcoded 'Sat'/'Sun'/'Mon' string literals from Phase 1, so
+    // a Persian user picking their first day of week read English. Persian is
+    // the app's default locale, which is what made it worth its own fix.
+    await pumpApp(tester,
+        seedFirstRun: true,
+        initialLocation: '/settings',
+        locale: const Locale('fa'));
+
+    await tester.tap(find.byKey(const Key('settings-first-day')));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Sat'), findsNothing);
+    expect(find.text('شنبه'), findsWidgets);
+  });
+
   testWidgets('settings reaches the three managers', (tester) async {
     await pumpApp(tester, seedFirstRun: true, initialLocation: '/settings');
 
