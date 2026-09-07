@@ -36,6 +36,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get analyticsTabCrossTab => 'Tags × categories';
 
   @override
+  String get analyticsTabPatterns => 'Patterns';
+
+  @override
   String get analyticsTabTrends => 'Trends';
 
   @override
@@ -201,6 +204,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get onboardingWelcomeTitle => 'Welcome to NimbuStats';
 
   @override
+  String get patternsDayOfWeek => 'By day of week';
+
+  @override
+  String get patternsHourOfDay => 'By hour of day';
+
+  @override
+  String get patternsReflection => 'Needed against how it felt';
+
+  @override
   String payDeleted(String name) {
     return 'Deleted $name';
   }
@@ -253,6 +265,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get payNone => 'None';
+
+  @override
+  String get reflectionUnset => 'Not set';
 
   @override
   String get routeNotFoundBody => 'That screen does not exist.';
@@ -554,4 +569,25 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get uncategorized => 'Uncategorized';
+
+  @override
+  String get weekdayFriday => 'Fri';
+
+  @override
+  String get weekdayMonday => 'Mon';
+
+  @override
+  String get weekdaySaturday => 'Sat';
+
+  @override
+  String get weekdaySunday => 'Sun';
+
+  @override
+  String get weekdayThursday => 'Thu';
+
+  @override
+  String get weekdayTuesday => 'Tue';
+
+  @override
+  String get weekdayWednesday => 'Wed';
 }

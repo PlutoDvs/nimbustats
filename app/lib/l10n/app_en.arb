@@ -8,6 +8,7 @@
   "analyticsOverlapDisclosure": "These add up to more than the total: a transaction with several tags is counted under each of them.",
   "analyticsTabBreakdown": "Breakdown",
   "analyticsTabCrossTab": "Tags × categories",
+  "analyticsTabPatterns": "Patterns",
   "analyticsTabTrends": "Trends",
   "appTitle": "NimbuStats",
   "breakdownAllCategories": "All categories",
@@ -77,6 +78,9 @@
   "onboardingSkip": "Skip",
   "onboardingWelcomeBody": "A few quick choices — or skip and start logging.",
   "onboardingWelcomeTitle": "Welcome to NimbuStats",
+  "patternsDayOfWeek": "By day of week",
+  "patternsHourOfDay": "By hour of day",
+  "patternsReflection": "Needed against how it felt",
   "payDeleted": "Deleted {name}",
   "@payDeleted": {
     "placeholders": {
@@ -101,6 +105,7 @@
   "payNameLabel": "Name",
   "payNewTitle": "New payment method",
   "payNone": "None",
+  "reflectionUnset": "Not set",
   "routeNotFoundBody": "That screen does not exist.",
   "routeNotFoundGoHome": "Go to transactions",
   "routeNotFoundTitle": "Nothing here",
@@ -223,5 +228,12 @@
   "txSaveFailed": "Could not save",
   "txSearchHint": "Search merchant or note",
   "txTagsLabel": "Tags",
-  "uncategorized": "Uncategorized"
+  "uncategorized": "Uncategorized",
+  "weekdayFriday": "Fri",
+  "weekdayMonday": "Mon",
+  "weekdaySaturday": "Sat",
+  "weekdaySunday": "Sun",
+  "weekdayThursday": "Thu",
+  "weekdayTuesday": "Tue",
+  "weekdayWednesday": "Wed"
 }

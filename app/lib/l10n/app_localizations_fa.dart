@@ -36,6 +36,9 @@ class AppLocalizationsFa extends AppLocalizations {
   String get analyticsTabCrossTab => 'برچسب × دسته';
 
   @override
+  String get analyticsTabPatterns => 'الگوها';
+
+  @override
   String get analyticsTabTrends => 'روند';
 
   @override
@@ -200,6 +203,15 @@ class AppLocalizationsFa extends AppLocalizations {
   String get onboardingWelcomeTitle => 'به نیمبوستتس خوش آمدید';
 
   @override
+  String get patternsDayOfWeek => 'بر اساس روز هفته';
+
+  @override
+  String get patternsHourOfDay => 'بر اساس ساعت روز';
+
+  @override
+  String get patternsReflection => 'نیاز در برابر حس';
+
+  @override
   String payDeleted(String name) {
     return '$name حذف شد';
   }
@@ -252,6 +264,9 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get payNone => 'هیچ‌کدام';
+
+  @override
+  String get reflectionUnset => 'ثبت‌نشده';
 
   @override
   String get routeNotFoundBody => 'چنین صفحه‌ای وجود ندارد.';
@@ -552,4 +567,25 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get uncategorized => 'دسته‌بندی‌نشده';
+
+  @override
+  String get weekdayFriday => 'جمعه';
+
+  @override
+  String get weekdayMonday => 'دوشنبه';
+
+  @override
+  String get weekdaySaturday => 'شنبه';
+
+  @override
+  String get weekdaySunday => 'یکشنبه';
+
+  @override
+  String get weekdayThursday => 'پنجشنبه';
+
+  @override
+  String get weekdayTuesday => 'سه‌شنبه';
+
+  @override
+  String get weekdayWednesday => 'چهارشنبه';
 }

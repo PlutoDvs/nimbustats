@@ -9,10 +9,12 @@ import '../../settings/application/settings_providers.dart';
 import '../application/analytics_providers.dart';
 import '../application/breakdown_controller.dart';
 import '../application/cross_tab_controller.dart';
+import '../application/patterns_controller.dart';
 import '../application/period_label.dart';
 import '../application/trends_controller.dart';
 import 'widgets/breakdown_body.dart';
 import 'widgets/cross_tab_body.dart';
+import 'widgets/patterns_body.dart';
 import 'widgets/trends_body.dart';
 
 /// The analytics destination.
@@ -28,12 +30,16 @@ class AnalyticsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     return DefaultTabController(
-      length: 3,
+      length: 4,
       child: Scaffold(
         key: const Key('analytics-screen'),
         appBar: AppBar(
           title: Text(l10n.navAnalytics),
           bottom: TabBar(
+            // Scrollable: four labels do not fit a phone's width, and Material
+            // silently ellipsizes them into unreadable stubs otherwise.
+            isScrollable: true,
+            tabAlignment: TabAlignment.start,
             tabs: [
               Tab(
                 key: const Key('analytics-tab-breakdown'),
@@ -47,6 +53,10 @@ class AnalyticsScreen extends StatelessWidget {
                 key: const Key('analytics-tab-crosstab'),
                 text: l10n.analyticsTabCrossTab,
               ),
+              Tab(
+                key: const Key('analytics-tab-patterns'),
+                text: l10n.analyticsTabPatterns,
+              ),
             ],
           ),
         ),
@@ -54,7 +64,12 @@ class AnalyticsScreen extends StatelessWidget {
           child: TabBarView(
             // Breakdown lands first: "where did it go" is the question
             // somebody opening analytics already has.
-            children: [_BreakdownTab(), _TrendsTab(), _CrossTabTab()],
+            children: [
+              _BreakdownTab(),
+              _TrendsTab(),
+              _CrossTabTab(),
+              _PatternsTab(),
+            ],
           ),
         ),
       ),
@@ -211,6 +226,59 @@ class _CrossTabTab extends ConsumerWidget {
                 result: data,
                 categoriesById: byCategory,
                 tagsById: byTag,
+                formatter: ref.watch(moneyFormatterProvider),
+              ),
+            _ => const NimbusLoadingList(),
+          },
+        ),
+      ],
+    );
+  }
+}
+
+class _PatternsTab extends ConsumerWidget {
+  const _PatternsTab();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final view = ref.watch(patternsControllerProvider);
+    final controller = ref.read(patternsControllerProvider.notifier);
+    final hour = ref.watch(analyticsResultProvider(view.hourSpec));
+    final weekday = ref.watch(analyticsResultProvider(view.weekdaySpec));
+    final reflection = ref.watch(analyticsResultProvider(view.reflectionSpec));
+
+    return Column(
+      children: [
+        _ConfirmedOnlySwitch(
+          value: view.confirmedOnly,
+          onChanged: (value) => controller.setConfirmedOnly(value: value),
+          tileKey: const Key('patterns-confirmed-only'),
+        ),
+        Expanded(
+          // All three gate the tab together. They are three views of one
+          // period, and revealing them as they land would let a reader compare
+          // a fresh chart against a stale one.
+          child: switch ((hour, weekday, reflection)) {
+            (AsyncError(:final error), _, _) ||
+            (_, AsyncError(:final error), _) ||
+            (_, _, AsyncError(:final error)) =>
+              NimbusErrorState(
+                title: AppLocalizations.of(context).analyticsErrorTitle,
+                detail: error.toString(),
+                retryLabel: AppLocalizations.of(context).commonRetry,
+                onRetry: () =>
+                    ref.invalidate(analyticsResultProvider(view.hourSpec)),
+              ),
+            (
+              AsyncData(value: final byHour),
+              AsyncData(value: final byWeekday),
+              AsyncData(value: final byReflection)
+            ) =>
+              PatternsBody(
+                byHour: byHour,
+                byWeekday: byWeekday,
+                reflection: byReflection,
+                firstDayOfWeek: ref.watch(firstDayOfWeekProvider),
                 formatter: ref.watch(moneyFormatterProvider),
               ),
             _ => const NimbusLoadingList(),

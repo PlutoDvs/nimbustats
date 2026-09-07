@@ -86,7 +86,13 @@ Future<void> openCrossTab(
     matching: find.byIcon(Icons.insights_outlined),
   ));
   await tester.pumpAndSettle();
-  await tester.tap(find.byKey(const Key('analytics-tab-crosstab')));
+  // The tab bar scrolls, so a later tab can sit outside the viewport --
+  // tapping it there lands on nothing and silently leaves the first tab
+  // showing, which reads as a broken screen rather than a missed tap.
+  final tab = find.byKey(const Key('analytics-tab-crosstab'));
+  await tester.ensureVisible(tab);
+  await tester.pumpAndSettle();
+  await tester.tap(tab);
   await tester.pumpAndSettle();
 }
 
