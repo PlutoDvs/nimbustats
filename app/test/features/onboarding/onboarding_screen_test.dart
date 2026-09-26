@@ -4,6 +4,7 @@ import 'package:nimbus_data/nimbus_data.dart';
 import 'package:nimbus_domain/nimbus_domain.dart';
 import 'package:nimbustats/features/settings/data/app_settings.dart';
 import 'package:nimbustats/features/settings/data/settings_repository.dart';
+import 'package:nimbustats/l10n/app_localizations.dart';
 
 import '../../support/harness.dart';
 
@@ -43,6 +44,28 @@ void main() {
     expect(settings.currency, Currency.usd);
     expect(settings.calendarKind, CalendarKind.gregorian);
     expect(settings.onboardingCompleted, isTrue);
+  });
+
+  testWidgets('the tree is seeded in the language just chosen', (tester) async {
+    // No locale override: the app runs in the default, Persian, as a real
+    // first launch does. Choosing English has to produce English categories,
+    // not a Persian tree the user then has to rename one by one.
+    final db = AppDatabase.openInMemory();
+    addTearDown(db.close);
+    await pumpApp(tester,
+        database: db, initialLocation: '/onboarding', locale: null);
+
+    await tester.ensureVisible(find.byKey(const Key('onboarding-locale-en')));
+    await tester.tap(find.byKey(const Key('onboarding-locale-en')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('onboarding-finish')));
+    await tester.pumpAndSettle();
+
+    final en = await AppLocalizations.delegate.load(const Locale('en'));
+    expect((await db.categoriesDao.allLive()).map((c) => c.name),
+        contains('Food & drink'));
+    expect((await db.categoriesDao.byId(SystemCategoryIds.uncategorized))!.name,
+        en.uncategorized);
   });
 
   testWidgets('the seeded tree includes the reserved Uncategorized row',

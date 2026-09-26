@@ -34,19 +34,20 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
   /// state that the emptiness check would mistake for "already done".
   Future<void> _finish({required bool skipped}) async {
     final router = GoRouter.of(context);
-    final l10n = AppLocalizations.of(context);
     final repository = ref.read(settingsRepositoryProvider);
     final firstRun = ref.read(firstRunControllerProvider);
+    final chosen = skipped ? AppSettings.defaults : _draft;
 
     setState(() {
       _seeding = true;
       _seedError = null;
     });
     try {
-      await repository.save(
-        (skipped ? AppSettings.defaults : _draft)
-            .copyWith(onboardingCompleted: true),
-      );
+      await repository.save(chosen.copyWith(onboardingCompleted: true));
+      // The tree is named in the language just chosen, not the one on screen:
+      // the choice has not reached the widget tree yet, and a user who picked
+      // English should not have to rename a Persian tree one row at a time.
+      final l10n = await AppLocalizations.delegate.load(chosen.locale);
       await firstRun.ensureSeeded(l10n);
     } on Object catch (error) {
       if (mounted) {
