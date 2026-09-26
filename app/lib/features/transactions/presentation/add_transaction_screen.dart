@@ -13,6 +13,7 @@ import '../../payment_methods/application/payment_method_providers.dart';
 import '../../settings/application/settings_providers.dart';
 import '../../tags/presentation/widgets/tag_picker_sheet.dart';
 import '../application/add_transaction_controller.dart';
+import '../application/transaction_list_controller.dart';
 import '../application/transaction_providers.dart';
 import 'widgets/amount_field.dart';
 import 'widgets/category_chips.dart';
@@ -76,6 +77,7 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
     final messenger = ScaffoldMessenger.of(context);
     final router = GoRouter.of(context);
     final repository = ref.read(transactionRepositoryProvider);
+    final list = ref.read(transactionListControllerProvider.notifier);
 
     // Confirms the capture without the user waiting to look at the screen.
     unawaited(HapticFeedback.mediumImpact());
@@ -92,6 +94,10 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
       rethrow;
     }
 
+    // The list holds a page of rows, not a live query, so without this the
+    // expense just saved stays off it -- and out of the month total -- until
+    // the app restarts, and a save that worked looks like one that did not.
+    unawaited(list.refresh());
     messenger.showSnackBar(SnackBar(content: Text(l10n.txSaved)));
     if (router.canPop()) router.pop();
   }

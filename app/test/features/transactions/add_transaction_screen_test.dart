@@ -74,6 +74,25 @@ void main() {
           hasLength(6));
     });
 
+    testWidgets('a saved expense is on the list the moment Save returns',
+        (tester) async {
+      // Found on a device: the $55 saved, but the list and its month total
+      // stayed as they were until the app restarted -- an add that worked
+      // looked like one that had not.
+      final db = await pumpApp(tester, seedFirstRun: true);
+
+      await tester.tap(find.byKey(const Key('tx-add-fab')));
+      await tester.pumpAndSettle();
+      await tester.enterText(
+          find.byKey(const Key('tx-amount-field')), '12345');
+      await tester.tap(find.byKey(const Key('tx-save')));
+      await tester.pumpAndSettle();
+
+      final saved =
+          await db.transactionsDao.pageAfter(range: everything, limit: 5);
+      expect(find.byKey(Key('tx-${saved.single.id}')), findsOneWidget);
+    });
+
     testWidgets('a repeat purchase takes three taps', (tester) async {
       // The tap count is written down here rather than left to interpretation.
       // Digit entry is data, not navigation, so it is not counted. A future
