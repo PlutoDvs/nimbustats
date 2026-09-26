@@ -9,8 +9,8 @@ blocked, and who can unblock it.
 
 | # | Item | Blocks | Owner |
 |---|---|---|---|
-| D1 | Android build unverified — Google Maven unreachable | Phase 1 Task 16, every APK build | Operator (network) |
-| D2 | Gradle distribution needs manual seeding on a fresh machine | Any new dev machine or CI | Operator (network) |
+| D1 | Phase 1 hardware criteria unmeasured — APK builds since 2026-09-26 | Phase 1 Task 16 gate, `phase-3-complete` | Operator (device) |
+| D2 | Gradle distribution and large SDK packages need manual seeding on a fresh machine | Any new dev machine or CI | Operator (network) |
 | D4 | Claude Design token sheet does not exist | Nothing hard-blocked; visual polish | Operator (design) |
 | D3 | ~~pub.dev archive access depends on the VPN exit node~~ | — | **Resolved 2026-09-05** |
 | D5 | ~~Router error screen has no localized copy~~ | — | **Resolved 2026-08-24** |
@@ -22,6 +22,27 @@ blocked, and who can unblock it.
 ## D1 — Android build unverified: Google Maven unreachable
 
 **Status:** open. Found 2026-08-22 during Phase 1 Task 2.
+
+**Re-checked 2026-09-26 — the build half is closed; the device half is not.**
+`flutter build apk --debug` succeeded on exit `64.49.12.178`, producing
+`app/build/app/outputs/flutter-apk/app-debug.apk` (165 MB: `com.nimbustats.app`
+0.1.0, target SDK 36, arm64-v8a / armeabi-v7a / x86_64, debug-signed — checked
+with `aapt2 dump badging` and `apksigner verify`). It took four fixes, each
+found by the build failing one step further on:
+
+1. An exit that reaches Google on *every* connection. A VPN configuration that
+   rotated exits per connection failed Gradle at random — see
+   `docs/DEVELOPMENT.md`.
+2. `platforms;android-36`, via `sdkmanager`.
+3. NDK `28.2.13676358` and `build-tools;36.0.0`, which AGP installs itself and
+   the tunnel truncated. Seeded by hand and hash-verified — see **D2**.
+4. The Flutter engine jars on `storage.googleapis.com`, geo-blocked (403 *"not
+   available in your location"*) whenever the VPN was not routing the shell.
+
+**What remains is the reason this item exists:** the four hardware UX
+criteria below, measured on a physical device. `platform-tools` (adb 37.0.1)
+is installed for that. Measure a **profile** build — a debug build's JIT makes
+cold-start and frame timings meaningless.
 
 **Re-checked 2026-08-29** at the end of the Phase 3 engine work. Still open,
 and note that a bare `curl` against
@@ -153,6 +174,11 @@ Any new development machine or CI runner on this network hits the same wall.
 Worth a note in `docs/DEVELOPMENT.md` when D1 is resolved and the Android
 toolchain is proven end to end.
 
+**Update 2026-09-26:** the toolchain is proven end to end and the note exists
+— `docs/DEVELOPMENT.md`, *Installing SDK components over the tunnel*. The same
+truncation hit the NDK (748 MB) and build-tools (59 MB), so this item now
+covers large SDK packages as well as the Gradle distribution.
+
 ---
 
 ## D3 — pub.dev archive access depends on the VPN exit node — RESOLVED
@@ -161,6 +187,10 @@ toolchain is proven end to end.
 `https://pub.dev/api/packages/fl_chart` and
 `https://pub.dev/api/archives/crypto-3.0.6.tar.gz` returned **200** with real
 bodies (90,863 B and 612,122 B), where on 2026-08-29 both returned 403.
+
+**Re-checked 2026-09-25:** it had closed again — 403 on the first probe that
+day — and reopened on the next exit (`64.49.12.178`: archive 200, 612,122 B, on
+8 of 8 fresh connections). Still a property of the exit, not a fix.
 
 **The window was treated as temporary, because it has closed before.** This
 item is resolved by an exit node, not by a fix, so the same node change that

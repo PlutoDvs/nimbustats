@@ -12,7 +12,7 @@ assumed — commands and their real output, on 2026-08-21.
 | DevTools | 2.60.0 | bundled with Flutter |
 | JDK | 17.0.2 (`17.0.2+8-LTS-86`) | `C:\Program Files\Java\jdk-17.0.2` |
 | Visual Studio Build Tools | 2022, 17.14.11 | (pre-existing) |
-| Android SDK | **not installed — blocked, see below** | intended: `C:\dev\android-sdk` |
+| Android SDK | platform 36, build-tools 36.0.0, NDK 28.2.13676358, CMake 3.22.1, platform-tools 37.0.1, cmdline-tools 22.0 — installed 2026-09-26, see below | `C:\dev\android-sdk` |
 | OS | Windows 11 Pro 25H2 (10.0.26200.9168) | |
 
 ### Environment variables (User scope)
@@ -52,6 +52,20 @@ Endpoint reachability depends entirely on the active VPN exit:
 |---|---|---|---|---|
 | `31.171.100.118` (AZ) | 403 | 403 | 403 | 404 |
 | UK exit | 200 | 200 | 200 | **404** |
+| `64.49.12.178` (2026-09-26) | 200 | 200 (`download.flutter.io` engine jars) | not tested | 200 |
+| `5.237.x.x` — VPN not routing this shell | not tested | 403 | not tested | 404 (1449 B) |
+
+**Check which exit this shell is actually using** before blaming a host:
+`curl -s https://api.ipify.org`. The VPN client has a system-proxy mode
+(WinINET `127.0.0.1:12334`) that Git Bash `curl` and Gradle/Java ignore, so a
+browser can be on the VPN while the build goes out directly. Use the client's
+whole-system (TUN) mode for builds.
+
+One VPN configuration handed each **connection** a different exit, some of
+them blocked. Requests sharing a connection all succeeded or all failed
+together, so Gradle — hundreds of requests, treating a 404 as "does not
+exist" without retrying — failed at random. Probe with several fresh
+connections and require every one to pass before starting a build.
 
 The 403s carry Google's explicit body: *"We're sorry, but this service is not
 available in your location."*
@@ -64,6 +78,11 @@ flaky route never blocks a build.
 That trades a VPN reconnect for trusting an unknown party with the toolchain and
 every dependency in the app.
 
+**The one exception is a mirror whose bytes are verified against the
+upstream's own published hash, fetched from the upstream itself.** The mirror
+is then only a faster pipe and is trusted with nothing. Size alone is not
+verification. This is how the NDK and build-tools were installed — see below.
+
 ### The Android SDK repository is blocked separately
 
 On the UK exit, `dl.google.com` serves normal traffic
@@ -75,6 +94,39 @@ that certainly exist; the path is being blocked and dressed as a 404.
 
 **Consequence:** the Android SDK cannot be installed on this route. A different
 exit is required. This does **not** block most of Phase 0 — see below.
+
+### Installing SDK components over the tunnel (proven 2026-09-26)
+
+On a good exit the Gradle plugins, AndroidX and the Flutter engine jars
+resolve normally, and small SDK packages (platform 36, CMake, platform-tools)
+install through `sdkmanager`, which checks their checksums itself. The two
+large ones did not: AGP's automatic install of the NDK (748 MB) and
+build-tools (59 MB) was truncated by the tunnel and failed with *"Error
+reading Zip content from a SeekableByteChannel"*. `sdkmanager` cannot resume.
+
+What worked, for any package too large to survive the tunnel:
+
+1. Read the Windows archive's `<size>`, `<checksum type="sha1">` and `<url>`
+   for the exact package path (e.g. `ndk;28.2.13676358`) from
+   `https://dl.google.com/android/repository/repository2-3.xml`.
+2. Download that filename in parallel byte ranges. Google gave ~20 KiB/s per
+   connection; `https://mirrors.cloud.tencent.com/AndroidSDK/<filename>` gave
+   ~240 KiB/s, and 6 ranges ~500 KiB/s. Append a range only when the reply is
+   `206`.
+3. Accept the file only if **both** size and SHA-1 equal step 1's values.
+4. Remove any half-installed `<pkg>/<version>/` the failed attempt left (it
+   holds only an `.installer` marker), extract, and rename the archive's single
+   top folder (`android-ndk-r28c`, `android-16`) to the version directory.
+   Confirm `source.properties` shows the expected `Pkg.Revision`.
+
+**Do not combine `curl --retry` with `-C -`.** On retry curl truncates the
+file back to its size when that invocation started, so resume only works
+across separate invocations — retry in a shell loop. This silently discarded
+196 MB once.
+
+Components installed this way have no `package.xml`, so `sdkmanager` does not
+list them. AGP finds them by directory and `source.properties`; the APK build
+confirmed it.
 
 ## What works without the Android SDK
 
@@ -113,9 +165,10 @@ fail host tests in the data layer.
 ## `flutter doctor` state
 
 ```
-[!] Flutter 3.47.1 — binary not on PATH in already-open shells (open a new terminal)
+[✓] Flutter (stable, 3.47.1)                       ← re-run 2026-09-26
 [✓] Windows Version (11 Pro 64-bit, 25H2)
-[✗] Android toolchain — Unable to locate Android SDK   ← blocked, see above
+[!] Android toolchain (Android SDK version 36.0.0)
+    ! Some Android licenses not accepted — operator's call; not needed to build
 [✓] Chrome
 [✓] Visual Studio — Build Tools 2022 17.14.11
 [✓] Connected device (3 available)
