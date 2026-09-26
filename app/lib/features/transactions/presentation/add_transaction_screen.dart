@@ -177,18 +177,25 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
         ],
       ),
       // Pinned to the bottom so it stays within one-handed reach whatever the
-      // keyboard is doing.
-      bottomNavigationBar: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(NimbusTokens.space4),
-          child: SizedBox(
-            height: NimbusTokens.minTapTarget,
-            child: FilledButton(
-              key: const Key('tx-save'),
-              onPressed: _save,
-              child: Text(
-                l10n.commonSave,
-                style: theme.textTheme.titleMedium,
+      // keyboard is doing -- which takes the padding: a Scaffold resizes its
+      // body for the keyboard but leaves a bottom bar behind it, and the keypad
+      // opens with this screen. Lifted by the keyboard's height, Save rides
+      // just above the keys, still the third tap of the three.
+      bottomNavigationBar: Padding(
+        padding:
+            EdgeInsets.only(bottom: MediaQuery.viewInsetsOf(context).bottom),
+        child: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.all(NimbusTokens.space4),
+            child: SizedBox(
+              height: NimbusTokens.minTapTarget,
+              child: FilledButton(
+                key: const Key('tx-save'),
+                onPressed: _save,
+                child: Text(
+                  l10n.commonSave,
+                  style: theme.textTheme.titleMedium,
+                ),
               ),
             ),
           ),

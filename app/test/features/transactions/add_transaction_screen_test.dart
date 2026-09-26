@@ -257,6 +257,26 @@ void main() {
           reason: 'primary actions must stay within one-handed reach');
     });
 
+    testWidgets('save stays above the keyboard', (tester) async {
+      // Found on a device. The keypad opens with the screen, and it covered
+      // Save: the three-tap path became four, with a tap spent closing the
+      // keyboard. A test without a keyboard cannot see that, so this one
+      // gives the view one, about the share of the screen the device's
+      // numeric keypad takes.
+      await pumpApp(tester, seedFirstRun: true, initialLocation: '/add');
+      final dpr = tester.view.devicePixelRatio;
+      const keyboard = 250.0;
+      tester.view.viewInsets = FakeViewPadding(bottom: keyboard * dpr);
+      addTearDown(tester.view.resetViewInsets);
+      await tester.pumpAndSettle();
+
+      final height = tester.view.physicalSize.height / dpr;
+      final save = tester.getRect(find.byKey(const Key('tx-save')));
+      expect(save.bottom, lessThanOrEqualTo(height - keyboard),
+          reason: 'Save must not sit under the keyboard');
+      expect(save.top, greaterThanOrEqualTo(0));
+    });
+
     testWidgets('category chips arriving late do not move the amount field',
         (tester) async {
       // The predictions are held open deliberately. Measuring across a route
