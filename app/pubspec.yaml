@@ -27,6 +27,9 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^5.0.0
+  # tool/frame_timings.dart only: reads per-frame timings from a profile build
+  # on a device. Already in the lockfile through flutter_test; pure Dart.
+  vm_service: ^15.3.0
 
 flutter:
   uses-material-design: true
