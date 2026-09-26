@@ -114,4 +114,45 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('Tags'), findsWidgets);
   });
+
+  group('demo data', () {
+    Future<void> tapSeed(WidgetTester tester) async {
+      await tester.scrollUntilVisible(
+        find.byKey(const Key('settings-debug-seed')),
+        200,
+        scrollable: find.byType(Scrollable).first,
+      );
+      await tester.tap(find.byKey(const Key('settings-debug-seed')));
+      await tester.pumpAndSettle();
+    }
+
+    testWidgets('says so when there is nothing to attach rows to',
+        (tester) async {
+      // Found on a device: with no categories the button did nothing at all,
+      // which reads as broken rather than as "not possible yet".
+      await pumpApp(tester, initialLocation: '/settings');
+
+      await tapSeed(tester);
+
+      expect(find.text('No categories yet, so no demo data was added.'),
+          findsOneWidget);
+    });
+
+    testWidgets('seeds even when settings is the first screen opened',
+        (tester) async {
+      // Nothing on the settings screen watches the category tree, so on a
+      // launch straight into settings the tree may not have loaded when the
+      // button is tapped. Reading it as empty would refuse to seed a database
+      // that has a full tree.
+      final db = await pumpApp(tester,
+          seedFirstRun: true, initialLocation: '/settings');
+
+      await tapSeed(tester);
+
+      final rows = await db
+          .customSelect('SELECT COUNT(*) AS c FROM transactions')
+          .getSingle();
+      expect(rows.data['c'], 5000);
+    });
+  });
 }

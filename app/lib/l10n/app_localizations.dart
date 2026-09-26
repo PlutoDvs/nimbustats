@@ -764,6 +764,12 @@ abstract class AppLocalizations {
   /// **'Seed 5,000 demo transactions'**
   String get settingsDebugSeed;
 
+  /// No description provided for @settingsDebugSeedNoCategories.
+  ///
+  /// In en, this message translates to:
+  /// **'No categories yet, so no demo data was added.'**
+  String get settingsDebugSeedNoCategories;
+
   /// No description provided for @settingsFirstDayOfWeek.
   ///
   /// In en, this message translates to:

@@ -32,12 +32,22 @@ class _DemoDataTileState extends ConsumerState<DemoDataTile> {
   bool _running = false;
 
   Future<void> _seed() async {
-    final tree = ref.read(categoryTreeProvider).value ?? const [];
+    final messenger = ScaffoldMessenger.of(context);
+    final l10n = AppLocalizations.of(context);
+    // Awaited, not read: on a launch straight into settings the tree may still
+    // be loading, and reading it as empty would refuse to seed a database that
+    // has a full one. It resolves because build() watches it -- see there.
+    final tree = await ref.read(categoryTreeProvider.future);
     final categories = CategoryTree.flatten(tree)
         .map((n) => n.category.id)
         .where((id) => !SystemCategoryIds.isSystem(id))
         .toList();
-    if (categories.isEmpty) return;
+    if (categories.isEmpty) {
+      // Said rather than skipped: a button that does nothing reads as broken.
+      messenger.showSnackBar(
+          SnackBar(content: Text(l10n.settingsDebugSeedNoCategories)));
+      return;
+    }
 
     setState(() => _running = true);
     final repository = ref.read(transactionRepositoryProvider);
@@ -61,6 +71,11 @@ class _DemoDataTileState extends ConsumerState<DemoDataTile> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
+    // Watched for _seed's sake, not for rendering. Riverpod 3 pauses a
+    // StreamProvider's subscription while nothing is listening, and nothing
+    // else on the settings screen watches the tree -- so a bare read of its
+    // future from here never completed, and the button did nothing.
+    ref.watch(categoryTreeProvider);
 
     return ListTile(
       key: const Key('settings-debug-seed'),

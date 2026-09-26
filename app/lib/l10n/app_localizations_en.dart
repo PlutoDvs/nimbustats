@@ -369,6 +369,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsDebugSeed => 'Seed 5,000 demo transactions';
 
   @override
+  String get settingsDebugSeedNoCategories =>
+      'No categories yet, so no demo data was added.';
+
+  @override
   String get settingsFirstDayOfWeek => 'First day of week';
 
   @override

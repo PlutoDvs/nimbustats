@@ -111,6 +111,7 @@
   "settingsCalendarJalali": "شمسی",
   "settingsCurrency": "واحد پول",
   "settingsDebugSeed": "ساخت ۵۰۰۰ تراکنش نمونه",
+  "settingsDebugSeedNoCategories": "هنوز دسته‌بندی‌ای نیست، پس داده‌ی نمونه اضافه نشد.",
   "settingsFirstDayOfWeek": "اولین روز هفته",
   "settingsLocale": "زبان",
   "settingsProBadge": "حرفه‌ای — رایگان در دسترسی زودهنگام",

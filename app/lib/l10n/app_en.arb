@@ -139,6 +139,7 @@
   "settingsCalendarJalali": "Jalali",
   "settingsCurrency": "Currency",
   "settingsDebugSeed": "Seed 5,000 demo transactions",
+  "settingsDebugSeedNoCategories": "No categories yet, so no demo data was added.",
   "settingsFirstDayOfWeek": "First day of week",
   "settingsLocale": "Language",
   "settingsProBadge": "Pro — free during early access",

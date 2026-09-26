@@ -368,6 +368,10 @@ class AppLocalizationsFa extends AppLocalizations {
   String get settingsDebugSeed => 'ساخت ۵۰۰۰ تراکنش نمونه';
 
   @override
+  String get settingsDebugSeedNoCategories =>
+      'هنوز دسته‌بندی‌ای نیست، پس داده‌ی نمونه اضافه نشد.';
+
+  @override
   String get settingsFirstDayOfWeek => 'اولین روز هفته';
 
   @override
