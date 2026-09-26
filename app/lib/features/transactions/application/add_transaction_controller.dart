@@ -146,7 +146,13 @@ class AddTransactionController extends Notifier<AddTransactionState> {
   }
 }
 
+/// Auto-disposed, so the form lives exactly as long as the add screen does.
+///
+/// A plain NotifierProvider is kept alive for the whole session, and a draft
+/// that outlived its screen opened the next add with the last category chosen,
+/// the last amount held behind an empty-looking field, and the timestamp of
+/// the first time the form was ever built.
 final addTransactionControllerProvider =
-    NotifierProvider<AddTransactionController, AddTransactionState>(
+    NotifierProvider.autoDispose<AddTransactionController, AddTransactionState>(
   AddTransactionController.new,
 );

@@ -37,6 +37,43 @@ Future<void> seedRepeatPurchases(
 
 void main() {
   group('the golden path', () {
+    testWidgets('each new expense starts from a blank form', (tester) async {
+      // Found on a device. The form's state outlived the screen, so the next
+      // add opened with the last category already chosen -- and with the last
+      // amount still held behind an empty-looking field, which Save would
+      // store again. Its timestamp was the one captured when the form was
+      // first built, so every later expense in a session shared it.
+      final db = await pumpApp(tester, seedFirstRun: true);
+      await seedRepeatPurchases(db, categoryId: 'seed-food-coffee');
+      final chip = find.byKey(const Key('tx-chip-seed-food-coffee'));
+
+      await tester.tap(find.byKey(const Key('tx-add-fab')));
+      await tester.pumpAndSettle();
+      await tester.enterText(
+          find.byKey(const Key('tx-amount-field')), '45000');
+      await tester.tap(chip);
+      await tester.tap(find.byKey(const Key('tx-save')));
+      await tester.pumpAndSettle();
+      expect(await db.transactionsDao.pageAfter(range: everything, limit: 50),
+          hasLength(6));
+
+      // Let the "saved" snackbar time out: in this view it sits over the
+      // add button, and this test is about the form, not about that.
+      await tester.pump(const Duration(seconds: 5));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const Key('tx-add-fab')));
+      await tester.pumpAndSettle();
+      expect(tester.widget<FilterChip>(chip).selected, isFalse,
+          reason: 'the last category must not be pre-chosen');
+
+      await tester.tap(find.byKey(const Key('tx-save')));
+      await tester.pumpAndSettle();
+      expect(find.byKey(const Key('tx-amount-error')), findsOneWidget,
+          reason: 'an empty field must not save the last amount');
+      expect(await db.transactionsDao.pageAfter(range: everything, limit: 50),
+          hasLength(6));
+    });
+
     testWidgets('a repeat purchase takes three taps', (tester) async {
       // The tap count is written down here rather than left to interpretation.
       // Digit entry is data, not navigation, so it is not counted. A future
