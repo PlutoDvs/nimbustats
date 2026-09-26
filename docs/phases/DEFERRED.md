@@ -12,6 +12,7 @@ blocked, and who can unblock it.
 | D1 | Phase 1 hardware criteria unmeasured — APK builds since 2026-09-26 | Phase 1 Task 16 gate, `phase-3-complete` | Operator (device) |
 | D2 | Gradle distribution and large SDK packages need manual seeding on a fresh machine | Any new dev machine or CI | Operator (network) |
 | D4 | Claude Design token sheet does not exist | Nothing hard-blocked; visual polish | Operator (design) |
+| D8 | Payment-method tile is silently disabled when no method exists | Nothing hard-blocked; add-screen UX | Next phase touching the add screen |
 | D3 | ~~pub.dev archive access depends on the VPN exit node~~ | — | **Resolved 2026-09-05** |
 | D5 | ~~Router error screen has no localized copy~~ | — | **Resolved 2026-08-24** |
 | D6 | ~~Flutter-specific lints are not active~~ | — | **Resolved 2026-08-22** |
@@ -358,5 +359,33 @@ now have a proven-correct thing to render.
 its buckets precisely so a tag chart can disclose that its slices do not sum to
 the total. Wiring a pie chart without that disclosure is the bug the trap list
 is warning about, not a polish item.
+
+---
+
+## D8 — Payment-method tile is silently disabled when no method exists
+
+**Status:** open. Found 2026-09-26 on the first real-device run (Galaxy A53),
+reported as "payment method selection not working".
+
+The add screen's payment-method tile sets `onTap: methods.isEmpty ? null : …`
+(`app/lib/features/transactions/presentation/add_transaction_screen.dart:241`).
+Nothing seeds payment methods — first run seeds categories only, by design —
+so on every new install the tile is inert until the user has created one under
+**Settings → Payment methods**. It looks exactly like a broken control: no
+hint, no route to the manager, no feedback on tap.
+
+The same run surfaced the missing first-run gate, which made the category
+pickers look broken the same way; that was fixed on `fix/onboarding-gate`.
+This one was deferred instead because it does not block verification — adding
+one method in settings makes the tile work — and the right fix is a UX
+decision rather than a bug fix:
+
+- keep the tile enabled when empty and offer "Add a payment method", opening
+  the manager and returning with the new method selected; or
+- seed a small default set (e.g. cash, card) at first run, localized like the
+  category tree.
+
+**Check:** fresh install → onboarding → add screen → "More details" →
+tap the payment-method tile. Resolved when that tap does something useful.
 
 ---
