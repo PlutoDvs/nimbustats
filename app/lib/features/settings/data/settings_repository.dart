@@ -48,9 +48,13 @@ final class SettingsRepository {
         settings.onboardingCompleted.toString());
   }
 
-  /// The recovery path from a corrupt value. `load` on an empty table returns
-  /// defaults, so clearing is enough -- there is nothing to rewrite.
-  Future<void> resetToDefaults() => _dao.clear();
+  /// The recovery path from a corrupt value. An absent key reads back as its
+  /// default, so deleting is enough -- there is nothing to rewrite.
+  ///
+  /// Only the keys `AppSettings` is read from. The install's own record --
+  /// the founding-user stamp above all -- is not a setting, and resetting how
+  /// the app looks must not erase it.
+  Future<void> resetToDefaults() => _dao.deleteKeys(SettingsKeys.appSettings);
 
   AppSettings _parse(Map<String, String> raw) => AppSettings(
         currency: _read(raw, SettingsKeys.currencyCode,

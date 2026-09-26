@@ -98,6 +98,49 @@ void main() {
     expect(await repo.load(), AppSettings.defaults);
   });
 
+  test('resetToDefaults keeps the record of the install', () async {
+    // Written by FirstRunController, never read by this repository. The
+    // founding-user stamp in particular grants permanent access once gates
+    // are switched on, and cannot be re-earned after the cutoff -- a reset of
+    // display preferences must not take it away.
+    await db.settingsDao.put(SettingsKeys.foundingUser, 'true');
+    await db.settingsDao.put(SettingsKeys.installedAt, '1758880000000');
+    await db.settingsDao.put(SettingsKeys.seedVersion, '1');
+    await repo.save(AppSettings.defaults
+        .copyWith(currency: Currency.usd, onboardingCompleted: true));
+
+    await repo.resetToDefaults();
+
+    expect(await repo.load(), AppSettings.defaults);
+    expect(await db.settingsDao.get(SettingsKeys.foundingUser), 'true');
+    expect(await db.settingsDao.get(SettingsKeys.installedAt), '1758880000000');
+    expect(await db.settingsDao.get(SettingsKeys.seedVersion), '1');
+  });
+
+  test('after a reset, nothing left behind can fail to parse', () async {
+    // Whatever a reset keeps has to be something load() never reads.
+    // Otherwise a corrupt value there would survive the one recovery path
+    // the settings screen offers for it.
+    const every = [
+      SettingsKeys.currencyCode,
+      SettingsKeys.calendarKind,
+      SettingsKeys.localeCode,
+      SettingsKeys.firstDayOfWeek,
+      SettingsKeys.themeMode,
+      SettingsKeys.onboardingCompleted,
+      SettingsKeys.foundingUser,
+      SettingsKeys.installedAt,
+      SettingsKeys.seedVersion,
+    ];
+    for (final key in every) {
+      await db.settingsDao.put(key, 'not-a-value-this-app-writes');
+    }
+
+    await repo.resetToDefaults();
+
+    expect(await repo.load(), AppSettings.defaults);
+  });
+
   test('the exception explains how to recover', () async {
     await db.settingsDao.put(SettingsKeys.themeMode, 'chartreuse');
     try {

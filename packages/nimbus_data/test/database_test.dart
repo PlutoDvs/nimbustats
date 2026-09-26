@@ -26,6 +26,16 @@ void main() {
     expect(await db.settingsDao.get('nope'), isNull);
   });
 
+  test('deleteKeys removes exactly the keys named', () async {
+    await db.settingsDao.put('a', '1');
+    await db.settingsDao.put('b', '2');
+    await db.settingsDao.put('c', '3');
+
+    await db.settingsDao.deleteKeys(const ['a', 'c', 'never-written']);
+
+    expect(await db.settingsDao.getAll(), {'b': '2'});
+  });
+
   test('putting a key twice overwrites rather than duplicating', () async {
     await db.settingsDao.put('calendar', 'jalali');
     await db.settingsDao.put('calendar', 'gregorian');

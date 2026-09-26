@@ -126,11 +126,14 @@ class SettingsDao {
             (rows) => {for (final row in rows) row.key: row.value},
           );
 
-  /// Drops every setting, returning the app to its documented defaults.
+  /// Drops exactly [keys], so each reads back as absent.
   ///
-  /// The recovery path for a value that is present but unparseable, which the
-  /// app refuses to silently replace.
-  Future<void> clear() => _db.delete(_db.settings).go();
+  /// Keyed rather than "drop everything" because the table holds two kinds of
+  /// row: preferences, which a reset returns to their defaults, and facts
+  /// about the install (when it happened, whether its user is a founding
+  /// one), which no reset should erase.
+  Future<void> deleteKeys(Iterable<String> keys) =>
+      (_db.delete(_db.settings)..where((t) => t.key.isIn(keys))).go();
 }
 
 /// The category tree.
