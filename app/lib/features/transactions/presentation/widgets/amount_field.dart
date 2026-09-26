@@ -39,8 +39,9 @@ class AmountInputFormatter extends TextInputFormatter {
     final raw = buffer.toString();
     if (raw.isEmpty) return const TextEditingValue();
 
-    final money = formatter.parse(raw);
-    final text = money == null ? raw : formatter.format(money);
+    // formatInput, not format: format pads to the currency's cents, which put
+    // "5.00" in front of the caret and made $50 untypeable.
+    final text = formatter.formatInput(raw);
     return TextEditingValue(
       text: text,
       // Caret at the end in both directions. Regrouping changes the string

@@ -55,14 +55,34 @@ final class MoneyFormatter {
     return persianDigits ? Digits.toPersian(text) : text;
   }
 
+  /// What an amount field shows while the user is still typing.
+  ///
+  /// Unlike [format], this never adds what was not typed: `5` stays `5` rather
+  /// than becoming `5.00`, and `50.` keeps its dot. A field puts the caret at
+  /// the end, so anything [format] appended there would sit in front of the
+  /// next key -- `5.00` then `0` is `5.000`, and $50 cannot be typed. Only the
+  /// whole part is regrouped. Input that does not [parse] comes back exactly
+  /// as typed: it is rejected once, on save, not rewritten mid-keystroke.
+  String formatInput(String input) {
+    if (parse(input) == null) return input;
+
+    var text = _stripSeparators(Digits.toLatin(input));
+    final negative = text.startsWith('-');
+    if (negative) text = text.substring(1);
+
+    final dot = text.indexOf('.');
+    final whole = dot < 0 ? text : text.substring(0, dot);
+    final fraction = dot < 0 ? '' : text.substring(dot);
+
+    text = '${whole.isEmpty ? '' : _group(int.parse(whole).toString())}'
+        '$fraction';
+    if (negative) text = '-$text';
+    return persianDigits ? Digits.toPersian(text) : text;
+  }
+
   /// Returns null for input that is not a number. Never guesses.
   Money? parse(String input) {
-    var text = Digits.toLatin(input).trim();
-    text = text
-        .replaceAll(_latinGroupSeparator, '')
-        .replaceAll(_persianGroupSeparator, '')
-        .replaceAll('\u00A0', '') // non-breaking space
-        .replaceAll(' ', '');
+    var text = _stripSeparators(Digits.toLatin(input));
     if (text.isEmpty) return null;
 
     final negative = text.startsWith('-');
@@ -86,6 +106,13 @@ final class MoneyFormatter {
     final total = major * currency.minorUnitsPerMajor + minor;
     return Money(negative ? -total : total);
   }
+
+  static String _stripSeparators(String text) => text
+      .trim()
+      .replaceAll(_latinGroupSeparator, '')
+      .replaceAll(_persianGroupSeparator, '')
+      .replaceAll(' ', '') // non-breaking space
+      .replaceAll(' ', '');
 
   static bool _isDigits(String s) {
     for (final unit in s.codeUnits) {

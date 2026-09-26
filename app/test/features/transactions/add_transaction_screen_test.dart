@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:nimbus_data/nimbus_data.dart';
 import 'package:nimbus_domain/nimbus_domain.dart';
+import 'package:nimbustats/features/settings/data/settings_keys.dart';
 import 'package:nimbustats/features/transactions/application/prediction_providers.dart';
 import 'package:nimbustats/features/transactions/data/transaction_draft.dart';
 import 'package:nimbustats/features/transactions/data/transaction_repository.dart';
@@ -198,6 +199,37 @@ void main() {
       await tester.pumpAndSettle();
       expect(await db.transactionsDao.pageAfter(range: everything, limit: 5),
           isEmpty);
+    });
+
+    testWidgets('a dollar amount can be typed one key at a time',
+        (tester) async {
+      // Found on a device. "5" was redrawn as "5.00" mid-keystroke with the
+      // caret at the end, so the next "0" landed after the cents and $50
+      // could not be typed without moving the caret by hand. enterText sets
+      // the whole string at once, so each key is sent as its own edit, the
+      // way a keyboard delivers them.
+      final db = AppDatabase.openInMemory();
+      addTearDown(db.close);
+      // The device's settings: dollars, in English (which is also what gives
+      // Latin digits -- digit style follows the stored locale).
+      await db.settingsDao.put(SettingsKeys.currencyCode, Currency.usd.code);
+      await db.settingsDao.put(SettingsKeys.localeCode, 'en');
+      await pumpApp(tester,
+          database: db, seedFirstRun: true, initialLocation: '/add');
+
+      final field = find.byKey(const Key('tx-amount-field'));
+      String shown() => tester.widget<TextField>(field).controller!.text;
+      for (final key in ['5', '0']) {
+        await tester.enterText(field, shown() + key);
+        await tester.pump();
+      }
+      expect(shown(), '50');
+
+      await tester.tap(find.byKey(const Key('tx-save')));
+      await tester.pumpAndSettle();
+      final saved =
+          await db.transactionsDao.pageAfter(range: everything, limit: 5);
+      expect(saved.single.amount, const Money(5000));
     });
 
     testWidgets('a zero amount cannot be saved', (tester) async {
