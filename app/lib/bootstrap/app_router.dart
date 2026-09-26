@@ -6,6 +6,7 @@ import 'package:nimbus_design/nimbus_design.dart';
 import '../l10n/app_localizations.dart';
 
 import 'app_shell.dart';
+import 'first_run.dart';
 
 import '../features/analytics/routes.dart';
 import '../features/categories/routes.dart';
@@ -27,8 +28,41 @@ import '../features/transactions/routes.dart';
 /// start the app somewhere other than the root without a second router.
 final appRouterProvider =
     Provider.family<GoRouter, String?>((ref, initialLocation) {
+  final isFirstRunComplete = ref.watch(firstRunCompleteProvider);
+  // Latched: categories are only ever soft-deleted, so once first run has
+  // happened it stays happened, and every later navigation skips the query.
+  var firstRunComplete = false;
+
   final router = GoRouter(
     initialLocation: initialLocation ?? '/',
+    // The first-run gate. Until the category tree exists, every location but
+    // onboarding sends the user there -- deep links included -- because
+    // anything past it that saves a transaction fails its foreign key.
+    // Onboarding itself stays reachable afterwards; only the way in is gated.
+    redirect: (context, state) {
+      if (firstRunComplete || state.matchedLocation == onboardingRoute) {
+        return null;
+      }
+      return isFirstRunComplete().then(
+        (complete) {
+          firstRunComplete = complete;
+          return complete ? null : onboardingRoute;
+        },
+        onError: (Object error, StackTrace stack) {
+          // go_router turns a redirect exception into its "route not found"
+          // screen and keeps only the message, so it is reported here, with
+          // its stack, before being passed on.
+          FlutterError.reportError(FlutterErrorDetails(
+            exception: error,
+            stack: stack,
+            library: 'first-run gate',
+            context: ErrorDescription('while checking whether first run '
+                'has happened'),
+          ));
+          Error.throwWithStackTrace(error, stack);
+        },
+      );
+    },
     routes: <RouteBase>[
       // The nav-shell destinations. A feature contributes at most one, and
       // whether a screen belongs here or below is the whole distinction: these

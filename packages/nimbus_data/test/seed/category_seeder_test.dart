@@ -151,6 +151,34 @@ void main() {
         isNotNull);
   });
 
+  group('hasSeeded', () {
+    // The app's first-run gate asks this on launch, so it has to give the
+    // same answer seedIfEmpty's emptiness check would. A gate that disagreed
+    // with the seeder could let a user past onboarding into a database with
+    // no category for a transaction to point at.
+    test('is false on a database that was never seeded', () async {
+      expect(await seeder.hasSeeded(), isFalse);
+    });
+
+    test('is true once seeded', () async {
+      await seed();
+      expect(await seeder.hasSeeded(), isTrue);
+    });
+
+    test('stays true when every category has been soft-deleted', () async {
+      await seed();
+      for (final category in await db.categoriesDao.allLive()) {
+        await db.categoriesDao.softDeleteSubtree(category.id);
+      }
+      expect(await db.categoriesDao.allLive(), isEmpty);
+
+      expect(await seeder.hasSeeded(), isTrue);
+      expect(await seed(), isFalse,
+          reason: 'the seeder agrees: deleting everything is a decision, not '
+              'a first run');
+    });
+  });
+
   group('Ids', () {
     test('generates unique identifiers', () {
       final ids = List.generate(200, (_) => Ids.newId());

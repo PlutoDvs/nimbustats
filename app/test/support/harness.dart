@@ -21,6 +21,7 @@ Future<AppDatabase> pumpApp(
   AppDatabase? database,
   List<Override> overrides = const [],
   bool seedFirstRun = false,
+  bool realFirstRunGate = false,
   String? initialLocation,
   /// Null lets the app take its locale from settings, which is what a test
   /// about locale switching needs.
@@ -43,6 +44,12 @@ Future<AppDatabase> pumpApp(
   // would pass while the shipped app behaved differently.
   final container = ProviderContainer(retry: nimbusNoRetry, overrides: [
     appDatabaseProvider.overrideWithValue(db),
+    // A seeded database passes the real first-run gate on its own. An unseeded
+    // one is deliberate -- a screen tested against its own rows or its empty
+    // state -- so the gate is answered rather than sending it to onboarding.
+    // Tests about first run itself ask for the real gate.
+    if (!seedFirstRun && !realFirstRunGate)
+      firstRunCompleteProvider.overrideWithValue(() async => true),
     ...overrides,
   ]);
   addTearDown(container.dispose);

@@ -17,6 +17,15 @@ final class FirstRunController {
 
   final AppDatabase _db;
 
+  /// Whether first run has happened on this install: the category tree exists.
+  ///
+  /// The tree rather than `AppSettings.onboardingCompleted`, because the tree
+  /// is what everything past onboarding actually needs -- every transaction
+  /// points into it -- and it is the one that cannot disagree with itself.
+  /// The flag is written before seeding and wiped by a settings reset, so it
+  /// can say "done" over an empty table, or "not done" over a full one.
+  Future<bool> isComplete() => CategorySeeder(_db).hasSeeded();
+
   /// Seeds the default tree if the database has never been seeded, and returns
   /// whether it did.
   ///
@@ -51,4 +60,13 @@ final class FirstRunController {
 
 final firstRunControllerProvider = Provider<FirstRunController>(
   (ref) => FirstRunController(ref.watch(appDatabaseProvider)),
+);
+
+/// The question the router's first-run gate asks.
+///
+/// A provider of its own so a screen test on a deliberately empty database --
+/// one that is not about first run -- can answer it rather than being turned
+/// away to onboarding.
+final firstRunCompleteProvider = Provider<Future<bool> Function()>(
+  (ref) => ref.watch(firstRunControllerProvider).isComplete,
 );

@@ -24,12 +24,20 @@ final class CategorySeeder {
 
   final AppDatabase _db;
 
-  /// Seeds [roots] plus the system Uncategorized row, and returns whether it
-  /// did any work.
+  /// Whether the tree has ever been seeded on this database.
   ///
-  /// "Empty" means the `categories` table holds no rows at all, **including
+  /// "Seeded" means the `categories` table holds any row at all, **including
   /// soft-deleted ones**: a user who deleted every default category has made a
-  /// decision, and re-seeding on the next launch would silently undo it.
+  /// decision, and treating that as a first run would silently undo it. Rows
+  /// are only ever soft-deleted, so once this is true it stays true.
+  ///
+  /// The app's first-run gate asks this on launch, and [seedIfEmpty] asks it
+  /// before seeding, so the two can never disagree about what "empty" means.
+  Future<bool> hasSeeded() async =>
+      await (_db.select(_db.categories)..limit(1)).getSingleOrNull() != null;
+
+  /// Seeds [roots] plus the system Uncategorized row, and returns whether it
+  /// did any work -- which it does only when [hasSeeded] is false.
   ///
   /// The whole thing runs in one transaction. A half-seeded tree is worse than
   /// no tree, because the emptiness check would then consider seeding done and
@@ -39,8 +47,7 @@ final class CategorySeeder {
     required String uncategorizedName,
   }) =>
       _db.transaction(() async {
-        final existing = await _db.select(_db.categories).get();
-        if (existing.isNotEmpty) return false;
+        if (await hasSeeded()) return false;
 
         await _db.categoriesDao.insertNode(
           id: SystemCategoryIds.uncategorized,
