@@ -48,6 +48,22 @@ final class AnalyticsEngine {
     return CompiledQuery(sql: sql, variables: variables);
   }
 
+  /// Fires whenever a table this engine reads is written.
+  ///
+  /// An answer is a snapshot; this is how a screen learns it went stale. The
+  /// tables are every one a [QuerySpec] can reach: transactions and their tag
+  /// links for the rows, categories and tags for the subtree paths a filter
+  /// or a rollup resolves against. Settings and saved views are left out --
+  /// neither changes what a spec means.
+  Stream<void> changes() => _db
+      .tableUpdates(TableUpdateQuery.onAllTables([
+        _db.transactions,
+        _db.transactionTags,
+        _db.categories,
+        _db.tags,
+      ]))
+      .map((_) {});
+
   Future<AnalyticsResult> run(QuerySpec spec) async {
     final compiled = compile(spec);
     final rows =

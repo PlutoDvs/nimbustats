@@ -31,7 +31,17 @@ final analyticsEngineProvider = Provider<AnalyticsEngine>(
 /// value equality -- the same property Phase 5 depends on to store one as a
 /// goal's scope. Two widgets asking the same question therefore share one
 /// query rather than each issuing their own.
+///
+/// Auto-disposed, and re-run whenever the engine reports a write to a table
+/// it reads. It used to be neither: an answer was computed once and kept for
+/// the life of the app, so a tab went on showing the total from before an
+/// expense was added, and every month anyone looked at stayed in memory.
 final analyticsResultProvider =
-    FutureProvider.family<AnalyticsResult, QuerySpec>(
-  (ref, spec) => ref.watch(analyticsEngineProvider).run(spec),
+    FutureProvider.autoDispose.family<AnalyticsResult, QuerySpec>(
+  (ref, spec) {
+    final engine = ref.watch(analyticsEngineProvider);
+    final changes = engine.changes().listen((_) => ref.invalidateSelf());
+    ref.onDispose(changes.cancel);
+    return engine.run(spec);
+  },
 );

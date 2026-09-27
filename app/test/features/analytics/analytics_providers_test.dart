@@ -54,6 +54,19 @@ void main() {
     aggregate: Aggregate.sum,
   );
 
+  /// Reads an answer while holding a listener, as a screen would. The
+  /// provider is auto-disposed, so a bare read could see it released before
+  /// its query finished.
+  Future<AnalyticsResult> answer(QuerySpec spec) async {
+    final subscription =
+        container.listen(analyticsResultProvider(spec), (_, __) {});
+    try {
+      return await container.read(analyticsResultProvider(spec).future);
+    } finally {
+      subscription.close();
+    }
+  }
+
   test('the engine takes its calendar from settings', () async {
     // A Jalali month is not a Gregorian one, so an engine built with the wrong
     // calendar buckets every period query off by weeks -- and only visibly so
@@ -74,9 +87,7 @@ void main() {
   test('a spec resolves to hand-computed totals', () async {
     await seedTransactions();
 
-    final result = await container.read(analyticsResultProvider(
-      januaryTotal,
-    ).future);
+    final result = await answer(januaryTotal);
 
     // 1000 + 500 + 250, computed here rather than by a second query.
     expect(result.trueTotal, const Money(1750));
@@ -91,9 +102,7 @@ void main() {
     // impossible without anything failing.
     await seedTransactions();
 
-    final result = await container.read(analyticsResultProvider(
-      januaryTotal,
-    ).future);
+    final result = await answer(januaryTotal);
 
     expect(result.overlaps, isFalse);
     expect(result.bucketSum, result.trueTotal);
@@ -102,15 +111,13 @@ void main() {
   test('an empty range yields no buckets rather than an error', () async {
     await seedTransactions();
 
-    final result = await container.read(analyticsResultProvider(
-      const QuerySpec(
-        filters: QueryFilters(
-          dateRange: DateRange(DateKey(20250101), DateKey(20250131)),
-        ),
-        groupBy: GroupByNone(),
-        aggregate: Aggregate.sum,
+    final result = await answer(const QuerySpec(
+      filters: QueryFilters(
+        dateRange: DateRange(DateKey(20250101), DateKey(20250131)),
       ),
-    ).future);
+      groupBy: GroupByNone(),
+      aggregate: Aggregate.sum,
+    ));
 
     expect(result.trueTotal, Money.zero);
     expect(result.trueCount, 0);
@@ -131,5 +138,46 @@ void main() {
       aggregate: Aggregate.sum,
     );
     expect(a, analyticsResultProvider(copy));
+  });
+
+  test('an answer re-runs when an expense is added', () async {
+    // Before this, an answer was computed once and kept for the life of the
+    // app: add an expense and every open chart went on showing the old total.
+    await seedTransactions();
+    final subscription =
+        container.listen(analyticsResultProvider(januaryTotal), (_, __) {});
+    addTearDown(subscription.close);
+    expect(
+      (await container.read(analyticsResultProvider(januaryTotal).future))
+          .trueTotal,
+      const Money(1750),
+    );
+
+    await TransactionRepository(db.transactionsDao, db.tagsDao, Currency.toman)
+        .add(TransactionDraft(
+      amount: const Money(100),
+      direction: TxDirection.expense,
+      categoryId: 'seed-food',
+      occurredAtUtc: DateTime(2026, 1, 25, 10).toUtc(),
+    ));
+    // The write is announced asynchronously; let the notification land.
+    await pumpEventQueue();
+
+    expect(
+      (await container.read(analyticsResultProvider(januaryTotal).future))
+          .trueTotal,
+      const Money(1850),
+    );
+  });
+
+  test('an answer nobody watches is released', () async {
+    // Every month anyone looked at used to stay in memory for good.
+    final subscription =
+        container.listen(analyticsResultProvider(januaryTotal), (_, __) {});
+    await container.read(analyticsResultProvider(januaryTotal).future);
+    subscription.close();
+    await container.pump();
+
+    expect(container.exists(analyticsResultProvider(januaryTotal)), isFalse);
   });
 }
