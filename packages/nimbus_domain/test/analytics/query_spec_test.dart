@@ -160,5 +160,31 @@ void main() {
               }),
           throwsFormatException);
     });
+
+    test('withDateRange replaces the range and keeps every other field', () {
+      final full = QuerySpec(
+        filters: QueryFilters(
+          dateRange: DateRange(const DateKey(20260101), const DateKey(20260131)),
+          direction: MoneyDirection.expense,
+          categorySubtreePaths: const ['/food/'],
+          tags: TagsAny(const ['/travel/']),
+          paymentMethodIds: const ['card'],
+          necessity: const {NecessityLevel.avoidable},
+          satisfaction: const {SatisfactionLevel.regret},
+          amountRange: AmountRange(minInclusive: const Money(100)),
+          confirmedOnly: true,
+          searchText: 'cafe',
+        ),
+        groupBy: GroupByCategory(1),
+        aggregate: Aggregate.sum,
+      );
+
+      final undated = full.withDateRange(null);
+
+      expect(undated.filters.dateRange, isNull);
+      // Putting the range back must give the original: proof nothing else was
+      // dropped on the way out.
+      expect(undated.withDateRange(full.filters.dateRange), full);
+    });
   });
 }

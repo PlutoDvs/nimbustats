@@ -1,5 +1,6 @@
 import 'package:meta/meta.dart';
 
+import '../calendar/date_key.dart';
 import 'aggregate.dart';
 import 'group_by.dart';
 import 'json_support.dart';
@@ -39,6 +40,13 @@ final class QuerySpec {
         'groupBy': groupBy.toJson(),
         'aggregate': aggregate.name,
       };
+
+  /// This question over [range] instead; null makes it undated.
+  QuerySpec withDateRange(DateRange? range) => QuerySpec(
+        filters: filters.withDateRange(range),
+        groupBy: groupBy,
+        aggregate: aggregate,
+      );
 
   static Aggregate _aggregateOf(Object? raw) {
     for (final value in Aggregate.values) {

@@ -86,6 +86,23 @@ final class QueryFilters {
         if (searchText != null) 'searchText': searchText,
       };
 
+  /// This filter set with [range] as its date range; null removes it.
+  ///
+  /// The one copy operation the app needs: a saved view stores its spec
+  /// without dates, and a card puts the dates back when it draws.
+  QueryFilters withDateRange(DateRange? range) => QueryFilters(
+        dateRange: range,
+        direction: direction,
+        categorySubtreePaths: categorySubtreePaths,
+        tags: tags,
+        paymentMethodIds: paymentMethodIds,
+        necessity: necessity,
+        satisfaction: satisfaction,
+        amountRange: amountRange,
+        confirmedOnly: confirmedOnly,
+        searchText: searchText,
+      );
+
   static DateRange? _rangeOf(Object? value) {
     if (value == null) return null;
     final map = jsonMapOf(value, 'dateRange');
