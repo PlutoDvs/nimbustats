@@ -11,9 +11,9 @@ blocked, and who can unblock it.
 |---|---|---|---|
 | D2 | Gradle distribution and large SDK packages need manual seeding on a fresh machine | Any new dev machine or CI | Operator (network) |
 | D4 | Claude Design token sheet does not exist | Nothing hard-blocked; visual polish | Operator (design) |
-| D8 | Payment-method tile is silently disabled when no method exists | Nothing hard-blocked; add-screen UX | Next phase touching the add screen |
-| D9 | "Saved" snackbar may cover the add button — unconfirmed on a device | Nothing hard-blocked; back-to-back captures | Operator (device check) |
 | D1 | ~~Phase 1 hardware criteria unmeasured~~ | — | **Resolved 2026-09-27** |
+| D8 | ~~Payment-method tile is silently disabled when no method exists~~ | — | **Resolved 2026-09-27** |
+| D9 | ~~"Saved" snackbar covers the add button~~ | — | **Resolved 2026-09-27** |
 | D3 | ~~pub.dev archive access depends on the VPN exit node~~ | — | **Resolved 2026-09-05** |
 | D5 | ~~Router error screen has no localized copy~~ | — | **Resolved 2026-08-24** |
 | D6 | ~~Flutter-specific lints are not active~~ | — | **Resolved 2026-08-22** |
@@ -61,9 +61,13 @@ failing test first:
 
 The method is in `docs/DEVELOPMENT.md`, *Measuring on a device*.
 
-**Not done by this item:** `phase-1-complete` is the operator's to tag. The
-fixes above are on `phase/3-analytics-ui`, not on `main`, so tagging `main`
-as it stands would certify code without them.
+**Tagged 2026-09-27** — the operator delegated the call. `main` was
+fast-forwarded to `phase/3-analytics-ui`, of which it was an ancestor, so the
+fixes above arrived without a merge commit or duplicated commits, together with
+Phase 3 tasks 9–12 (done and green, as the Phase 3 engine was before them).
+`phase-1-complete` marks that commit: the build measured on the device, plus
+this record. Cherry-picking the fixes onto the old `main` instead would have
+tagged a combination no device ever ran.
 
 The history below is kept as it was written.
 
@@ -405,10 +409,20 @@ is warning about, not a polish item.
 
 ---
 
-## D8 — Payment-method tile is silently disabled when no method exists
+## D8 — Payment-method tile is silently disabled when no method exists — RESOLVED
 
-**Status:** open. Found 2026-09-26 on the first real-device run (Galaxy A53),
-reported as "payment method selection not working".
+**Status:** resolved 2026-09-27. Found 2026-09-26 on the first real-device run
+(Galaxy A53), reported as "payment method selection not working".
+
+**Resolution — the operator's choice of the two options below:** first run
+creates Cash and Card, named in the install's language (`e29d92c`), and the
+picker ends with a small "+ New payment method" until the user has a method
+of their own; it creates the method and puts it on the expense being entered
+(`db157c6`). The tile is never disabled any more. Verified on the A53 after
+clearing the app's data: Cash and Card present from the first launch, and "+"
+created a method that landed on that expense.
+
+The original report is kept below.
 
 The add screen's payment-method tile sets `onTap: methods.isEmpty ? null : …`
 (`app/lib/features/transactions/presentation/add_transaction_screen.dart:241`).
@@ -433,10 +447,18 @@ tap the payment-method tile. Resolved when that tap does something useful.
 
 ---
 
-## D9 — "Saved" snackbar may cover the add button — unconfirmed on a device
+## D9 — "Saved" snackbar covers the add button — RESOLVED
 
-**Status:** open, unconfirmed. Found 2026-09-27 while writing the test for
-`b74636c`.
+**Status:** resolved 2026-09-27 (`383890c`). Found the same day while writing
+the test for `b74636c`, then confirmed on the A53 by the operator.
+
+**Cause and fix:** the list's Scaffold owned the add button, but the list sits
+inside the app shell's Scaffold, and snackbars are shown by the outermost one.
+A Scaffold only lifts its own FAB clear of its own snackbar. The button moved
+to the shell, on Home only; verified on the device, it now rises above
+"Saved".
+
+The original report is kept below.
 
 In a widget test (an 800 × 600 view), tapping the list's + within the "Saved"
 snackbar's four seconds did not reach the button — Flutter reported the tap
