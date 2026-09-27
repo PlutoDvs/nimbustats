@@ -133,11 +133,7 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
           Expanded(child: body),
         ],
       ),
-      floatingActionButton: FloatingActionButton(
-        key: const Key('tx-add-fab'),
-        onPressed: () => context.push(addTransactionRoute),
-        child: const Icon(Icons.add),
-      ),
+      // No FAB here: the add button is the shell's -- see AppShell.
     );
   }
 }

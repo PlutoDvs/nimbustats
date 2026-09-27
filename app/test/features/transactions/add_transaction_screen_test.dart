@@ -76,6 +76,32 @@ void main() {
           hasLength(6));
     });
 
+    testWidgets('the next expense can start while "saved" is still showing',
+        (tester) async {
+      // D9, confirmed on a device: the "saved" snackbar covered the add
+      // button for its four seconds, so logging two expenses back to back
+      // meant waiting or missing the tap.
+      await pumpApp(tester, seedFirstRun: true);
+      final fab = find.byKey(const Key('tx-add-fab'));
+
+      await tester.tap(fab);
+      await tester.pumpAndSettle();
+      await tester.enterText(
+          find.byKey(const Key('tx-amount-field')), '45000');
+      await tester.tap(find.byKey(const Key('tx-save')));
+      await tester.pumpAndSettle();
+
+      expect(find.byType(SnackBar), findsOneWidget,
+          reason: 'the case under test is the snackbar still up');
+      expect(
+        tester.getRect(fab).overlaps(tester.getRect(find.byType(SnackBar))),
+        isFalse,
+      );
+      await tester.tap(fab);
+      await tester.pumpAndSettle();
+      expect(find.byKey(const Key('tx-save')), findsOneWidget);
+    });
+
     testWidgets('a saved expense is on the list the moment Save returns',
         (tester) async {
       // Found on a device: the $55 saved, but the list and its month total

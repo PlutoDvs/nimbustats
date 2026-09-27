@@ -44,6 +44,18 @@ class AppShell extends StatelessWidget {
 
     return Scaffold(
       body: child,
+      // Home's add button lives on this Scaffold, not on the list's. Snackbars
+      // show on the outermost Scaffold, and a Scaffold only lifts its *own*
+      // FAB clear of its snackbar -- on the list's Scaffold the button sat
+      // under "saved" for four seconds after every capture, so a second
+      // expense meant waiting or missing the tap.
+      floatingActionButton: index == 0
+          ? FloatingActionButton(
+              key: const Key('tx-add-fab'),
+              onPressed: () => context.push(addTransactionRoute),
+              child: const Icon(Icons.add),
+            )
+          : null,
       bottomNavigationBar: NavigationBar(
         key: const Key('nav-bar'),
         selectedIndex: index,

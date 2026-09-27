@@ -110,4 +110,17 @@ void main() {
       TextDirection.rtl,
     );
   });
+
+  testWidgets('the add button is on home only', (tester) async {
+    // It lives on the shell's Scaffold so it rises above the "saved"
+    // snackbar; being there must not put it on every destination.
+    final fab = find.byKey(const Key('tx-add-fab'));
+    await pumpApp(tester);
+    expect(fab, findsOneWidget);
+
+    for (final route in ['/analytics', '/settings']) {
+      await pumpApp(tester, initialLocation: route);
+      expect(fab, findsNothing, reason: route);
+    }
+  });
 }
