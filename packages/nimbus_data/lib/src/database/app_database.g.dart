@@ -3757,6 +3757,30 @@ class $SavedViewsTable extends SavedViews
     requiredDuringInsert: false,
     defaultValue: const Constant(0),
   );
+  static const VerificationMeta _periodTypeMeta = const VerificationMeta(
+    'periodType',
+  );
+  @override
+  late final GeneratedColumn<String> periodType = GeneratedColumn<String>(
+    'period_type',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant('month'),
+  );
+  static const VerificationMeta _periodCountMeta = const VerificationMeta(
+    'periodCount',
+  );
+  @override
+  late final GeneratedColumn<int> periodCount = GeneratedColumn<int>(
+    'period_count',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(1),
+  );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -3768,6 +3792,8 @@ class $SavedViewsTable extends SavedViews
     chartType,
     pinned,
     sortOrder,
+    periodType,
+    periodCount,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -3844,6 +3870,21 @@ class $SavedViewsTable extends SavedViews
         sortOrder.isAcceptableOrUnknown(data['sort_order']!, _sortOrderMeta),
       );
     }
+    if (data.containsKey('period_type')) {
+      context.handle(
+        _periodTypeMeta,
+        periodType.isAcceptableOrUnknown(data['period_type']!, _periodTypeMeta),
+      );
+    }
+    if (data.containsKey('period_count')) {
+      context.handle(
+        _periodCountMeta,
+        periodCount.isAcceptableOrUnknown(
+          data['period_count']!,
+          _periodCountMeta,
+        ),
+      );
+    }
     return context;
   }
 
@@ -3889,6 +3930,14 @@ class $SavedViewsTable extends SavedViews
         DriftSqlType.int,
         data['${effectivePrefix}sort_order'],
       )!,
+      periodType: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}period_type'],
+      )!,
+      periodCount: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}period_count'],
+      )!,
     );
   }
 
@@ -3910,6 +3959,17 @@ class SavedViewRow extends DataClass implements Insertable<SavedViewRow> {
   final String chartType;
   final bool pinned;
   final int sortOrder;
+
+  /// A `PeriodType` name. With [periodCount] it is the window a card covers,
+  /// counted back from whichever date the dashboard is anchored on.
+  ///
+  /// Stored beside the spec rather than in it: the spec's own date range is
+  /// absolute, so a view pinned as "this month" would stay on the month it
+  /// was pinned forever. Added in v21.
+  final String periodType;
+
+  /// How many periods of [periodType], ending with the anchor's. At least 1.
+  final int periodCount;
   const SavedViewRow({
     required this.id,
     required this.createdAt,
@@ -3920,6 +3980,8 @@ class SavedViewRow extends DataClass implements Insertable<SavedViewRow> {
     required this.chartType,
     required this.pinned,
     required this.sortOrder,
+    required this.periodType,
+    required this.periodCount,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -3935,6 +3997,8 @@ class SavedViewRow extends DataClass implements Insertable<SavedViewRow> {
     map['chart_type'] = Variable<String>(chartType);
     map['pinned'] = Variable<bool>(pinned);
     map['sort_order'] = Variable<int>(sortOrder);
+    map['period_type'] = Variable<String>(periodType);
+    map['period_count'] = Variable<int>(periodCount);
     return map;
   }
 
@@ -3951,6 +4015,8 @@ class SavedViewRow extends DataClass implements Insertable<SavedViewRow> {
       chartType: Value(chartType),
       pinned: Value(pinned),
       sortOrder: Value(sortOrder),
+      periodType: Value(periodType),
+      periodCount: Value(periodCount),
     );
   }
 
@@ -3969,6 +4035,8 @@ class SavedViewRow extends DataClass implements Insertable<SavedViewRow> {
       chartType: serializer.fromJson<String>(json['chartType']),
       pinned: serializer.fromJson<bool>(json['pinned']),
       sortOrder: serializer.fromJson<int>(json['sortOrder']),
+      periodType: serializer.fromJson<String>(json['periodType']),
+      periodCount: serializer.fromJson<int>(json['periodCount']),
     );
   }
   @override
@@ -3984,6 +4052,8 @@ class SavedViewRow extends DataClass implements Insertable<SavedViewRow> {
       'chartType': serializer.toJson<String>(chartType),
       'pinned': serializer.toJson<bool>(pinned),
       'sortOrder': serializer.toJson<int>(sortOrder),
+      'periodType': serializer.toJson<String>(periodType),
+      'periodCount': serializer.toJson<int>(periodCount),
     };
   }
 
@@ -3997,6 +4067,8 @@ class SavedViewRow extends DataClass implements Insertable<SavedViewRow> {
     String? chartType,
     bool? pinned,
     int? sortOrder,
+    String? periodType,
+    int? periodCount,
   }) => SavedViewRow(
     id: id ?? this.id,
     createdAt: createdAt ?? this.createdAt,
@@ -4007,6 +4079,8 @@ class SavedViewRow extends DataClass implements Insertable<SavedViewRow> {
     chartType: chartType ?? this.chartType,
     pinned: pinned ?? this.pinned,
     sortOrder: sortOrder ?? this.sortOrder,
+    periodType: periodType ?? this.periodType,
+    periodCount: periodCount ?? this.periodCount,
   );
   SavedViewRow copyWithCompanion(SavedViewsCompanion data) {
     return SavedViewRow(
@@ -4019,6 +4093,12 @@ class SavedViewRow extends DataClass implements Insertable<SavedViewRow> {
       chartType: data.chartType.present ? data.chartType.value : this.chartType,
       pinned: data.pinned.present ? data.pinned.value : this.pinned,
       sortOrder: data.sortOrder.present ? data.sortOrder.value : this.sortOrder,
+      periodType: data.periodType.present
+          ? data.periodType.value
+          : this.periodType,
+      periodCount: data.periodCount.present
+          ? data.periodCount.value
+          : this.periodCount,
     );
   }
 
@@ -4033,7 +4113,9 @@ class SavedViewRow extends DataClass implements Insertable<SavedViewRow> {
           ..write('specJson: $specJson, ')
           ..write('chartType: $chartType, ')
           ..write('pinned: $pinned, ')
-          ..write('sortOrder: $sortOrder')
+          ..write('sortOrder: $sortOrder, ')
+          ..write('periodType: $periodType, ')
+          ..write('periodCount: $periodCount')
           ..write(')'))
         .toString();
   }
@@ -4049,6 +4131,8 @@ class SavedViewRow extends DataClass implements Insertable<SavedViewRow> {
     chartType,
     pinned,
     sortOrder,
+    periodType,
+    periodCount,
   );
   @override
   bool operator ==(Object other) =>
@@ -4062,7 +4146,9 @@ class SavedViewRow extends DataClass implements Insertable<SavedViewRow> {
           other.specJson == this.specJson &&
           other.chartType == this.chartType &&
           other.pinned == this.pinned &&
-          other.sortOrder == this.sortOrder);
+          other.sortOrder == this.sortOrder &&
+          other.periodType == this.periodType &&
+          other.periodCount == this.periodCount);
 }
 
 class SavedViewsCompanion extends UpdateCompanion<SavedViewRow> {
@@ -4075,6 +4161,8 @@ class SavedViewsCompanion extends UpdateCompanion<SavedViewRow> {
   final Value<String> chartType;
   final Value<bool> pinned;
   final Value<int> sortOrder;
+  final Value<String> periodType;
+  final Value<int> periodCount;
   final Value<int> rowid;
   const SavedViewsCompanion({
     this.id = const Value.absent(),
@@ -4086,6 +4174,8 @@ class SavedViewsCompanion extends UpdateCompanion<SavedViewRow> {
     this.chartType = const Value.absent(),
     this.pinned = const Value.absent(),
     this.sortOrder = const Value.absent(),
+    this.periodType = const Value.absent(),
+    this.periodCount = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   SavedViewsCompanion.insert({
@@ -4098,6 +4188,8 @@ class SavedViewsCompanion extends UpdateCompanion<SavedViewRow> {
     required String chartType,
     this.pinned = const Value.absent(),
     this.sortOrder = const Value.absent(),
+    this.periodType = const Value.absent(),
+    this.periodCount = const Value.absent(),
     this.rowid = const Value.absent(),
   }) : id = Value(id),
        createdAt = Value(createdAt),
@@ -4115,6 +4207,8 @@ class SavedViewsCompanion extends UpdateCompanion<SavedViewRow> {
     Expression<String>? chartType,
     Expression<bool>? pinned,
     Expression<int>? sortOrder,
+    Expression<String>? periodType,
+    Expression<int>? periodCount,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -4127,6 +4221,8 @@ class SavedViewsCompanion extends UpdateCompanion<SavedViewRow> {
       if (chartType != null) 'chart_type': chartType,
       if (pinned != null) 'pinned': pinned,
       if (sortOrder != null) 'sort_order': sortOrder,
+      if (periodType != null) 'period_type': periodType,
+      if (periodCount != null) 'period_count': periodCount,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -4141,6 +4237,8 @@ class SavedViewsCompanion extends UpdateCompanion<SavedViewRow> {
     Value<String>? chartType,
     Value<bool>? pinned,
     Value<int>? sortOrder,
+    Value<String>? periodType,
+    Value<int>? periodCount,
     Value<int>? rowid,
   }) {
     return SavedViewsCompanion(
@@ -4153,6 +4251,8 @@ class SavedViewsCompanion extends UpdateCompanion<SavedViewRow> {
       chartType: chartType ?? this.chartType,
       pinned: pinned ?? this.pinned,
       sortOrder: sortOrder ?? this.sortOrder,
+      periodType: periodType ?? this.periodType,
+      periodCount: periodCount ?? this.periodCount,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -4187,6 +4287,12 @@ class SavedViewsCompanion extends UpdateCompanion<SavedViewRow> {
     if (sortOrder.present) {
       map['sort_order'] = Variable<int>(sortOrder.value);
     }
+    if (periodType.present) {
+      map['period_type'] = Variable<String>(periodType.value);
+    }
+    if (periodCount.present) {
+      map['period_count'] = Variable<int>(periodCount.value);
+    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -4205,6 +4311,8 @@ class SavedViewsCompanion extends UpdateCompanion<SavedViewRow> {
           ..write('chartType: $chartType, ')
           ..write('pinned: $pinned, ')
           ..write('sortOrder: $sortOrder, ')
+          ..write('periodType: $periodType, ')
+          ..write('periodCount: $periodCount, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -7086,6 +7194,8 @@ typedef $$SavedViewsTableCreateCompanionBuilder = SavedViewsCompanion Function({
   required String chartType,
   Value<bool> pinned,
   Value<int> sortOrder,
+  Value<String> periodType,
+  Value<int> periodCount,
   Value<int> rowid,
 });
 typedef $$SavedViewsTableUpdateCompanionBuilder = SavedViewsCompanion Function({
@@ -7098,6 +7208,8 @@ typedef $$SavedViewsTableUpdateCompanionBuilder = SavedViewsCompanion Function({
   Value<String> chartType,
   Value<bool> pinned,
   Value<int> sortOrder,
+  Value<String> periodType,
+  Value<int> periodCount,
   Value<int> rowid,
 });
 
@@ -7152,6 +7264,16 @@ class $$SavedViewsTableFilterComposer
 
   ColumnFilters<int> get sortOrder => $composableBuilder(
     column: $table.sortOrder,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get periodType => $composableBuilder(
+    column: $table.periodType,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get periodCount => $composableBuilder(
+    column: $table.periodCount,
     builder: (column) => ColumnFilters(column),
   );
 }
@@ -7209,6 +7331,16 @@ class $$SavedViewsTableOrderingComposer
     column: $table.sortOrder,
     builder: (column) => ColumnOrderings(column),
   );
+
+  ColumnOrderings<String> get periodType => $composableBuilder(
+    column: $table.periodType,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get periodCount => $composableBuilder(
+    column: $table.periodCount,
+    builder: (column) => ColumnOrderings(column),
+  );
 }
 
 class $$SavedViewsTableAnnotationComposer
@@ -7246,6 +7378,16 @@ class $$SavedViewsTableAnnotationComposer
 
   GeneratedColumn<int> get sortOrder =>
       $composableBuilder(column: $table.sortOrder, builder: (column) => column);
+
+  GeneratedColumn<String> get periodType => $composableBuilder(
+    column: $table.periodType,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get periodCount => $composableBuilder(
+    column: $table.periodCount,
+    builder: (column) => column,
+  );
 }
 
 class $$SavedViewsTableTableManager
@@ -7288,6 +7430,8 @@ class $$SavedViewsTableTableManager
                 Value<String> chartType = const Value.absent(),
                 Value<bool> pinned = const Value.absent(),
                 Value<int> sortOrder = const Value.absent(),
+                Value<String> periodType = const Value.absent(),
+                Value<int> periodCount = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => SavedViewsCompanion(
                 id: id,
@@ -7299,6 +7443,8 @@ class $$SavedViewsTableTableManager
                 chartType: chartType,
                 pinned: pinned,
                 sortOrder: sortOrder,
+                periodType: periodType,
+                periodCount: periodCount,
                 rowid: rowid,
               ),
           createCompanionCallback:
@@ -7312,6 +7458,8 @@ class $$SavedViewsTableTableManager
                 required String chartType,
                 Value<bool> pinned = const Value.absent(),
                 Value<int> sortOrder = const Value.absent(),
+                Value<String> periodType = const Value.absent(),
+                Value<int> periodCount = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => SavedViewsCompanion.insert(
                 id: id,
@@ -7323,6 +7471,8 @@ class $$SavedViewsTableTableManager
                 chartType: chartType,
                 pinned: pinned,
                 sortOrder: sortOrder,
+                periodType: periodType,
+                periodCount: periodCount,
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0

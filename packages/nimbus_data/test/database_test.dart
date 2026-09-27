@@ -10,10 +10,11 @@ void main() {
   setUp(() => db = openTestDatabase());
   tearDown(() => db.close());
 
-  test('opens at schema version 20', () async {
-    // Phase 3 took v20 for saved_views. Ranges are reserved per phase, so this
-    // number jumps rather than increments; see the registry in CONVENTIONS.md.
-    expect(db.schemaVersion, 20);
+  test('opens at schema version 21', () async {
+    // Phase 3 took v20 for saved_views and v21 for its period columns. Ranges
+    // are reserved per phase, so this number jumps rather than increments;
+    // see the registry in CONVENTIONS.md.
+    expect(db.schemaVersion, 21);
     await db.customSelect('SELECT 1').get();
   });
 

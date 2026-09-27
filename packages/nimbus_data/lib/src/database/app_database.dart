@@ -52,7 +52,7 @@ class AppDatabase extends _$AppDatabase {
   factory AppDatabase.openInMemory() => AppDatabase(NativeDatabase.memory());
 
   @override
-  int get schemaVersion => 20;
+  int get schemaVersion => 21;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -67,6 +67,10 @@ class AppDatabase extends _$AppDatabase {
           // produce a merge in which one migration silently disappears, and
           // the failure lands on a user's device, not in CI.
           if (from < 20) {
+            // createTable builds the table as it is declared *now*, so this
+            // path already gets v21's period columns -- which is why the v21
+            // step below is an else rather than a second if. Adding them again
+            // here would fail on a duplicate column.
             await m.createTable(savedViews);
             // createTable does not bring the table's indexes with it, but a
             // fresh install's createAll does. Without this line an upgraded
@@ -74,6 +78,12 @@ class AppDatabase extends _$AppDatabase {
             // new install has it -- two populations on different schemas,
             // which is exactly what the migration test exists to catch.
             await m.create(idxSavedViewsPinned);
+          } else if (from < 21) {
+            // v20 -> v21: a saved view's period moves out of its spec, whose
+            // date range is absolute. Existing rows take the defaults -- one
+            // month -- which is what every v20 pin source meant.
+            await m.addColumn(savedViews, savedViews.periodType);
+            await m.addColumn(savedViews, savedViews.periodCount);
           }
         },
         beforeOpen: (details) async {

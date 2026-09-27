@@ -22,4 +22,15 @@ class SavedViews extends Table with BaseColumns {
   TextColumn get chartType => text()();
   BoolColumn get pinned => boolean().withDefault(const Constant(false))();
   IntColumn get sortOrder => integer().withDefault(const Constant(0))();
+
+  /// A `PeriodType` name. With [periodCount] it is the window a card covers,
+  /// counted back from whichever date the dashboard is anchored on.
+  ///
+  /// Stored beside the spec rather than in it: the spec's own date range is
+  /// absolute, so a view pinned as "this month" would stay on the month it
+  /// was pinned forever. Added in v21.
+  TextColumn get periodType => text().withDefault(const Constant('month'))();
+
+  /// How many periods of [periodType], ending with the anchor's. At least 1.
+  IntColumn get periodCount => integer().withDefault(const Constant(1))();
 }

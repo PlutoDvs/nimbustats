@@ -9,8 +9,8 @@ void main() {
   setUp(() => db = openTestDatabase());
   tearDown(() => db.close());
 
-  test('the schema version is 20', () async {
-    expect(db.schemaVersion, 20);
+  test('the schema version is 21', () async {
+    expect(db.schemaVersion, 21);
   });
 
   test('a saved view round-trips its QuerySpec', () async {
