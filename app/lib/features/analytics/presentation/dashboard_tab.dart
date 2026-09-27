@@ -9,6 +9,7 @@ import '../application/saved_view_providers.dart';
 import '../application/starter_views.dart';
 import 'widgets/month_bar.dart';
 import 'widgets/saved_view_card.dart';
+import 'widgets/saved_view_write.dart';
 
 /// Analytics' first tab: the user's pinned views as cards.
 class DashboardTab extends ConsumerWidget {
@@ -56,6 +57,7 @@ class _EmptyDashboard extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
+    final messenger = ScaffoldMessenger.of(context);
     return Column(
       children: [
         Expanded(
@@ -64,8 +66,12 @@ class _EmptyDashboard extends ConsumerWidget {
             title: l10n.dashboardEmptyTitle,
             message: l10n.dashboardEmptyBody,
             actionLabel: l10n.dashboardAddStarters,
-            onAction: () =>
-                ref.read(savedViewsRepositoryProvider).pin(starterViews(l10n)),
+            onAction: () => reportingFailure(
+              messenger: messenger,
+              l10n: l10n,
+              write: () =>
+                  ref.read(savedViewsRepositoryProvider).pin(starterViews(l10n)),
+            ),
           ),
         ),
         TextButton(

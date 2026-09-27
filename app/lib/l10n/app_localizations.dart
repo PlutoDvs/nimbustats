@@ -668,6 +668,12 @@ abstract class AppLocalizations {
   /// **'Nothing here'**
   String get routeNotFoundTitle;
 
+  /// No description provided for @savedViewSaveFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not save the change'**
+  String get savedViewSaveFailed;
+
   /// No description provided for @savedViewUnreadable.
   ///
   /// In en, this message translates to:

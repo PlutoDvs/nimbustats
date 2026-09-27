@@ -323,6 +323,9 @@ class AppLocalizationsFa extends AppLocalizations {
   String get routeNotFoundTitle => 'چیزی اینجا نیست';
 
   @override
+  String get savedViewSaveFailed => 'تغییر ذخیره نشد';
+
+  @override
   String get savedViewUnreadable => 'این نما خوانا نیست';
 
   @override

@@ -95,6 +95,7 @@
   "routeNotFoundBody": "چنین صفحه‌ای وجود ندارد.",
   "routeNotFoundGoHome": "رفتن به تراکنش‌ها",
   "routeNotFoundTitle": "چیزی اینجا نیست",
+  "savedViewSaveFailed": "تغییر ذخیره نشد",
   "savedViewUnreadable": "این نما خوانا نیست",
   "seedCategoryEducation": "آموزش",
   "seedCategoryEntertainment": "سرگرمی",

@@ -324,6 +324,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get routeNotFoundTitle => 'Nothing here';
 
   @override
+  String get savedViewSaveFailed => 'Could not save the change';
+
+  @override
   String get savedViewUnreadable => 'This view can\'t be read';
 
   @override

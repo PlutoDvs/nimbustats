@@ -5,6 +5,7 @@ import 'package:nimbus_domain/nimbus_domain.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../application/saved_view_providers.dart';
 import '../../data/pin_request.dart';
+import 'saved_view_write.dart';
 import 'view_name_sheet.dart';
 
 /// The pin on a tab or chart: names what is shown and puts it on the
@@ -37,7 +38,11 @@ class PinButton extends ConsumerWidget {
     );
     if (name == null) return;
 
-    await repository.pin([request.named(name)]);
+    await reportingFailure(
+      messenger: messenger,
+      l10n: l10n,
+      write: () => repository.pin([request.named(name)]),
+    );
     messenger.showSnackBar(SnackBar(content: Text(l10n.pinnedToDashboard)));
   }
 }

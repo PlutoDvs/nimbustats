@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:nimbus_domain/nimbus_domain.dart';
@@ -34,6 +36,30 @@ void main() {
     final views = await storedViews(db);
     expect(views.map((v) => v.chart), ['breakdown', 'trend']);
     expect(views.map((v) => v.periodCount), [1, 6]);
+  });
+
+  testWidgets('a failed starter write says so', (tester) async {
+    final db = await categorisedDb();
+    addTearDown(db.close);
+    // A write failure part-way through the starter insert, injected where
+    // SQLite itself would raise one.
+    await db.customStatement(
+        'CREATE TEMP TRIGGER fail_saved_view BEFORE INSERT ON saved_views '
+        "BEGIN SELECT RAISE(ABORT, 'disk I/O error'); END");
+    await openAnalytics(tester, db);
+
+    // The failure still has to reach the framework's error handler rather
+    // than vanish once the snackbar has shown it -- caught here directly
+    // because it comes from a detached future the button never awaits.
+    Object? caught;
+    await runZonedGuarded(() async {
+      await tester.tap(find.text('Add starter cards'));
+      await tester.pumpAndSettle();
+    }, (error, stack) => caught = error);
+
+    expect(find.text('Could not save the change'), findsOneWidget);
+    expect(await storedViews(db), isEmpty);
+    expect(caught, isNotNull);
   });
 
   test('starter cards ask exactly what their tabs ask', () async {

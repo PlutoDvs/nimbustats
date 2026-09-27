@@ -130,6 +130,7 @@
   "routeNotFoundBody": "That screen does not exist.",
   "routeNotFoundGoHome": "Go to transactions",
   "routeNotFoundTitle": "Nothing here",
+  "savedViewSaveFailed": "Could not save the change",
   "savedViewUnreadable": "This view can't be read",
   "seedCategoryEducation": "Education",
   "seedCategoryEntertainment": "Entertainment",
