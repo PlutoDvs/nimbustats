@@ -4,8 +4,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:nimbus_data/nimbus_data.dart';
 import 'package:nimbus_domain/nimbus_domain.dart';
+import 'package:nimbustats/features/analytics/application/starter_views.dart';
+import 'package:nimbustats/features/analytics/data/saved_views_repository.dart';
 import 'package:nimbustats/features/transactions/data/transaction_draft.dart';
 import 'package:nimbustats/features/transactions/data/transaction_repository.dart';
+import 'package:nimbustats/l10n/app_localizations.dart';
 
 import '../../../support/harness.dart';
 
@@ -131,6 +134,18 @@ typedef StoredView = ({
   int periodCount,
   Map<String, Object?> spec,
 });
+
+/// Pins the two starter cards the way the dashboard's button does.
+/// Returns (breakdown id, trend id).
+Future<(String, String)> pinStarters(
+  AppDatabase db, {
+  Locale locale = const Locale('en'),
+}) async {
+  final l10n = await AppLocalizations.delegate.load(locale);
+  final ids =
+      await SavedViewsRepository(db.savedViewsDao).pin(starterViews(l10n));
+  return (ids[0], ids[1]);
+}
 
 /// Live saved views in dashboard order, read with a plain query: awaiting a
 /// drift stream inside a widget test's fake clock can stall.

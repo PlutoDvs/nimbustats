@@ -84,6 +84,9 @@ Future<void> openBreakdown(WidgetTester tester, AppDatabase db) async {
     matching: find.text('Analytics'),
   ));
   await tester.pumpAndSettle();
+  // Analytics opens on the dashboard; Breakdown is the next tab.
+  await tester.tap(find.byKey(const Key('analytics-tab-breakdown')));
+  await tester.pumpAndSettle();
 }
 
 /// Persian digits with the U+066C separator, because the app's default
@@ -260,6 +263,9 @@ void main() {
       of: find.byKey(const Key('nav-bar')),
       matching: find.byIcon(Icons.insights_outlined),
     ));
+    await tester.pumpAndSettle();
+    // Analytics opens on the dashboard; Breakdown is the next tab.
+    await tester.tap(find.byKey(const Key('analytics-tab-breakdown')));
     await tester.pumpAndSettle();
 
     expect(

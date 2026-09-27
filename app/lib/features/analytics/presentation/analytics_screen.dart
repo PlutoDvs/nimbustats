@@ -14,6 +14,7 @@ import '../application/patterns_controller.dart';
 import '../application/period_label.dart';
 import '../application/trends_controller.dart';
 import '../data/pin_request.dart';
+import 'dashboard_tab.dart';
 import 'widgets/breakdown_body.dart';
 import 'widgets/cross_tab_body.dart';
 import 'widgets/patterns_body.dart';
@@ -22,10 +23,10 @@ import 'widgets/trends_body.dart';
 
 /// The analytics destination.
 ///
-/// Two tabs answering two different questions: where the money went, and
-/// whether that is changing. They are tabs rather than one scrolling screen
-/// because they take different controls -- a breakdown needs one period and a
-/// trend needs a window of them.
+/// Five tabs: the user's pinned views first, then the four ways to ask a new
+/// question -- where the money went, whether that is changing, tag against
+/// category, and when it happens. They are tabs rather than one scrolling
+/// screen because each takes different controls.
 class AnalyticsScreen extends StatelessWidget {
   const AnalyticsScreen({super.key});
 
@@ -33,17 +34,21 @@ class AnalyticsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     return DefaultTabController(
-      length: 4,
+      length: 5,
       child: Scaffold(
         key: const Key('analytics-screen'),
         appBar: AppBar(
           title: Text(l10n.navAnalytics),
           bottom: TabBar(
-            // Scrollable: four labels do not fit a phone's width, and Material
+            // Scrollable: five labels do not fit a phone's width, and Material
             // silently ellipsizes them into unreadable stubs otherwise.
             isScrollable: true,
             tabAlignment: TabAlignment.start,
             tabs: [
+              Tab(
+                key: const Key('analytics-tab-dashboard'),
+                text: l10n.analyticsTabDashboard,
+              ),
               Tab(
                 key: const Key('analytics-tab-breakdown'),
                 text: l10n.analyticsTabBreakdown,
@@ -65,9 +70,10 @@ class AnalyticsScreen extends StatelessWidget {
         ),
         body: const SafeArea(
           child: TabBarView(
-            // Breakdown lands first: "where did it go" is the question
-            // somebody opening analytics already has.
+            // The dashboard lands first: the user's own pinned questions are
+            // what somebody coming back to analytics most likely wants.
             children: [
+              DashboardTab(),
               _BreakdownTab(),
               _TrendsTab(),
               _CrossTabTab(),

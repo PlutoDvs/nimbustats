@@ -85,7 +85,8 @@ String textOf(WidgetTester tester, String key) =>
     tester.widget<Text>(find.byKey(Key(key))).data!;
 
 void main() {
-  testWidgets('analytics offers both a breakdown and a trend', (tester) async {
+  testWidgets('analytics opens on the dashboard and offers the other tabs',
+      (tester) async {
     final db = await seededDb();
     addTearDown(db.close);
     usePhoneViewport(tester);
@@ -98,11 +99,9 @@ void main() {
 
     expect(find.byKey(const Key('analytics-tab-breakdown')), findsOneWidget);
     expect(find.byKey(const Key('analytics-tab-trends')), findsOneWidget);
-    // Breakdown is the landing tab: it answers "where did it go", which is the
-    // question somebody opening analytics has. Asserted on the period bar
-    // rather than the total, because the total only exists once there is
-    // spending and this database deliberately has none.
-    expect(find.byKey(const Key('breakdown-period-label')), findsOneWidget);
+    // The dashboard is the landing tab: the user's own pinned questions are
+    // what somebody opening analytics most likely came back for.
+    expect(find.byKey(const Key('dashboard-tab')), findsOneWidget);
   });
 
   testWidgets('a month with no spending is a zero, not a gap', (tester) async {

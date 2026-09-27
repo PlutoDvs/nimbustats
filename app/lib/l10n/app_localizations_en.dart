@@ -36,6 +36,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get analyticsTabCrossTab => 'Tags × categories';
 
   @override
+  String get analyticsTabDashboard => 'Dashboard';
+
+  @override
   String get analyticsTabPatterns => 'Patterns';
 
   @override
@@ -167,6 +170,28 @@ class AppLocalizationsEn extends AppLocalizations {
   String get currency_usd => 'USD';
 
   @override
+  String get dashboardAddStarters => 'Add starter cards';
+
+  @override
+  String get dashboardCardEmpty => 'Nothing in this period';
+
+  @override
+  String get dashboardCardError => 'This card could not load';
+
+  @override
+  String get dashboardEmptyBody =>
+      'Pin any chart with its pin button to keep it here, or start with two common ones.';
+
+  @override
+  String get dashboardEmptyTitle => 'Nothing pinned yet';
+
+  @override
+  String get dashboardErrorTitle => 'Could not load the dashboard';
+
+  @override
+  String get dashboardGoToBreakdown => 'Go to Breakdown';
+
+  @override
   String get navAnalytics => 'Analytics';
 
   @override
@@ -267,6 +292,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get payNone => 'None';
 
   @override
+  String get periodNextMonth => 'Next month';
+
+  @override
+  String get periodPreviousMonth => 'Previous month';
+
+  @override
   String pinNameLastMonths(int count) {
     return 'Last $count months';
   }
@@ -291,6 +322,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get routeNotFoundTitle => 'Nothing here';
+
+  @override
+  String get savedViewUnreadable => 'This view can\'t be read';
 
   @override
   String get seedCategoryEducation => 'Education';
@@ -415,6 +449,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsTitle => 'Settings';
+
+  @override
+  String get starterThisMonthByCategory => 'This month by category';
 
   @override
   String tagCreateInline(String name) {

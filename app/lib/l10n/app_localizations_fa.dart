@@ -36,6 +36,9 @@ class AppLocalizationsFa extends AppLocalizations {
   String get analyticsTabCrossTab => 'برچسب × دسته';
 
   @override
+  String get analyticsTabDashboard => 'داشبورد';
+
+  @override
   String get analyticsTabPatterns => 'الگوها';
 
   @override
@@ -166,6 +169,28 @@ class AppLocalizationsFa extends AppLocalizations {
   String get currency_usd => 'دلار';
 
   @override
+  String get dashboardAddStarters => 'افزودن کارت‌های آغازین';
+
+  @override
+  String get dashboardCardEmpty => 'در این بازه چیزی نیست';
+
+  @override
+  String get dashboardCardError => 'این کارت بارگیری نشد';
+
+  @override
+  String get dashboardEmptyBody =>
+      'هر نموداری را با دکمهٔ سنجاقش اینجا نگه دارید، یا با دو نمودار رایج شروع کنید.';
+
+  @override
+  String get dashboardEmptyTitle => 'هنوز چیزی سنجاق نشده';
+
+  @override
+  String get dashboardErrorTitle => 'داشبورد بارگیری نشد';
+
+  @override
+  String get dashboardGoToBreakdown => 'رفتن به تفکیک';
+
+  @override
   String get navAnalytics => 'تحلیل‌ها';
 
   @override
@@ -266,6 +291,12 @@ class AppLocalizationsFa extends AppLocalizations {
   String get payNone => 'هیچ‌کدام';
 
   @override
+  String get periodNextMonth => 'ماه بعد';
+
+  @override
+  String get periodPreviousMonth => 'ماه قبل';
+
+  @override
   String pinNameLastMonths(int count) {
     return '$count ماه اخیر';
   }
@@ -290,6 +321,9 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get routeNotFoundTitle => 'چیزی اینجا نیست';
+
+  @override
+  String get savedViewUnreadable => 'این نما خوانا نیست';
 
   @override
   String get seedCategoryEducation => 'آموزش';
@@ -414,6 +448,9 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get settingsTitle => 'تنظیمات';
+
+  @override
+  String get starterThisMonthByCategory => 'این ماه به تفکیک دسته';
 
   @override
   String tagCreateInline(String name) {

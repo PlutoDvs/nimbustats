@@ -1,0 +1,163 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:nimbus_domain/nimbus_domain.dart';
+import 'package:nimbustats/features/analytics/application/analytics_providers.dart';
+import 'package:nimbustats/features/analytics/application/breakdown_controller.dart';
+import 'package:nimbustats/features/analytics/application/starter_views.dart';
+import 'package:nimbustats/features/analytics/application/trends_controller.dart';
+import 'package:nimbustats/l10n/app_localizations.dart';
+
+import '../../support/harness.dart';
+import 'support/dashboard_fixture.dart';
+
+void main() {
+  testWidgets('analytics opens on the dashboard', (tester) async {
+    final db = await categorisedDb();
+    addTearDown(db.close);
+    await openAnalytics(tester, db);
+
+    expect(find.byKey(const Key('dashboard-tab')), findsOneWidget);
+    expect(find.text('Nothing pinned yet'), findsOneWidget);
+  });
+
+  testWidgets('an empty dashboard adds the two starter cards on request',
+      (tester) async {
+    final db = await categorisedDb();
+    addTearDown(db.close);
+    await openAnalytics(tester, db);
+
+    await tester.tap(find.text('Add starter cards'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('This month by category'), findsOneWidget);
+    expect(find.text('Last 6 months'), findsOneWidget);
+    final views = await storedViews(db);
+    expect(views.map((v) => v.chart), ['breakdown', 'trend']);
+    expect(views.map((v) => v.periodCount), [1, 6]);
+  });
+
+  test('starter cards ask exactly what their tabs ask', () async {
+    // Built by hand in starter_views.dart; this keeps them from drifting away
+    // from the tabs they imitate.
+    final l10n = await AppLocalizations.delegate.load(const Locale('en'));
+    final month = const JalaliCalendar()
+        .periodContaining(const DateKey(20260915), PeriodType.month);
+    final starters = starterViews(l10n);
+
+    expect(starters[0].spec,
+        BreakdownView(period: month).spec.withDateRange(null));
+    expect(starters[1].spec,
+        TrendsView(periods: [month]).spec.withDateRange(null));
+  });
+
+  testWidgets('go to breakdown switches tab', (tester) async {
+    final db = await categorisedDb();
+    addTearDown(db.close);
+    await openAnalytics(tester, db);
+
+    await tester.tap(find.byKey(const Key('dashboard-go-to-breakdown')));
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(const Key('breakdown-period-label')), findsOneWidget);
+  });
+
+  testWidgets("a card shows its view's true total for the dashboard's month",
+      (tester) async {
+    final db = await categorisedDb();
+    addTearDown(db.close);
+    await seedSpending(db);
+    final (breakdown, trend) = await pinStarters(db);
+    await openAnalytics(tester, db);
+
+    expect(textOf(tester, 'card-total-$breakdown'), total1750);
+    // The six-month window ends with this month, so it holds the same 1750.
+    expect(textOf(tester, 'card-total-$trend'), total1750);
+  });
+
+  testWidgets('the month bar moves every card together', (tester) async {
+    final db = await categorisedDb();
+    addTearDown(db.close);
+    await seedSpending(db);
+    final (breakdown, trend) = await pinStarters(db);
+    await openAnalytics(tester, db);
+
+    await tester.tap(find.byKey(const Key('dashboard-period-previous')));
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(Key('card-empty-$breakdown')), findsOneWidget);
+    expect(find.byKey(Key('card-empty-$trend')), findsOneWidget);
+
+    await tester.tap(find.byKey(const Key('dashboard-period-next')));
+    await tester.pumpAndSettle();
+
+    expect(textOf(tester, 'card-total-$breakdown'), total1750);
+  });
+
+  testWidgets('an unreadable view is its own card and the others still draw',
+      (tester) async {
+    final db = await categorisedDb();
+    addTearDown(db.close);
+    await seedSpending(db);
+    final (breakdown, _) = await pinStarters(db);
+    await db.customStatement(
+      'INSERT INTO saved_views (id, name, spec_json, chart_type, pinned, '
+      'sort_order, created_at, updated_at) '
+      "VALUES ('bad', 'Broken', '{not json', 'breakdown', 1, 99, 0, 0)",
+    );
+    await openAnalytics(tester, db);
+
+    expect(find.byKey(const Key('card-unreadable-bad')), findsOneWidget);
+    expect(textOf(tester, 'card-total-$breakdown'), total1750);
+  });
+
+  testWidgets('a failing query shows on its own card only', (tester) async {
+    final db = await categorisedDb();
+    addTearDown(db.close);
+    await seedSpending(db);
+    final (breakdown, trend) = await pinStarters(db);
+    usePhoneViewport(tester);
+    await pumpApp(tester, database: db, overrides: [
+      analyticsResultProvider.overrideWith((ref, spec) =>
+          spec.groupBy is GroupByPeriod
+              ? Future<AnalyticsResult>.error(StateError('trend query failed'))
+              : ref.watch(analyticsEngineProvider).run(spec)),
+    ]);
+    await tester.tap(find.descendant(
+      of: find.byKey(const Key('nav-bar')),
+      matching: find.byIcon(Icons.insights_outlined),
+    ));
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(Key('card-error-$trend')), findsOneWidget);
+    expect(textOf(tester, 'card-total-$breakdown'), total1750);
+  });
+
+  testWidgets('a card reads as its name, period and total', (tester) async {
+    final handle = tester.ensureSemantics();
+    final db = await categorisedDb();
+    addTearDown(db.close);
+    await seedSpending(db);
+    await pinStarters(db);
+    await openAnalytics(tester, db);
+
+    expect(
+      find.bySemanticsLabel(
+          RegExp('This month by category.*$total1750', dotAll: true)),
+      findsOneWidget,
+    );
+    handle.dispose();
+  });
+
+  testWidgets('in Persian the cards are right-to-left', (tester) async {
+    final db = await categorisedDb();
+    addTearDown(db.close);
+    await seedSpending(db);
+    final (breakdown, _) = await pinStarters(db, locale: const Locale('fa'));
+    await openAnalytics(tester, db, locale: const Locale('fa'));
+
+    final name = find.byKey(Key('card-name-$breakdown'));
+    expect(tester.widget<Text>(name).data, 'این ماه به تفکیک دسته');
+    expect(Directionality.of(tester.element(name)), TextDirection.rtl);
+    expect(textOf(tester, 'card-total-$breakdown'), total1750);
+  });
+}

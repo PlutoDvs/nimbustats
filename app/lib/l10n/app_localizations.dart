@@ -146,6 +146,12 @@ abstract class AppLocalizations {
   /// **'Tags × categories'**
   String get analyticsTabCrossTab;
 
+  /// No description provided for @analyticsTabDashboard.
+  ///
+  /// In en, this message translates to:
+  /// **'Dashboard'**
+  String get analyticsTabDashboard;
+
   /// No description provided for @analyticsTabPatterns.
   ///
   /// In en, this message translates to:
@@ -368,6 +374,48 @@ abstract class AppLocalizations {
   /// **'USD'**
   String get currency_usd;
 
+  /// No description provided for @dashboardAddStarters.
+  ///
+  /// In en, this message translates to:
+  /// **'Add starter cards'**
+  String get dashboardAddStarters;
+
+  /// No description provided for @dashboardCardEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing in this period'**
+  String get dashboardCardEmpty;
+
+  /// No description provided for @dashboardCardError.
+  ///
+  /// In en, this message translates to:
+  /// **'This card could not load'**
+  String get dashboardCardError;
+
+  /// No description provided for @dashboardEmptyBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Pin any chart with its pin button to keep it here, or start with two common ones.'**
+  String get dashboardEmptyBody;
+
+  /// No description provided for @dashboardEmptyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing pinned yet'**
+  String get dashboardEmptyTitle;
+
+  /// No description provided for @dashboardErrorTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load the dashboard'**
+  String get dashboardErrorTitle;
+
+  /// No description provided for @dashboardGoToBreakdown.
+  ///
+  /// In en, this message translates to:
+  /// **'Go to Breakdown'**
+  String get dashboardGoToBreakdown;
+
   /// No description provided for @navAnalytics.
   ///
   /// In en, this message translates to:
@@ -560,6 +608,18 @@ abstract class AppLocalizations {
   /// **'None'**
   String get payNone;
 
+  /// No description provided for @periodNextMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'Next month'**
+  String get periodNextMonth;
+
+  /// No description provided for @periodPreviousMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'Previous month'**
+  String get periodPreviousMonth;
+
   /// No description provided for @pinNameLastMonths.
   ///
   /// In en, this message translates to:
@@ -607,6 +667,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Nothing here'**
   String get routeNotFoundTitle;
+
+  /// No description provided for @savedViewUnreadable.
+  ///
+  /// In en, this message translates to:
+  /// **'This view can\'t be read'**
+  String get savedViewUnreadable;
 
   /// No description provided for @seedCategoryEducation.
   ///
@@ -853,6 +919,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Settings'**
   String get settingsTitle;
+
+  /// No description provided for @starterThisMonthByCategory.
+  ///
+  /// In en, this message translates to:
+  /// **'This month by category'**
+  String get starterThisMonthByCategory;
 
   /// No description provided for @tagCreateInline.
   ///

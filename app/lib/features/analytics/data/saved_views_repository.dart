@@ -25,6 +25,9 @@ final class SavedViewsRepository {
     return [for (final view in views) view.id];
   }
 
+  /// The dashboard's cards, live, in the user's order.
+  Stream<List<SavedViewEntry>> watchPinned() => _dao.watchPinned();
+
   static String _validName(String name) {
     final trimmed = name.trim();
     if (trimmed.isEmpty) {
