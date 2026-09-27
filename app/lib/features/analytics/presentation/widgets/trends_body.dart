@@ -6,6 +6,24 @@ import 'package:nimbus_domain/nimbus_domain.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../application/trends_controller.dart';
 
+/// One amount per period in [periods], in order -- zero for a quiet period.
+///
+/// The engine returns buckets only for periods that matched rows, so this
+/// re-indexes them against the periods actually asked for. Plotting the
+/// buckets directly would draw a line straight from March to June and
+/// present the quiet months as a trend rather than as zero. Public so a
+/// trend card can plot the same series.
+List<Money> trendAmounts(AnalyticsResult result, List<DateRange> periods) {
+  final found = <int, Money>{
+    for (final bucket in result.buckets)
+      if (bucket.key case PeriodKey(:final range))
+        range.startInclusive.value: bucket.money,
+  };
+  return [
+    for (final period in periods) found[period.startInclusive.value] ?? Money.zero,
+  ];
+}
+
 /// Spending per period, and this period against the one before it.
 class TrendsBody extends StatelessWidget {
   const TrendsBody({
@@ -19,24 +37,6 @@ class TrendsBody extends StatelessWidget {
   final AnalyticsResult result;
   final MoneyFormatter formatter;
 
-  /// One point per period in the window, in the window's order.
-  ///
-  /// The engine returns buckets only for periods that matched rows, so this
-  /// re-indexes them against the periods actually asked for. Plotting the
-  /// buckets directly would draw a line straight from March to June and
-  /// present the quiet months as a trend rather than as zero.
-  List<Money> get _byPeriod {
-    final found = <int, Money>{
-      for (final bucket in result.buckets)
-        if (bucket.key case PeriodKey(:final range))
-          range.startInclusive.value: bucket.money,
-    };
-    return [
-      for (final period in view.periods)
-        found[period.startInclusive.value] ?? Money.zero,
-    ];
-  }
-
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
@@ -49,7 +49,7 @@ class TrendsBody extends StatelessWidget {
     }
 
     final theme = Theme.of(context);
-    final amounts = _byPeriod;
+    final amounts = trendAmounts(result, view.periods);
 
     return ListView(
       padding: const EdgeInsets.all(NimbusTokens.space4),
