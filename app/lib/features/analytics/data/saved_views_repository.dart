@@ -28,6 +28,9 @@ final class SavedViewsRepository {
   /// The dashboard's cards, live, in the user's order.
   Stream<List<SavedViewEntry>> watchPinned() => _dao.watchPinned();
 
+  /// One view, live; null once removed.
+  Stream<SavedViewEntry?> watchById(String id) => _dao.watchById(id);
+
   Future<void> rename(String id, String name) =>
       _dao.rename(id, _validName(name));
 

@@ -82,6 +82,7 @@ final appRouterProvider =
       ...tagRoutes,
       ...paymentMethodRoutes,
       ...onboardingRoutes,
+      ...analyticsRoutes,
     ],
     errorBuilder: (context, state) => const RouteNotFoundScreen(),
   );

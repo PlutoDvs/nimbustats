@@ -12,3 +12,10 @@ final savedViewsRepositoryProvider = Provider<SavedViewsRepository>(
 final pinnedViewsProvider = StreamProvider<List<SavedViewEntry>>(
   (ref) => ref.watch(savedViewsRepositoryProvider).watchPinned(),
 );
+
+/// One saved view, live, for its full screen. Auto-disposed: a closed screen
+/// has no reason to keep watching.
+final savedViewByIdProvider =
+    StreamProvider.autoDispose.family<SavedViewEntry?, String>(
+  (ref, id) => ref.watch(savedViewsRepositoryProvider).watchById(id),
+);

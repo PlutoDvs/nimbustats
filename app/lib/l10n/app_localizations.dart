@@ -704,6 +704,18 @@ abstract class AppLocalizations {
   /// **'Nothing here'**
   String get routeNotFoundTitle;
 
+  /// No description provided for @savedViewMissing.
+  ///
+  /// In en, this message translates to:
+  /// **'This view no longer exists'**
+  String get savedViewMissing;
+
+  /// No description provided for @savedViewMissingBody.
+  ///
+  /// In en, this message translates to:
+  /// **'It was removed. You can pin it again from its tab.'**
+  String get savedViewMissingBody;
+
   /// No description provided for @savedViewSaveFailed.
   ///
   /// In en, this message translates to:

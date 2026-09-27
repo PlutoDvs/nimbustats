@@ -136,6 +136,8 @@
   "routeNotFoundBody": "That screen does not exist.",
   "routeNotFoundGoHome": "Go to transactions",
   "routeNotFoundTitle": "Nothing here",
+  "savedViewMissing": "This view no longer exists",
+  "savedViewMissingBody": "It was removed. You can pin it again from its tab.",
   "savedViewSaveFailed": "Could not save the change",
   "savedViewUnreadable": "This view can't be read",
   "seedCategoryEducation": "Education",

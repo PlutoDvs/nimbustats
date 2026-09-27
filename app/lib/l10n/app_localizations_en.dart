@@ -343,6 +343,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get routeNotFoundTitle => 'Nothing here';
 
   @override
+  String get savedViewMissing => 'This view no longer exists';
+
+  @override
+  String get savedViewMissingBody =>
+      'It was removed. You can pin it again from its tab.';
+
+  @override
   String get savedViewSaveFailed => 'Could not save the change';
 
   @override

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:nimbus_data/nimbus_data.dart';
 import 'package:nimbus_design/nimbus_design.dart';
 import 'package:nimbus_domain/nimbus_domain.dart';
@@ -9,6 +10,7 @@ import '../../../settings/application/settings_providers.dart';
 import '../../application/analytics_providers.dart';
 import '../../application/dashboard_anchor.dart';
 import '../../application/saved_view_providers.dart';
+import '../../routes.dart';
 import 'card_previews.dart';
 import 'saved_view_actions.dart';
 
@@ -26,21 +28,27 @@ class SavedViewCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Card(
         key: Key('saved-view-card-${entry.id}'),
-        child: Padding(
-          padding: const EdgeInsets.all(NimbusTokens.space4),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(
-                child: switch (entry) {
-                  final SavedView view => _Readable(view: view, anchor: anchor),
-                  final UnreadableSavedView view => _Unreadable(view: view),
-                },
-              ),
-              // Outside the card's merged semantics, so a screen reader
-              // reaches it as its own button.
-              _CardMenu(entry: entry),
-            ],
+        // Clip so the ink splash follows the card's rounded corners.
+        clipBehavior: Clip.antiAlias,
+        child: InkWell(
+          onTap: () => context.push(savedViewLocation(entry.id, anchor)),
+          child: Padding(
+            padding: const EdgeInsets.all(NimbusTokens.space4),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: switch (entry) {
+                    final SavedView view =>
+                      _Readable(view: view, anchor: anchor),
+                    final UnreadableSavedView view => _Unreadable(view: view),
+                  },
+                ),
+                // Outside the card's merged semantics, so a screen reader
+                // reaches it as its own button.
+                _CardMenu(entry: entry),
+              ],
+            ),
           ),
         ),
       );

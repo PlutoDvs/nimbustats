@@ -14,13 +14,15 @@ class BreakdownBody extends StatelessWidget {
     required this.result,
     required this.nodesById,
     required this.formatter,
-    required this.onDrill,
+    this.onDrill,
   });
 
   final AnalyticsResult result;
   final Map<String, CategoryNode> nodesById;
   final MoneyFormatter formatter;
-  final void Function(CategoryCrumb) onDrill;
+
+  /// Null for a pinned view, which shows the level it was pinned at.
+  final void Function(CategoryCrumb)? onDrill;
 
   @override
   Widget build(BuildContext context) {
@@ -127,7 +129,7 @@ class _BreakdownRow extends StatelessWidget {
   final Bucket bucket;
   final Color colour;
   final MoneyFormatter formatter;
-  final void Function(CategoryCrumb) onDrill;
+  final void Function(CategoryCrumb)? onDrill;
 
   @override
   Widget build(BuildContext context) {
@@ -158,8 +160,8 @@ class _BreakdownRow extends StatelessWidget {
       // No callback at all when there is nothing below: an enabled row that
       // drops the user onto an empty level is worse than one that does not
       // respond, and Material greys a disabled tile for free.
-      onTap: canDrill && category != null
-          ? () => onDrill(CategoryCrumb(
+      onTap: canDrill && category != null && onDrill != null
+          ? () => onDrill!(CategoryCrumb(
                 id: category.id,
                 path: category.path,
                 name: category.name,

@@ -342,6 +342,13 @@ class AppLocalizationsFa extends AppLocalizations {
   String get routeNotFoundTitle => 'چیزی اینجا نیست';
 
   @override
+  String get savedViewMissing => 'این نما دیگر وجود ندارد';
+
+  @override
+  String get savedViewMissingBody =>
+      'حذف شده است. می‌توانید دوباره از زبانه‌اش سنجاقش کنید.';
+
+  @override
   String get savedViewSaveFailed => 'تغییر ذخیره نشد';
 
   @override

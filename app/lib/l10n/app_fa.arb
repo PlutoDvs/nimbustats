@@ -101,6 +101,8 @@
   "routeNotFoundBody": "چنین صفحه‌ای وجود ندارد.",
   "routeNotFoundGoHome": "رفتن به تراکنش‌ها",
   "routeNotFoundTitle": "چیزی اینجا نیست",
+  "savedViewMissing": "این نما دیگر وجود ندارد",
+  "savedViewMissingBody": "حذف شده است. می‌توانید دوباره از زبانه‌اش سنجاقش کنید.",
   "savedViewSaveFailed": "تغییر ذخیره نشد",
   "savedViewUnreadable": "این نما خوانا نیست",
   "seedCategoryEducation": "آموزش",
