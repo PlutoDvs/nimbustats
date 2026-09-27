@@ -31,6 +31,25 @@ Future<String> _pin(AppDatabase db, QuerySpec shown, SavedViewChart chart,
 Finder _inCard(String id, Finder matching) => find.descendant(
     of: find.byKey(Key('saved-view-card-$id')), matching: matching);
 
+/// Scrolls the dashboard's card list until [finder] exists, then brings it
+/// fully on screen with [revealInTab].
+///
+/// ReorderableListView.builder is lazy: a card taller than usual (a large
+/// font scale grows the text-based previews) can sit past the list's
+/// default cache extent and not be built at all yet, so revealInTab alone
+/// -- which needs the element to already exist in the tree -- is not
+/// enough. This drags the list itself, not an ancestor scrollable, so it
+/// cannot trigger the TabBarView page-snap revealInTab's own doc warns
+/// about.
+Future<void> _scrollToCard(WidgetTester tester, Finder finder) async {
+  final list = find.byType(ReorderableListView);
+  for (var i = 0; i < 20 && finder.evaluate().isEmpty; i++) {
+    await tester.drag(list, const Offset(0, -300));
+    await tester.pump();
+  }
+  await revealInTab(tester, finder);
+}
+
 void main() {
   testWidgets('a breakdown card lists its top categories beside a pie',
       (tester) async {
@@ -111,6 +130,44 @@ void main() {
     expect(_inCard(hour, find.byType(BarChart)), findsOneWidget);
     await revealInTab(tester, find.byKey(Key('saved-view-card-$day')));
     expect(_inCard(day, find.byType(BarChart)), findsOneWidget);
+  });
+
+  testWidgets('text previews survive a large font scale', (tester) async {
+    final db = await categorisedDb();
+    addTearDown(db.close);
+    await seedSpending(db);
+    final breakdownId = await _pin(
+        db, BreakdownView(period: _month).spec, SavedViewChart.breakdown);
+    final crossTabId = await _pin(
+        db, CrossTabView(period: _month).spec, SavedViewChart.crossTab);
+    final reflectionId = await _pin(db,
+        PatternsView(period: _month).reflectionSpec, SavedViewChart.reflection);
+
+    // A large system font scale, as an accessibility setting would apply --
+    // set on the platform dispatcher rather than wrapped in a local
+    // MediaQuery, so it reaches the real widget tree pumpApp builds exactly
+    // the way a device-wide setting would.
+    tester.platformDispatcher.textScaleFactorTestValue = 2.0;
+    addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+
+    await openAnalytics(tester, db);
+    // The first pinned card, already on screen -- checked before scrolling
+    // carries it back off the top.
+    expect(_inCard(breakdownId, find.byType(PieChart)), findsOneWidget);
+
+    // Bring every other card into view so each one is actually built and
+    // laid out under the larger scale -- an off-screen card outside the
+    // list's cache extent would never overflow because it is never laid out.
+    await _scrollToCard(
+        tester, find.byKey(Key('saved-view-card-$crossTabId')));
+    await _scrollToCard(
+        tester, find.byKey(Key('saved-view-card-$reflectionId')));
+
+    expect(tester.takeException(), isNull);
+    expect(_inCard(crossTabId, find.byKey(const Key('card-overlap-note'))),
+        findsOneWidget);
+    expect(_inCard(reflectionId, find.byKey(const Key('card-regretted'))),
+        findsOneWidget);
   });
 
   testWidgets('a reflection card shows what was avoidable and regretted',

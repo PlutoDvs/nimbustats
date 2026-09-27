@@ -100,6 +100,22 @@ void main() {
     expect(textOf(tester, 'card-total-$trend'), total1750);
   });
 
+  testWidgets(
+      "the trend starter's period spans months, the breakdown starter's "
+      'is a single one', (tester) async {
+    final db = await categorisedDb();
+    addTearDown(db.close);
+    await seedSpending(db);
+    final (breakdown, trend) = await pinStarters(db);
+    await openAnalytics(tester, db);
+
+    // viewPeriodLabel's multi-period form is 'first – last'; a range that
+    // resolves to one period never contains that separator (dashboard_
+    // anchor.dart's viewPeriodLabel).
+    expect(textOf(tester, 'card-period-$breakdown'), isNot(contains(' – ')));
+    expect(textOf(tester, 'card-period-$trend'), contains(' – '));
+  });
+
   testWidgets('the month bar moves every card together', (tester) async {
     final db = await categorisedDb();
     addTearDown(db.close);

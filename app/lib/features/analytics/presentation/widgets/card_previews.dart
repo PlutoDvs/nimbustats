@@ -38,37 +38,51 @@ class CardPreview extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final formatter = ref.watch(moneyFormatterProvider);
     final firstDayOfWeek = ref.watch(firstDayOfWeekProvider);
-    return SizedBox(
-      height: height,
-      child: switch (view.chart) {
-        SavedViewChart.breakdown =>
-          _BreakdownPreview(result: result, formatter: formatter),
-        SavedViewChart.trend => _TrendPreview(
+    // The chart-shaped previews (a pie, a line, a bar chart) draw within
+    // whatever box they are given, so a fixed height keeps every card the
+    // same size. The text-based previews below size themselves instead:
+    // their content is lines of text, which grow taller as the system font
+    // scale grows, and a hard ceiling on that content would clip it rather
+    // than let it be read (dynamic type, CONVENTIONS.md §5).
+    return switch (view.chart) {
+      SavedViewChart.breakdown => SizedBox(
+          height: height,
+          child: _BreakdownPreview(result: result, formatter: formatter),
+        ),
+      SavedViewChart.trend => SizedBox(
+          height: height,
+          child: _TrendPreview(
             amounts: trendAmounts(
               result,
               trendPeriods(spec, ref.watch(calendarProvider),
                   firstDayOfWeek: firstDayOfWeek),
             ),
           ),
-        SavedViewChart.crossTab =>
-          _CrossTabPreview(result: result, formatter: formatter),
-        SavedViewChart.hourOfDay => HourOfDayChart(
+        ),
+      SavedViewChart.crossTab =>
+        _CrossTabPreview(result: result, formatter: formatter),
+      SavedViewChart.hourOfDay => SizedBox(
+          height: height,
+          child: HourOfDayChart(
             result: result,
             formatter: formatter,
             height: height,
             showAxes: false,
           ),
-        SavedViewChart.dayOfWeek => DayOfWeekChart(
+        ),
+      SavedViewChart.dayOfWeek => SizedBox(
+          height: height,
+          child: DayOfWeekChart(
             result: result,
             firstDayOfWeek: firstDayOfWeek,
             formatter: formatter,
             height: height,
             showAxes: false,
           ),
-        SavedViewChart.reflection =>
-          _ReflectionPreview(result: result, formatter: formatter),
-      },
-    );
+        ),
+      SavedViewChart.reflection =>
+        _ReflectionPreview(result: result, formatter: formatter),
+    };
   }
 }
 
@@ -158,9 +172,18 @@ class _BreakdownPreview extends ConsumerWidget {
                           overflow: TextOverflow.ellipsis,
                         ),
                       ),
-                      // Compact: a dense row (screen contract §8).
-                      Text(formatter.formatCompact(row.money),
-                          key: Key('card-row-${row.id}')),
+                      // Compact: a dense row (screen contract §8). Flexible
+                      // rather than a bare Text, so a large font scale
+                      // shrinks this to an ellipsis instead of forcing the
+                      // row past its fixed-height box.
+                      Flexible(
+                        child: Text(
+                          formatter.formatCompact(row.money),
+                          key: Key('card-row-${row.id}'),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
                     ],
                   ),
                 ),
@@ -248,7 +271,10 @@ class _CrossTabPreview extends ConsumerWidget {
                 Text(formatter.formatCompact(cell.money)),
               ],
             ),
-        const Spacer(),
+        // A fixed gap, not a Spacer: this preview no longer sits in a
+        // fixed-height box, so there is no trailing space left to fill, and
+        // Spacer's Expanded would need a bounded height to do its job.
+        const SizedBox(height: NimbusTokens.space2),
         // Unconditional, as on the full matrix: a tag axis always overlaps.
         Text(
           l10n.dashboardOverlapNote,

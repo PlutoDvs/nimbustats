@@ -152,6 +152,7 @@ class _Readable extends ConsumerWidget {
                     // resolvedSpec always sets the range.
                     viewPeriodLabel(spec.filters.dateRange!, calendar,
                         persianDigits: formatter.persianDigits),
+                    key: Key('card-period-${view.id}'),
                     style: theme.textTheme.labelMedium,
                   ),
                 ],
