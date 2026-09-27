@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:nimbus_data/nimbus_data.dart';
+import 'package:nimbus_design/nimbus_design.dart';
 import 'package:nimbustats/bootstrap/database_provider.dart';
 import 'package:nimbustats/bootstrap/first_run.dart';
 import 'package:nimbustats/features/categories/data/default_category_tree.dart';
+import 'package:nimbustats/features/payment_methods/data/default_payment_methods.dart';
 import 'package:nimbustats/features/settings/data/settings_keys.dart';
 import 'package:nimbustats/l10n/app_localizations.dart';
 
@@ -99,6 +101,62 @@ void main() {
     await Future<void>.delayed(const Duration(milliseconds: 5));
     await controller().ensureSeeded(en);
     expect(await db.settingsDao.get(SettingsKeys.installedAt), first);
+  });
+
+  group('default payment methods', () {
+    // D8, found on a device: nothing seeded any, so the add screen's
+    // payment-method tile was dead on every new install.
+    test('first launch creates Cash and Card', () async {
+      await controller().ensureSeeded(en);
+
+      final methods = await db.paymentMethodsDao.allLive();
+      expect(
+        {for (final m in methods) m.id: (m.name, m.kind)},
+        {
+          DefaultPaymentMethodIds.cash: ('Cash', PaymentMethodKind.cash),
+          DefaultPaymentMethodIds.card: ('Card', PaymentMethodKind.card),
+        },
+      );
+    });
+
+    test('in the language the install starts in', () async {
+      await controller().ensureSeeded(fa);
+      final names = (await db.paymentMethodsDao.allLive()).map((m) => m.name);
+      expect(names, unorderedEquals([fa.payKindCash, fa.payKindCard]));
+    });
+
+    test('a second launch adds nothing', () async {
+      await controller().ensureSeeded(en);
+      await controller().ensureSeeded(en);
+      expect(await db.paymentMethodsDao.allLive(), hasLength(2));
+    });
+
+    test('each has a real icon, not the unknown-key fallback', () async {
+      await controller().ensureSeeded(en);
+      final methods = await db.paymentMethodsDao.allLive();
+      expect(methods, isNotEmpty);
+      for (final method in methods) {
+        expect(nimbusIcons.containsKey(method.iconKey), isTrue,
+            reason: '${method.name} uses "${method.iconKey}"');
+      }
+    });
+  });
+
+  test('a first run that fails part-way leaves nothing behind', () async {
+    // Categories, payment methods and the install stamps are one unit. If
+    // any part survived a failure, the emptiness check would call first run
+    // done and never finish the rest -- an install without payment methods,
+    // or without the founding-user stamp, for good.
+    await db.customStatement(
+        'CREATE TEMP TRIGGER fail_payment_seed BEFORE INSERT ON payment_methods '
+        "BEGIN SELECT RAISE(ABORT, 'disk I/O error'); END");
+
+    await expectLater(controller().ensureSeeded(en), throwsA(anything));
+
+    expect(await db.categoriesDao.allLive(), isEmpty);
+    expect(await db.paymentMethodsDao.allLive(), isEmpty);
+    expect(await db.settingsDao.get(SettingsKeys.installedAt), isNull);
+    expect(await db.settingsDao.get(SettingsKeys.foundingUser), isNull);
   });
 
   group('the default tree itself', () {

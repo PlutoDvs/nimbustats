@@ -39,6 +39,9 @@ const nimbusIcons = <String, IconData>{
   'card_giftcard': Icons.card_giftcard_outlined,
   'more_horiz': Icons.more_horiz,
   'payments': Icons.payments_outlined,
+  // The default Card payment method's glyph. Before it existed, a card could
+  // only borrow the cash or gift-card icon.
+  'credit_card': Icons.credit_card_outlined,
   'work': Icons.work_outline,
   'savings': Icons.savings_outlined,
   'help_outline': Icons.help_outline,

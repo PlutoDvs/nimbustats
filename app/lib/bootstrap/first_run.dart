@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nimbus_data/nimbus_data.dart';
 
 import '../features/categories/data/default_category_tree.dart';
+import '../features/payment_methods/data/default_payment_methods.dart';
 import '../features/settings/data/settings_keys.dart';
 import '../l10n/app_localizations.dart';
 import 'database_provider.dart';
@@ -37,25 +38,42 @@ final class FirstRunController {
   /// Note that a user who switches language later keeps the tree they have.
   /// Re-labelling categories they may have renamed, merged, or reorganised
   /// would be destructive, and the tree stops being ours the moment it exists.
-  Future<bool> ensureSeeded(AppLocalizations l10n) async {
-    final seeded = await CategorySeeder(_db).seedIfEmpty(
-      roots: defaultCategoryTree(l10n),
-      uncategorizedName: l10n.uncategorized,
-    );
-    if (!seeded) return false;
+  ///
+  /// Categories, the default payment methods and the install stamps are one
+  /// transaction. The category tree is what says "first run happened", so
+  /// anything written after it in a separate step could be lost for good by a
+  /// failure in between: the next launch would find the tree and never retry.
+  Future<bool> ensureSeeded(AppLocalizations l10n) =>
+      _db.transaction(() async {
+        final seeded = await CategorySeeder(_db).seedIfEmpty(
+          roots: defaultCategoryTree(l10n),
+          uncategorizedName: l10n.uncategorized,
+        );
+        if (!seeded) return false;
 
-    final settings = _db.settingsDao;
-    await settings.put(
-      SettingsKeys.installedAt,
-      DateTime.now().toUtc().millisecondsSinceEpoch.toString(),
-    );
-    await settings.put(SettingsKeys.seedVersion, '1');
-    // Founding users retain full access permanently once gates are switched
-    // on, so this has to be written the moment the install exists rather than
-    // at some later point when the cutoff might already have passed.
-    await settings.put(SettingsKeys.foundingUser, 'true');
-    return true;
-  }
+        for (final method in defaultPaymentMethods(l10n)) {
+          await _db.paymentMethodsDao.insertMethod(
+            id: method.id,
+            name: method.name,
+            kind: method.kind,
+            color: method.color,
+            iconKey: method.iconKey,
+          );
+        }
+
+        final settings = _db.settingsDao;
+        await settings.put(
+          SettingsKeys.installedAt,
+          DateTime.now().toUtc().millisecondsSinceEpoch.toString(),
+        );
+        await settings.put(SettingsKeys.seedVersion, '1');
+        // Founding users retain full access permanently once gates are
+        // switched on, so this has to be written the moment the install exists
+        // rather than at some later point when the cutoff might already have
+        // passed.
+        await settings.put(SettingsKeys.foundingUser, 'true');
+        return true;
+      });
 }
 
 final firstRunControllerProvider = Provider<FirstRunController>(
