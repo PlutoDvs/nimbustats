@@ -94,8 +94,8 @@ default, which would draw some other chart under the user's name for it.
 |---|---|
 | `watchPinned()` | `Stream<List<SavedViewEntry>>`, live, in `sort_order`. The dashboard updates when a view is pinned from another tab. Uses `idx_saved_views_pinned`. |
 | `watchById(id)` | `Stream<SavedViewEntry?>` for the full-screen view, so a rename shows at once. |
-| `create(...)` | Inserts at the end (`max(sort_order) + 1`) inside one transaction. |
-| `rename(id, name)` | Touches `name` and `updated_at` only. |
+| `create(List<NewSavedView>)` | Inserts at the end (`max(sort_order) + 1`, soft-deleted rows included so an undone removal keeps its slot), in the given order, as one transaction -- the two starter cards arrive together or not at all. A dated spec anywhere in the list is refused before anything is written. |
+| `rename(id, name)` | Touches `name` and `updated_at` only. Throws `StateError` when no row matched -- as do `reorder`, `softDelete` and `restore`: a write that changed nothing is a stale id, not a success. |
 | `reorder(List<String> ids)` | Rewrites `sort_order` for all given ids in one transaction. |
 | `softDelete(id)` / `restore(id)` | Remove, and the snackbar's undo. |
 
@@ -110,7 +110,10 @@ there is nowhere to find one. `pinned` stays in the schema for D10.
 
 ## 4. App layer
 
-- `app/lib/features/dashboard/` (Phase 3 owns it):
+- All of it lives in `app/lib/features/analytics/`, not a separate
+  `features/dashboard/`: the Analytics screen hosts the dashboard tab and the
+  dashboard draws analytics' charts, so two folders would import each other in
+  a cycle. (Amended while planning.)
   - `data/saved_views_repository.dart` — ids via `Ids.newId()`, wraps the DAO,
     the only way the app writes a view.
   - `application/` — `pinnedViewsProvider` (stream),
@@ -120,12 +123,29 @@ there is nowhere to find one. `pinned` stays in the schema for D10.
     without a date range; an unbounded query over all history is a bug here.
   - `presentation/` — dashboard tab, card, full-screen view, pin sheet.
 - `QuerySpec.withDateRange(DateRange?)` is added to nimbus_domain: the one
-  copy operation this needs. `QueryFilters` gets the matching `copyWith`.
+  copy operation this needs. `QueryFilters` gets the matching
+  `withDateRange` -- not a general `copyWith`, which nothing needs.
 - Each card resolves through the existing `analyticsResultProvider(spec)`, so
   a card and the tab it came from share one query when they ask the same
   question. **One engine; no dashboard-specific SQL.**
-- Router: a full-screen route `/view/:id`, appended beside the other pushed
-  routes in `app_router.dart` (a shared file — one line).
+- Router: a full-screen route `/view/:id?anchor=<DateKey>`, appended beside
+  the other pushed routes in `app_router.dart` (a shared file — one line).
+
+## 4a. Prerequisite fix — analytics answers follow the data
+
+Found while planning (operator chose to fix it first, in its own commit):
+`analyticsResultProvider` is a non-auto-dispose `FutureProvider.family` that
+nothing invalidates when data changes. Every tab — and so every card — kept
+showing the total from before an expense was added, until the calendar changed
+or the app restarted, and every month ever viewed stayed in memory.
+
+- `AnalyticsEngine.changes()` (nimbus_data): a stream that fires on writes to
+  `transactions`, `transaction_tags`, `categories` and `tags` — every table a
+  spec can reach — via drift's `tableUpdates`.
+- `analyticsResultProvider` becomes `autoDispose` and invalidates itself on
+  `changes()`.
+- Tested: an answer re-runs after an expense is added while it is watched; an
+  unwatched answer is released; a settings write does not fire `changes()`.
 
 ## 5. Screens
 
@@ -152,7 +172,8 @@ there is nowhere to find one. `pinned` stays in the schema for D10.
 - One ◀ month ▶ bar (label via the existing `periodLabel`). Every card
   resolves against this anchor, so going back a month moves them together.
 - A `ReorderableListView` of cards: long-press to drag, with the screen
-  reader's move actions. The new order persists via `reorder`.
+  reader's move actions. The new order persists via `reorder`. It uses
+  `onReorderItem`; `onReorder` is deprecated in this Flutter.
 - A card: name, period label, the view's **true total** in full `format`
   (scaled down rather than truncated — D1), and a compact chart about 120 dp
   tall:
@@ -163,7 +184,7 @@ there is nowhere to find one. `pinned` stays in the schema for D10.
   | trend | mini line over the window |
   | crossTab | top 3 tag × category cells + the "does not sum to 100%" note |
   | hourOfDay / dayOfWeek | mini bars, every hour/weekday present |
-  | reflection | small necessity × satisfaction grid + the unlabelled total |
+  | reflection | the avoidable-and-regretted total and the not-labelled total (a 4 × 4 grid does not fit a card; amended while planning) |
 
 - A ⋮ menu on each card: Rename, Remove.
 - **States, per card** (§5.1 of the contract): loading skeleton, "nothing in
@@ -188,6 +209,11 @@ dashboard and shows **Undo** — never a confirmation dialog.
 - The `advancedAnalytics` Pro gate: the contract gates the builder, not pinning
   what the user can already see.
 - Changing a pinned view's query or period after the fact.
+- **D11** (found while planning): the breakdown header reads "This month"
+  for whichever month is shown. Pre-existing in the Breakdown tab; the
+  full-screen view reuses that body and inherits it. Recorded, not fixed here.
+- Pins on the Patterns tab sit beside each chart, so a month with no spending
+  (which shows the empty state instead of charts) offers none.
 
 ## 6. Strings
 
