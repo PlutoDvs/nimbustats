@@ -28,6 +28,17 @@ final class SavedViewsRepository {
   /// The dashboard's cards, live, in the user's order.
   Stream<List<SavedViewEntry>> watchPinned() => _dao.watchPinned();
 
+  Future<void> rename(String id, String name) =>
+      _dao.rename(id, _validName(name));
+
+  /// [ids] is every pinned view, in the new order.
+  Future<void> reorder(List<String> ids) => _dao.reorder(ids);
+
+  Future<void> remove(String id) => _dao.softDelete(id);
+
+  /// The undo behind [remove].
+  Future<void> restore(String id) => _dao.restore(id);
+
   static String _validName(String name) {
     final trimmed = name.trim();
     if (trimmed.isEmpty) {

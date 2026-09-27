@@ -65,6 +65,9 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get cardOptions => 'Card options';
+
+  @override
   String get category => 'Category';
 
   @override
@@ -323,6 +326,12 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get reflectionUnset => 'Not set';
+
+  @override
+  String get removeView => 'Remove';
+
+  @override
+  String get renameView => 'Rename';
 
   @override
   String get routeNotFoundBody => 'That screen does not exist.';
@@ -649,6 +658,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get viewNameLabel => 'Name';
+
+  @override
+  String get viewRemoved => 'Removed from the dashboard';
 
   @override
   String get weekdayFriday => 'Fri';

@@ -22,6 +22,7 @@
       }
     }
   },
+  "cardOptions": "Card options",
   "category": "Category",
   "categoryArchivedBadge": "Archived",
   "categoryChildCount": "{count, plural, =1{1 subcategory} other{{count} subcategories}}",
@@ -130,6 +131,8 @@
   "pinnedToDashboard": "Pinned to the dashboard",
   "pinToDashboard": "Pin to dashboard",
   "reflectionUnset": "Not set",
+  "removeView": "Remove",
+  "renameView": "Rename",
   "routeNotFoundBody": "That screen does not exist.",
   "routeNotFoundGoHome": "Go to transactions",
   "routeNotFoundTitle": "Nothing here",
@@ -267,6 +270,7 @@
     }
   },
   "viewNameLabel": "Name",
+  "viewRemoved": "Removed from the dashboard",
   "weekdayFriday": "Fri",
   "weekdayMonday": "Mon",
   "weekdaySaturday": "Sat",

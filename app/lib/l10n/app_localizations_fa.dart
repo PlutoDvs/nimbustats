@@ -64,6 +64,9 @@ class AppLocalizationsFa extends AppLocalizations {
   }
 
   @override
+  String get cardOptions => 'گزینه‌های کارت';
+
+  @override
   String get category => 'دسته‌بندی';
 
   @override
@@ -322,6 +325,12 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get reflectionUnset => 'ثبت‌نشده';
+
+  @override
+  String get removeView => 'حذف';
+
+  @override
+  String get renameView => 'تغییر نام';
 
   @override
   String get routeNotFoundBody => 'چنین صفحه‌ای وجود ندارد.';
@@ -647,6 +656,9 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get viewNameLabel => 'نام';
+
+  @override
+  String get viewRemoved => 'از داشبورد حذف شد';
 
   @override
   String get weekdayFriday => 'جمعه';

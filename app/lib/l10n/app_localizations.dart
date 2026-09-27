@@ -188,6 +188,12 @@ abstract class AppLocalizations {
   /// **'{count, plural, =1{1 transaction} other{{count} transactions}}'**
   String breakdownTransactionCount(int count);
 
+  /// No description provided for @cardOptions.
+  ///
+  /// In en, this message translates to:
+  /// **'Card options'**
+  String get cardOptions;
+
   /// No description provided for @category.
   ///
   /// In en, this message translates to:
@@ -667,6 +673,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Not set'**
   String get reflectionUnset;
+
+  /// No description provided for @removeView.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove'**
+  String get removeView;
+
+  /// No description provided for @renameView.
+  ///
+  /// In en, this message translates to:
+  /// **'Rename'**
+  String get renameView;
 
   /// No description provided for @routeNotFoundBody.
   ///
@@ -1279,6 +1297,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Name'**
   String get viewNameLabel;
+
+  /// No description provided for @viewRemoved.
+  ///
+  /// In en, this message translates to:
+  /// **'Removed from the dashboard'**
+  String get viewRemoved;
 
   /// No description provided for @weekdayFriday.
   ///

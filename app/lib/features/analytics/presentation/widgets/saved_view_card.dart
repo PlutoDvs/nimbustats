@@ -8,7 +8,9 @@ import '../../../../l10n/app_localizations.dart';
 import '../../../settings/application/settings_providers.dart';
 import '../../application/analytics_providers.dart';
 import '../../application/dashboard_anchor.dart';
+import '../../application/saved_view_providers.dart';
 import 'card_previews.dart';
+import 'saved_view_actions.dart';
 
 /// One pinned view on the dashboard.
 ///
@@ -26,12 +28,72 @@ class SavedViewCard extends StatelessWidget {
         key: Key('saved-view-card-${entry.id}'),
         child: Padding(
           padding: const EdgeInsets.all(NimbusTokens.space4),
-          child: switch (entry) {
-            final SavedView view => _Readable(view: view, anchor: anchor),
-            final UnreadableSavedView view => _Unreadable(view: view),
-          },
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: switch (entry) {
+                  final SavedView view => _Readable(view: view, anchor: anchor),
+                  final UnreadableSavedView view => _Unreadable(view: view),
+                },
+              ),
+              // Outside the card's merged semantics, so a screen reader
+              // reaches it as its own button.
+              _CardMenu(entry: entry),
+            ],
+          ),
         ),
       );
+}
+
+enum _CardAction { rename, remove }
+
+class _CardMenu extends ConsumerWidget {
+  const _CardMenu({required this.entry});
+
+  final SavedViewEntry entry;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
+    return PopupMenuButton<_CardAction>(
+      key: Key('card-menu-${entry.id}'),
+      tooltip: l10n.cardOptions,
+      onSelected: (action) => _run(context, ref, action),
+      itemBuilder: (context) => [
+        // An unreadable view can only go: renaming something that cannot be
+        // drawn would suggest it can be fixed from here.
+        if (entry is SavedView)
+          PopupMenuItem(
+            key: const Key('card-menu-rename'),
+            value: _CardAction.rename,
+            child: Text(l10n.renameView),
+          ),
+        PopupMenuItem(
+          key: const Key('card-menu-remove'),
+          value: _CardAction.remove,
+          child: Text(l10n.removeView),
+        ),
+      ],
+    );
+  }
+
+  Future<void> _run(
+      BuildContext context, WidgetRef ref, _CardAction action) async {
+    final repository = ref.read(savedViewsRepositoryProvider);
+    switch (action) {
+      case _CardAction.rename:
+        await renameSavedView(context,
+            repository: repository, id: entry.id, currentName: entry.name);
+      case _CardAction.remove:
+        await removeSavedView(
+          repository: repository,
+          messenger: ScaffoldMessenger.of(context),
+          l10n: AppLocalizations.of(context),
+          id: entry.id,
+        );
+    }
+  }
 }
 
 class _Readable extends ConsumerWidget {
