@@ -1144,59 +1144,72 @@ class TransactionsDao {
 }
 
 
-/// Named `QuerySpec`s the user pinned.
+/// Named `QuerySpec`s pinned to the dashboard.
 ///
-/// Reads parse the stored JSON here rather than handing `specJson` outward, so
-/// there is one place that decides what a malformed row means and no caller can
-/// forget to look.
+/// Reads parse each row on its own, here, so there is one place that decides
+/// what a malformed row means -- an [UnreadableSavedView], never a guessed
+/// default -- and no caller can forget to look.
 class SavedViewsDao {
   SavedViewsDao(this._db);
 
   final AppDatabase _db;
 
-  Future<SavedView?> byId(String id) async {
-    final row = await (_db.select(_db.savedViews)
-          ..where((t) => t.id.equals(id))
-          ..where((t) => t.deletedAt.isNull()))
-        .getSingleOrNull();
-    return row == null ? null : _parse(row);
-  }
+  /// Pinned views in the order the user arranged them, live.
+  Stream<List<SavedViewEntry>> watchPinned() => (_db.select(_db.savedViews)
+        ..where((t) => t.deletedAt.isNull())
+        ..where((t) => t.pinned.equals(true))
+        ..orderBy([(t) => OrderingTerm.asc(t.sortOrder)]))
+      .watch()
+      .map((rows) => rows.map(_parse).toList());
 
-  /// Pinned views, in the order the user arranged them.
-  Future<List<SavedView>> pinned() async {
-    final rows = await (_db.select(_db.savedViews)
-          ..where((t) => t.deletedAt.isNull())
-          ..where((t) => t.pinned.equals(true))
-          ..orderBy([(t) => OrderingTerm.asc(t.sortOrder)]))
-        .get();
-    return rows.map(_parse).toList();
-  }
+  /// One live view, or null once it is removed.
+  Stream<SavedViewEntry?> watchById(String id) => (_db.select(_db.savedViews)
+        ..where((t) => t.id.equals(id))
+        ..where((t) => t.deletedAt.isNull()))
+      .watchSingleOrNull()
+      .map((row) => row == null ? null : _parse(row));
 
-  /// Inserts or replaces the view with [id].
+  /// Pins [views] at the end of the dashboard, in the order given, as one
+  /// transaction: the starter cards arrive together or not at all.
   ///
-  /// The spec is serialized here so a caller cannot store a hand-built string
-  /// that no longer parses.
-  Future<void> upsert({
-    required String id,
-    required String name,
-    required QuerySpec spec,
-    required String chartType,
-    required bool pinned,
-    required int sortOrder,
-  }) {
-    final now = DateTime.now().millisecondsSinceEpoch;
-    return _db.into(_db.savedViews).insertOnConflictUpdate(
-          SavedViewsCompanion.insert(
-            id: id,
-            name: name,
-            specJson: jsonEncode(spec.toJson()),
-            chartType: chartType,
-            pinned: Value(pinned),
-            sortOrder: Value(sortOrder),
-            createdAt: now,
-            updatedAt: now,
-          ),
+  /// A spec that still carries a date range is refused before anything is
+  /// written. The period lives in its own columns; stripping the dates here
+  /// would hide the caller's bug instead of reporting it.
+  Future<void> create(List<NewSavedView> views) async {
+    for (final view in views) {
+      if (view.spec.filters.dateRange != null) {
+        throw ArgumentError.value(
+          view.spec,
+          'spec',
+          'a saved view stores its period apart from its spec, so the spec '
+              'must carry no date range -- strip it with withDateRange(null)',
         );
+      }
+    }
+    await _db.transaction(() async {
+      // Soft-deleted rows count toward the maximum, so a removal that is
+      // later undone gets its old slot back instead of sharing one.
+      final highest = _db.savedViews.sortOrder.max();
+      final top = await (_db.selectOnly(_db.savedViews)..addColumns([highest]))
+          .map((row) => row.read(highest))
+          .getSingle();
+      var next = (top ?? -1) + 1;
+      final now = DateTime.now().millisecondsSinceEpoch;
+      for (final view in views) {
+        await _db.into(_db.savedViews).insert(SavedViewsCompanion.insert(
+              id: view.id,
+              name: view.name,
+              specJson: jsonEncode(view.spec.toJson()),
+              chartType: view.chart.name,
+              periodType: Value(view.period.type.name),
+              periodCount: Value(view.period.count),
+              pinned: const Value(true),
+              sortOrder: Value(next++),
+              createdAt: now,
+              updatedAt: now,
+            ));
+      }
+    });
   }
 
   Future<void> softDelete(String id) {
@@ -1208,18 +1221,38 @@ class SavedViewsDao {
     ));
   }
 
-  /// Parses a stored row.
+  /// Parses one stored row.
   ///
-  /// A malformed spec throws. Substituting a default would render some other
-  /// chart under the name the user gave this one, which is worse than an
-  /// error because it looks like it worked.
-  static SavedView _parse(SavedViewRow row) => SavedView(
+  /// Only what malformed stored data can throw becomes an unreadable card:
+  /// [FormatException] from the parsers, [TypeError] from a JSON value of the
+  /// wrong type meeting a cast, [ArgumentError] from a value type rejecting
+  /// its fields. Anything else is a bug in this code and surfaces as one.
+  static SavedViewEntry _parse(SavedViewRow row) {
+    try {
+      final decoded = jsonDecode(row.specJson);
+      if (decoded is! Map<String, Object?>) {
+        throw FormatException('spec is not a JSON object', row.specJson);
+      }
+      return SavedView(
         id: row.id,
         name: row.name,
-        spec: QuerySpec.fromJson(
-            jsonDecode(row.specJson) as Map<String, Object?>),
-        chartType: row.chartType,
-        pinned: row.pinned,
         sortOrder: row.sortOrder,
+        spec: QuerySpec.fromJson(decoded),
+        period: ViewPeriod.fromStored(row.periodType, row.periodCount),
+        chart: SavedViewChart.parse(row.chartType),
       );
+    } on Object catch (error) {
+      if (error is! FormatException &&
+          error is! TypeError &&
+          error is! ArgumentError) {
+        rethrow;
+      }
+      return UnreadableSavedView(
+        id: row.id,
+        name: row.name,
+        sortOrder: row.sortOrder,
+        error: error,
+      );
+    }
+  }
 }

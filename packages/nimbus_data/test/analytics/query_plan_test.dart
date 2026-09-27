@@ -103,4 +103,41 @@ void main() {
     expect(plan, anyOf(contains('idx_tx_unconfirmed'), contains('idx_tx_date')),
         reason: 'plan: $plan');
   });
+
+  test('the pinned-views query is served by its index', () async {
+    // The same predicate and order as SavedViewsDao.watchPinned, which the
+    // dashboard runs on every open.
+    final rows = await db
+        .customSelect('EXPLAIN QUERY PLAN SELECT * FROM saved_views '
+            'WHERE deleted_at IS NULL AND pinned = 1 ORDER BY sort_order')
+        .get();
+    final plan = rows.map((r) => r.data['detail']).join(' | ');
+    expect(plan, contains('idx_saved_views_pinned'), reason: 'plan: $plan');
+  });
+
+  test("the starter breakdown card's query uses the date index", () async {
+    final plan = await planFor(QuerySpec(
+      filters: QueryFilters(
+        dateRange: DateRange(const DateKey(20260101), const DateKey(20260131)),
+        direction: MoneyDirection.expense,
+      ),
+      groupBy: GroupByCategory(0),
+      aggregate: Aggregate.sum,
+    ));
+    expect(plan, contains('idx_tx_date'), reason: 'plan: $plan');
+    expect(plan, isNot(contains('SCAN transactions')), reason: 'plan: $plan');
+  });
+
+  test("the starter trend card's query uses the date index", () async {
+    final plan = await planFor(QuerySpec(
+      filters: QueryFilters(
+        dateRange: DateRange(const DateKey(20250801), const DateKey(20260131)),
+        direction: MoneyDirection.expense,
+      ),
+      groupBy: const GroupByPeriod(PeriodType.month),
+      aggregate: Aggregate.sum,
+    ));
+    expect(plan, contains('idx_tx_date'), reason: 'plan: $plan');
+    expect(plan, isNot(contains('SCAN transactions')), reason: 'plan: $plan');
+  });
 }

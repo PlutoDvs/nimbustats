@@ -1,5 +1,6 @@
 import 'package:drift_dev/api/migrations_native.dart';
 import 'package:nimbus_data/nimbus_data.dart';
+import 'package:nimbus_domain/nimbus_domain.dart';
 import 'package:test/test.dart';
 
 import 'generated/schema.dart';
@@ -49,5 +50,28 @@ void main() {
         .getSingle();
     expect(row.read<String>('period_type'), 'month');
     expect(row.read<int>('period_count'), 1);
+  });
+
+  test('a database upgraded from v1 takes a view through the DAO', () async {
+    // Validating the shape is not the same as proving the table works.
+    final db = AppDatabase(await verifier.startAt(1));
+    addTearDown(db.close);
+    await verifier.migrateAndValidate(db, 21);
+
+    await db.savedViewsDao.create([
+      (
+        id: 'after-migration',
+        name: 'Still works',
+        spec: const QuerySpec(
+            filters: QueryFilters(),
+            groupBy: GroupByNone(),
+            aggregate: Aggregate.sum),
+        period: ViewPeriod(PeriodType.month, 1),
+        chart: SavedViewChart.breakdown,
+      ),
+    ]);
+
+    expect((await db.savedViewsDao.watchPinned().first).single,
+        isA<SavedView>());
   });
 }
