@@ -200,6 +200,30 @@ void main() {
     expect(await pinnedIds(), ['a', 'b', 'c']);
   });
 
+  test(
+      'restore after an intervening reorder does not collide with a live '
+      "view's slot", () async {
+    await db.savedViewsDao.create([_view('a'), _view('b'), _view('c')]);
+    await db.savedViewsDao.softDelete('b');
+    // 'b' keeps its old sort_order (1) as a soft-deleted row. Reordering the
+    // two survivors re-stamps them densely from 0, so 'c' now also claims
+    // sort_order 1 -- the very slot 'b' is still holding onto.
+    await db.savedViewsDao.reorder(['c', 'a']);
+
+    await db.savedViewsDao.restore('b');
+
+    final pinned = await db.savedViewsDao.watchPinned().first;
+    expect(pinned.map((e) => e.id).toSet(), {'a', 'b', 'c'});
+    expect(pinned.length, 3);
+
+    final rows = await db.customSelect(
+      'SELECT sort_order FROM saved_views WHERE deleted_at IS NULL',
+    ).get();
+    final sortOrders = rows.map((r) => r.read<int>('sort_order')).toList();
+    expect(sortOrders.toSet().length, sortOrders.length,
+        reason: 'no two live views may share a sort_order');
+  });
+
   test('a write that matches no view says so', () async {
     // A rename that renamed nothing is a caller holding a stale id;
     // reporting success for it would be a silent failure.

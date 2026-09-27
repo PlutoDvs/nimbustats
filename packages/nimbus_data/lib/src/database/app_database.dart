@@ -1249,16 +1249,41 @@ class SavedViewsDao {
     _expectOne(written, id);
   }
 
-  /// The undo behind "Remove". The view's sort order was never reused
-  /// (see [create]), so it returns to the place it left.
+  /// The undo behind "Remove". The view's sort order was never reused (see
+  /// [create]), so it normally returns to the place it left. But a
+  /// [reorder] between the removal and the undo re-stamps the live rows
+  /// densely from 0 without knowing about the soft-deleted row, so its old
+  /// slot can now also be held by a live view. Restoring inside that
+  /// collision is detected and re-stamped to the end instead of leaving two
+  /// rows tied on `sort_order` for SQLite to break arbitrarily.
   Future<void> restore(String id) async {
-    final written =
-        await (_db.update(_db.savedViews)..where((t) => t.id.equals(id)))
-            .write(SavedViewsCompanion(
-      deletedAt: const Value(null),
-      updatedAt: Value(_now()),
-    ));
-    _expectOne(written, id);
+    await _db.transaction(() async {
+      final row = await (_db.select(_db.savedViews)
+            ..where((t) => t.id.equals(id)))
+          .getSingleOrNull();
+      if (row == null) _expectOne(0, id);
+      final collision = await (_db.select(_db.savedViews)
+            ..where((t) => t.deletedAt.isNull())
+            ..where((t) => t.sortOrder.equals(row!.sortOrder)))
+          .getSingleOrNull();
+      var sortOrder = row!.sortOrder;
+      if (collision != null) {
+        final highest = _db.savedViews.sortOrder.max();
+        final top =
+            await (_db.selectOnly(_db.savedViews)..addColumns([highest]))
+                .map((r) => r.read(highest))
+                .getSingle();
+        sortOrder = (top ?? -1) + 1;
+      }
+      final written =
+          await (_db.update(_db.savedViews)..where((t) => t.id.equals(id)))
+              .write(SavedViewsCompanion(
+        deletedAt: const Value(null),
+        sortOrder: Value(sortOrder),
+        updatedAt: Value(_now()),
+      ));
+      _expectOne(written, id);
+    });
   }
 
   static int _now() => DateTime.now().millisecondsSinceEpoch;
