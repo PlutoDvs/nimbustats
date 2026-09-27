@@ -11,12 +11,12 @@ import '../application/analytics_providers.dart';
 import '../application/breakdown_controller.dart';
 import '../application/cross_tab_controller.dart';
 import '../application/patterns_controller.dart';
-import '../application/period_label.dart';
 import '../application/trends_controller.dart';
 import '../data/pin_request.dart';
 import 'dashboard_tab.dart';
 import 'widgets/breakdown_body.dart';
 import 'widgets/cross_tab_body.dart';
+import 'widgets/month_bar.dart';
 import 'widgets/patterns_body.dart';
 import 'widgets/pin_button.dart';
 import 'widgets/trends_body.dart';
@@ -126,7 +126,11 @@ class _BreakdownTab extends ConsumerWidget {
 
     return Column(
       children: [
-        _PeriodBar(view: view, controller: controller),
+        MonthBar(
+          anchor: view.period.startInclusive,
+          onShift: controller.shiftPeriod,
+          keyPrefix: 'breakdown-period',
+        ),
         Row(
           children: [
             Expanded(
@@ -339,44 +343,6 @@ class _PatternsTab extends ConsumerWidget {
               ),
             _ => const NimbusLoadingList(),
           },
-        ),
-      ],
-    );
-  }
-}
-
-class _PeriodBar extends ConsumerWidget {
-  const _PeriodBar({required this.view, required this.controller});
-
-  final BreakdownView view;
-  final BreakdownController controller;
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    return Row(
-      children: [
-        IconButton(
-          key: const Key('breakdown-period-previous'),
-          icon: const Icon(Icons.chevron_left),
-          onPressed: () => controller.shiftPeriod(-1),
-        ),
-        Expanded(
-          child: Center(
-            child: Text(
-              periodLabel(
-                view.period,
-                ref.watch(calendarProvider),
-                persianDigits: ref.watch(moneyFormatterProvider).persianDigits,
-              ),
-              key: const Key('breakdown-period-label'),
-              style: Theme.of(context).textTheme.labelMedium,
-            ),
-          ),
-        ),
-        IconButton(
-          key: const Key('breakdown-period-next'),
-          icon: const Icon(Icons.chevron_right),
-          onPressed: () => controller.shiftPeriod(1),
         ),
       ],
     );
