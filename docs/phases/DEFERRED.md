@@ -11,6 +11,9 @@ blocked, and who can unblock it.
 |---|---|---|---|
 | D2 | Gradle distribution and large SDK packages need manual seeding on a fresh machine | Any new dev machine or CI | Operator (network) |
 | D4 | Claude Design token sheet does not exist | Nothing hard-blocked; visual polish | Operator (design) |
+| D10 | No saved-view builder: views can only be pinned from what a tab shows | "#travel by category" and other tag-scoped views cannot be pinned | Next analytics phase, or on demand |
+| D11 | Breakdown header reads "This month" for whichever month is shown | Nothing blocked; the label is wrong on past months, in the tab and the full-screen view | Next change touching the breakdown |
+| D12 | No global uncaught-error handler: a rethrown write failure reaches only the console | Nothing user-facing; failures are surfaced but not recorded | Phase 8 hardening, or sooner if a real failure needs a record |
 | D1 | ~~Phase 1 hardware criteria unmeasured~~ | — | **Resolved 2026-09-27** |
 | D8 | ~~Payment-method tile is silently disabled when no method exists~~ | — | **Resolved 2026-09-27** |
 | D9 | ~~"Saved" snackbar covers the add button~~ | — | **Resolved 2026-09-27** |
@@ -470,5 +473,45 @@ capture there, the second add was opened after the snackbar had gone.
 **Check:** on the phone, save an expense and tap + within four seconds. If the
 tap does not open the add screen, the FAB and the snackbar are on different
 Scaffolds (the list's and the shell's), so the FAB is not lifted above it.
+
+---
+
+## D10 — No saved-view builder
+
+**Status:** open. Decided 2026-09-27 with the operator while designing
+Phase 3 tasks 13–14 (`docs/superpowers/specs/2026-09-27-saved-views-dashboard-design.md`).
+
+Views are pinned from what a tab shows. The screen contract's §5.7 builder —
+every filter, the grouping, the chart and the period, with a live preview —
+was deferred as the largest piece of the phase. Until it exists a view cannot
+be scoped by tag, payment method, necessity, amount or text, and a pinned
+view's question cannot be edited after the fact (rename only). The
+`saved_views.pinned` column stays in the schema for the builder's unpinned
+library. When it lands it reopens the screen contract's open question 3:
+which charts a builder offers for which groupings.
+
+## D11 — Breakdown header reads "This month" for any month
+
+**Status:** open. Found 2026-09-27 while planning the full-screen saved view.
+
+`BreakdownBody` labels its total with `txMonthTotal` ("This month") whatever
+the period. The Breakdown tab's ◀ ▶ can show a past month under that label,
+and the full-screen saved view, which reuses the body, inherits it. Fix: label
+with the period (`periodLabel`) or a neutral "Total".
+
+## D12 — No global uncaught-error handler
+
+**Status:** open. Found 2026-09-27 while documenting D10 and D11.
+
+`reportingFailure` (`app/lib/features/analytics/presentation/widgets/saved_view_write.dart`)
+matches the add-expense screen's older pattern: on a failed write it shows
+"Could not save the change" and rethrows, so the caller sees the failure too.
+But the rethrown error reaches only the console — `app/lib/main.dart` calls
+`runApp` directly, and nothing in `app/lib` installs
+`PlatformDispatcher.instance.onError` or `runZonedGuarded`, so no uncaught
+error anywhere in the app is ever recorded. Nothing user-facing is blocked by
+this; failures are surfaced but not recorded. Fix: wrap `runApp` in
+`runZonedGuarded` (or set `PlatformDispatcher.instance.onError`) and route
+both to whatever Phase 8 chooses for crash reporting.
 
 ---

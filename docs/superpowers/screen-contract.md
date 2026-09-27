@@ -484,6 +484,8 @@ Recorded rather than silently decided:
 2. **What "total" means on a mixed list.** `totalInRange` currently sums income
    and expense alike and includes unconfirmed rows. Phase 3 must decide, per
    screen, whether a total is net, expense-only, and confirmed-only.
-3. **Chart type per saved view** — which chart types are offered for which
-   group-by combinations, and what happens when a saved view's spec changes to
-   one its chart cannot render.
+3. **Chart type per saved view** — *answered 2026-09-27 for pinning:* the
+   chart is fixed by where a view was pinned from (`SavedViewChart`), so a
+   spec can never be paired with a chart that cannot draw it, and a view's
+   spec cannot change after pinning. The builder (D10) reopens this: which
+   chart types it offers for which group-by combinations.
