@@ -9,10 +9,11 @@ blocked, and who can unblock it.
 
 | # | Item | Blocks | Owner |
 |---|---|---|---|
-| D1 | Phase 1 hardware criteria unmeasured — APK builds since 2026-09-26 | Phase 1 Task 16 gate, `phase-3-complete` | Operator (device) |
 | D2 | Gradle distribution and large SDK packages need manual seeding on a fresh machine | Any new dev machine or CI | Operator (network) |
 | D4 | Claude Design token sheet does not exist | Nothing hard-blocked; visual polish | Operator (design) |
 | D8 | Payment-method tile is silently disabled when no method exists | Nothing hard-blocked; add-screen UX | Next phase touching the add screen |
+| D9 | "Saved" snackbar may cover the add button — unconfirmed on a device | Nothing hard-blocked; back-to-back captures | Operator (device check) |
+| D1 | ~~Phase 1 hardware criteria unmeasured~~ | — | **Resolved 2026-09-27** |
 | D3 | ~~pub.dev archive access depends on the VPN exit node~~ | — | **Resolved 2026-09-05** |
 | D5 | ~~Router error screen has no localized copy~~ | — | **Resolved 2026-08-24** |
 | D6 | ~~Flutter-specific lints are not active~~ | — | **Resolved 2026-08-22** |
@@ -20,9 +21,51 @@ blocked, and who can unblock it.
 
 ---
 
-## D1 — Android build unverified: Google Maven unreachable
+## D1 — Android build unverified: Google Maven unreachable — RESOLVED
 
-**Status:** open. Found 2026-08-22 during Phase 1 Task 2.
+**Status:** resolved 2026-09-27. Found 2026-08-22 during Phase 1 Task 2.
+
+All four hardware criteria were measured on a **Samsung Galaxy A53 5G**
+(SM-A536E), a mid-range phone, running a **profile** build against a
+database of 5,000+ transactions seeded by the demo tile. The display
+supports 60 and 120 Hz and ran at 60 Hz throughout.
+
+| Criterion | Result | How |
+|---|---|---|
+| Repeat purchase in ≤ 3 taps | **3** — +, a suggested chip, Save | Operator on the device; the saved rows confirm it |
+| Any expense in ≤ 5 s | **2 s** from opening the form to the saved row | `occurred_at` (form opened) vs `created_at` (row written) on the device |
+| Cold start < 1 s | **558 ms** median to first frame (runs 2–6: 568, 547, 557, 567, 466 ms); run 1, first after install, 723 ms | `flutter run --profile --trace-startup`, 6 runs |
+| List holds 60 fps | **0 of 5,126** frames over 16.67 ms in 3 measured passes; p99 build ≤ 3.41 ms, raster ≤ 4.06 ms; worst 8.37 ms | `app/tool/frame_timings.dart`, 20 + 20 swipes per pass |
+
+- **Warm-up pass, reported rather than dropped:** it contained the first
+  page loads after launch — 2 of 958 frames over budget, worst 25.2 ms, still
+  99.8 % within budget.
+- **Cold-start caveat:** measured to the first rasterized frame, as the brief
+  specifies. The startup trace ends shortly after that frame. In the three
+  runs that captured later frames, drawing had settled by 504–629 ms, but the
+  trace does not show which frame first had rows in it.
+
+**The device run found bugs no widget test could**, each fixed with a
+failing test first:
+
+- `782f198` a fresh install never reached onboarding, so nothing was seeded
+  and every save failed its foreign key;
+- `dd61c57` a dollar amount could not be typed a key at a time (`5` became
+  `5.00` under the caret);
+- `d440768` the keypad covered Save, so three taps took four;
+- `b74636c` each new expense inherited the last one's draft, including its
+  amount and timestamp;
+- `df9ce7a` a new expense did not appear on the list until restart;
+- and alongside them `8312e9f` (seed language), `b6a16a6` (reset erased the
+  founding-user stamp), `7f0cc56` (demo data silent).
+
+The method is in `docs/DEVELOPMENT.md`, *Measuring on a device*.
+
+**Not done by this item:** `phase-1-complete` is the operator's to tag. The
+fixes above are on `phase/3-analytics-ui`, not on `main`, so tagging `main`
+as it stands would certify code without them.
+
+The history below is kept as it was written.
 
 **Re-checked 2026-09-26 — the build half is closed; the device half is not.**
 `flutter build apk --debug` succeeded on exit `64.49.12.178`, producing
@@ -387,5 +430,23 @@ decision rather than a bug fix:
 
 **Check:** fresh install → onboarding → add screen → "More details" →
 tap the payment-method tile. Resolved when that tap does something useful.
+
+---
+
+## D9 — "Saved" snackbar may cover the add button — unconfirmed on a device
+
+**Status:** open, unconfirmed. Found 2026-09-27 while writing the test for
+`b74636c`.
+
+In a widget test (an 800 × 600 view), tapping the list's + within the "Saved"
+snackbar's four seconds did not reach the button — Flutter reported the tap
+*"would not hit test on the specified widget"*. If the same happens on a
+phone, a second expense logged right after the first costs a wait or a
+missed tap. It has **not** been seen on the device: in the one back-to-back
+capture there, the second add was opened after the snackbar had gone.
+
+**Check:** on the phone, save an expense and tap + within four seconds. If the
+tap does not open the add screen, the FAB and the snackbar are on different
+Scaffolds (the list's and the shell's), so the FAB is not lifted above it.
 
 ---

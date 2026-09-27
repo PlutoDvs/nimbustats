@@ -162,6 +162,54 @@ why Visual Studio Build Tools 2022 is a genuine prerequisite on this machine —
 not an optional `flutter doctor` nicety. A machine without a C toolchain will
 fail host tests in the data layer.
 
+## Measuring on a device (proven 2026-09-27)
+
+Phase 1's hardware criteria are measured on a physical phone, on a
+**profile** build — a debug build's JIT makes the timings meaningless — and
+never on an emulator.
+
+- **Screen on and unlocked for the whole run.** A locked phone renders no
+  frames: startup tracing then waits forever, and the frame tool records
+  nothing and exits with an error. Check `adb shell dumpsys power` for
+  `mWakefulness=Awake` and `adb shell dumpsys window` for
+  `isKeyguardShowing=false` before each run.
+- `adb` is `C:\dev\android-sdk\platform-tools\adb.exe` and is not on PATH.
+- Build the profile APK once (`flutter build apk --profile`) and reuse it
+  with `--use-application-binary`, which skips Gradle — about 10 s a run.
+  Debug and profile builds share the debug signing key, so
+  `adb install -r` swaps between them and keeps the app's data.
+- 5,000+ rows come from **Settings → Seed 5,000 demo transactions**, which
+  exists in debug builds only. The rows survive installing the profile
+  build over it.
+
+**Cold start** — six runs; report run 1 (first after install) separately
+and the median of the other five:
+
+```
+flutter run --profile --trace-startup -d SERIAL \
+  --use-application-binary build/app/outputs/flutter-apk/app-profile.apk
+```
+
+Each run writes `build/start_up_info.json`; the number is
+`timeToFirstFrameRasterizedMicros`.
+
+**List frame timings** — the app open on the list:
+
+1. `flutter run --profile -d SERIAL --use-application-binary …` and leave it
+   running; from a script, keep its stdin open (`sleep 3000 | flutter run …`)
+   or it exits. Copy the "Dart VM service is listening on" address.
+2. From `app/`:
+   ```
+   dart run tool/frame_timings.dart --vm-service ADDRESS --serial SERIAL \
+     --adb C:/dev/android-sdk/platform-tools/adb.exe --out pass-1.json
+   ```
+3. One warm-up pass (`--swipes 10`, reported, not judged), then three
+   measured passes of 20 + 20 swipes. The bar: p99 of build and raster
+   ≤ 16.67 ms in every pass.
+
+The tool reads the `Flutter.Frame` event the framework posts for every frame
+in debug and profile builds — the same `FrameTiming` data as DevTools.
+
 ## `flutter doctor` state
 
 ```
