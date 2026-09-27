@@ -8,12 +8,16 @@ import '../../data/payment_method_repository.dart';
 import '../payment_method_manager_screen.dart';
 
 /// Opens the create/edit sheet for a payment method.
-Future<void> showPaymentMethodEditorSheet(
+///
+/// Resolves to the method just created, so a caller can put it straight to
+/// use -- the add screen's "+" selects it on the expense being entered. Null
+/// when the sheet was dismissed or an existing method was edited.
+Future<PaymentMethod?> showPaymentMethodEditorSheet(
   BuildContext context, {
   required PaymentMethodRepository repository,
   PaymentMethod? method,
 }) =>
-    showModalBottomSheet<void>(
+    showModalBottomSheet<PaymentMethod>(
       context: context,
       isScrollControlled: true,
       builder: (context) => PaymentMethodEditorSheet(
@@ -72,23 +76,24 @@ class _PaymentMethodEditorSheetState extends State<PaymentMethodEditorSheet> {
 
     final existing = widget.method;
     if (existing == null) {
-      await widget.repository.create(
+      final created = await widget.repository.create(
         name: name,
         kind: _kind,
         last4: last4,
         color: _color,
         iconKey: _iconKey,
       );
-    } else {
-      await widget.repository.update(
-        existing.id,
-        name: name,
-        kind: _kind,
-        last4: last4,
-        color: _color,
-        iconKey: _iconKey,
-      );
+      navigator.pop(created);
+      return;
     }
+    await widget.repository.update(
+      existing.id,
+      name: name,
+      kind: _kind,
+      last4: last4,
+      color: _color,
+      iconKey: _iconKey,
+    );
     navigator.pop();
   }
 

@@ -10,6 +10,8 @@ import 'package:nimbus_domain/nimbus_domain.dart';
 
 import '../../../l10n/app_localizations.dart';
 import '../../payment_methods/application/payment_method_providers.dart';
+import '../../payment_methods/data/default_payment_methods.dart';
+import '../../payment_methods/presentation/widgets/payment_method_editor_sheet.dart';
 import '../../settings/application/settings_providers.dart';
 import '../../tags/presentation/widgets/tag_picker_sheet.dart';
 import '../application/add_transaction_controller.dart';
@@ -246,45 +248,92 @@ class _PaymentMethodTile extends ConsumerWidget {
     final methods = ref.watch(pickablePaymentMethodsProvider).value ?? const [];
     final selected = methods.where((m) => m.id == state.paymentMethodId);
 
+    // "+" stays until there is a method of the user's own to pick; while only
+    // the first-run defaults exist, it is the way to add one without a trip
+    // to settings.
+    final hasOwn = methods.any((m) => !DefaultPaymentMethodIds.isDefault(m.id));
+
     return ListTile(
       key: const Key('tx-payment-method'),
       title: Text(l10n.txPaymentMethodLabel),
       subtitle: Text(selected.isEmpty ? l10n.payNone : selected.first.name),
       trailing: const Icon(Icons.chevron_right),
-      onTap: methods.isEmpty
-          ? null
-          : () async {
-              final chosen = await showModalBottomSheet<String?>(
-                context: context,
-                builder: (context) => SafeArea(
-                  child: ListView(
-                    shrinkWrap: true,
-                    children: [
-                      ListTile(
-                        key: const Key('tx-payment-none'),
-                        title: Text(l10n.payNone),
-                        onTap: () => Navigator.of(context).pop(),
-                      ),
-                      for (final method in methods)
-                        ListTile(
-                          key: Key('tx-payment-${method.id}'),
-                          leading: ExcludeSemantics(
-                            child: Icon(
-                              nimbusIconFor(method.iconKey),
-                              color: Color(method.color),
-                            ),
-                          ),
-                          title: Text(method.name),
-                          onTap: () => Navigator.of(context).pop(method.id),
-                        ),
-                    ],
-                  ),
+      // Always tappable: with no methods at all, the sheet is still where
+      // "+" lives. A disabled tile here read as a broken control.
+      onTap: () async {
+        final pick = await showModalBottomSheet<_PaymentPick>(
+          context: context,
+          builder: (context) => SafeArea(
+            child: ListView(
+              shrinkWrap: true,
+              children: [
+                ListTile(
+                  key: const Key('tx-payment-none'),
+                  title: Text(l10n.payNone),
+                  onTap: () => Navigator.of(context).pop(const _Choose(null)),
                 ),
-              );
-              controller.setPaymentMethod(chosen);
-            },
+                for (final method in methods)
+                  ListTile(
+                    key: Key('tx-payment-${method.id}'),
+                    leading: ExcludeSemantics(
+                      child: Icon(
+                        nimbusIconFor(method.iconKey),
+                        color: Color(method.color),
+                      ),
+                    ),
+                    title: Text(method.name),
+                    onTap: () => Navigator.of(context).pop(_Choose(method.id)),
+                  ),
+                if (!hasOwn)
+                  ListTile(
+                    key: const Key('tx-payment-add'),
+                    dense: true,
+                    leading: Icon(Icons.add,
+                        size: 20, color: Theme.of(context).colorScheme.primary),
+                    title: Text(
+                      l10n.payNewTitle,
+                      style: TextStyle(
+                          color: Theme.of(context).colorScheme.primary),
+                    ),
+                    onTap: () => Navigator.of(context).pop(const _AddNew()),
+                  ),
+              ],
+            ),
+          ),
+        );
+        switch (pick) {
+          // Dismissed: nothing was chosen, so nothing changes.
+          case null:
+            return;
+          case _Choose(:final id):
+            controller.setPaymentMethod(id);
+          case _AddNew():
+            if (!context.mounted) return;
+            final created = await showPaymentMethodEditorSheet(
+              context,
+              repository: ref.read(paymentMethodRepositoryProvider),
+            );
+            if (created != null) controller.setPaymentMethod(created.id);
+        }
+      },
     );
   }
+}
+
+/// How the payment picker was closed. Only an explicit row returns one;
+/// dismissing the sheet returns null, which leaves the choice as it was.
+sealed class _PaymentPick {
+  const _PaymentPick();
+}
+
+/// A method, or none when [id] is null.
+final class _Choose extends _PaymentPick {
+  const _Choose(this.id);
+  final String? id;
+}
+
+final class _AddNew extends _PaymentPick {
+  const _AddNew();
 }
 
 class _DateTile extends ConsumerWidget {

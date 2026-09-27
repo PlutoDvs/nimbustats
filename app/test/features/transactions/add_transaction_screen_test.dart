@@ -5,6 +5,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:nimbus_data/nimbus_data.dart';
 import 'package:nimbus_domain/nimbus_domain.dart';
+import 'package:nimbustats/features/payment_methods/data/default_payment_methods.dart';
+import 'package:nimbustats/features/payment_methods/data/payment_method_repository.dart';
 import 'package:nimbustats/features/settings/data/settings_keys.dart';
 import 'package:nimbustats/features/transactions/application/prediction_providers.dart';
 import 'package:nimbustats/features/transactions/data/transaction_draft.dart';
@@ -408,6 +410,114 @@ void main() {
         find.byKey(const Key('tx-chip-${SystemCategoryIds.uncategorized}')),
         findsNothing,
       );
+    });
+  });
+
+  group('the payment method picker', () {
+    // D8, found on a device: with no methods the tile was disabled and
+    // silent. First run now creates Cash and Card, and the picker offers
+    // "+" until the user has a method of their own.
+    Future<void> openPicker(WidgetTester tester) async {
+      final more = find.byKey(const Key('tx-more-details'));
+      if (find.byKey(const Key('tx-payment-method')).evaluate().isEmpty) {
+        await tester.tap(more);
+        await tester.pumpAndSettle();
+      }
+      final tile = find.byKey(const Key('tx-payment-method'));
+      await tester.ensureVisible(tile);
+      await tester.tap(tile);
+      await tester.pumpAndSettle();
+    }
+
+    final add = find.byKey(const Key('tx-payment-add'));
+
+    testWidgets('a new install offers Cash, Card, and a way to add one',
+        (tester) async {
+      await pumpApp(tester, seedFirstRun: true, initialLocation: '/add');
+      await openPicker(tester);
+
+      expect(find.byKey(const Key('tx-payment-${DefaultPaymentMethodIds.cash}')),
+          findsOneWidget);
+      expect(find.byKey(const Key('tx-payment-${DefaultPaymentMethodIds.card}')),
+          findsOneWidget);
+      expect(add, findsOneWidget);
+    });
+
+    testWidgets('"+" creates a method and puts it on this expense',
+        (tester) async {
+      final db =
+          await pumpApp(tester, seedFirstRun: true, initialLocation: '/add');
+      await openPicker(tester);
+      await tester.tap(add);
+      await tester.pumpAndSettle();
+      await tester.enterText(find.byKey(const Key('pay-name-field')), 'PayPal');
+      await tester.tap(find.byKey(const Key('pay-save')));
+      await tester.pumpAndSettle();
+
+      expect(
+        find.descendant(
+          of: find.byKey(const Key('tx-payment-method')),
+          matching: find.text('PayPal'),
+        ),
+        findsOneWidget,
+      );
+
+      await tester.enterText(find.byKey(const Key('tx-amount-field')), '1000');
+      await tester.tap(find.byKey(const Key('tx-save')));
+      await tester.pumpAndSettle();
+      final paypal = (await db.paymentMethodsDao.allLive())
+          .singleWhere((m) => m.name == 'PayPal');
+      final saved =
+          await db.transactionsDao.pageAfter(range: everything, limit: 5);
+      expect(saved.single.paymentMethodId, paypal.id);
+    });
+
+    testWidgets('"+" is gone once the user has a method of their own',
+        (tester) async {
+      final db =
+          await pumpApp(tester, seedFirstRun: true, initialLocation: '/add');
+      await PaymentMethodRepository(db.paymentMethodsDao)
+          .create(name: 'PayPal', kind: PaymentMethodKind.other);
+      await tester.pumpAndSettle();
+
+      await openPicker(tester);
+      expect(find.text('PayPal'), findsOneWidget);
+      expect(add, findsNothing);
+    });
+
+    testWidgets('dismissing the picker keeps the method already chosen',
+        (tester) async {
+      // Closing the sheet without picking used to report "none" and clear
+      // the choice; only an explicit row changes it now.
+      await pumpApp(tester, seedFirstRun: true, initialLocation: '/add');
+      await openPicker(tester);
+      await tester.tap(
+          find.byKey(const Key('tx-payment-${DefaultPaymentMethodIds.cash}')));
+      await tester.pumpAndSettle();
+
+      await openPicker(tester);
+      await tester.tapAt(const Offset(10, 10)); // the barrier, above the sheet
+      await tester.pumpAndSettle();
+
+      expect(
+        find.descendant(
+          of: find.byKey(const Key('tx-payment-method')),
+          matching: find.text('Cash'),
+        ),
+        findsOneWidget,
+      );
+    });
+
+    testWidgets('with no methods at all the tile still opens a way to add one',
+        (tester) async {
+      final db =
+          await pumpApp(tester, seedFirstRun: true, initialLocation: '/add');
+      await db.paymentMethodsDao.softDelete(DefaultPaymentMethodIds.cash);
+      await db.paymentMethodsDao.softDelete(DefaultPaymentMethodIds.card);
+      await tester.pumpAndSettle();
+
+      await openPicker(tester);
+      expect(add, findsOneWidget);
     });
   });
 }
