@@ -197,7 +197,15 @@ void main() {
       final ids = <String>[];
       for (var i = 0; i < 8; i++) {
         ids.add(Ids.newId());
-        await Future<void>.delayed(const Duration(milliseconds: 2));
+        // A fixed sleep cannot guarantee the clock actually advanced: on
+        // Windows, DateTime.now()'s granularity is coarser than a couple of
+        // milliseconds (roughly 1-15.6 ms), so a short fixed delay can land
+        // back inside the same millisecond under load. Poll until the clock
+        // itself reports a new millisecond instead of assuming a sleep did.
+        final before = DateTime.now().millisecondsSinceEpoch;
+        while (DateTime.now().millisecondsSinceEpoch == before) {
+          await Future<void>.delayed(const Duration(milliseconds: 1));
+        }
       }
       expect([...ids]..sort(), ids);
     });
