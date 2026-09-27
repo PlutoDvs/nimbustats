@@ -173,6 +173,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get dashboardAddStarters => 'Add starter cards';
 
   @override
+  String get dashboardAvoidableRegretted => 'Avoidable and regretted';
+
+  @override
   String get dashboardCardEmpty => 'Nothing in this period';
 
   @override
@@ -190,6 +193,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get dashboardGoToBreakdown => 'Go to Breakdown';
+
+  @override
+  String get dashboardOverlapNote =>
+      'Tags overlap, so cells add up to more than the total.';
 
   @override
   String get navAnalytics => 'Analytics';

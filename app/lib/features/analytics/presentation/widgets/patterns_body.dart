@@ -113,10 +113,18 @@ class HourOfDayChart extends StatelessWidget {
     super.key,
     required this.result,
     required this.formatter,
+    this.height = 180,
+    this.showAxes = true,
   });
 
   final AnalyticsResult result;
   final MoneyFormatter formatter;
+
+  final double height;
+
+  /// False on a dashboard card: the shape is the message at that size, and
+  /// axis labels would take half the room.
+  final bool showAxes;
 
   @override
   Widget build(BuildContext context) {
@@ -128,7 +136,7 @@ class HourOfDayChart extends StatelessWidget {
         if (bucket.key case HourOfDayKey(:final hour)) hour: bucket.money,
     };
     return SizedBox(
-      height: 180,
+      height: height,
       child: BarChart(
         key: const Key('patterns-hour-chart'),
         _barData(
@@ -142,6 +150,7 @@ class HourOfDayChart extends StatelessWidget {
           // the exact hour is available by touch.
           labelEvery: 6,
           labelOf: (hour) => '$hour',
+          showAxes: showAxes,
         ),
       ),
     );
@@ -155,11 +164,19 @@ class DayOfWeekChart extends StatelessWidget {
     required this.result,
     required this.firstDayOfWeek,
     required this.formatter,
+    this.height = 180,
+    this.showAxes = true,
   });
 
   final AnalyticsResult result;
   final int firstDayOfWeek;
   final MoneyFormatter formatter;
+
+  final double height;
+
+  /// False on a dashboard card: the shape is the message at that size, and
+  /// axis labels would take half the room.
+  final bool showAxes;
 
   @override
   Widget build(BuildContext context) {
@@ -170,7 +187,7 @@ class DayOfWeekChart extends StatelessWidget {
     };
     final order = weekdaysFrom(firstDayOfWeek);
     return SizedBox(
-      height: 180,
+      height: height,
       child: BarChart(
         key: const Key('patterns-weekday-chart'),
         _barData(
@@ -183,6 +200,7 @@ class DayOfWeekChart extends StatelessWidget {
           labelEvery: 1,
           labelOf: (index) => _weekdayName(l10n, order[index]),
           labelKeyPrefix: 'patterns-weekday-label',
+          showAxes: showAxes,
         ),
       ),
     );
@@ -196,8 +214,27 @@ BarChartData _barData(
   required int labelEvery,
   required String Function(int) labelOf,
   String? labelKeyPrefix,
+  bool showAxes = true,
 }) {
   final theme = Theme.of(context);
+  if (!showAxes) {
+    return BarChartData(
+      barGroups: [
+        for (final (x, amount) in bars)
+          BarChartGroupData(x: x, barRods: [
+            BarChartRodData(
+              toY: amount.minorUnits.toDouble(),
+              color: Theme.of(context).colorScheme.primary,
+              width: 4,
+            ),
+          ]),
+      ],
+      titlesData: FlTitlesData(show: false),
+      gridData: FlGridData(show: false),
+      borderData: FlBorderData(show: false),
+      barTouchData: BarTouchData(enabled: false),
+    );
+  }
   return BarChartData(
     barGroups: [
       for (final (x, amount) in bars)

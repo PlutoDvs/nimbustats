@@ -380,6 +380,12 @@ abstract class AppLocalizations {
   /// **'Add starter cards'**
   String get dashboardAddStarters;
 
+  /// No description provided for @dashboardAvoidableRegretted.
+  ///
+  /// In en, this message translates to:
+  /// **'Avoidable and regretted'**
+  String get dashboardAvoidableRegretted;
+
   /// No description provided for @dashboardCardEmpty.
   ///
   /// In en, this message translates to:
@@ -415,6 +421,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Go to Breakdown'**
   String get dashboardGoToBreakdown;
+
+  /// No description provided for @dashboardOverlapNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Tags overlap, so cells add up to more than the total.'**
+  String get dashboardOverlapNote;
 
   /// No description provided for @navAnalytics.
   ///

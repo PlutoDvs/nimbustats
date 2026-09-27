@@ -8,6 +8,7 @@ import '../../../../l10n/app_localizations.dart';
 import '../../../settings/application/settings_providers.dart';
 import '../../application/analytics_providers.dart';
 import '../../application/dashboard_anchor.dart';
+import 'card_previews.dart';
 
 /// One pinned view on the dashboard.
 ///
@@ -115,7 +116,9 @@ class _Readable extends ConsumerWidget {
             l10n.dashboardCardEmpty,
             key: Key('card-empty-${view.id}'),
             style: theme.textTheme.bodyMedium,
-          ),
+          )
+        else
+          CardPreview(view: view, spec: spec, result: data),
       ],
     );
   }

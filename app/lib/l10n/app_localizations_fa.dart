@@ -172,6 +172,9 @@ class AppLocalizationsFa extends AppLocalizations {
   String get dashboardAddStarters => 'افزودن کارت‌های آغازین';
 
   @override
+  String get dashboardAvoidableRegretted => 'قابل اجتناب و پشیمان';
+
+  @override
   String get dashboardCardEmpty => 'در این بازه چیزی نیست';
 
   @override
@@ -189,6 +192,10 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get dashboardGoToBreakdown => 'رفتن به تفکیک';
+
+  @override
+  String get dashboardOverlapNote =>
+      'برچسب‌ها هم‌پوشانی دارند؛ جمع خانه‌ها از کل بیشتر است.';
 
   @override
   String get navAnalytics => 'تحلیل‌ها';

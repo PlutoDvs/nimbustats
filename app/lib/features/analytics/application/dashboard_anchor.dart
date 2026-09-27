@@ -58,3 +58,22 @@ String viewPeriodLabel(
   );
   return first == last ? first : '$first – $last';
 }
+
+/// The periods a trend view plots: its resolved window, cut into the periods
+/// it groups by.
+List<DateRange> trendPeriods(
+  QuerySpec resolved,
+  AppCalendar calendar, {
+  required int firstDayOfWeek,
+}) {
+  final groupBy = resolved.groupBy;
+  if (groupBy is! GroupByPeriod) {
+    throw ArgumentError.value(groupBy, 'resolved', 'a trend groups by period');
+  }
+  return PeriodBoundaries.series(
+    groupBy.period,
+    resolved.filters.dateRange!,
+    calendar,
+    firstDayOfWeek: firstDayOfWeek,
+  );
+}
