@@ -25,11 +25,17 @@ class MonthBar extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
     final calendar = ref.watch(calendarProvider);
+    // chevron_left/chevron_right do not mirror on their own -- in RTL the
+    // buttons swap sides but the glyphs would keep pointing the same way, so
+    // "previous" would draw an arrow that points further into the future.
+    // Pick the glyph from the ambient direction instead of hardcoding it, so
+    // the arrow always points back in time regardless of script.
+    final rtl = Directionality.of(context) == TextDirection.rtl;
     return Row(
       children: [
         IconButton(
           key: Key('$keyPrefix-previous'),
-          icon: const Icon(Icons.chevron_left),
+          icon: Icon(rtl ? Icons.chevron_right : Icons.chevron_left),
           tooltip: l10n.periodPreviousMonth,
           onPressed: () => onShift(-1),
         ),
@@ -48,7 +54,7 @@ class MonthBar extends ConsumerWidget {
         ),
         IconButton(
           key: Key('$keyPrefix-next'),
-          icon: const Icon(Icons.chevron_right),
+          icon: Icon(rtl ? Icons.chevron_left : Icons.chevron_right),
           tooltip: l10n.periodNextMonth,
           onPressed: () => onShift(1),
         ),

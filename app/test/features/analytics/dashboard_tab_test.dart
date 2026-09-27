@@ -119,6 +119,44 @@ void main() {
     expect(textOf(tester, 'card-total-$breakdown'), total1750);
   });
 
+  testWidgets('the month arrows mirror in Persian', (tester) async {
+    Icon iconAt(String key) =>
+        tester.widget<IconButton>(find.byKey(Key(key))).icon as Icon;
+
+    final faDb = await categorisedDb();
+    addTearDown(faDb.close);
+    await seedSpending(faDb);
+    final (breakdown, trend) =
+        await pinStarters(faDb, locale: const Locale('fa'));
+    await openAnalytics(tester, faDb, locale: const Locale('fa'));
+
+    // fa is RTL: "previous" sits on the visual right, so its glyph must point
+    // right to still read as backward-in-time, and "next" points left.
+    expect(iconAt('dashboard-period-previous').icon, Icons.chevron_right);
+    expect(iconAt('dashboard-period-next').icon, Icons.chevron_left);
+
+    // The callback decides direction, not the glyph: previous still moves to
+    // the earlier month even though its arrow now points right.
+    await tester.tap(find.byKey(const Key('dashboard-period-previous')));
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(Key('card-empty-$breakdown')), findsOneWidget);
+    expect(find.byKey(Key('card-empty-$trend')), findsOneWidget);
+
+    await tester.tap(find.byKey(const Key('dashboard-period-next')));
+    await tester.pumpAndSettle();
+
+    expect(textOf(tester, 'card-total-$breakdown'), total1750);
+
+    final enDb = await categorisedDb();
+    addTearDown(enDb.close);
+    await openAnalytics(tester, enDb);
+
+    // en is LTR: the glyphs point the other way round.
+    expect(iconAt('dashboard-period-previous').icon, Icons.chevron_left);
+    expect(iconAt('dashboard-period-next').icon, Icons.chevron_right);
+  });
+
   testWidgets('an unreadable view is its own card and the others still draw',
       (tester) async {
     final db = await categorisedDb();
