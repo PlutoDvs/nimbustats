@@ -50,6 +50,7 @@
   "dashboardAvoidableRegretted": "قابل اجتناب و پشیمان",
   "dashboardCardEmpty": "در این بازه چیزی نیست",
   "dashboardCardError": "این کارت بارگیری نشد",
+  "dashboardCardNoTags": "در این بازه هزینهٔ برچسب‌داری نیست",
   "dashboardEmptyBody": "هر نموداری را با دکمهٔ سنجاقش اینجا نگه دارید، یا با دو نمودار رایج شروع کنید.",
   "dashboardEmptyTitle": "هنوز چیزی سنجاق نشده",
   "dashboardErrorTitle": "داشبورد بارگیری نشد",

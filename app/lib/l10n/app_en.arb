@@ -71,6 +71,7 @@
   "dashboardAvoidableRegretted": "Avoidable and regretted",
   "dashboardCardEmpty": "Nothing in this period",
   "dashboardCardError": "This card could not load",
+  "dashboardCardNoTags": "No tagged spending in this period",
   "dashboardEmptyBody": "Pin any chart with its pin button to keep it here, or start with two common ones.",
   "dashboardEmptyTitle": "Nothing pinned yet",
   "dashboardErrorTitle": "Could not load the dashboard",

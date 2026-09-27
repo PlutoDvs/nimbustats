@@ -79,6 +79,25 @@ void main() {
     expect(_inCard(id, find.text('Travel · Food')), findsOneWidget);
   });
 
+  testWidgets('a cross-tab card with no tagged spending says so',
+      (tester) async {
+    final db = await categorisedDb();
+    addTearDown(db.close);
+    await seedSpending(db);
+    final id = await _pin(
+        db, CrossTabView(period: _month).spec, SavedViewChart.crossTab);
+    await openAnalytics(tester, db);
+
+    expect(
+      _inCard(id, find.text('No tagged spending in this period')),
+      findsOneWidget,
+    );
+    expect(
+      _inCard(id, find.text('Nothing in this period')),
+      findsNothing,
+    );
+  });
+
   testWidgets('hour and weekday cards draw bars', (tester) async {
     final db = await categorisedDb();
     addTearDown(db.close);

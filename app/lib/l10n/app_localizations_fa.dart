@@ -181,6 +181,9 @@ class AppLocalizationsFa extends AppLocalizations {
   String get dashboardCardError => 'این کارت بارگیری نشد';
 
   @override
+  String get dashboardCardNoTags => 'در این بازه هزینهٔ برچسب‌داری نیست';
+
+  @override
   String get dashboardEmptyBody =>
       'هر نموداری را با دکمهٔ سنجاقش اینجا نگه دارید، یا با دو نمودار رایج شروع کنید.';
 

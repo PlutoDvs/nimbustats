@@ -182,6 +182,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get dashboardCardError => 'This card could not load';
 
   @override
+  String get dashboardCardNoTags => 'No tagged spending in this period';
+
+  @override
   String get dashboardEmptyBody =>
       'Pin any chart with its pin button to keep it here, or start with two common ones.';
 

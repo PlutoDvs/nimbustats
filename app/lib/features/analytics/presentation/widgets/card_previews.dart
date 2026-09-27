@@ -228,7 +228,11 @@ class _CrossTabPreview extends ConsumerWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         if (cells.isEmpty)
-          Text(l10n.dashboardCardEmpty)
+          // The card's own empty state already covers a period with no
+          // spending (CardPreview only builds once trueCount != 0), so an
+          // empty tag matrix here means there is spending, just none of it
+          // tagged.
+          Text(l10n.dashboardCardNoTags)
         else
           for (final cell in cells.take(3))
             Row(

@@ -398,6 +398,12 @@ abstract class AppLocalizations {
   /// **'This card could not load'**
   String get dashboardCardError;
 
+  /// No description provided for @dashboardCardNoTags.
+  ///
+  /// In en, this message translates to:
+  /// **'No tagged spending in this period'**
+  String get dashboardCardNoTags;
+
   /// No description provided for @dashboardEmptyBody.
   ///
   /// In en, this message translates to:
