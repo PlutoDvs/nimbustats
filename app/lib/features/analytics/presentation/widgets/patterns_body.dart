@@ -16,6 +16,9 @@ class PatternsBody extends StatelessWidget {
     required this.reflection,
     required this.firstDayOfWeek,
     required this.formatter,
+    required this.hourPin,
+    required this.weekdayPin,
+    required this.reflectionPin,
   });
 
   final AnalyticsResult byHour;
@@ -23,6 +26,12 @@ class PatternsBody extends StatelessWidget {
   final AnalyticsResult reflection;
   final int firstDayOfWeek;
   final MoneyFormatter formatter;
+
+  /// Each chart's own pin, beside its title. Pins are per chart rather than
+  /// per tab because the dashboard draws them one at a time.
+  final Widget hourPin;
+  final Widget weekdayPin;
+  final Widget reflectionPin;
 
   @override
   Widget build(BuildContext context) {
@@ -37,25 +46,61 @@ class PatternsBody extends StatelessWidget {
 
     final theme = Theme.of(context);
 
-    return ListView(
+    return SingleChildScrollView(
       padding: const EdgeInsets.all(NimbusTokens.space4),
-      children: [
-        Text(l10n.patternsHourOfDay, style: theme.textTheme.titleMedium),
-        const SizedBox(height: NimbusTokens.space2),
-        HourOfDayChart(result: byHour, formatter: formatter),
-        const SizedBox(height: NimbusTokens.space6),
-        Text(l10n.patternsDayOfWeek, style: theme.textTheme.titleMedium),
-        const SizedBox(height: NimbusTokens.space2),
-        DayOfWeekChart(
-          result: byWeekday,
-          firstDayOfWeek: firstDayOfWeek,
-          formatter: formatter,
-        ),
-        const SizedBox(height: NimbusTokens.space6),
-        Text(l10n.patternsReflection, style: theme.textTheme.titleMedium),
-        const SizedBox(height: NimbusTokens.space2),
-        ReflectionMatrix(result: reflection, formatter: formatter),
-      ],
+      // A plain Column, not ListView: three fixed sections gain nothing from
+      // virtualization, and a virtualized list can leave the last section
+      // unbuilt when its header grows taller than plain text once was.
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  l10n.patternsHourOfDay,
+                  style: theme.textTheme.titleMedium,
+                ),
+              ),
+              hourPin,
+            ],
+          ),
+          const SizedBox(height: NimbusTokens.space2),
+          HourOfDayChart(result: byHour, formatter: formatter),
+          const SizedBox(height: NimbusTokens.space6),
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  l10n.patternsDayOfWeek,
+                  style: theme.textTheme.titleMedium,
+                ),
+              ),
+              weekdayPin,
+            ],
+          ),
+          const SizedBox(height: NimbusTokens.space2),
+          DayOfWeekChart(
+            result: byWeekday,
+            firstDayOfWeek: firstDayOfWeek,
+            formatter: formatter,
+          ),
+          const SizedBox(height: NimbusTokens.space6),
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  l10n.patternsReflection,
+                  style: theme.textTheme.titleMedium,
+                ),
+              ),
+              reflectionPin,
+            ],
+          ),
+          const SizedBox(height: NimbusTokens.space2),
+          ReflectionMatrix(result: reflection, formatter: formatter),
+        ],
+      ),
     );
   }
 }
@@ -189,7 +234,9 @@ BarChartData _barData(
             if (index % labelEvery != 0) return const SizedBox.shrink();
             return Text(
               labelOf(index),
-              key: labelKeyPrefix == null ? null : Key('$labelKeyPrefix-$index'),
+              key: labelKeyPrefix == null
+                  ? null
+                  : Key('$labelKeyPrefix-$index'),
               style: theme.textTheme.labelSmall,
             );
           },
@@ -229,7 +276,10 @@ class ReflectionMatrix extends StatelessWidget {
 
     final cells = <(NecessityLevel?, SatisfactionLevel?), Money>{
       for (final bucket in result.buckets)
-        if (bucket.key case ReflectionKey(:final necessity, :final satisfaction))
+        if (bucket.key case ReflectionKey(
+          :final necessity,
+          :final satisfaction,
+        ))
           (necessity, satisfaction): bucket.money,
     };
 
@@ -251,17 +301,17 @@ class ReflectionMatrix extends StatelessWidget {
     ];
 
     String necessityName(NecessityLevel? level) => switch (level) {
-          NecessityLevel.needed => l10n.txNecessityNeeded,
-          NecessityLevel.optional => l10n.txNecessityOptional,
-          NecessityLevel.avoidable => l10n.txNecessityAvoidable,
-          null => l10n.reflectionUnset,
-        };
+      NecessityLevel.needed => l10n.txNecessityNeeded,
+      NecessityLevel.optional => l10n.txNecessityOptional,
+      NecessityLevel.avoidable => l10n.txNecessityAvoidable,
+      null => l10n.reflectionUnset,
+    };
     String satisfactionName(SatisfactionLevel? level) => switch (level) {
-          SatisfactionLevel.glad => l10n.txSatisfactionGlad,
-          SatisfactionLevel.neutral => l10n.txSatisfactionNeutral,
-          SatisfactionLevel.regret => l10n.txSatisfactionRegret,
-          null => l10n.reflectionUnset,
-        };
+      SatisfactionLevel.glad => l10n.txSatisfactionGlad,
+      SatisfactionLevel.neutral => l10n.txSatisfactionNeutral,
+      SatisfactionLevel.regret => l10n.txSatisfactionRegret,
+      null => l10n.reflectionUnset,
+    };
     String slug(Enum? level) => level?.name ?? 'unset';
 
     return SingleChildScrollView(
@@ -310,12 +360,14 @@ class ReflectionMatrix extends StatelessWidget {
                         // are different claims.
                         null => const SizedBox.shrink(),
                         final amount => Text(
-                            formatter.format(amount),
-                            key: Key('patterns-reflection-'
-                                '${slug(necessity)}-${slug(satisfaction)}'),
-                            textAlign: TextAlign.end,
-                            style: theme.textTheme.bodyMedium,
+                          formatter.format(amount),
+                          key: Key(
+                            'patterns-reflection-'
+                            '${slug(necessity)}-${slug(satisfaction)}',
                           ),
+                          textAlign: TextAlign.end,
+                          style: theme.textTheme.bodyMedium,
+                        ),
                       },
                     ),
                   ),

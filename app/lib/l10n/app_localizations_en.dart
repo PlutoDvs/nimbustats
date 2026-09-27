@@ -267,6 +267,20 @@ class AppLocalizationsEn extends AppLocalizations {
   String get payNone => 'None';
 
   @override
+  String pinNameLastMonths(int count) {
+    return 'Last $count months';
+  }
+
+  @override
+  String get pinNameSpendingByCategory => 'Spending by category';
+
+  @override
+  String get pinToDashboard => 'Pin to dashboard';
+
+  @override
+  String get pinnedToDashboard => 'Pinned to the dashboard';
+
+  @override
   String get reflectionUnset => 'Not set';
 
   @override
@@ -573,6 +587,18 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get uncategorized => 'Uncategorized';
+
+  @override
+  String get viewCoversCurrentMonth =>
+      'Shows whichever month the dashboard is on';
+
+  @override
+  String viewCoversLastMonths(int count) {
+    return 'Shows $count months, ending with the dashboard\'s month';
+  }
+
+  @override
+  String get viewNameLabel => 'Name';
 
   @override
   String get weekdayFriday => 'Fri';

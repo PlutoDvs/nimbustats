@@ -266,6 +266,20 @@ class AppLocalizationsFa extends AppLocalizations {
   String get payNone => 'هیچ‌کدام';
 
   @override
+  String pinNameLastMonths(int count) {
+    return '$count ماه اخیر';
+  }
+
+  @override
+  String get pinNameSpendingByCategory => 'هزینه‌ها به تفکیک دسته';
+
+  @override
+  String get pinToDashboard => 'سنجاق به داشبورد';
+
+  @override
+  String get pinnedToDashboard => 'به داشبورد سنجاق شد';
+
+  @override
   String get reflectionUnset => 'ثبت‌نشده';
 
   @override
@@ -571,6 +585,18 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get uncategorized => 'دسته‌بندی‌نشده';
+
+  @override
+  String get viewCoversCurrentMonth =>
+      'همان ماهی را نشان می‌دهد که داشبورد روی آن است';
+
+  @override
+  String viewCoversLastMonths(int count) {
+    return '$count ماه را تا ماهِ داشبورد نشان می‌دهد';
+  }
+
+  @override
+  String get viewNameLabel => 'نام';
 
   @override
   String get weekdayFriday => 'جمعه';

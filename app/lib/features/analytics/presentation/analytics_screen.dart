@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nimbus_design/nimbus_design.dart';
+import 'package:nimbus_domain/nimbus_domain.dart';
 
 import '../../../l10n/app_localizations.dart';
 import '../../categories/application/category_providers.dart';
@@ -12,9 +13,11 @@ import '../application/cross_tab_controller.dart';
 import '../application/patterns_controller.dart';
 import '../application/period_label.dart';
 import '../application/trends_controller.dart';
+import '../data/pin_request.dart';
 import 'widgets/breakdown_body.dart';
 import 'widgets/cross_tab_body.dart';
 import 'widgets/patterns_body.dart';
+import 'widgets/pin_button.dart';
 import 'widgets/trends_body.dart';
 
 /// The analytics destination.
@@ -109,6 +112,7 @@ class _BreakdownTab extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
     final view = ref.watch(breakdownControllerProvider);
     final controller = ref.read(breakdownControllerProvider.notifier);
     final result = ref.watch(analyticsResultProvider(view.spec));
@@ -117,10 +121,25 @@ class _BreakdownTab extends ConsumerWidget {
     return Column(
       children: [
         _PeriodBar(view: view, controller: controller),
-        _ConfirmedOnlySwitch(
-          value: view.confirmedOnly,
-          onChanged: (value) => controller.setConfirmedOnly(value: value),
-          tileKey: const Key('breakdown-confirmed-only'),
+        Row(
+          children: [
+            Expanded(
+              child: _ConfirmedOnlySwitch(
+                value: view.confirmedOnly,
+                onChanged: (value) => controller.setConfirmedOnly(value: value),
+                tileKey: const Key('breakdown-confirmed-only'),
+              ),
+            ),
+            _monthPin(
+              // Drilled in, the card is about that category; at the roots it
+              // is the whole breakdown.
+              view.trail.isEmpty
+                  ? l10n.pinNameSpendingByCategory
+                  : view.trail.last.name,
+              view.spec,
+              SavedViewChart.breakdown,
+            ),
+          ],
         ),
         if (view.trail.isNotEmpty)
           _Breadcrumb(trail: view.trail, controller: controller),
@@ -157,16 +176,31 @@ class _TrendsTab extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
     final view = ref.watch(trendsControllerProvider);
     final controller = ref.read(trendsControllerProvider.notifier);
     final result = ref.watch(analyticsResultProvider(view.spec));
 
     return Column(
       children: [
-        _ConfirmedOnlySwitch(
-          value: view.confirmedOnly,
-          onChanged: (value) => controller.setConfirmedOnly(value: value),
-          tileKey: const Key('trends-confirmed-only'),
+        Row(
+          children: [
+            Expanded(
+              child: _ConfirmedOnlySwitch(
+                value: view.confirmedOnly,
+                onChanged: (value) => controller.setConfirmedOnly(value: value),
+                tileKey: const Key('trends-confirmed-only'),
+              ),
+            ),
+            PinButton(
+              request: PinRequest.fromShown(
+                name: l10n.pinNameLastMonths(view.periods.length),
+                shownSpec: view.spec,
+                period: ViewPeriod(PeriodType.month, view.periods.length),
+                chart: SavedViewChart.trend,
+              ),
+            ),
+          ],
         ),
         Expanded(
           child: _AsyncChart(
@@ -189,6 +223,7 @@ class _CrossTabTab extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
     final view = ref.watch(crossTabControllerProvider);
     final controller = ref.read(crossTabControllerProvider.notifier);
     final result = ref.watch(analyticsResultProvider(view.spec));
@@ -197,10 +232,18 @@ class _CrossTabTab extends ConsumerWidget {
 
     return Column(
       children: [
-        _ConfirmedOnlySwitch(
-          value: view.confirmedOnly,
-          onChanged: (value) => controller.setConfirmedOnly(value: value),
-          tileKey: const Key('crosstab-confirmed-only'),
+        Row(
+          children: [
+            Expanded(
+              child: _ConfirmedOnlySwitch(
+                value: view.confirmedOnly,
+                onChanged: (value) => controller.setConfirmedOnly(value: value),
+                tileKey: const Key('crosstab-confirmed-only'),
+              ),
+            ),
+            _monthPin(l10n.analyticsTabCrossTab, view.spec,
+                SavedViewChart.crossTab),
+          ],
         ),
         Expanded(
           // Three futures, one screen: the cells, and the names for each axis.
@@ -241,6 +284,7 @@ class _PatternsTab extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
     final view = ref.watch(patternsControllerProvider);
     final controller = ref.read(patternsControllerProvider.notifier);
     final hour = ref.watch(analyticsResultProvider(view.hourSpec));
@@ -280,6 +324,12 @@ class _PatternsTab extends ConsumerWidget {
                 reflection: byReflection,
                 firstDayOfWeek: ref.watch(firstDayOfWeekProvider),
                 formatter: ref.watch(moneyFormatterProvider),
+                hourPin: _monthPin(l10n.patternsHourOfDay, view.hourSpec,
+                    SavedViewChart.hourOfDay),
+                weekdayPin: _monthPin(l10n.patternsDayOfWeek,
+                    view.weekdaySpec, SavedViewChart.dayOfWeek),
+                reflectionPin: _monthPin(l10n.patternsReflection,
+                    view.reflectionSpec, SavedViewChart.reflection),
               ),
             _ => const NimbusLoadingList(),
           },
@@ -385,3 +435,14 @@ class _Breadcrumb extends StatelessWidget {
     );
   }
 }
+
+/// A pin for a one-month view -- every tab except Trends.
+PinButton _monthPin(String name, QuerySpec shown, SavedViewChart chart) =>
+    PinButton(
+      request: PinRequest.fromShown(
+        name: name,
+        shownSpec: shown,
+        period: ViewPeriod(PeriodType.month, 1),
+        chart: chart,
+      ),
+    );

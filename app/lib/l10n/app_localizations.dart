@@ -560,6 +560,30 @@ abstract class AppLocalizations {
   /// **'None'**
   String get payNone;
 
+  /// No description provided for @pinNameLastMonths.
+  ///
+  /// In en, this message translates to:
+  /// **'Last {count} months'**
+  String pinNameLastMonths(int count);
+
+  /// No description provided for @pinNameSpendingByCategory.
+  ///
+  /// In en, this message translates to:
+  /// **'Spending by category'**
+  String get pinNameSpendingByCategory;
+
+  /// No description provided for @pinToDashboard.
+  ///
+  /// In en, this message translates to:
+  /// **'Pin to dashboard'**
+  String get pinToDashboard;
+
+  /// No description provided for @pinnedToDashboard.
+  ///
+  /// In en, this message translates to:
+  /// **'Pinned to the dashboard'**
+  String get pinnedToDashboard;
+
   /// No description provided for @reflectionUnset.
   ///
   /// In en, this message translates to:
@@ -1141,6 +1165,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Uncategorized'**
   String get uncategorized;
+
+  /// No description provided for @viewCoversCurrentMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'Shows whichever month the dashboard is on'**
+  String get viewCoversCurrentMonth;
+
+  /// No description provided for @viewCoversLastMonths.
+  ///
+  /// In en, this message translates to:
+  /// **'Shows {count} months, ending with the dashboard\'s month'**
+  String viewCoversLastMonths(int count);
+
+  /// No description provided for @viewNameLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Name'**
+  String get viewNameLabel;
 
   /// No description provided for @weekdayFriday.
   ///

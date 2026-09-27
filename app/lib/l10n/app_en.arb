@@ -105,6 +105,17 @@
   "payNameLabel": "Name",
   "payNewTitle": "New payment method",
   "payNone": "None",
+  "pinNameLastMonths": "Last {count} months",
+  "@pinNameLastMonths": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "pinNameSpendingByCategory": "Spending by category",
+  "pinToDashboard": "Pin to dashboard",
+  "pinnedToDashboard": "Pinned to the dashboard",
   "reflectionUnset": "Not set",
   "routeNotFoundBody": "That screen does not exist.",
   "routeNotFoundGoHome": "Go to transactions",
@@ -230,6 +241,16 @@
   "txSearchHint": "Search merchant or note",
   "txTagsLabel": "Tags",
   "uncategorized": "Uncategorized",
+  "viewCoversCurrentMonth": "Shows whichever month the dashboard is on",
+  "viewCoversLastMonths": "Shows {count} months, ending with the dashboard's month",
+  "@viewCoversLastMonths": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "viewNameLabel": "Name",
   "weekdayFriday": "Fri",
   "weekdayMonday": "Mon",
   "weekdaySaturday": "Sat",
