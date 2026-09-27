@@ -274,10 +274,10 @@ class AppLocalizationsFa extends AppLocalizations {
   String get pinNameSpendingByCategory => 'هزینه‌ها به تفکیک دسته';
 
   @override
-  String get pinToDashboard => 'سنجاق به داشبورد';
+  String get pinnedToDashboard => 'به داشبورد سنجاق شد';
 
   @override
-  String get pinnedToDashboard => 'به داشبورد سنجاق شد';
+  String get pinToDashboard => 'سنجاق به داشبورد';
 
   @override
   String get reflectionUnset => 'ثبت‌نشده';

@@ -572,17 +572,17 @@ abstract class AppLocalizations {
   /// **'Spending by category'**
   String get pinNameSpendingByCategory;
 
-  /// No description provided for @pinToDashboard.
-  ///
-  /// In en, this message translates to:
-  /// **'Pin to dashboard'**
-  String get pinToDashboard;
-
   /// No description provided for @pinnedToDashboard.
   ///
   /// In en, this message translates to:
   /// **'Pinned to the dashboard'**
   String get pinnedToDashboard;
+
+  /// No description provided for @pinToDashboard.
+  ///
+  /// In en, this message translates to:
+  /// **'Pin to dashboard'**
+  String get pinToDashboard;
 
   /// No description provided for @reflectionUnset.
   ///

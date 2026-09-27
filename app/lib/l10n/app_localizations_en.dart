@@ -275,10 +275,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get pinNameSpendingByCategory => 'Spending by category';
 
   @override
-  String get pinToDashboard => 'Pin to dashboard';
+  String get pinnedToDashboard => 'Pinned to the dashboard';
 
   @override
-  String get pinnedToDashboard => 'Pinned to the dashboard';
+  String get pinToDashboard => 'Pin to dashboard';
 
   @override
   String get reflectionUnset => 'Not set';

@@ -114,8 +114,8 @@
     }
   },
   "pinNameSpendingByCategory": "Spending by category",
-  "pinToDashboard": "Pin to dashboard",
   "pinnedToDashboard": "Pinned to the dashboard",
+  "pinToDashboard": "Pin to dashboard",
   "reflectionUnset": "Not set",
   "routeNotFoundBody": "That screen does not exist.",
   "routeNotFoundGoHome": "Go to transactions",
