@@ -1212,13 +1212,61 @@ class SavedViewsDao {
     });
   }
 
-  Future<void> softDelete(String id) {
-    final now = DateTime.now().millisecondsSinceEpoch;
-    return (_db.update(_db.savedViews)..where((t) => t.id.equals(id)))
-        .write(SavedViewsCompanion(
+  Future<void> rename(String id, String name) async {
+    final written =
+        await (_db.update(_db.savedViews)..where((t) => t.id.equals(id)))
+            .write(SavedViewsCompanion(
+      name: Value(name),
+      updatedAt: Value(_now()),
+    ));
+    _expectOne(written, id);
+  }
+
+  /// Makes [ids] the dashboard's order: each view's position in the list
+  /// becomes its sort order. One transaction -- a half-applied order would
+  /// leave two cards claiming the same slot. Callers pass every pinned view.
+  Future<void> reorder(List<String> ids) => _db.transaction(() async {
+        final now = _now();
+        for (final (index, id) in ids.indexed) {
+          final written =
+              await (_db.update(_db.savedViews)..where((t) => t.id.equals(id)))
+                  .write(SavedViewsCompanion(
+            sortOrder: Value(index),
+            updatedAt: Value(now),
+          ));
+          _expectOne(written, id);
+        }
+      });
+
+  Future<void> softDelete(String id) async {
+    final now = _now();
+    final written =
+        await (_db.update(_db.savedViews)..where((t) => t.id.equals(id)))
+            .write(SavedViewsCompanion(
       deletedAt: Value(now),
       updatedAt: Value(now),
     ));
+    _expectOne(written, id);
+  }
+
+  /// The undo behind "Remove". The view's sort order was never reused
+  /// (see [create]), so it returns to the place it left.
+  Future<void> restore(String id) async {
+    final written =
+        await (_db.update(_db.savedViews)..where((t) => t.id.equals(id)))
+            .write(SavedViewsCompanion(
+      deletedAt: const Value(null),
+      updatedAt: Value(_now()),
+    ));
+    _expectOne(written, id);
+  }
+
+  static int _now() => DateTime.now().millisecondsSinceEpoch;
+
+  /// A write that matched nothing is a caller holding a stale id. Saying so
+  /// beats reporting success for a rename that renamed nothing.
+  static void _expectOne(int written, String id) {
+    if (written != 1) throw StateError('no saved view "$id"');
   }
 
   /// Parses one stored row.

@@ -1,3 +1,4 @@
+import 'package:drift/drift.dart' show Variable;
 import 'package:nimbus_data/nimbus_data.dart';
 import 'package:nimbus_domain/nimbus_domain.dart';
 import 'package:test/test.dart';
@@ -48,6 +49,17 @@ void main() {
 
   Future<List<String>> pinnedIds() async =>
       [for (final e in await db.savedViewsDao.watchPinned().first) e.id];
+
+  Future<({int created, int updated})> stamps(String id) async {
+    final row = await db.customSelect(
+      'SELECT created_at, updated_at FROM saved_views WHERE id = ?',
+      variables: [Variable.withString(id)],
+    ).getSingle();
+    return (
+      created: row.read<int>('created_at'),
+      updated: row.read<int>('updated_at'),
+    );
+  }
 
   test('the schema version is 21', () async {
     expect(db.schemaVersion, 21);
@@ -143,5 +155,82 @@ void main() {
 
     expect(await db.savedViewsDao.watchById('v').first, isNull);
     expect(await pinnedIds(), isEmpty);
+  });
+
+  test('rename changes the name and keeps the creation time', () async {
+    await db.savedViewsDao.create([_view('v')]);
+    final before = await stamps('v');
+    await Future<void>.delayed(const Duration(milliseconds: 5));
+
+    await db.savedViewsDao.rename('v', 'Food watch');
+
+    expect((await db.savedViewsDao.watchPinned().first).single.name,
+        'Food watch');
+    final after = await stamps('v');
+    expect(after.created, before.created);
+    expect(after.updated, greaterThan(before.updated));
+  });
+
+  test('reorder rewrites the order and keeps creation times', () async {
+    await db.savedViewsDao.create([_view('a'), _view('b'), _view('c')]);
+    final before = await stamps('a');
+
+    await db.savedViewsDao.reorder(['c', 'a', 'b']);
+
+    expect(await pinnedIds(), ['c', 'a', 'b']);
+    expect((await stamps('a')).created, before.created);
+  });
+
+  test('reorder is all or nothing', () async {
+    await db.savedViewsDao.create([_view('a'), _view('b')]);
+
+    await expectLater(
+        db.savedViewsDao.reorder(['b', 'missing', 'a']), throwsStateError);
+
+    expect(await pinnedIds(), ['a', 'b']);
+  });
+
+  test('restore brings a removed view back in its old place', () async {
+    await db.savedViewsDao.create([_view('a'), _view('b'), _view('c')]);
+    await db.savedViewsDao.softDelete('b');
+    expect(await pinnedIds(), ['a', 'c']);
+
+    await db.savedViewsDao.restore('b');
+
+    expect(await pinnedIds(), ['a', 'b', 'c']);
+  });
+
+  test('a write that matches no view says so', () async {
+    // A rename that renamed nothing is a caller holding a stale id;
+    // reporting success for it would be a silent failure.
+    await expectLater(db.savedViewsDao.rename('nope', 'x'), throwsStateError);
+    await expectLater(db.savedViewsDao.softDelete('nope'), throwsStateError);
+    await expectLater(db.savedViewsDao.restore('nope'), throwsStateError);
+  });
+
+  test('the live list follows rename, reorder, removal and restore',
+      () async {
+    await db.savedViewsDao.create([_view('a'), _view('b')]);
+    final seen = <List<String>>[];
+    final subscription = db.savedViewsDao.watchPinned().listen(
+        (entries) => seen.add([for (final e in entries) '${e.id}:${e.name}']));
+    addTearDown(subscription.cancel);
+    await pumpEventQueue();
+
+    await db.savedViewsDao.rename('a', 'A');
+    await pumpEventQueue();
+    expect(seen.last, ['a:A', 'b:b']);
+
+    await db.savedViewsDao.reorder(['b', 'a']);
+    await pumpEventQueue();
+    expect(seen.last, ['b:b', 'a:A']);
+
+    await db.savedViewsDao.softDelete('b');
+    await pumpEventQueue();
+    expect(seen.last, ['a:A']);
+
+    await db.savedViewsDao.restore('b');
+    await pumpEventQueue();
+    expect(seen.last, ['b:b', 'a:A']);
   });
 }
