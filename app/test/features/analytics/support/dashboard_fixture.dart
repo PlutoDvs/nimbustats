@@ -67,6 +67,19 @@ Future<List<String>> seedSpending(
   ];
 }
 
+/// 300 on Transport five days before this month starts, i.e. in the month
+/// before it: something for a card moved a month back to total.
+Future<void> seedLastMonthSpending(AppDatabase db) async {
+  final repo =
+      TransactionRepository(db.transactionsDao, db.tagsDao, Currency.toman);
+  await repo.add(TransactionDraft(
+    amount: Money(300),
+    direction: TxDirection.expense,
+    categoryId: 'seed-transport',
+    occurredAtUtc: dayInThisMonth(-5).toUtc(),
+  ));
+}
+
 /// A realistic phone viewport, 360x800 logical. The default test surface is
 /// shorter than any phone this ships on, and lists do not build below it.
 void usePhoneViewport(WidgetTester tester) {

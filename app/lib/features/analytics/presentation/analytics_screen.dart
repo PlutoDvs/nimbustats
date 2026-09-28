@@ -169,6 +169,7 @@ class _BreakdownTab extends ConsumerWidget {
             (AsyncData(value: final data), AsyncData(value: final byId)) =>
               BreakdownBody(
                 result: data,
+                period: view.period,
                 nodesById: byId,
                 formatter: ref.watch(moneyFormatterProvider),
                 onDrill: controller.drillInto,
@@ -277,6 +278,7 @@ class _CrossTabTab extends ConsumerWidget {
             ) =>
               CrossTabBody(
                 result: data,
+                period: view.period,
                 categoriesById: byCategory,
                 tagsById: byTag,
                 formatter: ref.watch(moneyFormatterProvider),

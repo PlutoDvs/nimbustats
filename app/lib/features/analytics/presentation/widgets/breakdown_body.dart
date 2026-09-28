@@ -6,18 +6,23 @@ import 'package:nimbus_domain/nimbus_domain.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../../categories/data/category_tree.dart';
 import '../../application/breakdown_controller.dart';
+import 'total_header.dart';
 
 /// The populated breakdown: a total, a pie, and the ranked rows behind it.
 class BreakdownBody extends StatelessWidget {
   const BreakdownBody({
     super.key,
     required this.result,
+    required this.period,
     required this.nodesById,
     required this.formatter,
     this.onDrill,
   });
 
   final AnalyticsResult result;
+
+  /// The period [result] covers, for the caption over the total.
+  final DateRange period;
   final Map<String, CategoryNode> nodesById;
   final MoneyFormatter formatter;
 
@@ -35,7 +40,6 @@ class BreakdownBody extends StatelessWidget {
       );
     }
 
-    final theme = Theme.of(context);
     final palette = NimbusChartColors.of(context);
 
     // Ranked before colours are assigned, because assignment must not depend
@@ -51,22 +55,14 @@ class BreakdownBody extends StatelessWidget {
 
     return ListView(
       children: [
-        Padding(
-          key: const Key('breakdown-total'),
-          padding: const EdgeInsets.all(NimbusTokens.space4),
-          child: Column(
-            children: [
-              Text(l10n.txMonthTotal, style: theme.textTheme.labelMedium),
-              Text(
-                // The engine's true total, which counts each transaction once.
-                // Adding the slices up would be the same number here and the
-                // wrong one the moment a tag dimension is grouped.
-                formatter.format(result.trueTotal),
-                key: const Key('breakdown-total-amount'),
-                style: theme.textTheme.headlineSmall,
-              ),
-            ],
-          ),
+        TotalHeader(
+          range: period,
+          // The engine's true total, which counts each transaction once.
+          // Adding the slices up would be the same number here and the wrong
+          // one the moment a tag dimension is grouped.
+          total: result.trueTotal,
+          formatter: formatter,
+          keyPrefix: 'breakdown',
         ),
         if (result.overlaps)
           Padding(

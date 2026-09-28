@@ -21,6 +21,10 @@ void main() {
 
     expect(textOf(tester, 'saved-view-title'), 'This month by category');
     expect(textOf(tester, 'breakdown-total-amount'), total1750);
+    // On the dashboard's own month the caption still reads "This month": a
+    // view's period resolved against today has to land on the same range the
+    // tabs call the current month, or every card would show a number here.
+    expect(textOf(tester, 'breakdown-total-label'), 'This month');
     expect(find.byKey(const Key('nav-bar')), findsNothing);
   });
 
@@ -47,6 +51,25 @@ void main() {
     await tester.pageBack();
     await tester.pumpAndSettle();
     expect(textOf(tester, 'dashboard-period-label'), dashboardMonth);
+  });
+
+  testWidgets('opened on a past month, the total is captioned with that month',
+      (tester) async {
+    // The screen has one month bar shared across chart types, so the body it
+    // draws must caption its total with the month the bar names.
+    final db = await categorisedDb();
+    addTearDown(db.close);
+    await seedSpending(db);
+    await seedLastMonthSpending(db);
+    final (breakdown, _) = await pinStarters(db);
+    await openAnalytics(tester, db);
+    await tester.tap(find.byKey(const Key('dashboard-period-previous')));
+    await tester.pumpAndSettle();
+
+    await openCard(tester, breakdown);
+
+    expect(textOf(tester, 'breakdown-total-label'),
+        textOf(tester, 'saved-view-period-label'));
   });
 
   testWidgets('a pinned breakdown does not drill past its level',

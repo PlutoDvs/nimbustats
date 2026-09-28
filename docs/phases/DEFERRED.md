@@ -12,8 +12,8 @@ blocked, and who can unblock it.
 | D2 | Gradle distribution and large SDK packages need manual seeding on a fresh machine | Any new dev machine or CI | Operator (network) |
 | D4 | Claude Design token sheet does not exist | Nothing hard-blocked; visual polish | Operator (design) |
 | D10 | No saved-view builder: views can only be pinned from what a tab shows | "#travel by category" and other tag-scoped views cannot be pinned | Next analytics phase, or on demand |
-| D11 | Breakdown and cross-tab headers read "This month" for whichever month is shown | Nothing blocked; the label is wrong on past months — directly in the Breakdown tab, and in the full-screen view for either chart | Next change touching either header |
 | D12 | No global uncaught-error handler: a rethrown write failure reaches only the console | Nothing user-facing; failures are surfaced but not recorded | Phase 8 hardening, or sooner if a real failure needs a record |
+| D11 | ~~Breakdown and cross-tab headers read "This month" for whichever month is shown~~ | — | **Resolved 2026-09-28** |
 | D1 | ~~Phase 1 hardware criteria unmeasured~~ | — | **Resolved 2026-09-27** |
 | D8 | ~~Payment-method tile is silently disabled when no method exists~~ | — | **Resolved 2026-09-27** |
 | D9 | ~~"Saved" snackbar covers the add button~~ | — | **Resolved 2026-09-27** |
@@ -490,10 +490,11 @@ view's question cannot be edited after the fact (rename only). The
 library. When it lands it reopens the screen contract's open question 3:
 which charts a builder offers for which groupings.
 
-## D11 — Breakdown and cross-tab headers read "This month" for any month
+## D11 — Breakdown and cross-tab headers read "This month" for any month — RESOLVED
 
-**Status:** open. Found 2026-09-27 while planning the full-screen saved view;
-widened 2026-09-27 to cover the cross-tab body, which has the identical bug.
+**Status:** resolved 2026-09-28. Found 2026-09-27 while planning the
+full-screen saved view; widened 2026-09-27 to cover the cross-tab body, which
+has the identical bug.
 
 `BreakdownBody` (`breakdown_body.dart:59`) and `CrossTabBody`
 (`cross_tab_body.dart:61`) both label their total with `txMonthTotal` ("This
@@ -502,8 +503,16 @@ month under that label directly. The Cross-tab tab has no period control of
 its own — it always shows the current month — but the full-screen saved view
 has one `MonthBar` shared across chart types, and inherits the label from
 whichever body it draws; a cross-tab-pinned view opened full screen on a past
-month is wrong the same way a breakdown-pinned one is. Fix: label with the
-period (`periodLabel`) or a neutral "Total".
+month is wrong the same way a breakdown-pinned one is.
+
+**Fixed.** The caption now reads "This month" only while the range shown *is*
+the month containing today, and names the period otherwise (`1405/06`, or
+`1405/05 – 1405/07` for a window) — `totalCaption` in
+`app/lib/features/analytics/application/period_label.dart`. A neutral "Total"
+was the other candidate and was rejected: the cross-tab tab has no period
+control, so its caption is the only thing on that screen saying which month
+the grid covers. Both bodies now share one `TotalHeader`
+(`presentation/widgets/total_header.dart`) instead of holding a copy each.
 
 ## D12 — No global uncaught-error handler
 

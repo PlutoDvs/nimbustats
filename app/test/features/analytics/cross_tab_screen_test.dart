@@ -100,6 +100,17 @@ String textOf(WidgetTester tester, String key) =>
     tester.widget<Text>(find.byKey(Key(key))).data!;
 
 void main() {
+  testWidgets('the total is captioned "This month", the only month it shows',
+      (tester) async {
+    // This tab has no period control: it is always the current month, so the
+    // caption that a past month made false is right here and must stay.
+    final f = await seeded();
+    addTearDown(f.db.close);
+    await openCrossTab(tester, f.db);
+
+    expect(textOf(tester, 'crosstab-total-label'), 'This month');
+  });
+
   testWidgets('a cell holds the amount for its tag and category',
       (tester) async {
     final f = await seeded();

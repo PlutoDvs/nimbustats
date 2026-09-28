@@ -5,18 +5,23 @@ import 'package:nimbus_domain/nimbus_domain.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../../categories/data/category_tree.dart';
 import '../../../tags/data/tag_tree.dart';
+import 'total_header.dart';
 
 /// Spending per tag against category, as a grid.
 class CrossTabBody extends StatelessWidget {
   const CrossTabBody({
     super.key,
     required this.result,
+    required this.period,
     required this.categoriesById,
     required this.tagsById,
     required this.formatter,
   });
 
   final AnalyticsResult result;
+
+  /// The period [result] covers, for the caption over the total.
+  final DateRange period;
   final Map<String, CategoryNode> categoriesById;
   final Map<String, TagNode> tagsById;
   final MoneyFormatter formatter;
@@ -35,7 +40,6 @@ class CrossTabBody extends StatelessWidget {
       );
     }
 
-    final theme = Theme.of(context);
     final cells = <(String, String), Money>{
       for (final bucket in result.buckets)
         if (bucket.key case TagCategoryKey(:final tagId, :final categoryId))
@@ -53,21 +57,13 @@ class CrossTabBody extends StatelessWidget {
 
     return ListView(
       children: [
-        Padding(
-          key: const Key('crosstab-total'),
-          padding: const EdgeInsets.all(NimbusTokens.space4),
-          child: Column(
-            children: [
-              Text(l10n.txMonthTotal, style: theme.textTheme.labelMedium),
-              Text(
-                // Each transaction once. The cells add up to more than this,
-                // which is what the banner below exists to say.
-                formatter.format(result.trueTotal),
-                key: const Key('crosstab-total-amount'),
-                style: theme.textTheme.headlineSmall,
-              ),
-            ],
-          ),
+        TotalHeader(
+          range: period,
+          // Each transaction once. The cells add up to more than this, which
+          // is what the banner below exists to say.
+          total: result.trueTotal,
+          formatter: formatter,
+          keyPrefix: 'crosstab',
         ),
         const Padding(
           padding: EdgeInsets.symmetric(horizontal: NimbusTokens.space4),

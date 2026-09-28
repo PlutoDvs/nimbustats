@@ -64,6 +64,20 @@ Future<void> seedSpending(
   await add('seed-transport', 250, day: 4);
 }
 
+/// 300 on Transport five days before this month starts, i.e. in the month
+/// before it: a month back with something in it, so the body draws a total
+/// instead of the empty state.
+Future<void> seedLastMonth(AppDatabase db) async {
+  final repo =
+      TransactionRepository(db.transactionsDao, db.tagsDao, Currency.toman);
+  await repo.add(TransactionDraft(
+    amount: Money(300),
+    direction: TxDirection.expense,
+    categoryId: 'seed-transport',
+    occurredAtUtc: dayInThisMonth(-5).toUtc(),
+  ));
+}
+
 /// A realistic phone viewport, 360x800 logical.
 ///
 /// The default 800x600 test surface is shorter than any phone this ships on,
@@ -250,6 +264,34 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.byType(NimbusEmptyState), findsOneWidget);
+  });
+
+  testWidgets('on the current month the total is captioned "This month"',
+      (tester) async {
+    final db = await seededDb();
+    addTearDown(db.close);
+    await seedSpending(db);
+    await openBreakdown(tester, db);
+
+    expect(textOf(tester, 'breakdown-total-label'), 'This month');
+  });
+
+  testWidgets('a month back, the total is captioned with the month it covers',
+      (tester) async {
+    // The caption sits under a month bar that names the month. Left as a
+    // constant "This month" it claimed a past month's total was the current
+    // month's -- the one line on the screen that was simply false.
+    final db = await seededDb();
+    addTearDown(db.close);
+    await seedSpending(db);
+    await seedLastMonth(db);
+    await openBreakdown(tester, db);
+
+    await tester.tap(find.byKey(const Key('breakdown-period-previous')));
+    await tester.pumpAndSettle();
+
+    expect(textOf(tester, 'breakdown-total-label'),
+        textOf(tester, 'breakdown-period-label'));
   });
 
   testWidgets('the breakdown renders right-to-left in Persian',

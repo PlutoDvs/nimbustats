@@ -3,7 +3,6 @@ import 'package:nimbus_data/nimbus_data.dart';
 import 'package:nimbus_domain/nimbus_domain.dart';
 
 import '../../settings/application/settings_providers.dart';
-import 'period_label.dart';
 
 /// The date every dashboard card is resolved against. Today, until moved.
 class DashboardAnchor extends Notifier<DateKey> {
@@ -43,21 +42,6 @@ QuerySpec resolvedSpec(
     view.spec.withDateRange(
       view.period.resolve(anchor, calendar, firstDayOfWeek: firstDayOfWeek),
     );
-
-/// `1405/07` for one month, `1405/02 – 1405/07` for a window.
-String viewPeriodLabel(
-  DateRange range,
-  AppCalendar calendar, {
-  required bool persianDigits,
-}) {
-  final first = periodLabel(range, calendar, persianDigits: persianDigits);
-  final last = periodLabel(
-    DateRange(range.endInclusive, range.endInclusive),
-    calendar,
-    persianDigits: persianDigits,
-  );
-  return first == last ? first : '$first – $last';
-}
 
 /// The periods a trend view plots: its resolved window, cut into the periods
 /// it groups by.

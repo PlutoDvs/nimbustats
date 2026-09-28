@@ -68,6 +68,9 @@ class SavedViewBody extends ConsumerWidget {
     return switch (view.chart) {
       SavedViewChart.breakdown => BreakdownBody(
           result: data,
+          // resolvedSpec always sets the range, so the caption names the month
+          // the screen's month bar is on rather than claiming "this month".
+          period: spec.filters.dateRange!,
           nodesById: byCategory,
           formatter: formatter,
         ),
@@ -82,6 +85,7 @@ class SavedViewBody extends ConsumerWidget {
         ),
       SavedViewChart.crossTab => CrossTabBody(
           result: data,
+          period: spec.filters.dateRange!,
           categoriesById: byCategory,
           tagsById: byTag,
           formatter: formatter,
