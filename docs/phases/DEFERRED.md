@@ -13,6 +13,8 @@ blocked, and who can unblock it.
 | D4 | Claude Design token sheet does not exist | Nothing hard-blocked; visual polish | Operator (design) |
 | D10 | No saved-view builder: views can only be pinned from what a tab shows | "#travel by category" and other tag-scoped views cannot be pinned | Next analytics phase, or on demand |
 | D12 | No global uncaught-error handler: a rethrown write failure reaches only the console | Nothing user-facing; failures are surfaced but not recorded | Phase 8 hardening, or sooner if a real failure needs a record |
+| D13 | The add-expense FAB carries no accessibility label | Nothing for sighted use; the app's primary action is nameless to TalkBack | Next accessibility pass, or on demand |
+| D14 | Pinning offers a name a card on the dashboard already uses | Nothing blocked; two identical card titles are indistinguishable | Next analytics phase, or on demand |
 | D11 | ~~Breakdown and cross-tab headers read "This month" for whichever month is shown~~ | — | **Resolved 2026-09-28** |
 | D1 | ~~Phase 1 hardware criteria unmeasured~~ | — | **Resolved 2026-09-27** |
 | D8 | ~~Payment-method tile is silently disabled when no method exists~~ | — | **Resolved 2026-09-27** |
@@ -530,3 +532,46 @@ this; failures are surfaced but not recorded. Fix: wrap `runApp` in
 both to whatever Phase 8 chooses for crash reporting.
 
 ---
+
+## D13 — The add-expense FAB carries no accessibility label
+
+**Status:** open. Found 2026-09-29 during the Phase 3 device check on the A53.
+
+`app/lib/bootstrap/app_shell.dart:53` builds the shell's FAB as
+`FloatingActionButton(key: Key('tx-add-fab'), onPressed: …, child: Icon(Icons.add))`
+— no `tooltip`, no `Semantics` wrapper. On the device the accessibility tree
+reports it as `android.widget.Button` with `NAF="true"` and an empty
+`content-desc`, so TalkBack announces the app's primary action as "Button".
+Every other control read on that run does carry a name: the three nav
+destinations, the month arrows ("Previous month" / "Next month"), "Pin to
+dashboard", "Card options", the breadcrumb, the tag checkboxes.
+
+Nothing is blocked and sighted use is unaffected — this is the one unnamed
+control found, and it happens to be the one that starts the app's main task.
+
+**Fix:** give the FAB a `tooltip` (a new string in both ARBs, keys kept
+alphabetical). A tooltip is the idiomatic route and doubles as the long-press
+hint. **Check:** a widget test asserting the label, and on device
+`uiautomator dump` on Home showing a non-empty `content-desc` for the FAB.
+
+**Not in scope:** the amount field also reports `NAF="true"`, but it *is*
+labelled — `amount_field.dart:96` passes `InputDecoration(labelText: label)`,
+which reaches TalkBack as the field's hint rather than a `content-desc`. The
+flag is a uiautomator artifact there, not a defect.
+
+## D14 — Pinning offers a name a card on the dashboard already uses
+
+**Status:** open. Found 2026-09-29 during the same device check.
+
+Pinning the Trends tab pre-filled the name sheet with "Last 6 months", which
+the starter trend card already carries, and saving produced two cards titled
+identically (`saved_views.sort_order` 1 and 3, distinct ids). Nothing breaks:
+each card resolves, renames and reorders on its own id. But the dashboard is a
+list of questions read by their titles, and two that read the same cannot be
+told apart — including in the remove-with-undo snackbar, which names the card.
+
+**Fix (decide first):** either pre-fill a distinguishing name when the default
+is taken, or say in the sheet that the name is already used and let the operator
+choose. Renaming after the fact already works, so this is a first-run nicety
+rather than a repair. **Check:** pin the same chart twice; the second sheet does
+not offer a name already on the dashboard.
