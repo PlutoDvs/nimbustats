@@ -15,6 +15,7 @@ blocked, and who can unblock it.
 | D12 | No global uncaught-error handler: a rethrown write failure reaches only the console | Nothing user-facing; failures are surfaced but not recorded | Phase 8 hardening, or sooner if a real failure needs a record |
 | D13 | The add-expense FAB carries no accessibility label | Nothing for sighted use; the app's primary action is nameless to TalkBack | Next accessibility pass, or on demand |
 | D14 | Pinning offers a name a card on the dashboard already uses | Nothing blocked; two identical card titles are indistinguishable | Next analytics phase, or on demand |
+| D15 | The starter card is named "This month by category" but follows the dashboard's month | Nothing blocked; the name reads false on any past month, on first run | Next analytics phase, or on demand |
 | D11 | ~~Breakdown and cross-tab headers read "This month" for whichever month is shown~~ | — | **Resolved 2026-09-28** |
 | D1 | ~~Phase 1 hardware criteria unmeasured~~ | — | **Resolved 2026-09-27** |
 | D8 | ~~Payment-method tile is silently disabled when no method exists~~ | — | **Resolved 2026-09-27** |
@@ -575,3 +576,33 @@ is taken, or say in the sheet that the name is already used and let the operator
 choose. Renaming after the fact already works, so this is a first-run nicety
 rather than a repair. **Check:** pin the same chart twice; the second sheet does
 not offer a name already on the dashboard.
+
+## D15 — The starter card's name says "this month" whatever month it shows
+
+**Status:** open. Found 2026-09-29 during the Phase 3 device check, one screen
+after [D11](#d11--breakdown-and-cross-tab-headers-read-this-month-for-any-month--resolved)
+was fixed.
+
+"Add starter cards" names its breakdown card with `starterThisMonthByCategory`
+— "This month by category" (`app_en.arb:184`, `app_fa.arb:149`). The dashboard's
+month bar moves every card together, so with the dashboard on 2026/08 that card
+is titled "This month by category" above an August total. The caption under the
+title is right since `472c62c`; the title is not.
+
+The app already has the words for it: the same question pinned by hand from the
+Breakdown tab is named `pinNameSpendingByCategory` — "Spending by category",
+which is true at any anchor. The starter is the only place using the dated
+phrasing. The trend starter is fine, since `pinNameLastMonths(6)` ("Last 6
+months") describes a window relative to whatever month is shown.
+
+Nothing is blocked: card names are user-editable and rename works (verified on
+the device). It is a first-run impression — the first ◀ a new user presses shows
+them a card whose title contradicts its own subtitle.
+
+**Fix:** name the starter with the neutral string (reuse
+`pinNameSpendingByCategory`, or add a starter-specific neutral one) and drop
+`starterThisMonthByCategory` if nothing else uses it. Existing installs keep the
+names already stored — a rename migration is not worth it for two cards a user
+can rename. **Test surface that moves with it:** `starter_views.dart`, three
+assertions in `dashboard_tab_test.dart` (one of them the Persian name) and one
+in `saved_view_screen_test.dart`.
