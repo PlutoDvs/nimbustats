@@ -13,9 +13,9 @@ blocked, and who can unblock it.
 | D4 | Claude Design token sheet does not exist | Nothing hard-blocked; visual polish | Operator (design) |
 | D10 | No saved-view builder: views can only be pinned from what a tab shows | "#travel by category" and other tag-scoped views cannot be pinned | Next analytics phase, or on demand |
 | D12 | No global uncaught-error handler: a rethrown write failure reaches only the console | Nothing user-facing; failures are surfaced but not recorded | Phase 8 hardening, or sooner if a real failure needs a record |
-| D13 | The add-expense FAB carries no accessibility label | Nothing for sighted use; the app's primary action is nameless to TalkBack | Next accessibility pass, or on demand |
-| D14 | Pinning offers a name a card on the dashboard already uses | Nothing blocked; two identical card titles are indistinguishable | Next analytics phase, or on demand |
-| D15 | The starter card is named "This month by category" but follows the dashboard's month | Nothing blocked; the name reads false on any past month, on first run | Next analytics phase, or on demand |
+| D13 | ~~The add-expense FAB carries no accessibility label~~ | — | **Resolved 2026-10-04** |
+| D14 | ~~Pinning offers a name a card on the dashboard already uses~~ | — | **Resolved 2026-10-04** |
+| D15 | ~~The starter card is named "This month by category" but follows the dashboard's month~~ | — | **Resolved 2026-10-04** |
 | D11 | ~~Breakdown and cross-tab headers read "This month" for whichever month is shown~~ | — | **Resolved 2026-09-28** |
 | D1 | ~~Phase 1 hardware criteria unmeasured~~ | — | **Resolved 2026-09-27** |
 | D8 | ~~Payment-method tile is silently disabled when no method exists~~ | — | **Resolved 2026-09-27** |
