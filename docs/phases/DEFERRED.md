@@ -534,9 +534,10 @@ both to whatever Phase 8 chooses for crash reporting.
 
 ---
 
-## D13 — The add-expense FAB carries no accessibility label
+## D13 — The add-expense FAB carries no accessibility label — RESOLVED
 
-**Status:** open. Found 2026-09-29 during the Phase 3 device check on the A53.
+**Status:** resolved 2026-10-04 (`ea1b3f3`); the on-device check below is still
+to run. Found 2026-09-29 during the Phase 3 device check on the A53.
 
 `app/lib/bootstrap/app_shell.dart:53` builds the shell's FAB as
 `FloatingActionButton(key: Key('tx-add-fab'), onPressed: …, child: Icon(Icons.add))`
@@ -560,6 +561,13 @@ labelled — `amount_field.dart:96` passes `InputDecoration(labelText: label)`,
 which reaches TalkBack as the field's hint rather than a `content-desc`. The
 flag is a uiautomator artifact there, not a defect.
 
+**Fixed.** The FAB now carries `tooltip: l10n.addExpense`. That reuses the
+existing "Add expense" / "افزودن هزینه" key, already the title of the screen the
+button opens, rather than adding a new one. A widget test in
+`app_shell_navigation_test.dart` asserts the button's semantics node carries
+the name. **Still to check on the device:** a `uiautomator dump` on Home names
+the FAB the same way it named the month arrows on 2026-09-29.
+
 ## D14 — Pinning offers a name a card on the dashboard already uses
 
 **Status:** open. Found 2026-09-29 during the same device check.
@@ -571,15 +579,21 @@ each card resolves, renames and reorders on its own id. But the dashboard is a
 list of questions read by their titles, and two that read the same cannot be
 told apart — including in the remove-with-undo snackbar, which names the card.
 
+**Widened 2026-10-04 by the D15 fix.** The breakdown starter is now named
+"Spending by category", which is also the name pinning the Breakdown tab at its
+top level suggests. So both starters can now collide with a hand-pinned card.
+The operator chose this over a starter-only name, so that one fix here covers
+both cards.
+
 **Fix (decide first):** either pre-fill a distinguishing name when the default
 is taken, or say in the sheet that the name is already used and let the operator
 choose. Renaming after the fact already works, so this is a first-run nicety
 rather than a repair. **Check:** pin the same chart twice; the second sheet does
 not offer a name already on the dashboard.
 
-## D15 — The starter card's name says "this month" whatever month it shows
+## D15 — The starter card's name says "this month" whatever month it shows — RESOLVED
 
-**Status:** open. Found 2026-09-29 during the Phase 3 device check, one screen
+**Status:** resolved 2026-10-04 (`f358176`). Found 2026-09-29 during the Phase 3 device check, one screen
 after [D11](#d11--breakdown-and-cross-tab-headers-read-this-month-for-any-month--resolved)
 was fixed.
 
@@ -606,3 +620,11 @@ names already stored — a rename migration is not worth it for two cards a user
 can rename. **Test surface that moves with it:** `starter_views.dart`, three
 assertions in `dashboard_tab_test.dart` (one of them the Persian name) and one
 in `saved_view_screen_test.dart`.
+
+**Fixed.** The breakdown starter now takes `pinNameSpendingByCategory`, and
+`starterThisMonthByCategory` has been removed from both ARBs. A new test moves
+the dashboard back a month and checks the card's name still reads "Spending by
+category". The operator chose reuse over a starter-only string, accepting the
+name clash recorded under
+[D14](#d14--pinning-offers-a-name-a-card-on-the-dashboard-already-uses).
+Existing installs keep their stored name.
