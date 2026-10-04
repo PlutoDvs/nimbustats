@@ -162,9 +162,10 @@ why Visual Studio Build Tools 2022 is a genuine prerequisite on this machine —
 not an optional `flutter doctor` nicety. A machine without a C toolchain will
 fail host tests in the data layer.
 
-## Measuring on a device (proven 2026-09-27)
+## Measuring on a device (proven 2026-09-27; analytics 2026-10-04)
 
-Phase 1's hardware criteria are measured on a physical phone, on a
+The hardware criteria (Phase 1's, and Phase 3's performance pass) are
+measured on a physical phone, on a
 **profile** build — a debug build's JIT makes the timings meaningless — and
 never on an emulator.
 
@@ -174,6 +175,12 @@ never on an emulator.
   `mWakefulness=Awake` and `adb shell dumpsys window` for
   `isKeyguardShowing=false` before each run.
 - `adb` is `C:\dev\android-sdk\platform-tools\adb.exe` and is not on PATH.
+- **Record the refresh rate.** Run
+  `adb shell dumpsys display | grep mActiveRenderFrameRate`.
+  - The A53's display is adaptive (60/120 Hz).
+  - Phase 1's run recorded 60 Hz. Phase 3's pass ran at 120 Hz.
+  - The frame tool's budget is fixed at 16.67 ms (60 fps). At 120 Hz a frame
+    has 8.33 ms; see D16.
 - Build the profile APK once (`flutter build apk --profile`) and reuse it
   with `--use-application-binary`, which skips Gradle — about 10 s a run.
   Debug and profile builds share the debug signing key, so
@@ -181,6 +188,24 @@ never on an emulator.
 - 5,000+ rows come from **Settings → Seed 5,000 demo transactions**, which
   exists in debug builds only. The rows survive installing the profile
   build over it.
+  - Since 2026-10-04 the rows are shaped like real use (`DemoDataSeeder`):
+    two years of history, 2–3 tags per row, unevenly used categories,
+    ratings, payment methods and a few unconfirmed captures.
+  - The data is the same on every run.
+  - Seeding takes about 40 s on the A53.
+- **Replacing the data on the phone.** The A53 is the operator's daily
+  phone, so confirm with them first. In Git Bash, prefix these with
+  `MSYS_NO_PATHCONV=1`.
+  1. With a debug build installed, back up:
+     `adb exec-out run-as com.nimbustats.app cat app_flutter/nimbustats.sqlite > ~/nimbustats-backups/NAME.sqlite`.
+  2. Check that its `sha256sum` matches
+     `adb shell run-as com.nimbustats.app sha256sum app_flutter/nimbustats.sqlite`.
+  3. Then reset with `adb shell pm clear com.nimbustats.app`.
+
+  The database is a single file (no `-wal` or `-shm`). Steps 1–3 were done on
+  2026-10-04. Restoring has not been exercised yet. The route would be: with
+  a debug build installed, `adb push` the backup to `/data/local/tmp/`, then
+  `run-as … cp` it into `app_flutter/`.
 
 **Cold start** — six runs; report run 1 (first after install) separately
 and the median of the other five:
@@ -207,8 +232,33 @@ Each run writes `build/start_up_info.json`; the number is
    measured passes of 20 + 20 swipes. The bar: p99 of build and raster
    ≤ 16.67 ms in every pass.
 
+**Analytics timings.** This is Phase 3's performance pass. Run it in an English
+UI: the tool finds the month buttons by their English names. In another
+language, pass `--previous-label` and `--next-label`. Add `--scenario`:
+
+- `scroll --swipes 10` on a dashboard of 8 cards.
+- `months --swipes 10` on the dashboard, and again on Breakdown. It taps
+  "Previous month" ×10, then "Next month" ×10. It finds both buttons in a
+  `uiautomator dump` taken before recording starts.
+- `tabs --swipes 4` from the dashboard: Dashboard to Patterns and back. It
+  swipes along `--swipe-y`, which defaults to 30 % of the screen height.
+  Mid-screen, the cross-tab's grid takes the swipe.
+
+Use the same rhythm: a warm-up, then three passes. The tool also reports:
+- the **start delay**: frames begun late because the UI isolate was busy;
+- the app's **query timings**.
+
+The bar is:
+- p99 build, raster and start delay ≤ 16.67 ms in every pass;
+- every query ≤ 100 ms.
+
+`months` and `tabs` fail outright when no query timings arrive. That means a
+release build, or the wrong screen.
+
 The tool reads the `Flutter.Frame` event the framework posts for every frame
-in debug and profile builds — the same `FrameTiming` data as DevTools.
+in debug and profile builds — the same `FrameTiming` data as DevTools — and
+the `Nimbus.Query` event the app posts for every analytics query, in the same
+builds.
 
 ## `flutter doctor` state
 

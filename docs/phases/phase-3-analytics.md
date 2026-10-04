@@ -187,6 +187,81 @@ wrong in a way users will not catch. Both get explicit tests.
 
 ---
 
+## Performance pass (task 15) — measured 2026-10-04
+
+**Result: every measured pass meets the bar; no fix was needed.**
+
+**The bar** (agreed with the operator 2026-10-04). Each measured pass needs:
+- p99 build, p99 raster and p99 frame-start delay (`vsyncOverhead`) all
+  ≤ 16.67 ms;
+- every analytics query ≤ 100 ms, timed from asking to the answer, so time
+  spent waiting behind other queries counts.
+
+**Setup.**
+- **Device:** Samsung Galaxy A53 5G (SM-A536E) running a profile build of
+  `4ed0bd4`. The tool ran at `1944d3d`, which changed only the tool.
+- **Refresh rate: 120 Hz, not the 60 Hz of Phase 1's run.** The display was
+  in adaptive mode.
+  - Read after the run: `mActiveRenderFrameRate=120`,
+    `refresh_rate_mode=2`.
+  - The frame counts agree: about 71 frames per month tap, with taps about a
+    second apart, only fits 120 fps.
+  - The bar stays the agreed 16.67 ms. See D16 for what 120 Hz means.
+- **Settings:** UI in English, so the tool's default button labels match;
+  currency IRT; Jalali calendar.
+- **Data:** the demo seeder (`3f464ac`) wrote 5,000 rows after a reset:
+  - dated 2024-10-05 to 2026-10-04;
+  - 2 or 3 tags on every row;
+  - 25 categories in use, from 1,311 rows down to 49;
+  - 8.6 % income, 4.8 % unconfirmed, 72 % of expenses rated, 81 % with a
+    payment method.
+- **Dashboard:** 8 cards. The two starters, plus one pin from every tab:
+  Breakdown, Trends, Tags × categories, and Patterns' hour, weekday and
+  reflection charts.
+- **Method:** `app/tool/frame_timings.dart`, one warm-up pass and then three
+  measured passes per scenario (`docs/DEVELOPMENT.md`, *Measuring on a
+  device*).
+
+| Scenario | Inputs per pass | Worst p99 build | Worst p99 raster | Worst p99 start delay | Queries per pass | Worst query |
+|---|---|---|---|---|---|---|
+| Dashboard scroll | 10 + 10 swipes | 3.69 ms | 10.34 ms | 1.67 ms | 6 | 5.79 ms |
+| Dashboard month steps | 10 back + 10 forward | 12.98 ms | 6.02 ms | 1.51 ms | 100 | 25.92 ms |
+| Swipe across the 5 tabs | 4 forward + 4 back | 8.51 ms | 10.09 ms | 1.67 ms | 11 | 14.82 ms |
+| Breakdown month steps | 10 back + 10 forward | 14.37 ms | 9.79 ms | 1.91 ms | 20 | 11.20 ms |
+
+- Each "worst" is the highest of the three measured passes.
+- Each pass recorded between 776 and 1,487 frames.
+- 0–3 frames per pass ran over 16.67 ms in build or raster. The worst single
+  frame was 21.66 ms.
+
+What the numbers say:
+- **Queries are cheap; waiting for each other is what costs.** One query (two
+  statements) takes 3–11 ms. A dashboard month step asks all five visible
+  cards at once. They share one connection, so the last one waits for the
+  others: a p50 of 20 ms and a worst of 26 ms. That is still a quarter of the
+  budget.
+- **The database on the UI isolate is not a problem at this size.** Start
+  delay never passed 2 ms at p99. Moving SQLite to a background isolate
+  (`NativeDatabase.createInBackground`) is not needed to meet this bar. It
+  remains the first change to make if the data grows.
+- **Build time on a month change has the least headroom.** Breakdown's p99
+  build reached 14.37 ms, 86 % of the frame budget, as its chart and list
+  rebuild. If the bar is ever missed, look there first.
+- **At 120 Hz a frame has 8.33 ms, and month changes overrun it.** The
+  measured p99 build was 12–14 ms on month steps, and one tabs pass reached
+  8.51 ms. The worst p99 raster was 10.34 ms, on one scroll pass. Against the
+  agreed 60 fps bar these pass. On this screen they are
+  dropped frames during the rebuild. The operator chose to pass task 15 on
+  the agreed bar and track the 120 Hz work as
+  [D16](DEFERRED.md#d16--month-change-rebuilds-drop-frames-on-a-120-hz-display).
+
+The same session also closed two device checks:
+- D13: the add button is read as "Add expense".
+- D14: pinning Breakdown over the starters shows the warning, and Save stays
+  enabled.
+
+---
+
 ## Parallelism notes
 
 The best partner in the project is **Phase 7 (backup)** — mechanically

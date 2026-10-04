@@ -13,6 +13,7 @@ blocked, and who can unblock it.
 | D4 | Claude Design token sheet does not exist | Nothing hard-blocked; visual polish | Operator (design) |
 | D10 | No saved-view builder: views can only be pinned from what a tab shows | "#travel by category" and other tag-scoped views cannot be pinned | Next analytics phase, or on demand |
 | D12 | No global uncaught-error handler: a rethrown write failure reaches only the console | Nothing user-facing; failures are surfaced but not recorded | Phase 8 hardening, or sooner if a real failure needs a record |
+| D16 | Month-change rebuilds drop frames on a 120 Hz display | Nothing under the agreed 60 fps bar; smoothness on 120 Hz screens | Next analytics phase, or on demand |
 | D13 | ~~The add-expense FAB carries no accessibility label~~ | — | **Resolved 2026-10-04** |
 | D14 | ~~Pinning offers a name a card on the dashboard already uses~~ | — | **Resolved 2026-10-04** |
 | D15 | ~~The starter card is named "This month by category" but follows the dashboard's month~~ | — | **Resolved 2026-10-04** |
@@ -536,8 +537,8 @@ both to whatever Phase 8 chooses for crash reporting.
 
 ## D13 — The add-expense FAB carries no accessibility label — RESOLVED
 
-**Status:** resolved 2026-10-04 (`ea1b3f3`); the on-device check below is still
-to run. Found 2026-09-29 during the Phase 3 device check on the A53.
+**Status:** resolved 2026-10-04 (`ea1b3f3`), and confirmed on the A53 the same
+day. Found 2026-09-29 during the Phase 3 device check on the A53.
 
 `app/lib/bootstrap/app_shell.dart:53` builds the shell's FAB as
 `FloatingActionButton(key: Key('tx-add-fab'), onPressed: …, child: Icon(Icons.add))`
@@ -565,8 +566,9 @@ flag is a uiautomator artifact there, not a defect.
 existing "Add expense" / "افزودن هزینه" key, already the title of the screen the
 button opens, rather than adding a new one. A widget test in
 `app_shell_navigation_test.dart` asserts the button's semantics node carries
-the name. **Still to check on the device:** a `uiautomator dump` on Home names
-the FAB the same way it named the month arrows on 2026-09-29.
+the name. **Checked on the device 2026-10-04**, during the performance pass. A
+`uiautomator dump` on Home names the FAB "Add expense", and it is clickable,
+the same way the month arrows were named on 2026-09-29.
 
 ## D14 — Pinning offers a name a card on the dashboard already uses — RESOLVED
 
@@ -602,8 +604,12 @@ from `pinnedViewsProvider` via `dashboardNames`: if the list hasn't loaded,
 there is no warning, rather than a blocked pin. **The check therefore becomes:**
 pinning the Breakdown tab over the starters shows the warning and still saves.
 Five widget tests cover it, and mutation runs confirmed that dropping
-`exceptId` and an always-on warning each fail a test. The Persian string
-("کارتی با همین نام در داشبورد هست") is still to be checked by the operator.
+`exceptId` and an always-on warning each fail a test. **Checked on the
+device 2026-10-04**, during the performance pass. Pinning Breakdown over the
+starters showed the warning under "Spending by category" with Save enabled, and
+saving produced the second card. Pinning Trends did the same for "Last 6
+months". The Persian string ("کارتی با همین نام در داشبورد هست") is still to be
+checked by the operator.
 
 ## D15 — The starter card's name says "this month" whatever month it shows — RESOLVED
 
@@ -642,3 +648,46 @@ category". The operator chose reuse over a starter-only string, accepting the
 name clash recorded under
 [D14](#d14--pinning-offers-a-name-a-card-on-the-dashboard-already-uses--resolved).
 Existing installs keep their stored name.
+
+## D16 — Month-change rebuilds drop frames on a 120 Hz display
+
+**Status:** open. Found 2026-10-04 during the Phase 3 performance pass (task 15)
+on the A53.
+
+**What was measured.** The pass was judged against the agreed bar, which is
+Phase 1's 60 fps budget of 16.67 ms per frame, and every pass met it. But the
+A53 ran at **120 Hz** throughout:
+- its display is in adaptive mode (`refresh_rate_mode=2`);
+- `dumpsys display` reported `mActiveRenderFrameRate=120`.
+
+At 120 Hz a frame has 8.33 ms. These measured p99 build times exceed that:
+- **12.3–13.0 ms** stepping months on the dashboard;
+- **13.6–14.4 ms** stepping months on Breakdown;
+- **8.51 ms** in one tabs pass.
+
+These are dropped frames on this screen during the rebuild that follows a
+month change.
+- **Scrolling's build** stays well inside 8.33 ms, at a p99 of 3.4–3.7 ms.
+- **Raster** brushes the limit in places: one scroll pass reached a p99 of
+  10.34 ms and one tabs pass 10.09 ms. Every other pass stayed at 9.8 ms or
+  under.
+- **Queries are not the cause.** Start delay stayed under 2 ms at p99, and the
+  slowest query was 26 ms.
+
+The cost is building the new chart and list.
+
+**Blocks:** nothing under the agreed bar. The operator chose to pass task 15
+on it and track this separately.
+
+**Fix (investigate first):**
+- Take a profile-build DevTools timeline of one month step on Breakdown to see
+  which widgets rebuild, and how often, when the result arrives.
+- Candidates to confirm or rule out:
+  - whole-list rebuilds where only the values changed;
+  - a chart rebuilding twice, once for loading and once for data;
+  - layout passes that a `RepaintBoundary` or a const subtree would avoid.
+
+**Check:** add a `--budget-ms` option to `app/tool/frame_timings.dart`. Today
+its budget is fixed at 16.67 ms, which is why this doesn't show as over budget.
+Then re-run `--scenario months` on the dashboard and on Breakdown with the
+display at 120 Hz. The fix holds when p99 build is ≤ 8.33 ms in every pass.
