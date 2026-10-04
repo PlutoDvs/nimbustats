@@ -480,9 +480,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsTitle => 'Settings';
 
   @override
-  String get starterThisMonthByCategory => 'This month by category';
-
-  @override
   String tagCreateInline(String name) {
     return 'Create “$name”';
   }

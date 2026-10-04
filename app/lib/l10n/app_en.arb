@@ -181,7 +181,6 @@
   "settingsThemeLight": "Light",
   "settingsThemeSystem": "System",
   "settingsTitle": "Settings",
-  "starterThisMonthByCategory": "This month by category",
   "tagCreateInline": "Create “{name}”",
   "@tagCreateInline": {
     "placeholders": {

@@ -31,7 +31,7 @@ void main() {
     await tester.tap(find.text('Add starter cards'));
     await tester.pumpAndSettle();
 
-    expect(find.text('This month by category'), findsOneWidget);
+    expect(find.text('Spending by category'), findsOneWidget);
     expect(find.text('Last 6 months'), findsOneWidget);
     final views = await storedViews(db);
     expect(views.map((v) => v.chart), ['breakdown', 'trend']);
@@ -135,6 +135,24 @@ void main() {
     expect(textOf(tester, 'card-total-$breakdown'), total1750);
   });
 
+  testWidgets("a starter card's name stays true on a past month",
+      (tester) async {
+    // D15: the month bar moves every card, so a starter named "This month by
+    // category" sat above August's numbers the first time anyone pressed ◀.
+    final db = await categorisedDb();
+    addTearDown(db.close);
+    await seedSpending(db);
+    final (breakdown, _) = await pinStarters(db);
+    await openAnalytics(tester, db);
+    final thisMonth = textOf(tester, 'card-period-$breakdown');
+
+    await tester.tap(find.byKey(const Key('dashboard-period-previous')));
+    await tester.pumpAndSettle();
+
+    expect(textOf(tester, 'card-period-$breakdown'), isNot(thisMonth));
+    expect(textOf(tester, 'card-name-$breakdown'), 'Spending by category');
+  });
+
   testWidgets('the month arrows mirror in Persian', (tester) async {
     Icon iconAt(String key) =>
         tester.widget<IconButton>(find.byKey(Key(key))).icon as Icon;
@@ -222,7 +240,7 @@ void main() {
 
     expect(
       find.bySemanticsLabel(
-          RegExp('This month by category.*$total1750', dotAll: true)),
+          RegExp('Spending by category.*$total1750', dotAll: true)),
       findsOneWidget,
     );
     handle.dispose();
@@ -236,7 +254,8 @@ void main() {
     await openAnalytics(tester, db, locale: const Locale('fa'));
 
     final name = find.byKey(Key('card-name-$breakdown'));
-    expect(tester.widget<Text>(name).data, 'این ماه به تفکیک دسته');
+    // ‌ is the zero-width non-joiner Persian spells هزینه‌ها with.
+    expect(tester.widget<Text>(name).data, 'هزینه‌ها به تفکیک دسته');
     expect(Directionality.of(tester.element(name)), TextDirection.rtl);
     expect(textOf(tester, 'card-total-$breakdown'), total1750);
   });

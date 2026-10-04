@@ -479,9 +479,6 @@ class AppLocalizationsFa extends AppLocalizations {
   String get settingsTitle => 'تنظیمات';
 
   @override
-  String get starterThisMonthByCategory => 'این ماه به تفکیک دسته';
-
-  @override
   String tagCreateInline(String name) {
     return 'ساخت «$name»';
   }

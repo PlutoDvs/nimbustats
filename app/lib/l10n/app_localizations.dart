@@ -974,12 +974,6 @@ abstract class AppLocalizations {
   /// **'Settings'**
   String get settingsTitle;
 
-  /// No description provided for @starterThisMonthByCategory.
-  ///
-  /// In en, this message translates to:
-  /// **'This month by category'**
-  String get starterThisMonthByCategory;
-
   /// No description provided for @tagCreateInline.
   ///
   /// In en, this message translates to:

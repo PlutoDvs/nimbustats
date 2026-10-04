@@ -19,7 +19,7 @@ void main() {
 
     await openCard(tester, breakdown);
 
-    expect(textOf(tester, 'saved-view-title'), 'This month by category');
+    expect(textOf(tester, 'saved-view-title'), 'Spending by category');
     expect(textOf(tester, 'breakdown-total-amount'), total1750);
     // On the dashboard's own month the caption still reads "This month": a
     // view's period resolved against today has to land on the same range the
