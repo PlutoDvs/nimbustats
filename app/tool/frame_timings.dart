@@ -163,8 +163,12 @@ Future<Future<void> Function()> _monthSteps(_Options options) async {
 
 /// Forward across the tabs, then back. A swipe past the last tab moves
 /// nothing, so N beyond the tab count adds idle frames, not tab changes.
+///
+/// The swipe runs along [_Options.swipeY]: a row where every tab has
+/// something that ignores sideways drags. Mid-screen, the cross-tab's grid
+/// scrolls sideways itself and takes the swipe, so the run never got past it.
 Future<void> _tabSwipes(_Options options, _Size screen) async {
-  final y = screen.height ~/ 2;
+  final y = options.swipeY ?? screen.height * 3 ~/ 10;
   final left = screen.width ~/ 5;
   final right = screen.width * 4 ~/ 5;
   // Moving the finger left reveals the next tab.
@@ -294,6 +298,7 @@ final class _Options {
     required this.swipes,
     required this.previousLabel,
     required this.nextLabel,
+    required this.swipeY,
     required this.out,
   });
 
@@ -301,7 +306,7 @@ final class _Options {
       '--vm-service <http://127.0.0.1:PORT/TOKEN=/> --serial <adb serial> '
       '[--adb path/to/adb] [--scenario scroll|months|tabs] [--swipes 20] '
       '[--previous-label "Previous month"] [--next-label "Next month"] '
-      '[--out results.json]';
+      '[--swipe-y PX] [--out results.json]';
 
   /// The WebSocket form of the address `flutter run` prints.
   final Uri vmService;
@@ -318,6 +323,11 @@ final class _Options {
   /// in the app's language. The defaults are the English ones.
   final String previousLabel;
   final String nextLabel;
+
+  /// The screen row, in pixels, that `tabs` swipes along. Defaults to 30 % of
+  /// the screen's height: below the tab bar, on the tabs' headers and
+  /// switches, above the content that scrolls sideways.
+  final int? swipeY;
   final String? out;
 
   static _Options parse(List<String> args) {
@@ -337,6 +347,7 @@ final class _Options {
       'swipes',
       'previous-label',
       'next-label',
+      'swipe-y',
       'out',
     };
     final unknown = values.keys.where((k) => !known.contains(k));
@@ -349,6 +360,11 @@ final class _Options {
     final swipes = int.tryParse(values['swipes'] ?? '20');
     if (swipes == null || swipes < 1) {
       throw FormatException('--swipes must be a positive integer');
+    }
+    final swipeYText = values['swipe-y'];
+    final swipeY = swipeYText == null ? null : int.tryParse(swipeYText);
+    if (swipeYText != null && (swipeY == null || swipeY < 0)) {
+      throw FormatException('--swipe-y must be a pixel row, 0 or more');
     }
     final scenarioName = values['scenario'] ?? _Scenario.scroll.name;
     final scenario = _Scenario.values
@@ -365,6 +381,7 @@ final class _Options {
       swipes: swipes,
       previousLabel: values['previous-label'] ?? 'Previous month',
       nextLabel: values['next-label'] ?? 'Next month',
+      swipeY: swipeY,
       out: values['out'],
     );
   }
