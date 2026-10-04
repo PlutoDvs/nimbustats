@@ -175,15 +175,61 @@ wrong in a way users will not catch. Both get explicit tests.
 
 `CONVENTIONS.md` §5, plus:
 
-- [ ] Every aggregation verified against a hand-computed fixture, not against
-      another query.
-- [ ] The tag double-count test exists and asserts the *inequality*.
-- [ ] Nested-tag rollup deduplication test exists.
-- [ ] `EXPLAIN QUERY PLAN` assertions cover the dashboard's queries.
-- [ ] `QuerySpec` JSON round-trip is lossless (Phase 5 depends on this).
-- [ ] Charts render correctly in RTL with Persian numerals on the axes.
-- [ ] Every tag-based chart carries the "does not sum to 100%" disclosure.
-- [ ] `git tag phase-3-complete`.
+- [x] Every aggregation verified against a hand-computed fixture, not against
+      another query. `nimbus_data/test/analytics/group_by_test.dart` checks
+      every dimension and every aggregate (sum, count, min, max, average)
+      against literal values. `cross_tab_test.dart` and `predicates_test.dart`
+      are hand-computed from their fixtures.
+- [x] The tag double-count test exists and asserts the *inequality*:
+      `tag_overlap_test.dart:35` and `cross_tab_test.dart:98`.
+- [x] Nested-tag rollup deduplication test exists:
+      `tag_overlap_test.dart:68`, "a nested rollup counts a transaction once".
+- [x] `EXPLAIN QUERY PLAN` assertions cover the dashboard's queries. Every
+      pinnable chart's statement and the true-total statement beside it are
+      covered (`query_plan_test.dart`, since `a6b40c5`).
+- [x] `QuerySpec` JSON round-trip is lossless (Phase 5 depends on this):
+      `nimbus_domain/test/analytics/query_spec_test.dart` and
+      `query_filters_test.dart`, which round-trips a fully populated filter
+      set.
+- [x] Charts render correctly in RTL with Persian numerals on the axes.
+      - Each chart has an RTL test (`*_screen_test.dart`, "renders
+        right-to-left in Persian").
+      - The value axis reads `'۱K'` (`trends_screen_test.dart`).
+      - The hour axis reads `'۶'`, and counts read in Persian digits. Both
+        were fixed in `f84f14c`; the Persian tests had checked only
+        direction until then.
+      - The device pass in Persian was waived by the operator, and these
+        widget tests stand in for it.
+- [x] Every tag-based chart carries the "does not sum to 100%" disclosure:
+      `cross_tab_screen_test.dart:136` and `card_previews_test.dart:85`.
+      Breakdown and Patterns test that it is *absent*, because their
+      dimensions do not overlap.
+- [x] `git tag phase-3-complete` (2026-10-04).
+
+**Gate record (2026-10-04), against `CONVENTIONS.md` §5 on `f84f14c`.**
+- `dart analyze --fatal-infos` is clean.
+- Test suites, all green:
+  - architecture: 4 tests;
+  - `nimbus_domain`: 251 tests;
+  - `nimbus_data`: 171 tests, including the migration tests;
+  - `app`: 340 tests, run with `--no-pub` because pub.dev returns 403 on the
+    current exit.
+- Strings exist in both ARBs. `localization_test.dart` enforces key parity
+  and a format on every number placeholder.
+- RTL and LTR, with Persian and Latin numerals: as above.
+- States:
+  - Every tab has an empty-state test.
+  - The dashboard covers empty, unreadable-card and failed-query cards.
+  - Loading and error are implemented on every analytics screen, with
+    `NimbusLoadingList` and `NimbusErrorState`. The tabs' own error states
+    are not each widget-tested.
+- Accessibility:
+  - Every control was read by name on the A53 (2026-09-29, then D13).
+  - Card previews survive a large font scale (`card_previews_test.dart`).
+  - Contrast comes from the `nimbus_design` tokens, with no contrast tool
+    run, as in Phase 1.
+- The schema registry records v20 and v21.
+- The status board is updated.
 
 ---
 
