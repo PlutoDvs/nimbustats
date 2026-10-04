@@ -568,9 +568,9 @@ button opens, rather than adding a new one. A widget test in
 the name. **Still to check on the device:** a `uiautomator dump` on Home names
 the FAB the same way it named the month arrows on 2026-09-29.
 
-## D14 — Pinning offers a name a card on the dashboard already uses
+## D14 — Pinning offers a name a card on the dashboard already uses — RESOLVED
 
-**Status:** open. Found 2026-09-29 during the same device check.
+**Status:** resolved 2026-10-04 (`ea5555e`). Found 2026-09-29 during the same device check.
 
 Pinning the Trends tab pre-filled the name sheet with "Last 6 months", which
 the starter trend card already carries, and saving produced two cards titled
@@ -590,6 +590,20 @@ is taken, or say in the sheet that the name is already used and let the operator
 choose. Renaming after the fact already works, so this is a first-run nicety
 rather than a repair. **Check:** pin the same chart twice; the second sheet does
 not offer a name already on the dashboard.
+
+**Fixed: warn, don't block** (the operator's choice over a numbered name or a
+disabled Save). While the typed name matches another card's, the name sheet
+shows "A card on the dashboard already has this name" under the field. Names
+are compared trimmed and case-insensitively. Save stays enabled, since pinning
+the same chart twice can be deliberate. The line is a live region, so TalkBack
+announces it. Rename uses the same sheet and leaves out the card being renamed,
+from both the dashboard menu and the full-screen view. The names are read once
+from `pinnedViewsProvider` via `dashboardNames`: if the list hasn't loaded,
+there is no warning, rather than a blocked pin. **The check therefore becomes:**
+pinning the Breakdown tab over the starters shows the warning and still saves.
+Five widget tests cover it, and mutation runs confirmed that dropping
+`exceptId` and an always-on warning each fail a test. The Persian string
+("کارتی با همین نام در داشبورد هست") is still to be checked by the operator.
 
 ## D15 — The starter card's name says "this month" whatever month it shows — RESOLVED
 
@@ -626,5 +640,5 @@ in `saved_view_screen_test.dart`.
 the dashboard back a month and checks the card's name still reads "Spending by
 category". The operator chose reuse over a starter-only string, accepting the
 name clash recorded under
-[D14](#d14--pinning-offers-a-name-a-card-on-the-dashboard-already-uses).
+[D14](#d14--pinning-offers-a-name-a-card-on-the-dashboard-already-uses--resolved).
 Existing installs keep their stored name.
