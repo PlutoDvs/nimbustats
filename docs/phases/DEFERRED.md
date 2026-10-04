@@ -608,8 +608,8 @@ Five widget tests cover it, and mutation runs confirmed that dropping
 device 2026-10-04**, during the performance pass. Pinning Breakdown over the
 starters showed the warning under "Spending by category" with Save enabled, and
 saving produced the second card. Pinning Trends did the same for "Last 6
-months". The Persian string ("کارتی با همین نام در داشبورد هست") is still to be
-checked by the operator.
+months". The operator confirmed the Persian string ("کارتی با همین نام در
+داشبورد هست") on 2026-10-04.
 
 ## D15 — The starter card's name says "this month" whatever month it shows — RESOLVED
 
