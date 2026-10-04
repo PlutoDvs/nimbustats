@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:nimbus_data/nimbus_data.dart';
 
 import 'support/dashboard_fixture.dart';
 
@@ -18,6 +19,19 @@ Future<void> pinAndSave(WidgetTester tester, String pinKey) async {
   await tester.pumpAndSettle();
   await tester.tap(find.byKey(const Key('view-name-save')));
   await tester.pumpAndSettle();
+}
+
+/// The Breakdown tab's pin sheet, opened over the starter cards -- one of
+/// which already carries the name the sheet suggests.
+Future<AppDatabase> openPinOverStarters(WidgetTester tester) async {
+  final db = await categorisedDb();
+  addTearDown(db.close);
+  await pinStarters(db);
+  await openAnalytics(tester, db);
+  await showTab(tester, 'analytics-tab-breakdown');
+  await tester.tap(find.byKey(const Key('pin-breakdown')));
+  await tester.pumpAndSettle();
+  return db;
 }
 
 void main() {
@@ -115,6 +129,61 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(await storedViews(db), isEmpty);
+  });
+
+  testWidgets('pinning under a name a card already has warns, but saves',
+      (tester) async {
+    // D14: the Breakdown tab suggests "Spending by category", which the
+    // breakdown starter already carries, and two cards titled alike cannot be
+    // told apart on the dashboard. The sheet says so and leaves the choice to
+    // the user, rather than refusing or picking a name for them.
+    final db = await openPinOverStarters(tester);
+
+    expect(
+      tester
+          .widget<TextField>(find.byKey(const Key('view-name-field')))
+          .controller!
+          .text,
+      'Spending by category',
+    );
+    expect(find.text('A card on the dashboard already has this name'),
+        findsOneWidget);
+    expect(
+      tester
+          .widget<FilledButton>(find.byKey(const Key('view-name-save')))
+          .onPressed,
+      isNotNull,
+    );
+
+    await tester.tap(find.byKey(const Key('view-name-save')));
+    await tester.pumpAndSettle();
+
+    final names = (await storedViews(db)).map((v) => v.name).toList();
+    expect(names, hasLength(3));
+    expect(names.where((n) => n == 'Spending by category'), hasLength(2));
+  });
+
+  testWidgets('the warning clears once no card has the name', (tester) async {
+    await openPinOverStarters(tester);
+
+    await tester.enterText(
+        find.byKey(const Key('view-name-field')), 'Groceries vs rent');
+    await tester.pump();
+
+    expect(find.byKey(const Key('view-name-taken')), findsNothing);
+  });
+
+  testWidgets('a name differing only in case and outer spaces still warns',
+      (tester) async {
+    // The sheet saves the name trimmed, and a reader takes "spending BY
+    // category" for the same title as the card's.
+    await openPinOverStarters(tester);
+
+    await tester.enterText(
+        find.byKey(const Key('view-name-field')), '  spending BY category ');
+    await tester.pump();
+
+    expect(find.byKey(const Key('view-name-taken')), findsOneWidget);
   });
 
   testWidgets('a failed pin says so', (tester) async {

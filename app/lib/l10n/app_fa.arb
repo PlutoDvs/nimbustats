@@ -201,6 +201,7 @@
   "viewCoversCurrentMonth": "همان ماهی را نشان می‌دهد که داشبورد روی آن است",
   "viewCoversLastMonths": "{count} ماه را تا ماهِ داشبورد نشان می‌دهد",
   "viewNameLabel": "نام",
+  "viewNameTaken": "کارتی با همین نام در داشبورد هست",
   "viewRemoved": "از داشبورد حذف شد",
   "weekdayFriday": "جمعه",
   "weekdayMonday": "دوشنبه",

@@ -662,6 +662,9 @@ class AppLocalizationsFa extends AppLocalizations {
   String get viewNameLabel => 'نام';
 
   @override
+  String get viewNameTaken => 'کارتی با همین نام در داشبورد هست';
+
+  @override
   String get viewRemoved => 'از داشبورد حذف شد';
 
   @override

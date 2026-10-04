@@ -664,6 +664,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get viewNameLabel => 'Name';
 
   @override
+  String get viewNameTaken => 'A card on the dashboard already has this name';
+
+  @override
   String get viewRemoved => 'Removed from the dashboard';
 
   @override

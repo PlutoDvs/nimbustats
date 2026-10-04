@@ -118,6 +118,29 @@ void main() {
     expect(textOf(tester, 'saved-view-title'), 'Food watch');
   });
 
+  testWidgets("full-screen rename warns about another card's name, not its own",
+      (tester) async {
+    // The second place rename is called from; it has to leave its own card
+    // out of the clash check the same way the dashboard's menu does.
+    final db = await categorisedDb();
+    addTearDown(db.close);
+    final (breakdown, _) = await pinStarters(db);
+    await openAnalytics(tester, db);
+    await openCard(tester, breakdown);
+
+    await tester.tap(find.byKey(const Key('saved-view-menu')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('saved-view-menu-rename')));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const Key('view-name-taken')), findsNothing);
+
+    await tester.enterText(
+        find.byKey(const Key('view-name-field')), 'Last 6 months');
+    await tester.pump();
+
+    expect(find.byKey(const Key('view-name-taken')), findsOneWidget);
+  });
+
   testWidgets('remove from the full screen returns to the dashboard with undo',
       (tester) async {
     final db = await categorisedDb();

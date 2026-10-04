@@ -93,7 +93,10 @@ class _CardMenu extends ConsumerWidget {
     switch (action) {
       case _CardAction.rename:
         await renameSavedView(context,
-            repository: repository, id: entry.id, currentName: entry.name);
+            repository: repository,
+            id: entry.id,
+            currentName: entry.name,
+            takenNames: dashboardNames(ref, exceptId: entry.id));
       case _CardAction.remove:
         await removeSavedView(
           repository: repository,

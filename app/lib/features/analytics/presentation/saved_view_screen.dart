@@ -104,6 +104,7 @@ class _SavedViewScreenState extends ConsumerState<SavedViewScreen> {
                     repository: ref.read(savedViewsRepositoryProvider),
                     id: widget.id,
                     currentName: entry.name,
+                    takenNames: dashboardNames(ref, exceptId: widget.id),
                   ),
                 _ViewAction.remove => _remove(),
               },

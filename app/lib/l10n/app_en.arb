@@ -271,6 +271,7 @@
     }
   },
   "viewNameLabel": "Name",
+  "viewNameTaken": "A card on the dashboard already has this name",
   "viewRemoved": "Removed from the dashboard",
   "weekdayFriday": "Fri",
   "weekdayMonday": "Mon",

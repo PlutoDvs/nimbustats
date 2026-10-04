@@ -1304,6 +1304,12 @@ abstract class AppLocalizations {
   /// **'Name'**
   String get viewNameLabel;
 
+  /// No description provided for @viewNameTaken.
+  ///
+  /// In en, this message translates to:
+  /// **'A card on the dashboard already has this name'**
+  String get viewNameTaken;
+
   /// No description provided for @viewRemoved.
   ///
   /// In en, this message translates to:

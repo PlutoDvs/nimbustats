@@ -34,6 +34,7 @@ class PinButton extends ConsumerWidget {
       context,
       title: l10n.pinToDashboard,
       initialName: request.name,
+      takenNames: dashboardNames(ref),
       note: coverageOf(l10n, request.period),
     );
     if (name == null) return;

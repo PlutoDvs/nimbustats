@@ -7,10 +7,16 @@ import '../../../../l10n/app_localizations.dart';
 ///
 /// One sheet for pinning and renaming: they ask the same question, and two
 /// copies would drift apart on what counts as a valid name.
+///
+/// [takenNames] are the names other cards already carry. Reusing one is
+/// allowed but said out loud: the dashboard is read by its titles, and two
+/// that read the same cannot be told apart. Required, so every caller decides
+/// which cards count -- a rename must leave out the card being renamed.
 Future<String?> showViewNameSheet(
   BuildContext context, {
   required String title,
   required String initialName,
+  required Set<String> takenNames,
   String? note,
 }) =>
     showModalBottomSheet<String>(
@@ -19,19 +25,26 @@ Future<String?> showViewNameSheet(
       builder: (_) => _ViewNameSheet(
         title: title,
         initialName: initialName,
+        takenNames: takenNames,
         note: note,
       ),
     );
+
+/// Names compare as a reader sees them: trimmed, as the sheet saves them, and
+/// ignoring case.
+String _comparable(String name) => name.trim().toLowerCase();
 
 class _ViewNameSheet extends StatefulWidget {
   const _ViewNameSheet({
     required this.title,
     required this.initialName,
+    required this.takenNames,
     this.note,
   });
 
   final String title;
   final String initialName;
+  final Set<String> takenNames;
   final String? note;
 
   @override
@@ -40,6 +53,10 @@ class _ViewNameSheet extends StatefulWidget {
 
 class _ViewNameSheetState extends State<_ViewNameSheet> {
   late final _name = TextEditingController(text: widget.initialName);
+  // Normalised once, so a keystroke costs one lookup.
+  late final _taken = {for (final n in widget.takenNames) _comparable(n)};
+
+  bool get _nameTaken => _taken.contains(_comparable(_name.text));
 
   @override
   void dispose() {
@@ -83,6 +100,33 @@ class _ViewNameSheetState extends State<_ViewNameSheet> {
             onChanged: (_) => setState(() {}),
             onSubmitted: (_) => _submit(),
           ),
+          if (_nameTaken) ...[
+            const SizedBox(height: NimbusTokens.space2),
+            // A live region, so a screen reader hears it appear mid-typing
+            // rather than only if the user goes looking.
+            Semantics(
+              liveRegion: true,
+              child: Row(
+                children: [
+                  ExcludeSemantics(
+                    child: Icon(Icons.warning_amber_rounded,
+                        size: 16, color: theme.colorScheme.tertiary),
+                  ),
+                  const SizedBox(width: NimbusTokens.space1),
+                  // Expanded, so it wraps at large text sizes instead of
+                  // overflowing the sheet.
+                  Expanded(
+                    child: Text(
+                      l10n.viewNameTaken,
+                      key: const Key('view-name-taken'),
+                      style: theme.textTheme.bodySmall
+                          ?.copyWith(color: theme.colorScheme.tertiary),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
           if (note != null) ...[
             const SizedBox(height: NimbusTokens.space2),
             Text(note, key: const Key('view-name-note'),

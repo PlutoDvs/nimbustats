@@ -50,6 +50,26 @@ void main() {
     expect(textOf(tester, 'card-name-$first'), 'Where it went');
   });
 
+  testWidgets("rename warns about another card's name, not the card's own",
+      (tester) async {
+    final db = await categorisedDb();
+    addTearDown(db.close);
+    final (first, _) = await pinStarters(db);
+    await openAnalytics(tester, db);
+
+    await openMenu(tester, first);
+    await tester.tap(find.byKey(const Key('card-menu-rename')));
+    await tester.pumpAndSettle();
+    // The sheet opens on the card's current name, which is not a clash.
+    expect(find.byKey(const Key('view-name-taken')), findsNothing);
+
+    await tester.enterText(
+        find.byKey(const Key('view-name-field')), 'Last 6 months');
+    await tester.pump();
+
+    expect(find.byKey(const Key('view-name-taken')), findsOneWidget);
+  });
+
   testWidgets('dragging a card below another saves the new order',
       (tester) async {
     final db = await categorisedDb();

@@ -34,11 +34,15 @@ Future<void> removeSavedView({
 }
 
 /// Asks for a new name and saves it; dismissing changes nothing.
+///
+/// [takenNames] are the other cards' names (see `dashboardNames`), never
+/// including this one's: its current name is not a clash with itself.
 Future<void> renameSavedView(
   BuildContext context, {
   required SavedViewsRepository repository,
   required String id,
   required String currentName,
+  required Set<String> takenNames,
 }) async {
   final l10n = AppLocalizations.of(context);
   // Read before the sheet opens: the sheet's own await must not leave this
@@ -48,6 +52,7 @@ Future<void> renameSavedView(
     context,
     title: l10n.renameView,
     initialName: currentName,
+    takenNames: takenNames,
   );
   if (name == null) return;
   await reportingFailure(
