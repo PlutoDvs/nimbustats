@@ -12,6 +12,7 @@ import 'package:nimbustats/features/transactions/data/transaction_repository.dar
 void main() {
   late AppDatabase db;
   late ProviderContainer container;
+  late List<(QuerySpec, Duration)> timings;
 
   setUp(() async {
     db = AppDatabase.openInMemory();
@@ -19,8 +20,13 @@ void main() {
       roots: const [SeedCategoryNode(id: 'seed-food', name: 'Food')],
       uncategorizedName: 'Uncategorized',
     );
+    timings = [];
     container = ProviderContainer(
-      overrides: [appDatabaseProvider.overrideWithValue(db)],
+      overrides: [
+        appDatabaseProvider.overrideWithValue(db),
+        queryTimingProvider.overrideWithValue(
+            (spec, elapsed) => timings.add((spec, elapsed))),
+      ],
     );
   });
 
@@ -168,6 +174,53 @@ void main() {
           .trueTotal,
       const Money(1850),
     );
+  });
+
+  group('query timing', () {
+    // What the device measurement reads: how long each answer took to
+    // compute, from asking to having it.
+
+    test('a query that runs reports its time, once, for its spec', () async {
+      await seedTransactions();
+
+      await answer(januaryTotal);
+
+      expect(timings, hasLength(1));
+      expect(timings.single.$1, januaryTotal);
+      expect(timings.single.$2, greaterThanOrEqualTo(Duration.zero));
+    });
+
+    test('reading an answer already computed reports nothing', () async {
+      // Otherwise every rebuild that reads a cached answer would count as a
+      // query, and the numbers would describe the cache, not the database.
+      final subscription =
+          container.listen(analyticsResultProvider(januaryTotal), (_, __) {});
+      addTearDown(subscription.close);
+      await container.read(analyticsResultProvider(januaryTotal).future);
+      await container.read(analyticsResultProvider(januaryTotal).future);
+
+      expect(timings, hasLength(1));
+    });
+
+    test('a re-run after a write reports again', () async {
+      final subscription =
+          container.listen(analyticsResultProvider(januaryTotal), (_, __) {});
+      addTearDown(subscription.close);
+      await container.read(analyticsResultProvider(januaryTotal).future);
+
+      await TransactionRepository(
+              db.transactionsDao, db.tagsDao, Currency.toman)
+          .add(TransactionDraft(
+        amount: const Money(100),
+        direction: TxDirection.expense,
+        categoryId: 'seed-food',
+        occurredAtUtc: DateTime(2026, 1, 25, 10).toUtc(),
+      ));
+      await pumpEventQueue();
+      await container.read(analyticsResultProvider(januaryTotal).future);
+
+      expect(timings, hasLength(2));
+    });
   });
 
   test('an answer nobody watches is released', () async {
