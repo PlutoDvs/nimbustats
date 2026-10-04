@@ -52,6 +52,9 @@ class AppShell extends StatelessWidget {
       floatingActionButton: index == 0
           ? FloatingActionButton(
               key: const Key('tx-add-fab'),
+              // Its only name: a bare icon reaches a screen reader as
+              // "Button". The same string titles the screen it opens.
+              tooltip: l10n.addExpense,
               onPressed: () => context.push(addTransactionRoute),
               child: const Icon(Icons.add),
             )

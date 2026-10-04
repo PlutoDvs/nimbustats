@@ -111,6 +111,22 @@ void main() {
     );
   });
 
+  testWidgets('the add button has a name a screen reader can announce',
+      (tester) async {
+    // On the A53 TalkBack read the app's primary action as just "Button"
+    // (D13) -- the one unnamed control on the whole device run. Either a
+    // label or a tooltip reaches the platform as the button's name, so the
+    // test accepts both rather than pinning which one carries it.
+    final handle = tester.ensureSemantics();
+    await pumpApp(tester);
+
+    final fab = tester.getSemantics(find.byKey(const Key('tx-add-fab')));
+    expect(fab, isSemantics(isButton: true));
+    final data = fab.getSemanticsData();
+    expect([data.label, data.tooltip], contains('Add expense'));
+    handle.dispose();
+  });
+
   testWidgets('the add button is on home only', (tester) async {
     // It lives on the shell's Scaffold so it rises above the "saved"
     // snackbar; being there must not put it on every destination.
