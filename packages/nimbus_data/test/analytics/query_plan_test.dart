@@ -26,6 +26,22 @@ void main() {
     return rows.map((r) => r.data['detail']).join(' | ');
   }
 
+  /// The plan of the true-total statement that runs beside every grouped one.
+  Future<String> trueTotalPlanFor(QuerySpec spec) async {
+    final compiled = engine.compileTrueTotal(spec);
+    final rows = await db
+        .customSelect('EXPLAIN QUERY PLAN ${compiled.sql}',
+            variables: compiled.variables)
+        .get();
+    return rows.map((r) => r.data['detail']).join(' | ');
+  }
+
+  // SQLite names an aliased table by its alias, so a full pass over
+  // transactions reads "SCAN t", with or without an index after it.
+  final scansTransactions = matches(RegExp(r'SCAN t\b'));
+
+  const month = DateRange(DateKey(20260101), DateKey(20260131));
+
   test('a period-filtered total uses the date index', () async {
     final plan = await planFor(QuerySpec(
       filters: QueryFilters(
@@ -38,7 +54,7 @@ void main() {
         reason: 'the dashboard asks this on every open; a full scan here is '
             'the difference between instant and visibly slow at 50k rows.\n'
             'Plan was: $plan');
-    expect(plan, isNot(contains('SCAN transactions')), reason: 'plan: $plan');
+    expect(plan, isNot(scansTransactions), reason: 'plan: $plan');
   });
 
   test('a category breakdown does not scan the categories table', () async {
@@ -88,7 +104,7 @@ void main() {
       aggregate: Aggregate.sum,
     ));
     expect(plan, contains('idx_tx_date'), reason: 'plan: $plan');
-    expect(plan, isNot(contains('SCAN t ')), reason: 'plan: $plan');
+    expect(plan, isNot(scansTransactions), reason: 'plan: $plan');
   });
 
   test('the confirmed-only dashboard query uses a composite index', () async {
@@ -125,7 +141,7 @@ void main() {
       aggregate: Aggregate.sum,
     ));
     expect(plan, contains('idx_tx_date'), reason: 'plan: $plan');
-    expect(plan, isNot(contains('SCAN transactions')), reason: 'plan: $plan');
+    expect(plan, isNot(scansTransactions), reason: 'plan: $plan');
   });
 
   test("the starter trend card's query uses the date index", () async {
@@ -138,6 +154,49 @@ void main() {
       aggregate: Aggregate.sum,
     ));
     expect(plan, contains('idx_tx_date'), reason: 'plan: $plan');
-    expect(plan, isNot(contains('SCAN transactions')), reason: 'plan: $plan');
+    expect(plan, isNot(scansTransactions), reason: 'plan: $plan');
+  });
+
+  // Every tab can be pinned, so each tab's question is a dashboard query too.
+  for (final (name, groupBy) in const [
+    ('hour-of-day', GroupByHourOfDay()),
+    ('day-of-week', GroupByDayOfWeek()),
+    ('reflection', GroupByReflection()),
+  ]) {
+    test("the $name pattern's query uses the date index", () async {
+      // The shape PatternsView builds: a month of spending.
+      final plan = await planFor(QuerySpec(
+        filters: const QueryFilters(
+            dateRange: month, direction: MoneyDirection.expense),
+        groupBy: groupBy,
+        aggregate: Aggregate.sum,
+      ));
+      expect(plan, contains('idx_tx_date'), reason: 'plan: $plan');
+      expect(plan, isNot(scansTransactions), reason: 'plan: $plan');
+    });
+  }
+
+  test("a period's true total uses the date index", () async {
+    // Runs beside every grouped query, so it is as hot as they are.
+    final plan = await trueTotalPlanFor(QuerySpec(
+      filters:
+          const QueryFilters(dateRange: month, direction: MoneyDirection.expense),
+      groupBy: GroupByCategory(0),
+      aggregate: Aggregate.sum,
+    ));
+    expect(plan, contains('idx_tx_date'), reason: 'plan: $plan');
+    expect(plan, isNot(scansTransactions), reason: 'plan: $plan');
+  });
+
+  test("a tag-filtered true total stays index-driven", () async {
+    final plan = await trueTotalPlanFor(QuerySpec(
+      filters: QueryFilters(dateRange: month, tags: TagsAny(const ['/travel/'])),
+      groupBy: const GroupByTag(),
+      aggregate: Aggregate.sum,
+    ));
+    expect(plan, contains('idx_tx_date'), reason: 'plan: $plan');
+    expect(plan, isNot(scansTransactions), reason: 'plan: $plan');
+    expect(plan, isNot(contains('SCAN tt')), reason: 'plan: $plan');
+    expect(plan, isNot(contains('SCAN tg')), reason: 'plan: $plan');
   });
 }

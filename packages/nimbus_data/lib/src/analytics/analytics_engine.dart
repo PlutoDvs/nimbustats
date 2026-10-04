@@ -48,6 +48,21 @@ final class AnalyticsEngine {
     return CompiledQuery(sql: sql, variables: variables);
   }
 
+  /// The statement for [spec]'s true total: its filters, ungrouped.
+  ///
+  /// It counts each transaction once, so it is deliberately not derived from
+  /// the buckets -- on a tag dimension those overlap. It runs beside every
+  /// grouped query, which makes it as hot as they are, so it is compiled here
+  /// where its plan can be asserted rather than inline in [run].
+  CompiledQuery compileTrueTotal(QuerySpec spec) {
+    final where = AnalyticsPredicates.whereClause(spec.filters);
+    return CompiledQuery(
+      sql: 'SELECT COALESCE(SUM(t.amount), 0) AS total, COUNT(*) AS n '
+          'FROM transactions t WHERE ${where.sql}',
+      variables: where.variables,
+    );
+  }
+
   /// Fires whenever a table this engine reads is written.
   ///
   /// An answer is a snapshot; this is how a screen learns it went stale. The
@@ -69,14 +84,10 @@ final class AnalyticsEngine {
     final rows =
         await _db.customSelect(compiled.sql, variables: compiled.variables).get();
 
-    // The true total counts each transaction once, so it is deliberately not
-    // derived from the buckets -- on a tag dimension those overlap.
-    final trueWhere = AnalyticsPredicates.whereClause(spec.filters);
-    final trueRow = await _db.customSelect(
-      'SELECT COALESCE(SUM(t.amount), 0) AS total, COUNT(*) AS n '
-      'FROM transactions t WHERE ${trueWhere.sql}',
-      variables: trueWhere.variables,
-    ).getSingle();
+    final trueTotal = compileTrueTotal(spec);
+    final trueRow = await _db
+        .customSelect(trueTotal.sql, variables: trueTotal.variables)
+        .getSingle();
 
     final periods = switch (spec.groupBy) {
       GroupByPeriod(:final period) =>
