@@ -150,9 +150,16 @@ void main() {
       await tapSeed(tester);
 
       final rows = await db
-          .customSelect('SELECT COUNT(*) AS c FROM transactions')
+          .customSelect('SELECT COUNT(*) AS c, '
+              'SUM(payment_method_id IS NOT NULL) AS paid, '
+              '(SELECT COUNT(DISTINCT transaction_id) FROM transaction_tags) '
+              'AS tagged FROM transactions')
           .getSingle();
       expect(rows.data['c'], 5000);
+      // The tile hands the seeder what the database holds: rows with no
+      // payment method or no tags would leave those charts measuring nothing.
+      expect(rows.data['paid'], greaterThan(0));
+      expect(rows.data['tagged'], 5000);
     });
   });
 }

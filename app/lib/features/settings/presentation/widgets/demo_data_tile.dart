@@ -1,28 +1,28 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nimbus_data/nimbus_data.dart';
-import 'package:nimbus_domain/nimbus_domain.dart';
 
 import '../../../../l10n/app_localizations.dart';
 import '../../../categories/application/category_providers.dart';
 import '../../../categories/data/category_tree.dart';
+import '../../../payment_methods/application/payment_method_providers.dart';
+import '../../../tags/application/tag_providers.dart';
 import '../../../transactions/application/transaction_list_controller.dart';
 import '../../../transactions/application/transaction_providers.dart';
-import '../../../transactions/data/transaction_draft.dart';
+import '../../application/demo_data_seeder.dart';
 
 /// Debug-only: fills the database with enough history to measure against.
 ///
 /// The 60 fps acceptance criterion is stated against 5,000 transactions, and
 /// nobody is going to type those in. Building this as a settings action is the
 /// difference between measuring that number on a device and writing "not
-/// measured" in the definition of done.
+/// measured" in the definition of done. What the rows look like is
+/// [DemoDataSeeder]'s business.
 ///
 /// Guarded by `kDebugMode` at the call site, so the constant folds it out of a
 /// release build entirely rather than leaving it merely unreachable.
 class DemoDataTile extends ConsumerStatefulWidget {
   const DemoDataTile({super.key});
-
-  static const rowCount = 5000;
 
   @override
   ConsumerState<DemoDataTile> createState() => _DemoDataTileState();
@@ -50,18 +50,16 @@ class _DemoDataTileState extends ConsumerState<DemoDataTile> {
     }
 
     setState(() => _running = true);
-    final repository = ref.read(transactionRepositoryProvider);
-    final now = DateTime.now().toUtc();
     try {
-      for (var i = 0; i < DemoDataTile.rowCount; i++) {
-        await repository.add(TransactionDraft(
-          amount: Money(10000 + (i % 400) * 250),
-          direction: i % 11 == 0 ? TxDirection.income : TxDirection.expense,
-          categoryId: categories[i % categories.length],
-          occurredAtUtc: now.subtract(Duration(hours: i * 5)),
-          merchant: i % 3 == 0 ? 'Merchant ${i % 40}' : null,
-        ));
-      }
+      final paymentMethods =
+          await ref.read(paymentMethodRepositoryProvider).pickable();
+      await DemoDataSeeder(
+        transactions: ref.read(transactionRepositoryProvider),
+        tags: ref.read(tagRepositoryProvider),
+        categoryIds: categories,
+        paymentMethodIds: [for (final method in paymentMethods) method.id],
+        nowUtc: DateTime.now().toUtc(),
+      ).seed();
       await ref.read(transactionListControllerProvider.notifier).refresh();
     } finally {
       if (mounted) setState(() => _running = false);
