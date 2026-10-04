@@ -149,7 +149,11 @@ class HourOfDayChart extends StatelessWidget {
           // Twenty-four labels do not fit; the shape is the message here and
           // the exact hour is available by touch.
           labelEvery: 6,
-          labelOf: (hour) => '$hour',
+          // Through Digits, as the value axis goes through the formatter: a
+          // Persian chart with Latin hours reads as two apps on one axis.
+          labelOf: (hour) =>
+              formatter.persianDigits ? Digits.toPersian('$hour') : '$hour',
+          labelKeyPrefix: 'patterns-hour-label',
           showAxes: showAxes,
         ),
       ),

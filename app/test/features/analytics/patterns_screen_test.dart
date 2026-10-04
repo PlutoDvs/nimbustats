@@ -4,6 +4,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:nimbus_data/nimbus_data.dart';
 import 'package:nimbus_design/nimbus_design.dart';
 import 'package:nimbus_domain/nimbus_domain.dart';
+import 'package:nimbustats/features/settings/data/app_settings.dart';
+import 'package:nimbustats/features/settings/data/settings_repository.dart';
 import 'package:nimbustats/features/transactions/data/transaction_draft.dart';
 import 'package:nimbustats/features/transactions/data/transaction_repository.dart';
 
@@ -129,6 +131,32 @@ void main() {
 
     expect(textOf(tester, 'patterns-weekday-label-0'), 'Sat');
     expect(textOf(tester, 'patterns-weekday-label-6'), 'Fri');
+  });
+
+  testWidgets('the hour axis reads in Persian digits in Persian',
+      (tester) async {
+    // The value axis already goes through the money formatter; the hour
+    // labels were a raw toString, Latin in every locale.
+    final db = await seeded();
+    addTearDown(db.close);
+    await openPatterns(tester, db, locale: const Locale('fa'));
+
+    expect(textOf(tester, 'patterns-hour-label-6'), '۶');
+    expect(textOf(tester, 'patterns-hour-label-18'), '۱۸');
+  });
+
+  testWidgets('the hour axis reads in Latin digits in English',
+      (tester) async {
+    final db = await seeded();
+    addTearDown(db.close);
+    // Digits follow the settings' locale, as they do in the app; the
+    // harness's locale alone changes only the strings.
+    await SettingsRepository(db.settingsDao)
+        .save(AppSettings.defaults.copyWith(locale: const Locale('en')));
+    await openPatterns(tester, db);
+
+    expect(textOf(tester, 'patterns-hour-label-6'), '6');
+    expect(textOf(tester, 'patterns-hour-label-18'), '18');
   });
 
   testWidgets('the reflection matrix keeps its unset row and column',

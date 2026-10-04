@@ -55,10 +55,14 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String breakdownTransactionCount(int count) {
+    final intl.NumberFormat countNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String countString = countNumberFormat.format(count);
+
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count transactions',
+      other: '$countString transactions',
       one: '1 transaction',
     );
     return '$_temp0';
@@ -75,10 +79,14 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String categoryChildCount(int count) {
+    final intl.NumberFormat countNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String countString = countNumberFormat.format(count);
+
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count subcategories',
+      other: '$countString subcategories',
       one: '1 subcategory',
     );
     return '$_temp0';
@@ -312,7 +320,11 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String pinNameLastMonths(int count) {
-    return 'Last $count months';
+    final intl.NumberFormat countNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String countString = countNumberFormat.format(count);
+
+    return 'Last $countString months';
   }
 
   @override
@@ -510,7 +522,11 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String tagMoreCount(int count) {
-    return '+$count';
+    final intl.NumberFormat countNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String countString = countNumberFormat.format(count);
+
+    return '+$countString';
   }
 
   @override
@@ -527,10 +543,14 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String tagUsageCount(int count) {
+    final intl.NumberFormat countNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String countString = countNumberFormat.format(count);
+
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count uses',
+      other: '$countString uses',
       one: '1 use',
     );
     return '$_temp0';
@@ -657,7 +677,11 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String viewCoversLastMonths(int count) {
-    return 'Shows $count months, ending with the dashboard\'s month';
+    final intl.NumberFormat countNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String countString = countNumberFormat.format(count);
+
+    return 'Shows $countString months, ending with the dashboard\'s month';
   }
 
   @override

@@ -55,10 +55,14 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String breakdownTransactionCount(int count) {
+    final intl.NumberFormat countNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String countString = countNumberFormat.format(count);
+
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count تراکنش',
+      other: '$countString تراکنش',
     );
     return '$_temp0';
   }
@@ -74,10 +78,14 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String categoryChildCount(int count) {
+    final intl.NumberFormat countNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String countString = countNumberFormat.format(count);
+
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count زیر‌دسته',
+      other: '$countString زیر‌دسته',
     );
     return '$_temp0';
   }
@@ -311,7 +319,11 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String pinNameLastMonths(int count) {
-    return '$count ماه اخیر';
+    final intl.NumberFormat countNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String countString = countNumberFormat.format(count);
+
+    return '$countString ماه اخیر';
   }
 
   @override
@@ -509,7 +521,11 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String tagMoreCount(int count) {
-    return '+$count';
+    final intl.NumberFormat countNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String countString = countNumberFormat.format(count);
+
+    return '+$countString';
   }
 
   @override
@@ -526,10 +542,14 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String tagUsageCount(int count) {
+    final intl.NumberFormat countNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String countString = countNumberFormat.format(count);
+
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count بار استفاده',
+      other: '$countString بار استفاده',
     );
     return '$_temp0';
   }
@@ -655,7 +675,11 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String viewCoversLastMonths(int count) {
-    return '$count ماه را تا ماهِ داشبورد نشان می‌دهد';
+    final intl.NumberFormat countNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String countString = countNumberFormat.format(count);
+
+    return '$countString ماه را تا ماهِ داشبورد نشان می‌دهد';
   }
 
   @override
