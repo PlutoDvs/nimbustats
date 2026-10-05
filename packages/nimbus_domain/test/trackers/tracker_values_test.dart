@@ -115,6 +115,7 @@ void main() {
       ' 3 ': 3.0,
       '.5': 0.5,
       '2.': 2.0,
+      '12,345.5': 12345.5,
     };
     accepted.forEach((input, value) {
       test('reads "$input" as $value', () {
@@ -133,6 +134,12 @@ void main() {
       'Infinity',
       '2.5.1',
       '.',
+      // A comma outside a thousands position is a slip for the decimal
+      // point, and reading it as grouping would log ten times the amount.
+      '0,5',
+      '2,5',
+      '1,2,5',
+      '12,34',
     ]) {
       test('refuses "$input"', () {
         expect(TrackerValues.parseAmount(input), isNull);

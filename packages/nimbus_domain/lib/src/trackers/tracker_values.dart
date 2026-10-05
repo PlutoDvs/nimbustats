@@ -75,6 +75,9 @@ abstract final class TrackerValues {
 
   static final _decimal = RegExp(r'^(\d+(\.\d*)?|\.\d+)$');
 
+  /// Grouping only where thousands separators go: `1,250`, `12,345.5`.
+  static final _grouped = RegExp(r'^\d{1,3}(,\d{3})+(\.\d*)?$');
+
   /// Reads an amount the user typed, or null unless it is a finite number
   /// above zero.
   ///
@@ -82,16 +85,22 @@ abstract final class TrackerValues {
   /// - Latin, Persian and Arabic-Indic digits;
   /// - `.`, the Arabic decimal separator `٫` (U+066B) or `/` for the decimal
   ///   point (`/` is how many Persian speakers type one);
-  /// - `,` and `٬` (U+066C) as grouping, which is dropped.
+  /// - `,` and `٬` (U+066C) as grouping, which is dropped -- but only in
+  ///   thousands positions. Anywhere else a comma is a slip for the decimal
+  ///   point (the two sit side by side on a number pad), and reading `0,5` as
+  ///   5 would silently log ten times the amount, so it is refused instead.
   ///
   /// Matched against a strict pattern before parsing, because `double.parse`
   /// alone would accept `1e3`, `NaN` and `Infinity`.
   static double? parseAmount(String input) {
-    final normalised = Digits.toLatin(input.trim())
+    var normalised = Digits.toLatin(input.trim())
         .replaceAll('٫', '.')
         .replaceAll('/', '.')
-        .replaceAll('٬', '')
-        .replaceAll(',', '');
+        .replaceAll('٬', ',');
+    if (normalised.contains(',')) {
+      if (!_grouped.hasMatch(normalised)) return null;
+      normalised = normalised.replaceAll(',', '');
+    }
     if (!_decimal.hasMatch(normalised)) return null;
     final value = double.parse(normalised);
     return value.isFinite && value > 0 ? value : null;
