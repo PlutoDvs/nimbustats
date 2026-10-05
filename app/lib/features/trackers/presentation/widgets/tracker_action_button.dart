@@ -60,9 +60,16 @@ class TrackerActionButton extends ConsumerWidget {
         ),
       TrackerType.quantity =>
         _quantityButton(context, l10n, format, logger, key),
-      // The timer arrives in the next task; until then a duration tile shows
-      // its total only.
-      TrackerType.duration => const SizedBox.shrink(),
+      TrackerType.duration => _ActionButton(
+          key: key,
+          label: tracker.runningTimer == null
+              ? l10n.trackerStartTimer(tracker.name)
+              : l10n.trackerStopTimer(tracker.name),
+          selected: tracker.runningTimer != null,
+          onTap: () => unawaited(logger().toggleTimer()),
+          child: Icon(
+              tracker.runningTimer == null ? Icons.play_arrow : Icons.stop),
+        ),
     };
   }
 

@@ -4,6 +4,7 @@ import 'package:nimbus_domain/nimbus_domain.dart';
 
 import '../../../../l10n/app_localizations.dart';
 import '../../application/tracker_format.dart';
+import 'tracker_elapsed_text.dart';
 
 /// What a tracker has done today, in its own terms: "3 today", "Done today",
 /// "0.75 L today", "1:30 today". The tab's tiles and the detail header say it
@@ -22,6 +23,10 @@ class TrackerTodayText extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final running = tracker.runningTimer;
+    if (running != null) {
+      return TrackerElapsedText(timer: running, style: style);
+    }
     final l10n = AppLocalizations.of(context);
     final format = ref.watch(trackerFormatProvider);
     final text = switch (tracker.type) {

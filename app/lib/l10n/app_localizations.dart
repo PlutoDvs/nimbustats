@@ -1202,6 +1202,36 @@ abstract class AppLocalizations {
   /// **'Trackers'**
   String get trackerScreenTitle;
 
+  /// No description provided for @trackerStartTimer.
+  ///
+  /// In en, this message translates to:
+  /// **'Start {name} timer'**
+  String trackerStartTimer(String name);
+
+  /// No description provided for @trackerStopTimer.
+  ///
+  /// In en, this message translates to:
+  /// **'Stop {name} timer'**
+  String trackerStopTimer(String name);
+
+  /// No description provided for @trackerTimerDiscarded.
+  ///
+  /// In en, this message translates to:
+  /// **'Under a second — nothing logged'**
+  String get trackerTimerDiscarded;
+
+  /// No description provided for @trackerTimerLogged.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} · {duration} logged'**
+  String trackerTimerLogged(String name, String duration);
+
+  /// No description provided for @trackerTimerRunning.
+  ///
+  /// In en, this message translates to:
+  /// **'Running · {elapsed}'**
+  String trackerTimerRunning(String elapsed);
+
   /// No description provided for @trackerTodayTotal.
   ///
   /// In en, this message translates to:

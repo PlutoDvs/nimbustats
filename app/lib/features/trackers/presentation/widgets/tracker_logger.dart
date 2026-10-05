@@ -71,6 +71,38 @@ final class TrackerLogger {
     );
   }
 
+  /// A duration tracker's tap: start when idle, stop when running.
+  ///
+  /// Start says nothing more: the tile turns into a ticking timer, which is
+  /// the confirmation. Stop names the session it logged rather than today's
+  /// total. The entry is stamped at the start, so it can belong to yesterday,
+  /// and "today" would then be false.
+  Future<void> toggleTimer() async {
+    unawaited(HapticFeedback.mediumImpact());
+    if (tracker.runningTimer == null) {
+      // TimerAlreadyRunning is the second tap of a double-tap; the stored
+      // start is already on screen either way.
+      await _write(() => repository.startTimer(tracker.id));
+      return;
+    }
+    final result = await _write(() => repository.stopTimer(tracker.id));
+    switch (result) {
+      case TimerStopped(:final entry):
+        _showUndo(
+          l10n.trackerTimerLogged(tracker.name,
+              format.duration(TrackerValues.durationOf(entry.value))),
+          () => repository.deleteEntry(entry.id),
+        );
+      case TimerDiscarded():
+        messenger
+          ..removeCurrentSnackBar()
+          ..showSnackBar(SnackBar(content: Text(l10n.trackerTimerDiscarded)));
+      case TimerNotRunning():
+        // The second tap of a double-tap on stop; the first logged it.
+        break;
+    }
+  }
+
   Future<T> _write<T>(Future<T> Function() write) =>
       reportingTrackerFailure(messenger: messenger, l10n: l10n, write: write);
 

@@ -644,6 +644,29 @@ class AppLocalizationsEn extends AppLocalizations {
   String get trackerScreenTitle => 'Trackers';
 
   @override
+  String trackerStartTimer(String name) {
+    return 'Start $name timer';
+  }
+
+  @override
+  String trackerStopTimer(String name) {
+    return 'Stop $name timer';
+  }
+
+  @override
+  String get trackerTimerDiscarded => 'Under a second — nothing logged';
+
+  @override
+  String trackerTimerLogged(String name, String duration) {
+    return '$name · $duration logged';
+  }
+
+  @override
+  String trackerTimerRunning(String elapsed) {
+    return 'Running · $elapsed';
+  }
+
+  @override
   String trackerTodayTotal(String total) {
     return '$total today';
   }

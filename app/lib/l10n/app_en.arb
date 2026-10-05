@@ -307,6 +307,42 @@
   "trackerPresetWater": "Water",
   "trackerPresetWaterUnit": "L",
   "trackerScreenTitle": "Trackers",
+  "trackerStartTimer": "Start {name} timer",
+  "@trackerStartTimer": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "trackerStopTimer": "Stop {name} timer",
+  "@trackerStopTimer": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "trackerTimerDiscarded": "Under a second — nothing logged",
+  "trackerTimerLogged": "{name} · {duration} logged",
+  "@trackerTimerLogged": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "duration": {
+        "type": "String"
+      }
+    }
+  },
+  "trackerTimerRunning": "Running · {elapsed}",
+  "@trackerTimerRunning": {
+    "placeholders": {
+      "elapsed": {
+        "type": "String"
+      }
+    }
+  },
   "trackerTodayTotal": "{total} today",
   "@trackerTodayTotal": {
     "placeholders": {

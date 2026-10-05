@@ -642,6 +642,29 @@ class AppLocalizationsFa extends AppLocalizations {
   String get trackerScreenTitle => 'عادت‌ها';
 
   @override
+  String trackerStartTimer(String name) {
+    return 'شروع زمان‌سنج $name';
+  }
+
+  @override
+  String trackerStopTimer(String name) {
+    return 'توقف زمان‌سنج $name';
+  }
+
+  @override
+  String get trackerTimerDiscarded => 'کمتر از یک ثانیه — چیزی ثبت نشد';
+
+  @override
+  String trackerTimerLogged(String name, String duration) {
+    return '$name · $duration ثبت شد';
+  }
+
+  @override
+  String trackerTimerRunning(String elapsed) {
+    return 'در حال اجرا · $elapsed';
+  }
+
+  @override
   String trackerTodayTotal(String total) {
     return 'امروز $total';
   }
