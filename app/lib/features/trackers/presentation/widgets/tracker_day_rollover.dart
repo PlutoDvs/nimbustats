@@ -31,6 +31,14 @@ class _TrackerDayRolloverState extends ConsumerState<TrackerDayRollover> {
     super.initState();
     _lifecycle = AppLifecycleListener(onResume: _rollOver);
     _schedule();
+    // A screen built again after midnight must not show yesterday: the
+    // provider outlives the screen, and the resume that would have moved it
+    // may have happened while another tab was open. After the first frame,
+    // because a provider cannot change while the tree is building; refresh
+    // changes nothing on an ordinary day, so this costs no rebuild then.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) _rollOver();
+    });
   }
 
   /// Arms a timer for just past the next local midnight.

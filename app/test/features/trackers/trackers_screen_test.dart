@@ -235,6 +235,33 @@ void main() {
       expect(textIn(tester, Key('tracker-total-${cig.id}')), '0 today');
     });
 
+    testWidgets('returning to the tab on a new day shows the new day',
+        (tester) async {
+      // The morning path: the tab was last open yesterday, the user left it
+      // for Home, and the process survived the night. The tab is built again
+      // on return, and nothing on Home was listening for the resume.
+      final db = await freshDb();
+      await useEnglishDigits(db);
+      final repo = repositoryFor(db, fake);
+      final [cig, g] = await repo.createAll([cigarettes, gym]);
+      await repo.logEntry(cig.id);
+      await repo.logEntry(g.id);
+      await openTab(tester, db);
+      expect(textIn(tester, Key('tracker-total-${g.id}')), 'Done today');
+
+      Finder nav(String label) => find.descendant(
+          of: find.byKey(const Key('nav-bar')), matching: find.text(label));
+      await tester.tap(nav('Home'));
+      await tester.pumpAndSettle();
+      fake.advance(const Duration(days: 1));
+      await tester.tap(nav('Trackers'));
+      await tester.pumpAndSettle();
+
+      expect(textIn(tester, Key('tracker-total-${cig.id}')), '0 today');
+      // And so a tap marks today done, rather than taking back yesterday.
+      expect(textIn(tester, Key('tracker-total-${g.id}')), 'Not done today');
+    });
+
     testWidgets('coming back to the app on a new day shows the new day',
         (tester) async {
       final db = await freshDb();
