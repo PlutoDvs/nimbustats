@@ -36,9 +36,7 @@ final class TrackerLogger {
   /// The haptic fires before the write. Logging is optimistic, and for a
   /// one-tap counter the haptic is the whole of the feedback (brief trap).
   Future<void> log({double? value}) async {
-    unawaited(tracker.type == TrackerType.boolean
-        ? HapticFeedback.mediumImpact()
-        : HapticFeedback.lightImpact());
+    _haptic();
     final result =
         await _write(() => repository.logEntry(tracker.id, value: value));
     switch (result) {
@@ -61,7 +59,7 @@ final class TrackerLogger {
   /// A boolean tracker's tap: done when it is not, not done when it is.
   Future<void> toggleDone({required bool done}) async {
     if (!done) return log();
-    unawaited(HapticFeedback.mediumImpact());
+    _haptic();
     final cleared = await _write(() => repository.clearToday(tracker.id));
     _showUndo(
       l10n.trackerMarkedNotDone(tracker.name),
@@ -78,7 +76,7 @@ final class TrackerLogger {
   /// total. The entry is stamped at the start, so it can belong to yesterday,
   /// and "today" would then be false.
   Future<void> toggleTimer() async {
-    unawaited(HapticFeedback.mediumImpact());
+    _haptic();
     if (tracker.runningTimer == null) {
       // TimerAlreadyRunning is the second tap of a double-tap; the stored
       // start is already on screen either way.
@@ -134,6 +132,16 @@ final class TrackerLogger {
       }
     });
   }
+
+  /// One haptic for every tracker tap: [HapticFeedback.vibrate], Android's
+  /// long-press feedback.
+  ///
+  /// Not the light or medium impacts the design named. On a Galaxy A53 with
+  /// Android 15, Android drops every other haptic constant as "vibration
+  /// absent" -- light, medium, heavy and selection alike -- so the taps were
+  /// silent, and for a one-tap counter the haptic is the only feedback there
+  /// is. This one plays on practically every Android phone.
+  static void _haptic() => unawaited(HapticFeedback.vibrate());
 
   Future<T> _write<T>(Future<T> Function() write) =>
       reportingTrackerFailure(messenger: messenger, l10n: l10n, write: write);

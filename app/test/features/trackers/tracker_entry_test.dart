@@ -47,12 +47,15 @@ void main() {
       expect(find.text('Cigarettes · 1 today'), findsOneWidget);
     });
 
-    testWidgets('a tap fires a light haptic', (tester) async {
+    testWidgets('a tap fires a haptic the phone plays', (tester) async {
       final haptics = captureHaptics(tester);
       await openTab(tester);
       await tester.tap(action(cig));
       await tester.pumpAndSettle();
-      expect(haptics, ['HapticFeedbackType.lightImpact']);
+      // HapticFeedback.vibrate(): the one haptic a Samsung A53 on Android 15
+      // plays. It drops the light, medium, heavy and selection constants as
+      // "vibration absent", which left every tracker tap silent there.
+      expect(haptics, ['vibrate']);
     });
 
     testWidgets('each tap replaces the snackbar instead of queueing behind it',
@@ -108,7 +111,7 @@ void main() {
   });
 
   group('boolean', () {
-    testWidgets('a tap marks gym done for today, with a medium haptic',
+    testWidgets('a tap marks gym done for today, with a haptic',
         (tester) async {
       final haptics = captureHaptics(tester);
       await openTab(tester);
@@ -117,7 +120,7 @@ void main() {
 
       expect(textIn(tester, Key('tracker-total-${g.id}')), 'Done today');
       expect(find.text('Gym · done today'), findsOneWidget);
-      expect(haptics, ['HapticFeedbackType.mediumImpact']);
+      expect(haptics, ['vibrate']);
     });
 
     testWidgets('a tap on a done gym takes it back, and undo restores it',

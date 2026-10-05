@@ -62,12 +62,13 @@ void main() {
       expect(find.text('Water · 0.5 L today'), findsOneWidget);
     });
 
-    testWidgets('a quantity tap fires a light haptic', (tester) async {
+    testWidgets('a quantity tap fires a haptic the phone plays',
+        (tester) async {
       final haptics = captureHaptics(tester);
       await openTab(tester);
       await tester.tap(action());
       await tester.pumpAndSettle();
-      expect(haptics, ['HapticFeedbackType.lightImpact']);
+      expect(haptics, ['vibrate']);
     });
 
     testWidgets('a long-press logs another amount', (tester) async {

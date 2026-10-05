@@ -111,14 +111,15 @@ Future<T> firstOf<T>(WidgetTester tester, Stream<T> stream) async =>
     (await tester.runAsync(() => stream.first)) as T;
 
 /// Records every haptic the app asks for, as the platform channel sees it:
-/// `HapticFeedbackType.lightImpact` and so on.
+/// `HapticFeedbackType.lightImpact` and so on, or `vibrate` for
+/// `HapticFeedback.vibrate()`, which sends no argument.
 List<String> captureHaptics(WidgetTester tester) {
   final haptics = <String>[];
   tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
     SystemChannels.platform,
     (call) async {
       if (call.method == 'HapticFeedback.vibrate') {
-        haptics.add(call.arguments.toString());
+        haptics.add(call.arguments?.toString() ?? 'vibrate');
       }
       return null;
     },

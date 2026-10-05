@@ -126,7 +126,7 @@ void main() {
     expect(status(tester), 'Running · 2:00:00');
   });
 
-  testWidgets('start and stop use a medium haptic', (tester) async {
+  testWidgets('start and stop each fire a haptic', (tester) async {
     final haptics = captureHaptics(tester);
     await openTab(tester);
     await tester.tap(action());
@@ -135,8 +135,7 @@ void main() {
     await tester.tap(action());
     await tester.pumpAndSettle();
 
-    expect(haptics,
-        ['HapticFeedbackType.mediumImpact', 'HapticFeedbackType.mediumImpact']);
+    expect(haptics, ['vibrate', 'vibrate']);
   });
 
   testWidgets('the timer button is named for a screen reader', (tester) async {
