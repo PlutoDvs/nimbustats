@@ -240,6 +240,7 @@
       }
     }
   },
+  "trackerAddDuration": "Add time",
   "trackerAddOne": "Add one to {name}",
   "@trackerAddOne": {
     "placeholders": {
@@ -260,11 +261,24 @@
   },
   "trackerArchivedSection": "Archived",
   "trackerCreateOwn": "Create your own",
+  "trackerDayAlreadyDone": "That day is already marked done",
+  "trackerDone": "Done",
   "trackerDoneToday": "Done today",
+  "trackerDurationInvalid": "Enter at least one minute",
   "trackerEditTitle": "Edit tracker",
   "trackerEmptyMessage": "A tracker counts what you do besides spending: cigarettes, glasses of water, gym days, hours of sleep. Pick some to start.",
   "trackerEmptyTitle": "Track more than money",
+  "trackerEntryDateLabel": "Date",
+  "trackerEntryDeleted": "Entry deleted",
+  "trackerEntryEditTitle": "Edit entry",
+  "trackerEntryNoteLabel": "Note",
+  "trackerEntryOptions": "Entry options",
+  "trackerEntryTimeLabel": "Time",
   "trackerErrorTitle": "Could not load trackers",
+  "trackerHistoryEmptyMessage": "Log the first one with the button below.",
+  "trackerHistoryEmptyTitle": "Nothing logged yet",
+  "trackerHistoryErrorTitle": "Could not load the history",
+  "trackerHoursLabel": "Hours",
   "trackerLogAction": "Log",
   "trackerLoggedToday": "{name} · {total} today",
   "@trackerLoggedToday": {
@@ -312,9 +326,13 @@
       }
     }
   },
+  "trackerMinutesLabel": "Minutes",
   "trackerNameLabel": "Name",
   "trackerNew": "New tracker",
   "trackerNotDoneToday": "Not done today",
+  "trackerNotFoundMessage": "It may have been removed.",
+  "trackerNotFoundTitle": "This tracker is gone",
+  "trackerOptions": "Tracker options",
   "trackerOtherAmount": "Log another amount",
   "trackerPerTapLabel": "Amount per tap",
   "trackerPresetCigarettes": "Cigarettes",

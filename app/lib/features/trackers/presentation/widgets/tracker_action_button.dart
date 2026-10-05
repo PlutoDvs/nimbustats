@@ -155,8 +155,12 @@ class _ActionButton extends StatelessWidget {
             child: Padding(
               padding:
                   const EdgeInsets.symmetric(horizontal: NimbusTokens.space3),
+              // Both factors: as the detail screen's bottom bar, the button
+              // gets a loose height, and a Center without heightFactor would
+              // grow to fill it and leave the history no room at all.
               child: Center(
                 widthFactor: 1,
+                heightFactor: 1,
                 child: IconTheme.merge(
                   data: IconThemeData(color: foreground),
                   child: DefaultTextStyle.merge(

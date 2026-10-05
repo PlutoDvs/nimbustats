@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:nimbus_design/nimbus_design.dart';
 import 'package:nimbus_domain/nimbus_domain.dart';
 
+import '../../routes.dart';
 import 'tracker_action_button.dart';
 import 'tracker_today_text.dart';
 
@@ -21,6 +23,7 @@ class TrackerTile extends StatelessWidget {
               color: Color(tracker.color)),
         ),
         title: Text(tracker.name, maxLines: 1, overflow: TextOverflow.ellipsis),
+        onTap: () => context.push(trackerLocation(tracker.id)),
         subtitle: TrackerTodayText(
           key: Key('tracker-total-${tracker.id}'),
           tracker: tracker,

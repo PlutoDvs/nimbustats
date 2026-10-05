@@ -1,5 +1,6 @@
 import 'package:go_router/go_router.dart';
 
+import 'presentation/tracker_detail_screen.dart';
 import 'presentation/tracker_manager_screen.dart';
 import 'presentation/trackers_screen.dart';
 
@@ -7,6 +8,13 @@ const trackersRoute = '/trackers';
 
 /// Pushed over the shell: managing trackers owns the whole screen.
 const trackerManagerRoute = '/trackers/manage';
+
+/// The detail screen's prefix. The `:id` segment is appended where the route
+/// is declared.
+const trackerDetailRoute = '/tracker';
+
+/// Where a tile opens: [id]'s detail screen.
+String trackerLocation(String id) => '$trackerDetailRoute/$id';
 
 /// A nav-shell destination, so it keeps the bottom bar.
 final trackerShellRoutes = <RouteBase>[
@@ -23,5 +31,11 @@ final trackerRoutes = <RouteBase>[
     path: trackerManagerRoute,
     name: 'tracker-manager',
     builder: (context, state) => const TrackerManagerScreen(),
+  ),
+  GoRoute(
+    path: '$trackerDetailRoute/:id',
+    name: 'tracker',
+    builder: (context, state) =>
+        TrackerDetailScreen(id: state.pathParameters['id']!),
   ),
 ];

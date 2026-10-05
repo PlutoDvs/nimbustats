@@ -563,6 +563,9 @@ class AppLocalizationsFa extends AppLocalizations {
   }
 
   @override
+  String get trackerAddDuration => 'افزودن زمان';
+
+  @override
   String trackerAddOne(String name) {
     return 'یکی به $name اضافه کن';
   }
@@ -585,7 +588,16 @@ class AppLocalizationsFa extends AppLocalizations {
   String get trackerCreateOwn => 'خودتان بسازید';
 
   @override
+  String get trackerDayAlreadyDone => 'آن روز از قبل انجام‌شده است';
+
+  @override
+  String get trackerDone => 'انجام شد';
+
+  @override
   String get trackerDoneToday => 'امروز انجام شد';
+
+  @override
+  String get trackerDurationInvalid => 'دست‌کم یک دقیقه وارد کنید';
 
   @override
   String get trackerEditTitle => 'ویرایش عادت';
@@ -598,7 +610,38 @@ class AppLocalizationsFa extends AppLocalizations {
   String get trackerEmptyTitle => 'فراتر از پول را دنبال کنید';
 
   @override
+  String get trackerEntryDateLabel => 'تاریخ';
+
+  @override
+  String get trackerEntryDeleted => 'مورد حذف شد';
+
+  @override
+  String get trackerEntryEditTitle => 'ویرایش مورد';
+
+  @override
+  String get trackerEntryNoteLabel => 'یادداشت';
+
+  @override
+  String get trackerEntryOptions => 'گزینه‌های مورد';
+
+  @override
+  String get trackerEntryTimeLabel => 'ساعت';
+
+  @override
   String get trackerErrorTitle => 'عادت‌ها بارگیری نشدند';
+
+  @override
+  String get trackerHistoryEmptyMessage =>
+      'اولین مورد را با دکمه پایین ثبت کنید.';
+
+  @override
+  String get trackerHistoryEmptyTitle => 'هنوز چیزی ثبت نشده';
+
+  @override
+  String get trackerHistoryErrorTitle => 'تاریخچه بارگیری نشد';
+
+  @override
+  String get trackerHoursLabel => 'ساعت';
 
   @override
   String get trackerLogAction => 'ثبت';
@@ -639,6 +682,9 @@ class AppLocalizationsFa extends AppLocalizations {
   }
 
   @override
+  String get trackerMinutesLabel => 'دقیقه';
+
+  @override
   String get trackerNameLabel => 'نام';
 
   @override
@@ -646,6 +692,15 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get trackerNotDoneToday => 'امروز انجام نشده';
+
+  @override
+  String get trackerNotFoundMessage => 'شاید حذف شده باشد.';
+
+  @override
+  String get trackerNotFoundTitle => 'این عادت دیگر نیست';
+
+  @override
+  String get trackerOptions => 'گزینه‌های عادت';
 
   @override
   String get trackerOtherAmount => 'ثبت مقدار دیگر';

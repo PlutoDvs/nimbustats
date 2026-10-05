@@ -48,3 +48,8 @@ final trackerTotalsProvider = StreamProvider<Map<String, double>>((ref) => ref
 /// The manager's "Archived" section.
 final archivedTrackersProvider = StreamProvider<List<Tracker>>(
     (ref) => ref.watch(trackerRepositoryProvider).watchArchived());
+
+/// One live tracker, archived or not, or null once it no longer exists: the
+/// detail screen.
+final trackerByIdProvider = StreamProvider.autoDispose.family<Tracker?, String>(
+    (ref, id) => ref.watch(trackerRepositoryProvider).watchTracker(id));

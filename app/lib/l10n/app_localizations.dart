@@ -1070,6 +1070,12 @@ abstract class AppLocalizations {
   /// **'Add {amount} to {name}'**
   String trackerAddAmount(String amount, String name);
 
+  /// No description provided for @trackerAddDuration.
+  ///
+  /// In en, this message translates to:
+  /// **'Add time'**
+  String get trackerAddDuration;
+
   /// No description provided for @trackerAddOne.
   ///
   /// In en, this message translates to:
@@ -1106,11 +1112,29 @@ abstract class AppLocalizations {
   /// **'Create your own'**
   String get trackerCreateOwn;
 
+  /// No description provided for @trackerDayAlreadyDone.
+  ///
+  /// In en, this message translates to:
+  /// **'That day is already marked done'**
+  String get trackerDayAlreadyDone;
+
+  /// No description provided for @trackerDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Done'**
+  String get trackerDone;
+
   /// No description provided for @trackerDoneToday.
   ///
   /// In en, this message translates to:
   /// **'Done today'**
   String get trackerDoneToday;
+
+  /// No description provided for @trackerDurationInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter at least one minute'**
+  String get trackerDurationInvalid;
 
   /// No description provided for @trackerEditTitle.
   ///
@@ -1130,11 +1154,71 @@ abstract class AppLocalizations {
   /// **'Track more than money'**
   String get trackerEmptyTitle;
 
+  /// No description provided for @trackerEntryDateLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Date'**
+  String get trackerEntryDateLabel;
+
+  /// No description provided for @trackerEntryDeleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Entry deleted'**
+  String get trackerEntryDeleted;
+
+  /// No description provided for @trackerEntryEditTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit entry'**
+  String get trackerEntryEditTitle;
+
+  /// No description provided for @trackerEntryNoteLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Note'**
+  String get trackerEntryNoteLabel;
+
+  /// No description provided for @trackerEntryOptions.
+  ///
+  /// In en, this message translates to:
+  /// **'Entry options'**
+  String get trackerEntryOptions;
+
+  /// No description provided for @trackerEntryTimeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Time'**
+  String get trackerEntryTimeLabel;
+
   /// No description provided for @trackerErrorTitle.
   ///
   /// In en, this message translates to:
   /// **'Could not load trackers'**
   String get trackerErrorTitle;
+
+  /// No description provided for @trackerHistoryEmptyMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Log the first one with the button below.'**
+  String get trackerHistoryEmptyMessage;
+
+  /// No description provided for @trackerHistoryEmptyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing logged yet'**
+  String get trackerHistoryEmptyTitle;
+
+  /// No description provided for @trackerHistoryErrorTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load the history'**
+  String get trackerHistoryErrorTitle;
+
+  /// No description provided for @trackerHoursLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Hours'**
+  String get trackerHoursLabel;
 
   /// No description provided for @trackerLogAction.
   ///
@@ -1190,6 +1274,12 @@ abstract class AppLocalizations {
   /// **'Mark {name} not done'**
   String trackerMarkNotDone(String name);
 
+  /// No description provided for @trackerMinutesLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Minutes'**
+  String get trackerMinutesLabel;
+
   /// No description provided for @trackerNameLabel.
   ///
   /// In en, this message translates to:
@@ -1207,6 +1297,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Not done today'**
   String get trackerNotDoneToday;
+
+  /// No description provided for @trackerNotFoundMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'It may have been removed.'**
+  String get trackerNotFoundMessage;
+
+  /// No description provided for @trackerNotFoundTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'This tracker is gone'**
+  String get trackerNotFoundTitle;
+
+  /// No description provided for @trackerOptions.
+  ///
+  /// In en, this message translates to:
+  /// **'Tracker options'**
+  String get trackerOptions;
 
   /// No description provided for @trackerOtherAmount.
   ///

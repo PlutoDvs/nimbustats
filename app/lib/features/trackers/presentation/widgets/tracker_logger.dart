@@ -111,12 +111,36 @@ final class TrackerLogger {
         () => repository.unarchive(tracker.id));
   }
 
+  /// Logs a session the user forgot to time, ending now, with an undo.
+  Future<void> addDuration(Duration duration) async {
+    final result =
+        await _write(() => repository.addDuration(tracker.id, duration));
+    if (result case EntryLogged(:final entry)) {
+      _showUndo(l10n.trackerTimerLogged(tracker.name, format.duration(duration)),
+          () => repository.deleteEntry(entry.id));
+    }
+  }
+
+  /// Deletes one entry, with an undo. If the undo would make a second "done"
+  /// on that day, because the day was marked done again meanwhile, it says so
+  /// instead of failing.
+  Future<void> deleteEntry(TrackerEntry entry) async {
+    await _write(() => repository.deleteEntry(entry.id));
+    _showUndo(l10n.trackerEntryDeleted, () async {
+      final restored = await repository.restoreEntries([entry.id]);
+      if (restored == DayWrite.dayAlreadyDone) {
+        messenger.showSnackBar(
+            SnackBar(content: Text(l10n.trackerDayAlreadyDone)));
+      }
+    });
+  }
+
   Future<T> _write<T>(Future<T> Function() write) =>
       reportingTrackerFailure(messenger: messenger, l10n: l10n, write: write);
 
   /// Shows [message] with an undo, replacing whatever snackbar is up, so
   /// rapid taps leave one snackbar with the latest total rather than a queue.
-  void _showUndo(String message, Future<Object?> Function() undo) {
+  void _showUndo(String message, Future<void> Function() undo) {
     messenger
       ..removeCurrentSnackBar()
       ..showSnackBar(nimbusUndoSnackBar(

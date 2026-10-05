@@ -565,6 +565,9 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get trackerAddDuration => 'Add time';
+
+  @override
   String trackerAddOne(String name) {
     return 'Add one to $name';
   }
@@ -587,7 +590,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get trackerCreateOwn => 'Create your own';
 
   @override
+  String get trackerDayAlreadyDone => 'That day is already marked done';
+
+  @override
+  String get trackerDone => 'Done';
+
+  @override
   String get trackerDoneToday => 'Done today';
+
+  @override
+  String get trackerDurationInvalid => 'Enter at least one minute';
 
   @override
   String get trackerEditTitle => 'Edit tracker';
@@ -600,7 +612,38 @@ class AppLocalizationsEn extends AppLocalizations {
   String get trackerEmptyTitle => 'Track more than money';
 
   @override
+  String get trackerEntryDateLabel => 'Date';
+
+  @override
+  String get trackerEntryDeleted => 'Entry deleted';
+
+  @override
+  String get trackerEntryEditTitle => 'Edit entry';
+
+  @override
+  String get trackerEntryNoteLabel => 'Note';
+
+  @override
+  String get trackerEntryOptions => 'Entry options';
+
+  @override
+  String get trackerEntryTimeLabel => 'Time';
+
+  @override
   String get trackerErrorTitle => 'Could not load trackers';
+
+  @override
+  String get trackerHistoryEmptyMessage =>
+      'Log the first one with the button below.';
+
+  @override
+  String get trackerHistoryEmptyTitle => 'Nothing logged yet';
+
+  @override
+  String get trackerHistoryErrorTitle => 'Could not load the history';
+
+  @override
+  String get trackerHoursLabel => 'Hours';
 
   @override
   String get trackerLogAction => 'Log';
@@ -641,6 +684,9 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get trackerMinutesLabel => 'Minutes';
+
+  @override
   String get trackerNameLabel => 'Name';
 
   @override
@@ -648,6 +694,15 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get trackerNotDoneToday => 'Not done today';
+
+  @override
+  String get trackerNotFoundMessage => 'It may have been removed.';
+
+  @override
+  String get trackerNotFoundTitle => 'This tracker is gone';
+
+  @override
+  String get trackerOptions => 'Tracker options';
 
   @override
   String get trackerOtherAmount => 'Log another amount';
