@@ -162,6 +162,24 @@ final class TagCategoryKey extends BucketKey {
   String toString() => 'TagCategoryKey($tagId, $categoryId)';
 }
 
+/// One tracker's bucket, when a tracker query groups by tracker.
+///
+/// Here rather than beside the tracker types because a sealed class's
+/// subclasses must share its library. Phase 3's screens match keys with
+/// `case` patterns, not exhaustive switches, so a new key changes nothing
+/// for them.
+final class TrackerKey extends BucketKey {
+  const TrackerKey(this.trackerId);
+  final String trackerId;
+  @override
+  bool operator ==(Object other) =>
+      other is TrackerKey && other.trackerId == trackerId;
+  @override
+  int get hashCode => trackerId.hashCode;
+  @override
+  String toString() => 'TrackerKey($trackerId)';
+}
+
 /// One row of an answer.
 @immutable
 final class Bucket {
