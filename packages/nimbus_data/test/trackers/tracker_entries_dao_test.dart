@@ -84,7 +84,11 @@ void main() {
           oncePerDay: true, day: today.addDays(1)));
 
       final result = await dao.updateEntry('tue',
-          value: 1, occurredAtUtc: morning, localDateKey: today, note: null);
+          value: 1,
+          occurredAtUtc: morning,
+          localDateKey: today,
+          note: null,
+          tzOffsetMinutes: null);
 
       expect(result, DayWrite.dayAlreadyDone);
       expect((await dao.byId('tue'))!.localDateKey, today.addDays(1));
@@ -111,7 +115,8 @@ void main() {
             value: 0.5,
             occurredAtUtc: later,
             localDateKey: today.addDays(-1),
-            note: 'fixed'),
+            note: 'fixed',
+            tzOffsetMinutes: null),
         DayWrite.written);
     expect(
       await dao.byId('e1'),
@@ -130,7 +135,8 @@ void main() {
     expect(() => dao.softDelete('nope'), throwsStateError);
     expect(
         () => dao.updateEntry('nope',
-            value: 1, occurredAtUtc: morning, localDateKey: today, note: null),
+            value: 1, occurredAtUtc: morning, localDateKey: today, note: null,
+            tzOffsetMinutes: null),
         throwsStateError);
     expect(() => dao.restore(['nope']), throwsStateError);
   });
@@ -245,6 +251,34 @@ void main() {
         expect(plan, contains('idx_tracker_entries_history'), reason: plan);
         expect(plan, isNot(contains('TEMP B-TREE')), reason: plan);
       }
+    });
+  });
+
+  group('timezone offset', () {
+    test('insertEntry stores the offset it is given', () async {
+      await dao.insertEntry(newEntry('ny', 'cig', tzOffsetMinutes: -240));
+      expect(await offsetOf(db, 'ny'), -240);
+    });
+
+    test('updateEntry leaves the offset alone given null, else rewrites it',
+        () async {
+      await dao.insertEntry(newEntry('e', 'cig'));
+
+      await dao.updateEntry('e',
+          value: 1,
+          occurredAtUtc: morning,
+          localDateKey: today,
+          note: 'kept',
+          tzOffsetMinutes: null);
+      expect(await offsetOf(db, 'e'), 210);
+
+      await dao.updateEntry('e',
+          value: 1,
+          occurredAtUtc: morning,
+          localDateKey: today,
+          note: 'moved',
+          tzOffsetMinutes: -240);
+      expect(await offsetOf(db, 'e'), -240);
     });
   });
 }

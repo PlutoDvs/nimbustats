@@ -31,6 +31,22 @@ final class TrackerClock {
   /// The local date [utc] falls on, here and now.
   DateKey localDateOf(DateTime utc) => DateKey.fromDateTime(toLocal(utc));
 
+  /// The device's UTC offset at [utc], in whole minutes, as the device's zone
+  /// reads it now: what an entry written now is stamped with.
+  ///
+  /// Read off [toLocal] rather than injected separately, so it can never
+  /// disagree with [localDateOf] about where the device is. Every field down
+  /// to the microsecond is carried over: dropping the milliseconds would make
+  /// an offset of 210 minutes read as 209 for any instant off a whole second.
+  int offsetMinutesOf(DateTime utc) {
+    final instant = utc.toUtc();
+    final wall = toLocal(instant);
+    return DateTime.utc(wall.year, wall.month, wall.day, wall.hour,
+            wall.minute, wall.second, wall.millisecond, wall.microsecond)
+        .difference(instant)
+        .inMinutes;
+  }
+
   DateKey today() => localDateOf(nowUtc());
 
   static DateTime _systemNowUtc() => DateTime.now().toUtc();

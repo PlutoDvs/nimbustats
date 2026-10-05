@@ -30,6 +30,7 @@ NewTrackerEntry newEntry(
   DateKey day = today,
   String? note,
   bool oncePerDay = false,
+  int tzOffsetMinutes = 210,
 }) =>
     (
       id: id,
@@ -39,7 +40,17 @@ NewTrackerEntry newEntry(
       localDateKey: day,
       note: note,
       oncePerDay: oncePerDay,
+      tzOffsetMinutes: tzOffsetMinutes,
     );
+
+/// The offset stored on [entryId], read in SQL: no domain type carries it.
+Future<int> offsetOf(AppDatabase db, String entryId) async {
+  final row = await db.customSelect(
+    'SELECT tz_offset_minutes AS o FROM tracker_entries WHERE id = ?',
+    variables: [Variable.withString(entryId)],
+  ).getSingle();
+  return row.read<int>('o');
+}
 
 /// Live rows for [trackerId], counted in SQL so the test does not lean on the
 /// DAO it is checking.

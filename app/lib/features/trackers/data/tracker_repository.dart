@@ -12,7 +12,7 @@ import 'tracker_entry_page.dart';
 /// and nothing else. That keeps three things in one place instead of three:
 /// - the per-type default value;
 /// - the boolean once-per-day flag;
-/// - the local date key, computed at write time.
+/// - the local date key and the UTC offset, both taken at write time.
 final class TrackerRepository {
   /// Positional to keep the DAOs private, as `TransactionRepository` does.
   const TrackerRepository(this._trackers, this._entries, this._clock);
@@ -139,6 +139,7 @@ final class TrackerRepository {
       // water at 01:00 in Tehran belongs to that day even though it is still
       // yesterday in UTC.
       localDateKey: _clock.localDateOf(atUtc),
+      tzOffsetMinutes: _clock.offsetMinutesOf(atUtc),
       note: _validNote(note),
       oncePerDay: tracker.type == TrackerType.boolean,
     ));
@@ -189,6 +190,7 @@ final class TrackerRepository {
         value: TrackerValues.secondsOf(elapsed),
         occurredAtUtc: timer.startedAtUtc,
         localDateKey: _clock.localDateOf(timer.startedAtUtc),
+        tzOffsetMinutes: _clock.offsetMinutesOf(timer.startedAtUtc),
         note: null,
         oncePerDay: false,
       ),
@@ -223,6 +225,7 @@ final class TrackerRepository {
       value: seconds,
       occurredAtUtc: start,
       localDateKey: _clock.localDateOf(start),
+      tzOffsetMinutes: _clock.offsetMinutesOf(start),
       note: null,
       oncePerDay: false,
     ));
@@ -230,9 +233,10 @@ final class TrackerRepository {
 
   /// Writes an edited entry.
   ///
-  /// The local date is recomputed only when the time changed. Editing a note
-  /// after a flight must not move the entry to another day, while moving the
-  /// time is a new write and takes the device's date now.
+  /// The local date and the offset are recomputed only when the time changed.
+  /// Editing a note after a flight must not move the entry to another day or
+  /// hour, while moving the time is a new write and takes the device's date
+  /// and offset now.
   Future<DayWrite> updateEntry(TrackerEntry edited) async {
     final current = await _entries.byId(edited.id);
     if (current == null) throw StateError('no tracker entry "${edited.id}"');
@@ -249,6 +253,9 @@ final class TrackerRepository {
       localDateKey: atUtc == current.occurredAtUtc
           ? current.localDateKey
           : _clock.localDateOf(atUtc),
+      tzOffsetMinutes: atUtc == current.occurredAtUtc
+          ? null
+          : _clock.offsetMinutesOf(atUtc),
       note: _validNote(edited.note),
     );
   }

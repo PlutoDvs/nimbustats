@@ -14,6 +14,9 @@ typedef NewTrackerEntry = ({
   DateKey localDateKey,
   String? note,
   bool oncePerDay,
+
+  /// The device's UTC offset when the entry was logged, in minutes.
+  int tzOffsetMinutes,
 });
 
 /// A keyset cursor into one tracker's history: the last entry a page returned.
@@ -41,6 +44,7 @@ class TrackerEntriesDao {
               localDateKey: entry.localDateKey,
               note: Value(entry.note),
               oncePerDay: Value(entry.oncePerDay),
+              tzOffsetMinutes: Value(entry.tzOffsetMinutes),
               createdAt: now,
               updatedAt: now,
             ),
@@ -68,7 +72,9 @@ class TrackerEntriesDao {
     return row == null ? null : _toEntry(row);
   }
 
-  /// Rewrites an entry's value, time, day and note.
+  /// Rewrites an entry's value, time, day and note, and its offset when
+  /// [tzOffsetMinutes] is given. Null leaves the stored offset as it is:
+  /// editing a note after a flight must not move the entry's hour.
   ///
   /// Returns [DayWrite.dayAlreadyDone], writing nothing, when the edit would
   /// put a second live "done" on one day.
@@ -78,6 +84,7 @@ class TrackerEntriesDao {
     required DateTime occurredAtUtc,
     required DateKey localDateKey,
     required String? note,
+    required int? tzOffsetMinutes,
   }) async {
     try {
       final written = await (_db.update(_db.trackerEntries)
@@ -88,6 +95,9 @@ class TrackerEntriesDao {
         occurredAtUtc: Value(occurredAtUtc.millisecondsSinceEpoch),
         localDateKey: Value(localDateKey),
         note: Value(note),
+        tzOffsetMinutes: tzOffsetMinutes == null
+            ? const Value.absent()
+            : Value(tzOffsetMinutes),
         updatedAt: Value(_now()),
       ));
       _expectOne(written, id);

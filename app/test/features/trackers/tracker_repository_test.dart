@@ -1,6 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:nimbus_data/nimbus_data.dart';
 import 'package:nimbus_domain/nimbus_domain.dart';
+import 'package:nimbustats/features/trackers/data/tracker_clock.dart';
 import 'package:nimbustats/features/trackers/data/tracker_draft.dart';
 import 'package:nimbustats/features/trackers/data/tracker_repository.dart';
 
@@ -325,5 +326,86 @@ void main() {
         () => repo.update(cig.id,
             name: 'C', iconKey: 'tag', color: 1, unit: 'L'),
         throwsArgumentError);
+  });
+
+  group('the offset is taken at write time', () {
+    // Read in SQL: no domain type carries the offset, and app tests may not
+    // import drift, so the id goes into the statement. Ids are UUIDv7 hex.
+    Future<int> offsetOf(String entryId) async => (await db
+            .customSelect('SELECT tz_offset_minutes AS o FROM tracker_entries '
+                "WHERE id = '$entryId'")
+            .getSingle())
+        .read<int>('o');
+
+    test('a tap stores the offset of wherever the device is', () async {
+      final cig = await repo.create(cigarettes);
+      final tehran = (await repo.logEntry(cig.id) as EntryLogged).entry;
+      fake.offset = FakeClock.newYork;
+      final newYork = (await repo.logEntry(cig.id) as EntryLogged).entry;
+
+      expect(await offsetOf(tehran.id), 210);
+      expect(await offsetOf(newYork.id), -240);
+    });
+
+    test('a timed session takes the offset at its start', () async {
+      final s = await repo.create(sleep);
+      await repo.startTimer(s.id);
+      fake.advance(const Duration(hours: 1));
+      final stopped = await repo.stopTimer(s.id) as TimerStopped;
+
+      expect(await offsetOf(stopped.entry.id), 210);
+    });
+
+    test('a session added by hand takes the offset at its start', () async {
+      final s = await repo.create(sleep);
+      final added = await repo.addDuration(s.id, const Duration(minutes: 30))
+          as EntryLogged;
+
+      expect(await offsetOf(added.entry.id), 210);
+    });
+
+    test('a note-only edit after a flight keeps the offset; moving the time '
+        'takes the new one', () async {
+      final cig = await repo.create(cigarettes);
+      final e = (await repo.logEntry(cig.id) as EntryLogged).entry;
+      fake.offset = FakeClock.newYork;
+
+      await repo.updateEntry(TrackerEntry(
+          id: e.id,
+          trackerId: e.trackerId,
+          value: e.value,
+          occurredAtUtc: e.occurredAtUtc,
+          localDateKey: e.localDateKey,
+          note: 'remembered'));
+      expect(await offsetOf(e.id), 210);
+
+      await repo.updateEntry(TrackerEntry(
+          id: e.id,
+          trackerId: e.trackerId,
+          value: e.value,
+          occurredAtUtc: e.occurredAtUtc.subtract(const Duration(hours: 1)),
+          localDateKey: e.localDateKey,
+          note: 'remembered'));
+      expect(await offsetOf(e.id), -240);
+    });
+
+    test('an instant off the whole second still reads a whole offset', () {
+      // 210 minutes, not 209. Dropping the milliseconds would put every such
+      // entry an hour early in the time-of-day chart.
+      expect(
+          fake.clock.offsetMinutesOf(DateTime.utc(2026, 10, 5, 9, 0, 0, 500)),
+          210);
+      fake.offset = FakeClock.newYork;
+      expect(
+          fake.clock
+              .offsetMinutesOf(DateTime.utc(2026, 10, 5, 9, 0, 0, 999, 999)),
+          -240);
+    });
+
+    test("the system clock answers the device's own offset", () {
+      final now = DateTime.now();
+      expect(const TrackerClock().offsetMinutesOf(now.toUtc()),
+          now.timeZoneOffset.inMinutes);
+    });
   });
 }
