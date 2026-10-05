@@ -5195,6 +5195,18 @@ class $TrackerEntriesTable extends TrackerEntries
     type: DriftSqlType.string,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _tzOffsetMinutesMeta = const VerificationMeta(
+    'tzOffsetMinutes',
+  );
+  @override
+  late final GeneratedColumn<int> tzOffsetMinutes = GeneratedColumn<int>(
+    'tz_offset_minutes',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
   static const VerificationMeta _oncePerDayMeta = const VerificationMeta(
     'oncePerDay',
   );
@@ -5221,6 +5233,7 @@ class $TrackerEntriesTable extends TrackerEntries
     occurredAtUtc,
     localDateKey,
     note,
+    tzOffsetMinutes,
     oncePerDay,
   ];
   @override
@@ -5295,6 +5308,15 @@ class $TrackerEntriesTable extends TrackerEntries
         note.isAcceptableOrUnknown(data['note']!, _noteMeta),
       );
     }
+    if (data.containsKey('tz_offset_minutes')) {
+      context.handle(
+        _tzOffsetMinutesMeta,
+        tzOffsetMinutes.isAcceptableOrUnknown(
+          data['tz_offset_minutes']!,
+          _tzOffsetMinutesMeta,
+        ),
+      );
+    }
     if (data.containsKey('once_per_day')) {
       context.handle(
         _oncePerDayMeta,
@@ -5351,6 +5373,10 @@ class $TrackerEntriesTable extends TrackerEntries
         DriftSqlType.string,
         data['${effectivePrefix}note'],
       ),
+      tzOffsetMinutes: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}tz_offset_minutes'],
+      )!,
       oncePerDay: attachedDatabase.typeMapping.read(
         DriftSqlType.bool,
         data['${effectivePrefix}once_per_day'],
@@ -5390,6 +5416,15 @@ class TrackerEntryRow extends DataClass implements Insertable<TrackerEntryRow> {
   final DateKey localDateKey;
   final String? note;
 
+  /// The device's UTC offset when the entry was logged, in minutes: what turns
+  /// [occurredAtUtc] back into the local hour the entry happened at.
+  ///
+  /// Stamped at write time like [localDateKey], and for the same reason: an
+  /// entry logged before a flight keeps the hour it was logged at. It mirrors
+  /// `transactions.tz_offset_minutes`, and the engine's hour-of-day and
+  /// weekday buckets read both the same way.
+  final int tzOffsetMinutes;
+
   /// True on a boolean tracker's entries; the once-per-day index tests it.
   final bool oncePerDay;
   const TrackerEntryRow({
@@ -5402,6 +5437,7 @@ class TrackerEntryRow extends DataClass implements Insertable<TrackerEntryRow> {
     required this.occurredAtUtc,
     required this.localDateKey,
     this.note,
+    required this.tzOffsetMinutes,
     required this.oncePerDay,
   });
   @override
@@ -5424,6 +5460,7 @@ class TrackerEntryRow extends DataClass implements Insertable<TrackerEntryRow> {
     if (!nullToAbsent || note != null) {
       map['note'] = Variable<String>(note);
     }
+    map['tz_offset_minutes'] = Variable<int>(tzOffsetMinutes);
     map['once_per_day'] = Variable<bool>(oncePerDay);
     return map;
   }
@@ -5441,6 +5478,7 @@ class TrackerEntryRow extends DataClass implements Insertable<TrackerEntryRow> {
       occurredAtUtc: Value(occurredAtUtc),
       localDateKey: Value(localDateKey),
       note: note == null && nullToAbsent ? const Value.absent() : Value(note),
+      tzOffsetMinutes: Value(tzOffsetMinutes),
       oncePerDay: Value(oncePerDay),
     );
   }
@@ -5460,6 +5498,7 @@ class TrackerEntryRow extends DataClass implements Insertable<TrackerEntryRow> {
       occurredAtUtc: serializer.fromJson<int>(json['occurredAtUtc']),
       localDateKey: serializer.fromJson<DateKey>(json['localDateKey']),
       note: serializer.fromJson<String?>(json['note']),
+      tzOffsetMinutes: serializer.fromJson<int>(json['tzOffsetMinutes']),
       oncePerDay: serializer.fromJson<bool>(json['oncePerDay']),
     );
   }
@@ -5476,6 +5515,7 @@ class TrackerEntryRow extends DataClass implements Insertable<TrackerEntryRow> {
       'occurredAtUtc': serializer.toJson<int>(occurredAtUtc),
       'localDateKey': serializer.toJson<DateKey>(localDateKey),
       'note': serializer.toJson<String?>(note),
+      'tzOffsetMinutes': serializer.toJson<int>(tzOffsetMinutes),
       'oncePerDay': serializer.toJson<bool>(oncePerDay),
     };
   }
@@ -5490,6 +5530,7 @@ class TrackerEntryRow extends DataClass implements Insertable<TrackerEntryRow> {
     int? occurredAtUtc,
     DateKey? localDateKey,
     Value<String?> note = const Value.absent(),
+    int? tzOffsetMinutes,
     bool? oncePerDay,
   }) => TrackerEntryRow(
     id: id ?? this.id,
@@ -5501,6 +5542,7 @@ class TrackerEntryRow extends DataClass implements Insertable<TrackerEntryRow> {
     occurredAtUtc: occurredAtUtc ?? this.occurredAtUtc,
     localDateKey: localDateKey ?? this.localDateKey,
     note: note.present ? note.value : this.note,
+    tzOffsetMinutes: tzOffsetMinutes ?? this.tzOffsetMinutes,
     oncePerDay: oncePerDay ?? this.oncePerDay,
   );
   TrackerEntryRow copyWithCompanion(TrackerEntriesCompanion data) {
@@ -5518,6 +5560,9 @@ class TrackerEntryRow extends DataClass implements Insertable<TrackerEntryRow> {
           ? data.localDateKey.value
           : this.localDateKey,
       note: data.note.present ? data.note.value : this.note,
+      tzOffsetMinutes: data.tzOffsetMinutes.present
+          ? data.tzOffsetMinutes.value
+          : this.tzOffsetMinutes,
       oncePerDay: data.oncePerDay.present
           ? data.oncePerDay.value
           : this.oncePerDay,
@@ -5536,6 +5581,7 @@ class TrackerEntryRow extends DataClass implements Insertable<TrackerEntryRow> {
           ..write('occurredAtUtc: $occurredAtUtc, ')
           ..write('localDateKey: $localDateKey, ')
           ..write('note: $note, ')
+          ..write('tzOffsetMinutes: $tzOffsetMinutes, ')
           ..write('oncePerDay: $oncePerDay')
           ..write(')'))
         .toString();
@@ -5552,6 +5598,7 @@ class TrackerEntryRow extends DataClass implements Insertable<TrackerEntryRow> {
     occurredAtUtc,
     localDateKey,
     note,
+    tzOffsetMinutes,
     oncePerDay,
   );
   @override
@@ -5567,6 +5614,7 @@ class TrackerEntryRow extends DataClass implements Insertable<TrackerEntryRow> {
           other.occurredAtUtc == this.occurredAtUtc &&
           other.localDateKey == this.localDateKey &&
           other.note == this.note &&
+          other.tzOffsetMinutes == this.tzOffsetMinutes &&
           other.oncePerDay == this.oncePerDay);
 }
 
@@ -5580,6 +5628,7 @@ class TrackerEntriesCompanion extends UpdateCompanion<TrackerEntryRow> {
   final Value<int> occurredAtUtc;
   final Value<DateKey> localDateKey;
   final Value<String?> note;
+  final Value<int> tzOffsetMinutes;
   final Value<bool> oncePerDay;
   final Value<int> rowid;
   const TrackerEntriesCompanion({
@@ -5592,6 +5641,7 @@ class TrackerEntriesCompanion extends UpdateCompanion<TrackerEntryRow> {
     this.occurredAtUtc = const Value.absent(),
     this.localDateKey = const Value.absent(),
     this.note = const Value.absent(),
+    this.tzOffsetMinutes = const Value.absent(),
     this.oncePerDay = const Value.absent(),
     this.rowid = const Value.absent(),
   });
@@ -5605,6 +5655,7 @@ class TrackerEntriesCompanion extends UpdateCompanion<TrackerEntryRow> {
     required int occurredAtUtc,
     required DateKey localDateKey,
     this.note = const Value.absent(),
+    this.tzOffsetMinutes = const Value.absent(),
     this.oncePerDay = const Value.absent(),
     this.rowid = const Value.absent(),
   }) : id = Value(id),
@@ -5624,6 +5675,7 @@ class TrackerEntriesCompanion extends UpdateCompanion<TrackerEntryRow> {
     Expression<int>? occurredAtUtc,
     Expression<int>? localDateKey,
     Expression<String>? note,
+    Expression<int>? tzOffsetMinutes,
     Expression<bool>? oncePerDay,
     Expression<int>? rowid,
   }) {
@@ -5637,6 +5689,7 @@ class TrackerEntriesCompanion extends UpdateCompanion<TrackerEntryRow> {
       if (occurredAtUtc != null) 'occurred_at_utc': occurredAtUtc,
       if (localDateKey != null) 'local_date_key': localDateKey,
       if (note != null) 'note': note,
+      if (tzOffsetMinutes != null) 'tz_offset_minutes': tzOffsetMinutes,
       if (oncePerDay != null) 'once_per_day': oncePerDay,
       if (rowid != null) 'rowid': rowid,
     });
@@ -5652,6 +5705,7 @@ class TrackerEntriesCompanion extends UpdateCompanion<TrackerEntryRow> {
     Value<int>? occurredAtUtc,
     Value<DateKey>? localDateKey,
     Value<String?>? note,
+    Value<int>? tzOffsetMinutes,
     Value<bool>? oncePerDay,
     Value<int>? rowid,
   }) {
@@ -5665,6 +5719,7 @@ class TrackerEntriesCompanion extends UpdateCompanion<TrackerEntryRow> {
       occurredAtUtc: occurredAtUtc ?? this.occurredAtUtc,
       localDateKey: localDateKey ?? this.localDateKey,
       note: note ?? this.note,
+      tzOffsetMinutes: tzOffsetMinutes ?? this.tzOffsetMinutes,
       oncePerDay: oncePerDay ?? this.oncePerDay,
       rowid: rowid ?? this.rowid,
     );
@@ -5702,6 +5757,9 @@ class TrackerEntriesCompanion extends UpdateCompanion<TrackerEntryRow> {
     if (note.present) {
       map['note'] = Variable<String>(note.value);
     }
+    if (tzOffsetMinutes.present) {
+      map['tz_offset_minutes'] = Variable<int>(tzOffsetMinutes.value);
+    }
     if (oncePerDay.present) {
       map['once_per_day'] = Variable<bool>(oncePerDay.value);
     }
@@ -5723,6 +5781,7 @@ class TrackerEntriesCompanion extends UpdateCompanion<TrackerEntryRow> {
           ..write('occurredAtUtc: $occurredAtUtc, ')
           ..write('localDateKey: $localDateKey, ')
           ..write('note: $note, ')
+          ..write('tzOffsetMinutes: $tzOffsetMinutes, ')
           ..write('oncePerDay: $oncePerDay, ')
           ..write('rowid: $rowid')
           ..write(')'))
@@ -5788,6 +5847,10 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     'idx_tracker_entries_history',
     'CREATE INDEX idx_tracker_entries_history ON tracker_entries (tracker_id, occurred_at_utc DESC, id DESC)',
   );
+  late final Index idxTrackerEntriesTrackerDay = Index(
+    'idx_tracker_entries_tracker_day',
+    'CREATE INDEX idx_tracker_entries_tracker_day ON tracker_entries (tracker_id, local_date_key)',
+  );
   late final Index idxTrackerEntriesOncePerDay = Index(
     'idx_tracker_entries_once_per_day',
     'CREATE UNIQUE INDEX idx_tracker_entries_once_per_day ON tracker_entries (tracker_id, local_date_key) WHERE once_per_day = 1 AND deleted_at IS NULL',
@@ -5817,6 +5880,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     idxTrackersLive,
     idxTrackerEntriesDay,
     idxTrackerEntriesHistory,
+    idxTrackerEntriesTrackerDay,
     idxTrackerEntriesOncePerDay,
   ];
   @override
@@ -9403,6 +9467,7 @@ typedef $$TrackerEntriesTableCreateCompanionBuilder =
       required int occurredAtUtc,
       required DateKey localDateKey,
       Value<String?> note,
+      Value<int> tzOffsetMinutes,
       Value<bool> oncePerDay,
       Value<int> rowid,
     });
@@ -9417,6 +9482,7 @@ typedef $$TrackerEntriesTableUpdateCompanionBuilder =
       Value<int> occurredAtUtc,
       Value<DateKey> localDateKey,
       Value<String?> note,
+      Value<int> tzOffsetMinutes,
       Value<bool> oncePerDay,
       Value<int> rowid,
     });
@@ -9498,6 +9564,11 @@ class $$TrackerEntriesTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
+  ColumnFilters<int> get tzOffsetMinutes => $composableBuilder(
+    column: $table.tzOffsetMinutes,
+    builder: (column) => ColumnFilters(column),
+  );
+
   ColumnFilters<bool> get oncePerDay => $composableBuilder(
     column: $table.oncePerDay,
     builder: (column) => ColumnFilters(column),
@@ -9576,6 +9647,11 @@ class $$TrackerEntriesTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<int> get tzOffsetMinutes => $composableBuilder(
+    column: $table.tzOffsetMinutes,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<bool> get oncePerDay => $composableBuilder(
     column: $table.oncePerDay,
     builder: (column) => ColumnOrderings(column),
@@ -9642,6 +9718,11 @@ class $$TrackerEntriesTableAnnotationComposer
 
   GeneratedColumn<String> get note =>
       $composableBuilder(column: $table.note, builder: (column) => column);
+
+  GeneratedColumn<int> get tzOffsetMinutes => $composableBuilder(
+    column: $table.tzOffsetMinutes,
+    builder: (column) => column,
+  );
 
   GeneratedColumn<bool> get oncePerDay => $composableBuilder(
     column: $table.oncePerDay,
@@ -9711,6 +9792,7 @@ class $$TrackerEntriesTableTableManager
                 Value<int> occurredAtUtc = const Value.absent(),
                 Value<DateKey> localDateKey = const Value.absent(),
                 Value<String?> note = const Value.absent(),
+                Value<int> tzOffsetMinutes = const Value.absent(),
                 Value<bool> oncePerDay = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => TrackerEntriesCompanion(
@@ -9723,6 +9805,7 @@ class $$TrackerEntriesTableTableManager
                 occurredAtUtc: occurredAtUtc,
                 localDateKey: localDateKey,
                 note: note,
+                tzOffsetMinutes: tzOffsetMinutes,
                 oncePerDay: oncePerDay,
                 rowid: rowid,
               ),
@@ -9737,6 +9820,7 @@ class $$TrackerEntriesTableTableManager
                 required int occurredAtUtc,
                 required DateKey localDateKey,
                 Value<String?> note = const Value.absent(),
+                Value<int> tzOffsetMinutes = const Value.absent(),
                 Value<bool> oncePerDay = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => TrackerEntriesCompanion.insert(
@@ -9749,6 +9833,7 @@ class $$TrackerEntriesTableTableManager
                 occurredAtUtc: occurredAtUtc,
                 localDateKey: localDateKey,
                 note: note,
+                tzOffsetMinutes: tzOffsetMinutes,
                 oncePerDay: oncePerDay,
                 rowid: rowid,
               ),

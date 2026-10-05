@@ -37,7 +37,17 @@ part 'app_database.g.dart';
   ],
 )
 class AppDatabase extends _$AppDatabase {
-  AppDatabase(super.e);
+  AppDatabase(super.e, {int Function(DateTime utc)? trackerOffsetAt})
+      : _trackerOffsetAt = trackerOffsetAt ?? _deviceOffsetAt;
+
+  /// The UTC offset, in minutes, that the device's zone had at an instant.
+  ///
+  /// Read only by the v31 backfill. A parameter so the migration test can pin
+  /// it; the default is the device's real zone.
+  final int Function(DateTime utc) _trackerOffsetAt;
+
+  static int _deviceOffsetAt(DateTime utc) =>
+      utc.toLocal().timeZoneOffset.inMinutes;
 
   /// Opens the database stored at [path].
   ///
@@ -58,7 +68,7 @@ class AppDatabase extends _$AppDatabase {
   factory AppDatabase.openInMemory() => AppDatabase(NativeDatabase.memory());
 
   @override
-  int get schemaVersion => 30;
+  int get schemaVersion => 31;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -93,7 +103,10 @@ class AppDatabase extends _$AppDatabase {
           }
           // v21 -> v30: Phase 4 adds trackers and their entries. New tables
           // only, so every older version takes this same step, after the
-          // saved-views chain above.
+          // saved-views chain above. createTable builds the tables as they are
+          // declared *now*, so this path already has v31's offset column and
+          // index -- and with no entries yet there is nothing to backfill,
+          // which is why the v31 step below is an else.
           if (from < 30) {
             await m.createTable(trackers);
             await m.createTable(trackerEntries);
@@ -105,12 +118,48 @@ class AppDatabase extends _$AppDatabase {
             await m.create(idxTrackerEntriesDay);
             await m.create(idxTrackerEntriesHistory);
             await m.create(idxTrackerEntriesOncePerDay);
+            await m.create(idxTrackerEntriesTrackerDay);
+          } else if (from < 31) {
+            // v30 -> v31: entries learn the UTC offset they were logged at,
+            // without which no hour-of-day pattern can be right.
+            //
+            // In a transaction because drift runs onUpgrade without one and
+            // records the new version only after it returns. A process killed
+            // half-way through the backfill would otherwise leave a v30
+            // database with the column already added, and every later start
+            // would fail on addColumn. The version is written inside too, so
+            // nothing separates this step's commit from its record.
+            await transaction(() async {
+              await m.addColumn(
+                  trackerEntries, trackerEntries.tzOffsetMinutes);
+              await _backfillTrackerOffsets();
+              await m.create(idxTrackerEntriesTrackerDay);
+              await customStatement('PRAGMA user_version = 31');
+            });
           }
         },
         beforeOpen: (details) async {
           await customStatement('PRAGMA foreign_keys = ON');
         },
       );
+
+  /// Gives every existing entry the offset the device's zone had at that
+  /// entry's own instant -- not today's, which in a zone with daylight saving
+  /// would put a winter entry an hour off. Exact under Iran's fixed +3:30.
+  Future<void> _backfillTrackerOffsets() async {
+    final rows = await customSelect(
+            'SELECT id, occurred_at_utc FROM tracker_entries')
+        .get();
+    for (final row in rows) {
+      final at = DateTime.fromMillisecondsSinceEpoch(
+          row.read<int>('occurred_at_utc'),
+          isUtc: true);
+      await customStatement(
+        'UPDATE tracker_entries SET tz_offset_minutes = ? WHERE id = ?',
+        [_trackerOffsetAt(at), row.read<String>('id')],
+      );
+    }
+  }
 
   /// Built once per database. Cheap either way, but a DAO is a handle, not a
   /// value -- handing out a fresh one per property read invites callers to

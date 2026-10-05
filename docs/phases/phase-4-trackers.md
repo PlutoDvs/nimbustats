@@ -16,7 +16,7 @@ time-of-day patterns come free.
 stops a timer that survives the app being killed, and sees when in the day their
 habits actually happen.
 
-**Schema versions:** v30–v39 reserved. Expect to use **v30**.
+**Schema versions:** v30–v39 reserved. 4a used **v30**; 4b uses **v31** (entry offsets) and **v32** (drops 4a's day index).
 **Branch:** `phase/4-trackers` · **Gate tag:** `phase-4-complete`
 
 ---
@@ -112,6 +112,12 @@ to hold at the data layer:
   allow one live "done" per day. A partial index can only test its own table's
   columns.
 - `per_tap_value` is what one tap logs on a quantity tracker.
+
+4b adds one column (v31), because no hour-of-day pattern can be right without
+it: `tz_offset_minutes`, the device's UTC offset when the entry was logged, as
+transactions already store. It also adds the index every engine query uses,
+`(tracker_id, local_date_key)`, and v32 drops 4a's `(local_date_key,
+tracker_id)` once its only reader, the DAO's day total, is gone.
 
 **Per-increment rows, not daily totals.** Five cigarettes on one day is five
 rows with five timestamps. That is what makes time-of-day patterns free, and

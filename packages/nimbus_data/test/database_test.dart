@@ -10,12 +10,20 @@ void main() {
   setUp(() => db = openTestDatabase());
   tearDown(() => db.close());
 
-  test('opens at schema version 30', () async {
-    // Phase 3 took v20 and v21, Phase 4 v30. Ranges are reserved per phase,
-    // so this number jumps rather than increments; see the registry in
+  test('opens at schema version 31', () async {
+    // Phase 3 took v20 and v21, Phase 4 v30 and v31. Ranges are reserved per
+    // phase, so this number jumps rather than increments; see the registry in
     // CONVENTIONS.md.
-    expect(db.schemaVersion, 30);
+    expect(db.schemaVersion, 31);
     await db.customSelect('SELECT 1').get();
+  });
+
+  test('a fresh install has the tracker-day index', () async {
+    final rows = await db
+        .customSelect("SELECT name FROM sqlite_master WHERE type = 'index' "
+            "AND name = 'idx_tracker_entries_tracker_day'")
+        .get();
+    expect(rows, hasLength(1));
   });
 
   test('settings round-trip a value', () async {

@@ -4,7 +4,7 @@
 operator's review before the implementation plan is written.
 **Brief:** `docs/phases/phase-4-trackers.md` (4b: tasks 10–13).
 **Prerequisites:** `phase-3-complete` and `phase-4a-complete` both exist.
-**Schema:** v31 · **Gate:** `phase-4-complete`
+**Schema:** v31, v32 · **Gate:** `phase-4-complete`
 
 ## Context
 
@@ -118,12 +118,11 @@ reads `id, occurred_at_utc` and writes one `UPDATE` per row.
 | Index | Change | Serves |
 |---|---|---|
 | `idx_tracker_entries_tracker_day (tracker_id, local_date_key)` | **added** | Every engine query on tracker entries |
-| `idx_tracker_entries_day (local_date_key, tracker_id)` | **dropped** | Its only reader is 4a's DAO `SUM`, which §3 deletes |
+| `idx_tracker_entries_day (local_date_key, tracker_id)` | **dropped in v32** | Its only reader is 4a's DAO `SUM`, which §3 deletes. Dropping it in v31 would make that `SUM` scan an index for five commits (measured: `SCAN … USING INDEX idx_tracker_entries_tracker_day`), so v32 drops it alone, after the `SUM` is gone (operator, 2026-10-05) |
 | `idx_tracker_entries_history` | unchanged | The detail screen's keyset pages |
 | `idx_tracker_entries_once_per_day` | unchanged | The boolean rule; it is partial, so the planner cannot use it for these queries |
 
-The migration creates the new index with `m.create(...)` and drops the old one
-by name. A fresh install's `createAll` builds the same set.
+v31 creates the new index with `m.create(...)`; v32 drops the old one by name. A fresh install's `createAll` builds the same set.
 
 ## 2. Domain — `nimbus_domain/lib/src/trackers/`
 

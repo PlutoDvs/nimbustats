@@ -61,8 +61,8 @@ void main() {
     );
   }
 
-  test('the schema version is 30', () async {
-    expect(db.schemaVersion, 30);
+  test('the schema version is 31', () async {
+    expect(db.schemaVersion, 31);
   });
 
   test('a view round-trips its spec, period and chart', () async {
