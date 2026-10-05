@@ -18,7 +18,11 @@ Future<T> reportingTrackerFailure<T>({
   try {
     return await write();
   } on Object {
-    messenger.showSnackBar(SnackBar(content: Text(l10n.trackerWriteFailed)));
+    // Replaces whatever is up -- typically the last tap's undo bar -- rather
+    // than queueing behind it, where a failure would go unseen.
+    messenger
+      ..removeCurrentSnackBar()
+      ..showSnackBar(SnackBar(content: Text(l10n.trackerWriteFailed)));
     rethrow;
   }
 }

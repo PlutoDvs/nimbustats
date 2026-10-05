@@ -96,6 +96,15 @@ void main() {
   });
 
   group('nimbusUndoSnackBar', () {
+    test('leaves after its duration even though it carries an action', () {
+      // Flutter makes a SnackBar with an action persist unless told not to,
+      // which silently voids the duration: an undo bar would stay up until
+      // something replaced it, and every later message would queue behind.
+      final snackBar = nimbusUndoSnackBar(
+          message: 'Deleted', undoLabel: 'Undo', onUndo: () {});
+      expect(snackBar.persist, isFalse);
+    });
+
     testWidgets('carries an undo action rather than a confirmation',
         (tester) async {
       var undone = 0;

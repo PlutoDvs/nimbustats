@@ -16,6 +16,11 @@ SnackBar nimbusUndoSnackBar({
     SnackBar(
       content: Text(message),
       duration: duration,
+      // Flutter persists a SnackBar that has an action unless told not to,
+      // which silently voids [duration]: the bar would stay up until
+      // something replaced it, and every later message would queue unseen
+      // behind it.
+      persist: false,
       behavior: SnackBarBehavior.floating,
       margin: const EdgeInsets.all(NimbusTokens.space4),
       action: SnackBarAction(label: undoLabel, onPressed: onUndo),

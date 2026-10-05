@@ -80,6 +80,18 @@ void main() {
           reason: 'snackbar $snackBar, button ${tester.getRect(action(cig))}');
     });
 
+    testWidgets('the undo bar leaves after its five seconds', (tester) async {
+      await openTab(tester);
+      await tester.tap(action(cig));
+      await tester.pumpAndSettle();
+      expect(find.byType(SnackBar), findsOneWidget);
+
+      await tester.pump(const Duration(seconds: 6));
+      await tester.pumpAndSettle();
+
+      expect(find.byType(SnackBar), findsNothing);
+    });
+
     testWidgets('undo removes exactly the entry that tap logged',
         (tester) async {
       await openTab(tester);
@@ -163,6 +175,27 @@ void main() {
     final size = tester.getSize(action(cig));
     expect(size.width, greaterThanOrEqualTo(NimbusTokens.minTapTarget));
     expect(size.height, greaterThanOrEqualTo(NimbusTokens.minTapTarget));
+  });
+
+  testWidgets('a failure right after a logged tap is still said',
+      (tester) async {
+    // The first tap's undo bar is up when the second write fails. The
+    // failure must replace it, not queue behind it where nobody sees it.
+    await openTab(tester);
+    await tester.tap(action(cig));
+    await tester.pumpAndSettle();
+    await db.customStatement(
+        'CREATE TEMP TRIGGER fail_entry BEFORE INSERT ON tracker_entries '
+        "BEGIN SELECT RAISE(ABORT, 'disk I/O error'); END");
+
+    Object? caught;
+    await runZonedGuarded(() async {
+      await tester.tap(action(cig));
+      await tester.pumpAndSettle();
+    }, (error, stack) => caught = error);
+
+    expect(find.text('Could not save. Try again.'), findsOneWidget);
+    expect(caught, isNotNull);
   });
 
   testWidgets('a failed write says so and still reaches the error handler',
