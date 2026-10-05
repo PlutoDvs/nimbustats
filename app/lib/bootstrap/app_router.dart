@@ -14,6 +14,7 @@ import '../features/onboarding/routes.dart';
 import '../features/payment_methods/routes.dart';
 import '../features/settings/routes.dart';
 import '../features/tags/routes.dart';
+import '../features/trackers/routes.dart';
 import '../features/transactions/routes.dart';
 
 /// Composes the per-feature route lists into the app's router.
@@ -71,6 +72,7 @@ final appRouterProvider =
         builder: (context, state, child) => AppShell(child: child),
         routes: <RouteBase>[
           ...transactionShellRoutes,
+          ...trackerShellRoutes,
           ...analyticsShellRoutes,
           ...settingsShellRoutes,
         ],

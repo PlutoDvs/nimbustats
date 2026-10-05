@@ -83,6 +83,7 @@
   "navAnalytics": "Analytics",
   "navHome": "Home",
   "navSettings": "Settings",
+  "navTrackers": "Trackers",
   "onboardingCalendarTitle": "Calendar",
   "onboardingCurrencyTitle": "Currency",
   "onboardingFinish": "Start",
@@ -228,6 +229,27 @@
       }
     }
   },
+  "trackerDoneToday": "Done today",
+  "trackerEmptyMessage": "A tracker counts what you do besides spending: cigarettes, glasses of water, gym days, hours of sleep. Pick some to start.",
+  "trackerEmptyTitle": "Track more than money",
+  "trackerErrorTitle": "Could not load trackers",
+  "trackerNotDoneToday": "Not done today",
+  "trackerPresetCigarettes": "Cigarettes",
+  "trackerPresetGym": "Gym",
+  "trackerPresetsAdd": "Start tracking",
+  "trackerPresetSleep": "Sleep",
+  "trackerPresetWater": "Water",
+  "trackerPresetWaterUnit": "L",
+  "trackerScreenTitle": "Trackers",
+  "trackerTodayTotal": "{total} today",
+  "@trackerTodayTotal": {
+    "placeholders": {
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "trackerWriteFailed": "Could not save. Try again.",
   "trendsCurrentPeriod": "This month",
   "trendsDeltaNoBaseline": "No spending to compare",
   "trendsPreviousPeriod": "Last month",

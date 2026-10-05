@@ -95,6 +95,9 @@ void main() {
     await tester.enterText(
         find.byKey(const Key('pay-name-field')), 'Melli card');
     await tester.enterText(find.byKey(const Key('pay-last4-field')), '۹۸۷۶');
+    // The icon grid grew with Phase 4's habit glyphs; the sheet scrolls,
+    // so Save is reached the way a user reaches it.
+    await tester.ensureVisible(find.byKey(const Key('pay-save')));
     await tester.tap(find.byKey(const Key('pay-save')));
     await tester.pumpAndSettle();
 
@@ -114,6 +117,9 @@ void main() {
     await tester.pumpAndSettle();
     await tester.enterText(find.byKey(const Key('pay-name-field')), 'Oops');
     await tester.enterText(find.byKey(const Key('pay-last4-field')), '12');
+    // The icon grid grew with Phase 4's habit glyphs; the sheet scrolls,
+    // so Save is reached the way a user reaches it.
+    await tester.ensureVisible(find.byKey(const Key('pay-save')));
     await tester.tap(find.byKey(const Key('pay-save')));
     await tester.pumpAndSettle();
 

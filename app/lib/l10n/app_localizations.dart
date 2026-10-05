@@ -458,6 +458,12 @@ abstract class AppLocalizations {
   /// **'Settings'**
   String get navSettings;
 
+  /// No description provided for @navTrackers.
+  ///
+  /// In en, this message translates to:
+  /// **'Trackers'**
+  String get navTrackers;
+
   /// No description provided for @onboardingCalendarTitle.
   ///
   /// In en, this message translates to:
@@ -1057,6 +1063,90 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{count, plural, =1{1 use} other{{count} uses}}'**
   String tagUsageCount(int count);
+
+  /// No description provided for @trackerDoneToday.
+  ///
+  /// In en, this message translates to:
+  /// **'Done today'**
+  String get trackerDoneToday;
+
+  /// No description provided for @trackerEmptyMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'A tracker counts what you do besides spending: cigarettes, glasses of water, gym days, hours of sleep. Pick some to start.'**
+  String get trackerEmptyMessage;
+
+  /// No description provided for @trackerEmptyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Track more than money'**
+  String get trackerEmptyTitle;
+
+  /// No description provided for @trackerErrorTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load trackers'**
+  String get trackerErrorTitle;
+
+  /// No description provided for @trackerNotDoneToday.
+  ///
+  /// In en, this message translates to:
+  /// **'Not done today'**
+  String get trackerNotDoneToday;
+
+  /// No description provided for @trackerPresetCigarettes.
+  ///
+  /// In en, this message translates to:
+  /// **'Cigarettes'**
+  String get trackerPresetCigarettes;
+
+  /// No description provided for @trackerPresetGym.
+  ///
+  /// In en, this message translates to:
+  /// **'Gym'**
+  String get trackerPresetGym;
+
+  /// No description provided for @trackerPresetsAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Start tracking'**
+  String get trackerPresetsAdd;
+
+  /// No description provided for @trackerPresetSleep.
+  ///
+  /// In en, this message translates to:
+  /// **'Sleep'**
+  String get trackerPresetSleep;
+
+  /// No description provided for @trackerPresetWater.
+  ///
+  /// In en, this message translates to:
+  /// **'Water'**
+  String get trackerPresetWater;
+
+  /// No description provided for @trackerPresetWaterUnit.
+  ///
+  /// In en, this message translates to:
+  /// **'L'**
+  String get trackerPresetWaterUnit;
+
+  /// No description provided for @trackerScreenTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Trackers'**
+  String get trackerScreenTitle;
+
+  /// No description provided for @trackerTodayTotal.
+  ///
+  /// In en, this message translates to:
+  /// **'{total} today'**
+  String trackerTodayTotal(String total);
+
+  /// No description provided for @trackerWriteFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not save. Try again.'**
+  String get trackerWriteFailed;
 
   /// No description provided for @trendsCurrentPeriod.
   ///

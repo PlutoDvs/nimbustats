@@ -222,6 +222,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get navSettings => 'Settings';
 
   @override
+  String get navTrackers => 'Trackers';
+
+  @override
   String get onboardingCalendarTitle => 'Calendar';
 
   @override
@@ -555,6 +558,51 @@ class AppLocalizationsEn extends AppLocalizations {
     );
     return '$_temp0';
   }
+
+  @override
+  String get trackerDoneToday => 'Done today';
+
+  @override
+  String get trackerEmptyMessage =>
+      'A tracker counts what you do besides spending: cigarettes, glasses of water, gym days, hours of sleep. Pick some to start.';
+
+  @override
+  String get trackerEmptyTitle => 'Track more than money';
+
+  @override
+  String get trackerErrorTitle => 'Could not load trackers';
+
+  @override
+  String get trackerNotDoneToday => 'Not done today';
+
+  @override
+  String get trackerPresetCigarettes => 'Cigarettes';
+
+  @override
+  String get trackerPresetGym => 'Gym';
+
+  @override
+  String get trackerPresetsAdd => 'Start tracking';
+
+  @override
+  String get trackerPresetSleep => 'Sleep';
+
+  @override
+  String get trackerPresetWater => 'Water';
+
+  @override
+  String get trackerPresetWaterUnit => 'L';
+
+  @override
+  String get trackerScreenTitle => 'Trackers';
+
+  @override
+  String trackerTodayTotal(String total) {
+    return '$total today';
+  }
+
+  @override
+  String get trackerWriteFailed => 'Could not save. Try again.';
 
   @override
   String get trendsCurrentPeriod => 'This month';

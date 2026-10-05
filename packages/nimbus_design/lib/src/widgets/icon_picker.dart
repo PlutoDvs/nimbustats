@@ -45,6 +45,15 @@ const nimbusIcons = <String, IconData>{
   'work': Icons.work_outline,
   'savings': Icons.savings_outlined,
   'help_outline': Icons.help_outline,
+  // Habit trackers' glyphs (Phase 4). The presets use the first four.
+  'water_drop': Icons.water_drop_outlined,
+  'smoking_rooms': Icons.smoking_rooms_outlined,
+  'fitness_center': Icons.fitness_center_outlined,
+  'bedtime': Icons.bedtime_outlined,
+  'self_improvement': Icons.self_improvement_outlined,
+  'menu_book': Icons.menu_book_outlined,
+  'directions_run': Icons.directions_run_outlined,
+  'timer': Icons.timer_outlined,
 };
 
 /// Resolves a stored key, falling back rather than throwing.

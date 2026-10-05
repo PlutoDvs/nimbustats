@@ -477,6 +477,9 @@ void main() {
       await tester.tap(add);
       await tester.pumpAndSettle();
       await tester.enterText(find.byKey(const Key('pay-name-field')), 'PayPal');
+      // The icon grid grew with Phase 4's habit glyphs; the sheet scrolls,
+      // so Save is reached the way a user reaches it.
+      await tester.ensureVisible(find.byKey(const Key('pay-save')));
       await tester.tap(find.byKey(const Key('pay-save')));
       await tester.pumpAndSettle();
 

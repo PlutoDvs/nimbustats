@@ -21,11 +21,13 @@ Finder navItem(String label) => find.descendant(
     );
 
 void main() {
-  testWidgets('the shell offers home, analytics and settings', (tester) async {
+  testWidgets('the shell offers home, trackers, analytics and settings',
+      (tester) async {
     await pumpApp(tester);
 
     expect(find.byKey(const Key('nav-bar')), findsOneWidget);
     expect(navItem('Home'), findsOneWidget);
+    expect(navItem('Trackers'), findsOneWidget);
     expect(navItem('Analytics'), findsOneWidget);
     expect(navItem('Settings'), findsOneWidget);
   });
@@ -55,6 +57,16 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
+  testWidgets('tapping trackers shows the trackers tab', (tester) async {
+    await pumpApp(tester);
+
+    await tester.tap(navItem('Trackers'));
+    await tester.pumpAndSettle();
+
+    // An empty database: the tab opens on its presets.
+    expect(find.byKey(const Key('tracker-presets')), findsOneWidget);
+  });
+
   testWidgets('the destination the user is on is the selected one',
       (tester) async {
     // A nav bar that never moves its selection is worse than none: it tells
@@ -64,13 +76,17 @@ void main() {
         tester.widget<NavigationBar>(find.byKey(const Key('nav-bar')));
     expect(bar().selectedIndex, 0);
 
-    await tester.tap(navItem('Analytics'));
+    await tester.tap(navItem('Trackers'));
     await tester.pumpAndSettle();
     expect(bar().selectedIndex, 1);
 
-    await tester.tap(navItem('Settings'));
+    await tester.tap(navItem('Analytics'));
     await tester.pumpAndSettle();
     expect(bar().selectedIndex, 2);
+
+    await tester.tap(navItem('Settings'));
+    await tester.pumpAndSettle();
+    expect(bar().selectedIndex, 3);
   });
 
   testWidgets('going back to home reselects home', (tester) async {

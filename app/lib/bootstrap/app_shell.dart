@@ -3,12 +3,13 @@ import 'package:go_router/go_router.dart';
 
 import '../features/analytics/routes.dart';
 import '../features/settings/routes.dart';
+import '../features/trackers/routes.dart';
 import '../features/transactions/routes.dart';
 import '../l10n/app_localizations.dart';
 
 /// The persistent bottom navigation around the app's top-level destinations.
 ///
-/// Only these three live inside the shell. Full-screen tasks -- adding an
+/// Only these four live inside the shell. Full-screen tasks -- adding an
 /// expense, editing a category -- are pushed over it, because a nav bar under
 /// a half-finished draft offers an exit that silently discards it.
 ///
@@ -24,6 +25,7 @@ class AppShell extends StatelessWidget {
   /// in five seconds" is measured from a cold start landing there.
   static const destinations = <String>[
     transactionListRoute,
+    trackersRoute,
     analyticsRoute,
     settingsRoute,
   ];
@@ -71,6 +73,11 @@ class AppShell extends StatelessWidget {
             icon: const Icon(Icons.receipt_long_outlined),
             selectedIcon: const Icon(Icons.receipt_long),
             label: l10n.navHome,
+          ),
+          NavigationDestination(
+            icon: const Icon(Icons.checklist_outlined),
+            selectedIcon: const Icon(Icons.checklist),
+            label: l10n.navTrackers,
           ),
           NavigationDestination(
             icon: const Icon(Icons.insights_outlined),

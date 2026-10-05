@@ -221,6 +221,9 @@ class AppLocalizationsFa extends AppLocalizations {
   String get navSettings => 'تنظیمات';
 
   @override
+  String get navTrackers => 'عادت‌ها';
+
+  @override
   String get onboardingCalendarTitle => 'تقویم';
 
   @override
@@ -553,6 +556,51 @@ class AppLocalizationsFa extends AppLocalizations {
     );
     return '$_temp0';
   }
+
+  @override
+  String get trackerDoneToday => 'امروز انجام شد';
+
+  @override
+  String get trackerEmptyMessage =>
+      'هر عادت چیزی جز خرج کردن را می‌شمارد: سیگار، لیوان آب، روز باشگاه، ساعت خواب. چندتا را برای شروع انتخاب کنید.';
+
+  @override
+  String get trackerEmptyTitle => 'فراتر از پول را دنبال کنید';
+
+  @override
+  String get trackerErrorTitle => 'عادت‌ها بارگیری نشدند';
+
+  @override
+  String get trackerNotDoneToday => 'امروز انجام نشده';
+
+  @override
+  String get trackerPresetCigarettes => 'سیگار';
+
+  @override
+  String get trackerPresetGym => 'باشگاه';
+
+  @override
+  String get trackerPresetsAdd => 'شروع پیگیری';
+
+  @override
+  String get trackerPresetSleep => 'خواب';
+
+  @override
+  String get trackerPresetWater => 'آب';
+
+  @override
+  String get trackerPresetWaterUnit => 'لیتر';
+
+  @override
+  String get trackerScreenTitle => 'عادت‌ها';
+
+  @override
+  String trackerTodayTotal(String total) {
+    return 'امروز $total';
+  }
+
+  @override
+  String get trackerWriteFailed => 'ذخیره نشد. دوباره تلاش کنید.';
 
   @override
   String get trendsCurrentPeriod => 'این ماه';
