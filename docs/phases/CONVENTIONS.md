@@ -105,6 +105,7 @@ phase's files without saying so explicitly in the commit message.
 | `packages/nimbus_data/lib/src/tables/**` | the phase that created each table (see registry) |
 | `packages/nimbus_data/lib/src/capture/**` | Phase 2 |
 | `packages/nimbus_data/lib/src/analytics/**` | Phase 3 |
+| `packages/nimbus_data/lib/src/trackers/**` | Phase 4 |
 | `packages/nimbus_data/lib/src/backup/**` | Phase 7 |
 | `packages/nimbus_design/**` | Phase 1 (tokens land with the first screens) |
 | `app/lib/features/{transactions,categories,tags,payment_methods,onboarding,settings}/**` | Phase 1 |

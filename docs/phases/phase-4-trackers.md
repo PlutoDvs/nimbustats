@@ -61,6 +61,7 @@ dart analyze --fatal-infos
 packages/nimbus_domain/lib/src/trackers/**       tracker types, entry value semantics
 packages/nimbus_data/lib/src/tables/trackers_table.dart
 packages/nimbus_data/lib/src/tables/tracker_entries_table.dart
+packages/nimbus_data/lib/src/trackers/**         tracker DAOs (added in 4a: kept out of app_database.dart)
 app/lib/features/trackers/**
 ```
 

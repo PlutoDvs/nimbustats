@@ -17,4 +17,6 @@ export 'src/seed/ids.dart';
 export 'src/seed/seed_category.dart';
 export 'src/tables/payment_methods_table.dart';
 export 'src/tables/transactions_table.dart';
+export 'src/trackers/tracker_entries_dao.dart';
+export 'src/trackers/trackers_dao.dart';
 export 'src/tree/materialized_path.dart';

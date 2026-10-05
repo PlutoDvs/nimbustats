@@ -15,6 +15,8 @@ import '../tables/tracker_entries_table.dart';
 import '../tables/trackers_table.dart';
 import '../tables/transaction_tags_table.dart';
 import '../tables/transactions_table.dart';
+import '../trackers/tracker_entries_dao.dart';
+import '../trackers/trackers_dao.dart';
 import '../tree/materialized_path.dart';
 // Used by the generated part, which resolves imports through this library.
 import 'converters.dart';
@@ -119,6 +121,8 @@ class AppDatabase extends _$AppDatabase {
   late final TransactionsDao transactionsDao = TransactionsDao(this);
   late final PaymentMethodsDao paymentMethodsDao = PaymentMethodsDao(this);
   late final SavedViewsDao savedViewsDao = SavedViewsDao(this);
+  late final TrackersDao trackersDao = TrackersDao(this);
+  late final TrackerEntriesDao trackerEntriesDao = TrackerEntriesDao(this);
 }
 
 /// Application settings. Reads return null for an absent key rather than
