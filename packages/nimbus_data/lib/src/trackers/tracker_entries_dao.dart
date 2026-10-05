@@ -164,11 +164,24 @@ class TrackerEntriesDao {
   /// and goes through `QuerySpec`.
   Stream<Map<String, double>> watchDayTotals(DateKey day) {
     final (:query, :total) = _dayTotals(day);
-    final trackerId = _db.trackerEntries.trackerId;
-    return query.watch().map((rows) => {
-          for (final row in rows) row.read(trackerId)!: row.read(total) ?? 0,
-        });
+    return query.watch().map((rows) => _byTracker(rows, total));
   }
+
+  /// [watchDayTotals], read once, for a caller that needs the number now --
+  /// the snackbar after a tap. A subscription opened for one value would have
+  /// to be cancelled, and its first value arrives on a timer rather than with
+  /// the query.
+  Future<Map<String, double>> dayTotals(DateKey day) async {
+    final (:query, :total) = _dayTotals(day);
+    return _byTracker(await query.get(), total);
+  }
+
+  Map<String, double> _byTracker(
+          List<TypedResult> rows, Expression<double> total) =>
+      {
+        for (final row in rows)
+          row.read(_db.trackerEntries.trackerId)!: row.read(total) ?? 0,
+      };
 
   /// [watchDayTotals]'s statement, so a test can assert its plan.
   JoinedSelectStatement<$TrackerEntriesTable, TrackerEntryRow> dayTotalsQuery(

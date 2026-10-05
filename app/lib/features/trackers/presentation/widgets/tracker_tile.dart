@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:nimbus_design/nimbus_design.dart';
 import 'package:nimbus_domain/nimbus_domain.dart';
 
+import 'tracker_action_button.dart';
 import 'tracker_today_text.dart';
 
 /// One tracker on the tab: its icon, its name and today's total.
@@ -25,5 +26,6 @@ class TrackerTile extends StatelessWidget {
           tracker: tracker,
           total: total,
         ),
+        trailing: TrackerActionButton(tracker: tracker, total: total),
       );
 }

@@ -37,7 +37,7 @@ final class TrackerRepository {
 
   /// One tracker's total for [day], read once: the snackbar after a tap.
   Future<double> totalOn(String trackerId, DateKey day) async =>
-      (await _entries.watchDayTotals(day).first)[trackerId] ?? 0;
+      (await _entries.dayTotals(day))[trackerId] ?? 0;
 
   /// Fires after any entry write, so a loaded history can reload.
   Stream<void> entryChanges() => _entries.changes();

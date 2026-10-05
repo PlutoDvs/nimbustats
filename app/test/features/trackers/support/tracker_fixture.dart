@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/misc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:nimbus_data/nimbus_data.dart';
@@ -108,3 +109,21 @@ Future<void> backgroundAndResume(WidgetTester tester) async {
 /// test body therefore waits forever; this reads it on the real clock.
 Future<T> firstOf<T>(WidgetTester tester, Stream<T> stream) async =>
     (await tester.runAsync(() => stream.first)) as T;
+
+/// Records every haptic the app asks for, as the platform channel sees it:
+/// `HapticFeedbackType.lightImpact` and so on.
+List<String> captureHaptics(WidgetTester tester) {
+  final haptics = <String>[];
+  tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+    SystemChannels.platform,
+    (call) async {
+      if (call.method == 'HapticFeedback.vibrate') {
+        haptics.add(call.arguments.toString());
+      }
+      return null;
+    },
+  );
+  addTearDown(() => tester.binding.defaultBinaryMessenger
+      .setMockMethodCallHandler(SystemChannels.platform, null));
+  return haptics;
+}

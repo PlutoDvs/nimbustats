@@ -229,10 +229,61 @@
       }
     }
   },
+  "trackerAddOne": "Add one to {name}",
+  "@trackerAddOne": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "trackerDoneToday": "Done today",
   "trackerEmptyMessage": "A tracker counts what you do besides spending: cigarettes, glasses of water, gym days, hours of sleep. Pick some to start.",
   "trackerEmptyTitle": "Track more than money",
   "trackerErrorTitle": "Could not load trackers",
+  "trackerLoggedToday": "{name} · {total} today",
+  "@trackerLoggedToday": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "trackerMarkDone": "Mark {name} done",
+  "@trackerMarkDone": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "trackerMarkedDone": "{name} · done today",
+  "@trackerMarkedDone": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "trackerMarkedNotDone": "{name} · not done today",
+  "@trackerMarkedNotDone": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "trackerMarkNotDone": "Mark {name} not done",
+  "@trackerMarkNotDone": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "trackerNotDoneToday": "Not done today",
   "trackerPresetCigarettes": "Cigarettes",
   "trackerPresetGym": "Gym",

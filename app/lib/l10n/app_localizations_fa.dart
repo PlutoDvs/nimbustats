@@ -558,6 +558,11 @@ class AppLocalizationsFa extends AppLocalizations {
   }
 
   @override
+  String trackerAddOne(String name) {
+    return 'یکی به $name اضافه کن';
+  }
+
+  @override
   String get trackerDoneToday => 'امروز انجام شد';
 
   @override
@@ -569,6 +574,31 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get trackerErrorTitle => 'عادت‌ها بارگیری نشدند';
+
+  @override
+  String trackerLoggedToday(String name, String total) {
+    return '$name · امروز $total';
+  }
+
+  @override
+  String trackerMarkDone(String name) {
+    return '$name را انجام‌شده علامت بزن';
+  }
+
+  @override
+  String trackerMarkedDone(String name) {
+    return '$name · امروز انجام شد';
+  }
+
+  @override
+  String trackerMarkedNotDone(String name) {
+    return '$name · امروز انجام نشده';
+  }
+
+  @override
+  String trackerMarkNotDone(String name) {
+    return 'علامت انجام $name را بردار';
+  }
 
   @override
   String get trackerNotDoneToday => 'امروز انجام نشده';

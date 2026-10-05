@@ -44,7 +44,14 @@ class TrackersScreen extends ConsumerWidget {
         // Anchored to the bottom: the first trackers sit in thumb reach above
         // the nav bar (screen contract §1.3, one-handed reach).
         reverse: true,
-        padding: const EdgeInsets.symmetric(vertical: NimbusTokens.space2),
+        // The bottom is kept clear for the undo snackbar every tap shows (a
+        // floating one, up to two lines). Without the gap it would sit over
+        // the first tracker's button, and the second tap of a run would land
+        // on the snackbar instead of on +1.
+        padding: const EdgeInsets.only(
+          top: NimbusTokens.space2,
+          bottom: NimbusTokens.minTapTarget * 2,
+        ),
         itemCount: list.length,
         itemBuilder: (context, index) {
           final tracker = list[index];

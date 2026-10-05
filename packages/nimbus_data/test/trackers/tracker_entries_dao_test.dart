@@ -163,6 +163,15 @@ void main() {
     expect(await dao.watchDayTotals(today.addDays(1)).first, isEmpty);
   });
 
+  test('dayTotals reads the same totals once, without a subscription',
+      () async {
+    await dao.insertEntry(newEntry('c1', 'cig'));
+    await dao.insertEntry(newEntry('w1', 'water', value: 0.25));
+
+    expect(await dao.dayTotals(today), {'cig': 1.0, 'water': 0.25});
+    expect(await dao.dayTotals(today.addDays(1)), isEmpty);
+  });
+
   test('day totals follow writes', () async {
     final totals = dao.watchDayTotals(today);
     final seen = expectLater(

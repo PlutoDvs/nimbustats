@@ -560,6 +560,11 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String trackerAddOne(String name) {
+    return 'Add one to $name';
+  }
+
+  @override
   String get trackerDoneToday => 'Done today';
 
   @override
@@ -571,6 +576,31 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get trackerErrorTitle => 'Could not load trackers';
+
+  @override
+  String trackerLoggedToday(String name, String total) {
+    return '$name · $total today';
+  }
+
+  @override
+  String trackerMarkDone(String name) {
+    return 'Mark $name done';
+  }
+
+  @override
+  String trackerMarkedDone(String name) {
+    return '$name · done today';
+  }
+
+  @override
+  String trackerMarkedNotDone(String name) {
+    return '$name · not done today';
+  }
+
+  @override
+  String trackerMarkNotDone(String name) {
+    return 'Mark $name not done';
+  }
 
   @override
   String get trackerNotDoneToday => 'Not done today';

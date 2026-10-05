@@ -149,6 +149,12 @@ void main() {
 
     testWidgets('the first tracker sits lowest, in the bottom third',
         (tester) async {
+      // On a phone: a Galaxy A53's screen, 411 x 914 logical. The default
+      // 800 x 600 test surface is landscape, and its nav bar alone fills most
+      // of the bottom third.
+      tester.view.physicalSize = const Size(1080, 2400);
+      tester.view.devicePixelRatio = 2.625;
+      addTearDown(tester.view.reset);
       final db = await freshDb();
       final [cig, g, w] =
           await repositoryFor(db, fake).createAll([cigarettes, gym, water]);

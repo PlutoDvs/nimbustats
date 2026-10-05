@@ -1064,6 +1064,12 @@ abstract class AppLocalizations {
   /// **'{count, plural, =1{1 use} other{{count} uses}}'**
   String tagUsageCount(int count);
 
+  /// No description provided for @trackerAddOne.
+  ///
+  /// In en, this message translates to:
+  /// **'Add one to {name}'**
+  String trackerAddOne(String name);
+
   /// No description provided for @trackerDoneToday.
   ///
   /// In en, this message translates to:
@@ -1087,6 +1093,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Could not load trackers'**
   String get trackerErrorTitle;
+
+  /// No description provided for @trackerLoggedToday.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} · {total} today'**
+  String trackerLoggedToday(String name, String total);
+
+  /// No description provided for @trackerMarkDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Mark {name} done'**
+  String trackerMarkDone(String name);
+
+  /// No description provided for @trackerMarkedDone.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} · done today'**
+  String trackerMarkedDone(String name);
+
+  /// No description provided for @trackerMarkedNotDone.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} · not done today'**
+  String trackerMarkedNotDone(String name);
+
+  /// No description provided for @trackerMarkNotDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Mark {name} not done'**
+  String trackerMarkNotDone(String name);
 
   /// No description provided for @trackerNotDoneToday.
   ///
