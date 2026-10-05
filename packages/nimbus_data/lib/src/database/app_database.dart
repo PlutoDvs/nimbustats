@@ -68,7 +68,7 @@ class AppDatabase extends _$AppDatabase {
   factory AppDatabase.openInMemory() => AppDatabase(NativeDatabase.memory());
 
   @override
-  int get schemaVersion => 31;
+  int get schemaVersion => 32;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -105,8 +105,9 @@ class AppDatabase extends _$AppDatabase {
           // only, so every older version takes this same step, after the
           // saved-views chain above. createTable builds the tables as they are
           // declared *now*, so this path already has v31's offset column and
-          // index -- and with no entries yet there is nothing to backfill,
-          // which is why the v31 step below is an else.
+          // index, and never had the day index v32 drops -- and with no
+          // entries yet there is nothing to backfill, which is why the v31
+          // step below is an else.
           if (from < 30) {
             await m.createTable(trackers);
             await m.createTable(trackerEntries);
@@ -115,7 +116,6 @@ class AppDatabase extends _$AppDatabase {
             // speed-up -- an upgraded device without it could log "done"
             // twice where a fresh install cannot.
             await m.create(idxTrackersLive);
-            await m.create(idxTrackerEntriesDay);
             await m.create(idxTrackerEntriesHistory);
             await m.create(idxTrackerEntriesOncePerDay);
             await m.create(idxTrackerEntriesTrackerDay);
@@ -136,6 +136,15 @@ class AppDatabase extends _$AppDatabase {
               await m.create(idxTrackerEntriesTrackerDay);
               await customStatement('PRAGMA user_version = 31');
             });
+          }
+          // v31 -> v32: 4a's (local_date_key, tracker_id) index lost its one
+          // reader, the DAO's day total, which 4b moved into the engine. Only
+          // a database that reached v30 has it -- a table created later never
+          // did. IF EXISTS keeps a re-run after an interrupted upgrade
+          // harmless.
+          if (from >= 30 && from < 32) {
+            await customStatement(
+                'DROP INDEX IF EXISTS idx_tracker_entries_day');
           }
         },
         beforeOpen: (details) async {

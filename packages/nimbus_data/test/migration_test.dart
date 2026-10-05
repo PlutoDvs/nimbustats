@@ -17,13 +17,16 @@ void main() {
   // the schema it produces is identical to the one a new install creates.
   // A migration that half-works leaves two populations of users on subtly
   // different schemas, and the divergence surfaces phases later.
-  for (final from in [1, 20, 21, 30]) {
-    test('a v$from database upgrades to v31 and matches a fresh install',
+  for (final from in [1, 20, 21, 30, 31]) {
+    test('a v$from database upgrades to v32 and matches a fresh install',
         () async {
       final db = AppDatabase(await verifier.startAt(from));
       addTearDown(db.close);
 
-      await verifier.migrateAndValidate(db, 31);
+      // validateDropped: by default the verifier ignores objects the snapshot
+      // lacks, so a leftover idx_tracker_entries_day would pass unseen.
+      await verifier.migrateAndValidate(db, 32,
+          options: const ValidationOptions(validateDropped: true));
     });
   }
 
@@ -39,7 +42,7 @@ void main() {
     final db = AppDatabase(schema.newConnection());
     addTearDown(db.close);
 
-    await verifier.migrateAndValidate(db, 31);
+    await verifier.migrateAndValidate(db, 32);
 
     final row = await db
         .customSelect(
@@ -53,7 +56,7 @@ void main() {
     // Validating the shape is not the same as proving the table works.
     final db = AppDatabase(await verifier.startAt(1));
     addTearDown(db.close);
-    await verifier.migrateAndValidate(db, 31);
+    await verifier.migrateAndValidate(db, 32);
 
     await db.savedViewsDao.create([
       (
@@ -81,7 +84,7 @@ void main() {
 
     setUp(() async {
       db = AppDatabase(await verifier.startAt(21));
-      await verifier.migrateAndValidate(db, 31);
+      await verifier.migrateAndValidate(db, 32);
       await db.customStatement(
         'INSERT INTO trackers (id, name, icon_key, color, type, created_at, '
         "updated_at) VALUES ('gym', 'Gym', 'fitness_center', 0, 'boolean', "
@@ -164,7 +167,7 @@ void main() {
           AppDatabase(schema.newConnection(), trackerOffsetAt: seasonal);
       addTearDown(db.close);
 
-      await verifier.migrateAndValidate(db, 31);
+      await verifier.migrateAndValidate(db, 32);
 
       expect(await offsets(db), {'winter': 210, 'summer': 270});
     });
@@ -199,8 +202,36 @@ void main() {
       final db =
           AppDatabase(schema.newConnection(), trackerOffsetAt: seasonal);
       addTearDown(db.close);
-      await verifier.migrateAndValidate(db, 31);
+      await verifier.migrateAndValidate(db, 32);
       expect(await offsets(db), {'winter': 210, 'summer': 270});
     });
+  });
+
+  test("a v31 database drops 4a's day index and keeps its entries", () async {
+    final schema = await verifier.schemaAt(31);
+    schema.rawDatabase
+      ..execute(
+        'INSERT INTO trackers (id, name, icon_key, color, type, created_at, '
+        "updated_at) VALUES ('cig', 'Cigarettes', 'smoking_rooms', 0, "
+        "'counter', 0, 0)",
+      )
+      ..execute(
+        'INSERT INTO tracker_entries (id, tracker_id, value, occurred_at_utc, '
+        'local_date_key, tz_offset_minutes, once_per_day, created_at, '
+        "updated_at) VALUES ('e', 'cig', 1.0, 0, 20261005, 210, 0, 0, 0)",
+      );
+    final db = AppDatabase(schema.newConnection());
+    addTearDown(db.close);
+
+    // Validation against the v32 snapshot proves the index is gone -- but only
+    // with validateDropped, which is what flags an object the snapshot lacks.
+    await verifier.migrateAndValidate(db, 32,
+        options: const ValidationOptions(validateDropped: true));
+
+    final row = await db
+        .customSelect(
+            "SELECT tz_offset_minutes AS o FROM tracker_entries WHERE id = 'e'")
+        .getSingle();
+    expect(row.read<int>('o'), 210);
   });
 }

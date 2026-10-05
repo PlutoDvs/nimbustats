@@ -58,7 +58,7 @@ front so parallel phases never contend for the same number.
 | 1 — Expenses | v2–v9 | — | (none expected; Phase 0 creates what Phase 1 needs) |
 | 2 — Capture | v10–v19 | — | captured_messages, message_templates, merchant_rules |
 | 3 — Analytics | v20–v29 | **v20, v21** | saved_views; v21 adds its period_type and period_count |
-| 4 — Trackers | v30–v39 | **v30, v31** | trackers, tracker_entries; v31 adds tracker_entries.tz_offset_minutes |
+| 4 — Trackers | v30–v39 | **v30, v31, v32** | trackers, tracker_entries; v31 adds tracker_entries.tz_offset_minutes; v32 drops idx_tracker_entries_day |
 | 5 — Goals | v40–v49 | — | goals, goal_period_results |
 | 6 — Outside the app | v50–v59 | — | (none expected) |
 | 7 — Backup | v60–v69 | — | (none expected) |

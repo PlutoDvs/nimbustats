@@ -5839,10 +5839,6 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     'idx_trackers_live',
     'CREATE INDEX idx_trackers_live ON trackers (archived, sort_order) WHERE deleted_at IS NULL',
   );
-  late final Index idxTrackerEntriesDay = Index(
-    'idx_tracker_entries_day',
-    'CREATE INDEX idx_tracker_entries_day ON tracker_entries (local_date_key, tracker_id)',
-  );
   late final Index idxTrackerEntriesHistory = Index(
     'idx_tracker_entries_history',
     'CREATE INDEX idx_tracker_entries_history ON tracker_entries (tracker_id, occurred_at_utc DESC, id DESC)',
@@ -5878,7 +5874,6 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     idxTxtagsTag,
     idxSavedViewsPinned,
     idxTrackersLive,
-    idxTrackerEntriesDay,
     idxTrackerEntriesHistory,
     idxTrackerEntriesTrackerDay,
     idxTrackerEntriesOncePerDay,

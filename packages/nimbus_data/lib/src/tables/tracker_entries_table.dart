@@ -10,10 +10,7 @@ import 'trackers_table.dart';
 /// that is what makes time-of-day patterns free in 4b, and collapsing to a
 /// total would be a one-way loss.
 ///
-/// The four indexes:
-/// - `idx_tracker_entries_day` leads with the date, because its main reader
-///   is today's totals -- every tracker's entries for one day, grouped by
-///   tracker.
+/// The three indexes:
 /// - `idx_tracker_entries_history` serves the detail screen's newest-first
 ///   keyset pages.
 /// - `idx_tracker_entries_once_per_day` is the boolean rule: one live "done"
@@ -27,8 +24,6 @@ import 'trackers_table.dart';
 /// entry as [oncePerDay]. The type is fixed at creation, so the copy cannot
 /// drift from it.
 @DataClassName('TrackerEntryRow')
-@TableIndex(
-    name: 'idx_tracker_entries_day', columns: {#localDateKey, #trackerId})
 @TableIndex(name: 'idx_tracker_entries_history', columns: {
   #trackerId,
   IndexedColumn(#occurredAtUtc, orderBy: OrderingMode.desc),
