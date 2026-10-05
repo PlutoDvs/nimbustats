@@ -47,6 +47,8 @@ void main() {
         'transactionsDao',
         'paymentMethodsDao',
         'settingsDao',
+        'trackersDao',
+        'trackerEntriesDao',
       ]) {
         if (source.contains(pattern)) offenders.add('${file.path}: $pattern');
       }
