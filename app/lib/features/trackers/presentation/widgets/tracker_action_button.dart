@@ -8,6 +8,7 @@ import 'package:nimbus_domain/nimbus_domain.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../application/tracker_format.dart';
 import '../../application/tracker_providers.dart';
+import 'tracker_amount_sheet.dart';
 import 'tracker_logger.dart';
 
 /// A tracker's one-tap action: +1, done, +amount, or start/stop.
@@ -38,6 +39,7 @@ class TrackerActionButton extends ConsumerWidget {
           tracker: tracker,
         );
     final key = Key('tracker-action-${tracker.id}');
+    final format = ref.watch(trackerFormatProvider);
     final done = TrackerValues.isDone(total);
 
     return switch (tracker.type) {
@@ -56,10 +58,38 @@ class TrackerActionButton extends ConsumerWidget {
           onTap: () => unawaited(logger().toggleDone(done: done)),
           child: Icon(done ? Icons.check : Icons.check_box_outline_blank),
         ),
-      // Quantity arrives in the next task and the timer in the one after;
-      // until then those tiles show their totals only.
-      TrackerType.quantity || TrackerType.duration => const SizedBox.shrink(),
+      TrackerType.quantity =>
+        _quantityButton(context, l10n, format, logger, key),
+      // The timer arrives in the next task; until then a duration tile shows
+      // its total only.
+      TrackerType.duration => const SizedBox.shrink(),
     };
+  }
+
+  Widget _quantityButton(
+    BuildContext context,
+    AppLocalizations l10n,
+    TrackerFormat format,
+    TrackerLogger Function() logger,
+    Key key,
+  ) {
+    final perTap =
+        TrackerValues.perTap(tracker.type, perTapValue: tracker.perTapValue)!;
+    return _ActionButton(
+      key: key,
+      label: l10n.trackerAddAmount(format.total(tracker, perTap), tracker.name),
+      longPressHint: l10n.trackerOtherAmount,
+      onTap: () => unawaited(logger().log()),
+      onLongPress: () => unawaited(_logOther(context, logger())),
+      child: Text('+${format.number(perTap)}'),
+    );
+  }
+
+  /// The logger is built before the sheet opens: once it closes, this widget
+  /// may no longer be mounted, and nothing here may read its context.
+  Future<void> _logOther(BuildContext context, TrackerLogger logger) async {
+    final amount = await showTrackerAmountSheet(context, tracker: tracker);
+    if (amount != null) await logger.log(value: amount);
   }
 }
 
@@ -74,11 +104,15 @@ class _ActionButton extends StatelessWidget {
     required this.label,
     required this.onTap,
     required this.child,
+    this.onLongPress,
+    this.longPressHint,
     this.selected = false,
   });
 
   final String label;
   final VoidCallback onTap;
+  final VoidCallback? onLongPress;
+  final String? longPressHint;
   final bool selected;
   final Widget child;
 
@@ -96,6 +130,8 @@ class _ActionButton extends StatelessWidget {
       button: true,
       label: label,
       onTap: onTap,
+      onLongPress: onLongPress,
+      onLongPressHint: longPressHint,
       excludeSemantics: true,
       child: Material(
         color: background,
@@ -103,6 +139,7 @@ class _ActionButton extends StatelessWidget {
         child: InkWell(
           customBorder: const StadiumBorder(),
           onTap: onTap,
+          onLongPress: onLongPress,
           child: ConstrainedBox(
             constraints: const BoxConstraints(
               minWidth: NimbusTokens.minTapTarget + NimbusTokens.space4,

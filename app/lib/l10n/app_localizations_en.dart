@@ -560,9 +560,20 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String trackerAddAmount(String amount, String name) {
+    return 'Add $amount to $name';
+  }
+
+  @override
   String trackerAddOne(String name) {
     return 'Add one to $name';
   }
+
+  @override
+  String get trackerAmountInvalid => 'Enter an amount above zero';
+
+  @override
+  String get trackerAmountLabel => 'Amount';
 
   @override
   String get trackerDoneToday => 'Done today';
@@ -576,6 +587,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get trackerErrorTitle => 'Could not load trackers';
+
+  @override
+  String get trackerLogAction => 'Log';
 
   @override
   String trackerLoggedToday(String name, String total) {
@@ -604,6 +618,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get trackerNotDoneToday => 'Not done today';
+
+  @override
+  String get trackerOtherAmount => 'Log another amount';
 
   @override
   String get trackerPresetCigarettes => 'Cigarettes';

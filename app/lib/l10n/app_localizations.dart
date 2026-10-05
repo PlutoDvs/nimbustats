@@ -1064,11 +1064,29 @@ abstract class AppLocalizations {
   /// **'{count, plural, =1{1 use} other{{count} uses}}'**
   String tagUsageCount(int count);
 
+  /// No description provided for @trackerAddAmount.
+  ///
+  /// In en, this message translates to:
+  /// **'Add {amount} to {name}'**
+  String trackerAddAmount(String amount, String name);
+
   /// No description provided for @trackerAddOne.
   ///
   /// In en, this message translates to:
   /// **'Add one to {name}'**
   String trackerAddOne(String name);
+
+  /// No description provided for @trackerAmountInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter an amount above zero'**
+  String get trackerAmountInvalid;
+
+  /// No description provided for @trackerAmountLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Amount'**
+  String get trackerAmountLabel;
 
   /// No description provided for @trackerDoneToday.
   ///
@@ -1093,6 +1111,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Could not load trackers'**
   String get trackerErrorTitle;
+
+  /// No description provided for @trackerLogAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Log'**
+  String get trackerLogAction;
 
   /// No description provided for @trackerLoggedToday.
   ///
@@ -1129,6 +1153,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Not done today'**
   String get trackerNotDoneToday;
+
+  /// No description provided for @trackerOtherAmount.
+  ///
+  /// In en, this message translates to:
+  /// **'Log another amount'**
+  String get trackerOtherAmount;
 
   /// No description provided for @trackerPresetCigarettes.
   ///

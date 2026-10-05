@@ -558,9 +558,20 @@ class AppLocalizationsFa extends AppLocalizations {
   }
 
   @override
+  String trackerAddAmount(String amount, String name) {
+    return '$amount به $name اضافه کن';
+  }
+
+  @override
   String trackerAddOne(String name) {
     return 'یکی به $name اضافه کن';
   }
+
+  @override
+  String get trackerAmountInvalid => 'مقداری بیشتر از صفر وارد کنید';
+
+  @override
+  String get trackerAmountLabel => 'مقدار';
 
   @override
   String get trackerDoneToday => 'امروز انجام شد';
@@ -574,6 +585,9 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get trackerErrorTitle => 'عادت‌ها بارگیری نشدند';
+
+  @override
+  String get trackerLogAction => 'ثبت';
 
   @override
   String trackerLoggedToday(String name, String total) {
@@ -602,6 +616,9 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get trackerNotDoneToday => 'امروز انجام نشده';
+
+  @override
+  String get trackerOtherAmount => 'ثبت مقدار دیگر';
 
   @override
   String get trackerPresetCigarettes => 'سیگار';

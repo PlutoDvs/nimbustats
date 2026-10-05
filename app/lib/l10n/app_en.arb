@@ -229,6 +229,17 @@
       }
     }
   },
+  "trackerAddAmount": "Add {amount} to {name}",
+  "@trackerAddAmount": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      },
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "trackerAddOne": "Add one to {name}",
   "@trackerAddOne": {
     "placeholders": {
@@ -237,10 +248,13 @@
       }
     }
   },
+  "trackerAmountInvalid": "Enter an amount above zero",
+  "trackerAmountLabel": "Amount",
   "trackerDoneToday": "Done today",
   "trackerEmptyMessage": "A tracker counts what you do besides spending: cigarettes, glasses of water, gym days, hours of sleep. Pick some to start.",
   "trackerEmptyTitle": "Track more than money",
   "trackerErrorTitle": "Could not load trackers",
+  "trackerLogAction": "Log",
   "trackerLoggedToday": "{name} · {total} today",
   "@trackerLoggedToday": {
     "placeholders": {
@@ -285,6 +299,7 @@
     }
   },
   "trackerNotDoneToday": "Not done today",
+  "trackerOtherAmount": "Log another amount",
   "trackerPresetCigarettes": "Cigarettes",
   "trackerPresetGym": "Gym",
   "trackerPresetsAdd": "Start tracking",
