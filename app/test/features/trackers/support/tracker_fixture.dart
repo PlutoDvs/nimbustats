@@ -133,6 +133,10 @@ List<String> captureHaptics(WidgetTester tester) {
 /// The editor sheets scroll: with the shared icon grid they are taller than
 /// an 800 x 600 test screen, and a user scrolls to Save the same way.
 Future<void> tapVisible(WidgetTester tester, Finder finder) async {
+  // Dismiss the keyboard first, as a user does. A focused field keeps its
+  // caret on screen and would scroll the sheet back up after ensureVisible.
+  FocusManager.instance.primaryFocus?.unfocus();
+  await tester.pump();
   await tester.ensureVisible(finder);
   await tester.pumpAndSettle();
   await tester.tap(finder);

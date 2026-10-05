@@ -7,6 +7,7 @@ import 'package:nimbus_data/nimbus_data.dart';
 import 'package:nimbus_design/nimbus_design.dart';
 import 'package:nimbus_domain/nimbus_domain.dart';
 import 'package:nimbustats/features/trackers/application/tracker_providers.dart';
+import 'package:nimbustats/features/trackers/data/tracker_draft.dart';
 import 'package:nimbustats/features/trackers/data/tracker_repository.dart';
 import 'package:nimbustats/features/trackers/routes.dart';
 
@@ -129,6 +130,30 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(await liveNames(tester), ['Smokes']);
+  });
+
+  testWidgets('renaming keeps a per-tap amount the field cannot show in full',
+      (tester) async {
+    // The field shows two decimals, so 0.125 reads "0.13". Saving a rename
+    // must not write that rounded text back over the stored amount.
+    final w = await repo.create(const TrackerDraft(
+        name: 'Water',
+        iconKey: 'water_drop',
+        color: 0xFF1565C0,
+        type: TrackerType.quantity,
+        unit: 'L',
+        perTapValue: 0.125));
+    await openManager(tester);
+
+    await tester.tap(find.byKey(Key('tracker-row-${w.id}')));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byKey(const Key('tracker-name-field')), 'Aab');
+    await tapVisible(tester, find.byKey(const Key('tracker-save')));
+    await tester.pumpAndSettle();
+
+    final stored = (await firstOf(tester, repo.watchTrackers())).single;
+    expect(stored.name, 'Aab');
+    expect(stored.perTapValue, 0.125);
   });
 
   testWidgets('archive moves a tracker to the Archived section, undo returns it',

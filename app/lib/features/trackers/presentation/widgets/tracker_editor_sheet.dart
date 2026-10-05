@@ -70,6 +70,11 @@ class _TrackerEditorSheetState extends ConsumerState<TrackerEditorSheet> {
     super.dispose();
   }
 
+  /// Whether the per-tap field was typed in. Until it is, the stored amount
+  /// is kept as it is: the field shows two decimals, so 0.125 reads "0.13",
+  /// and writing that text back on a rename would change the amount.
+  bool _perTapEdited = false;
+
   double? get _perTapValue => TrackerValues.parseAmount(_perTap.text);
 
   bool get _isQuantity => _type == TrackerType.quantity;
@@ -85,7 +90,10 @@ class _TrackerEditorSheetState extends ConsumerState<TrackerEditorSheet> {
     final messenger = ScaffoldMessenger.of(context);
     final l10n = AppLocalizations.of(context);
     final unit = _isQuantity ? _unit.text : null;
-    final perTap = _isQuantity ? _perTapValue : null;
+    final stored = widget.tracker?.perTapValue;
+    final perTap = !_isQuantity
+        ? null
+        : (_perTapEdited || stored == null ? _perTapValue : stored);
 
     final existing = widget.tracker;
     if (existing == null) {
@@ -191,7 +199,7 @@ class _TrackerEditorSheetState extends ConsumerState<TrackerEditorSheet> {
                   errorText: perTapInvalid ? l10n.trackerAmountInvalid : null,
                   border: const OutlineInputBorder(),
                 ),
-                onChanged: (_) => setState(() {}),
+                onChanged: (_) => setState(() => _perTapEdited = true),
               ),
               const SizedBox(height: NimbusTokens.space4),
               TextField(
