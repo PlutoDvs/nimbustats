@@ -166,52 +166,6 @@ class TrackerEntriesDao {
     }
   }
 
-  /// Every tracker's total for [day]: one GROUP BY over one day, keyed by
-  /// tracker id.
-  ///
-  /// This is the brief's "today's total from a DAO count", and the only
-  /// aggregate in 4a. Anything with a range or another dimension waits for 4b
-  /// and goes through `QuerySpec`.
-  Stream<Map<String, double>> watchDayTotals(DateKey day) {
-    final (:query, :total) = _dayTotals(day);
-    return query.watch().map((rows) => _byTracker(rows, total));
-  }
-
-  /// [watchDayTotals], read once, for a caller that needs the number now --
-  /// the snackbar after a tap. A subscription opened for one value would have
-  /// to be cancelled, and its first value arrives on a timer rather than with
-  /// the query.
-  Future<Map<String, double>> dayTotals(DateKey day) async {
-    final (:query, :total) = _dayTotals(day);
-    return _byTracker(await query.get(), total);
-  }
-
-  Map<String, double> _byTracker(
-          List<TypedResult> rows, Expression<double> total) =>
-      {
-        for (final row in rows)
-          row.read(_db.trackerEntries.trackerId)!: row.read(total) ?? 0,
-      };
-
-  /// [watchDayTotals]'s statement, so a test can assert its plan.
-  JoinedSelectStatement<$TrackerEntriesTable, TrackerEntryRow> dayTotalsQuery(
-          DateKey day) =>
-      _dayTotals(day).query;
-
-  ({
-    JoinedSelectStatement<$TrackerEntriesTable, TrackerEntryRow> query,
-    Expression<double> total,
-  }) _dayTotals(DateKey day) {
-    final entries = _db.trackerEntries;
-    final total = entries.value.sum();
-    final query = _db.selectOnly(entries)
-      ..addColumns([entries.trackerId, total])
-      ..where(entries.localDateKey.equals(day.value) &
-          entries.deletedAt.isNull())
-      ..groupBy([entries.trackerId]);
-    return (query: query, total: total);
-  }
-
   /// One tracker's live entries, newest first, after [after].
   ///
   /// Keyset over `(occurred_at_utc DESC, id DESC)`, like the transaction list,

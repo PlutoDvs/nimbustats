@@ -1,0 +1,27 @@
+import 'package:nimbus_domain/nimbus_domain.dart';
+import 'package:test/test.dart';
+
+void main() {
+  const day = DateKey(20261005);
+  const oneDay = DateRange(day, day);
+
+  test("the tab asks for each tracker's total that day", () {
+    expect(
+        TrackerQueries.dayTotals(['cig', 'water'], day),
+        TrackerQuerySpec(
+            trackerIds: ['cig', 'water'],
+            dateRange: oneDay,
+            groupBy: const TrackerGroupByTracker(),
+            aggregate: Aggregate.sum));
+  });
+
+  test("the snackbar and the header ask for one tracker's total", () {
+    expect(
+        TrackerQueries.dayTotal('cig', day),
+        TrackerQuerySpec(
+            trackerIds: ['cig'],
+            dateRange: oneDay,
+            groupBy: const TrackerGroupByNone(),
+            aggregate: Aggregate.sum));
+  });
+}

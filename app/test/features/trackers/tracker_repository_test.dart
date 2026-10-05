@@ -408,4 +408,21 @@ void main() {
           now.timeZoneOffset.inMinutes);
     });
   });
+
+  group('totals', () {
+    test("totalOn sums one tracker's live entries on one day", () async {
+      final cig = await repo.create(cigarettes);
+      final w = await repo.create(water);
+      await repo.logEntry(cig.id);
+      final second = (await repo.logEntry(cig.id) as EntryLogged).entry;
+      await repo.logEntry(cig.id,
+          at: fake.nowUtc.subtract(const Duration(days: 1)));
+      await repo.logEntry(w.id);
+      await repo.deleteEntry(second.id);
+
+      expect(await repo.totalOn(cig.id, const DateKey(20261005)), 1);
+      expect(await repo.totalOn(w.id, const DateKey(20261005)), 0.25);
+      expect(await repo.totalOn(cig.id, const DateKey(20261006)), 0);
+    });
+  });
 }

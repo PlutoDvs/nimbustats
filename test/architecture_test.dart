@@ -84,4 +84,39 @@ void main() {
           reason: 'nimbus_design is presentation only; remove $forbidden');
     }
   });
+
+  test('tracker code aggregates only through the analytics engine', () {
+    // Phase 4b's definition of done, kept as a test rather than a one-off grep
+    // so that no later change can quietly grow a second query engine beside
+    // Phase 3's. Comment lines are skipped: they may name what they avoid.
+    final aggregate = RegExp(r'\b(SUM|COUNT|AVG|MIN|MAX)\s*\(|GROUP BY'
+        r'|\.(sum|count|avg|min|max)\(\)|\.groupBy\(');
+    // Placing a new tracker at the end of the list as it is written. It reads
+    // one column's maximum to choose a position and answers no analytical
+    // question.
+    const allowed = {'final highest = _db.trackers.sortOrder.max();'};
+
+    final offenders = <String>[];
+    for (final dir in [
+      'packages/nimbus_data/lib/src/trackers',
+      'app/lib/features/trackers',
+    ]) {
+      final files = Directory(dir)
+          .listSync(recursive: true)
+          .whereType<File>()
+          .where((f) => f.path.endsWith('.dart') && !f.path.endsWith('.g.dart'));
+      for (final file in files) {
+        for (final (index, line) in file.readAsLinesSync().indexed) {
+          final code = line.trim();
+          if (code.startsWith('//')) continue;
+          if (aggregate.hasMatch(code) && !allowed.contains(code)) {
+            offenders.add('${file.path}:${index + 1}: $code');
+          }
+        }
+      }
+    }
+    expect(offenders, isEmpty,
+        reason: 'aggregation belongs in AnalyticsEngine:\n'
+            '${offenders.join('\n')}');
+  });
 }

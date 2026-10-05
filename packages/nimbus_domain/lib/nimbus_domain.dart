@@ -45,6 +45,7 @@ export 'src/trackers/running_timer.dart';
 export 'src/trackers/tracker.dart';
 export 'src/trackers/tracker_entry.dart';
 export 'src/trackers/tracker_group_by.dart';
+export 'src/trackers/tracker_queries.dart';
 export 'src/trackers/tracker_query_spec.dart';
 export 'src/trackers/tracker_result.dart';
 export 'src/trackers/tracker_results.dart';

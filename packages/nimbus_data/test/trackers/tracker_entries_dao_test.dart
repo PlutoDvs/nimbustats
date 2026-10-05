@@ -155,42 +155,6 @@ void main() {
     expect(await liveEntries(db, 'cig'), 3);
   });
 
-  test("day totals sum each tracker's live entries for that day only",
-      () async {
-    await dao.insertEntry(newEntry('c1', 'cig'));
-    await dao.insertEntry(newEntry('c2', 'cig'));
-    await dao.insertEntry(newEntry('c3', 'cig'));
-    await dao.softDelete('c3');
-    await dao.insertEntry(newEntry('old', 'cig', day: today.addDays(-1)));
-    await dao.insertEntry(newEntry('w1', 'water', value: 0.25));
-    await dao.insertEntry(newEntry('w2', 'water', value: 0.5));
-
-    expect(await dao.watchDayTotals(today).first, {'cig': 2.0, 'water': 0.75});
-    expect(await dao.watchDayTotals(today.addDays(1)).first, isEmpty);
-  });
-
-  test('dayTotals reads the same totals once, without a subscription',
-      () async {
-    await dao.insertEntry(newEntry('c1', 'cig'));
-    await dao.insertEntry(newEntry('w1', 'water', value: 0.25));
-
-    expect(await dao.dayTotals(today), {'cig': 1.0, 'water': 0.25});
-    expect(await dao.dayTotals(today.addDays(1)), isEmpty);
-  });
-
-  test('day totals follow writes', () async {
-    final totals = dao.watchDayTotals(today);
-    final seen = expectLater(
-        totals,
-        emitsInOrder([
-          <String, double>{},
-          {'cig': 1.0},
-        ]));
-    await pumpEventQueue();
-    await dao.insertEntry(newEntry('c1', 'cig'));
-    await seen;
-  });
-
   group('history pages', () {
     setUp(() async {
       // Five entries; two share a timestamp, so id breaks the tie.
@@ -235,13 +199,6 @@ void main() {
   group('query plans', () {
     // Asserted on the plan, not on a stopwatch, so the guarantee survives a
     // fast machine.
-    test('day totals seek the day index and need no temp B-tree', () async {
-      final plan = await planOf(db, dao.dayTotalsQuery(today));
-      expect(plan, contains('idx_tracker_entries_day'), reason: plan);
-      expect(plan, isNot(contains('SCAN tracker_entries')), reason: plan);
-      expect(plan, isNot(contains('TEMP B-TREE')), reason: plan);
-    });
-
     test('history pages walk the history index in order', () async {
       for (final after in [
         null,

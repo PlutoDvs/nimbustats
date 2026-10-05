@@ -388,4 +388,19 @@ void main() {
         find.descendant(of: row(id), matching: find.textContaining('۱۲:۳۰')),
         findsOneWidget);
   });
+
+  testWidgets("an archived tracker's header still counts today",
+      (tester) async {
+    // The tab's totals cover the tab's trackers, and an archived tracker is
+    // not on the tab. The header asks for its own total.
+    await useEnglishDigits(db);
+    final cig = await repo.create(cigarettes);
+    await repo.logEntry(cig.id);
+    await repo.logEntry(cig.id);
+    await repo.archive(cig.id);
+
+    await openDetail(tester, cig.id);
+
+    expect(textIn(tester, const Key('tracker-detail-total')), '2 today');
+  });
 }

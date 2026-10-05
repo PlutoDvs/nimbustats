@@ -31,23 +31,24 @@ class TrackerDetailScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
     final tracker = ref.watch(trackerByIdProvider(id));
-    final totals = ref.watch(trackerTotalsProvider);
+    final dayTotal = ref.watch(trackerDayTotalProvider(id));
 
-    if (tracker.hasError || totals.hasError) {
+    if (tracker.hasError || dayTotal.hasError) {
       return Scaffold(
         appBar: AppBar(),
         body: NimbusErrorState(
           title: l10n.trackerErrorTitle,
           retryLabel: l10n.commonRetry,
-          detail: (tracker.error ?? totals.error).toString(),
+          detail: (tracker.error ?? dayTotal.error).toString(),
           onRetry: () {
             ref.invalidate(trackerByIdProvider(id));
-            ref.invalidate(trackerTotalsProvider);
+            // The whole family: whichever question failed is asked again.
+            ref.invalidate(trackerResultProvider);
           },
         ),
       );
     }
-    if (!tracker.hasValue || !totals.hasValue) {
+    if (!tracker.hasValue || !dayTotal.hasValue) {
       return Scaffold(appBar: AppBar(), body: const NimbusLoadingList(rows: 6));
     }
     final current = tracker.requireValue;
@@ -66,7 +67,7 @@ class TrackerDetailScreen extends ConsumerWidget {
       );
     }
 
-    final total = totals.requireValue[id] ?? 0;
+    final total = dayTotal.requireValue;
     return TrackerDayRollover(
       child: Scaffold(
         appBar: AppBar(

@@ -31,7 +31,8 @@ class TrackersScreen extends ConsumerWidget {
         detail: (trackers.error ?? totals.error).toString(),
         onRetry: () {
           ref.invalidate(trackersProvider);
-          ref.invalidate(trackerTotalsProvider);
+          // The whole family: whichever question failed is asked again.
+          ref.invalidate(trackerResultProvider);
         },
       );
     } else if (!trackers.hasValue || !totals.hasValue) {

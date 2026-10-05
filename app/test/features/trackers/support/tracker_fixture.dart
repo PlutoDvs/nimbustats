@@ -64,7 +64,8 @@ const sleep = TrackerDraft(
     type: TrackerType.duration);
 
 TrackerRepository repositoryFor(AppDatabase db, FakeClock fake) =>
-    TrackerRepository(db.trackersDao, db.trackerEntriesDao, fake.clock);
+    TrackerRepository(db.trackersDao, db.trackerEntriesDao,
+        AnalyticsEngine(db, calendar: const JalaliCalendar()), fake.clock);
 
 /// What a tracker widget test overrides: the clock, so "today" and the timer
 /// are the fake's.

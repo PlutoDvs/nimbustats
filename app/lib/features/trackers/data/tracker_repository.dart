@@ -15,10 +15,15 @@ import 'tracker_entry_page.dart';
 /// - the local date key and the UTC offset, both taken at write time.
 final class TrackerRepository {
   /// Positional to keep the DAOs private, as `TransactionRepository` does.
-  const TrackerRepository(this._trackers, this._entries, this._clock);
+  const TrackerRepository(
+      this._trackers, this._entries, this._engine, this._clock);
 
   final TrackersDao _trackers;
   final TrackerEntriesDao _entries;
+
+  /// Every total this repository reads comes from Phase 3's engine. The DAOs
+  /// hold no aggregate of their own.
+  final AnalyticsEngine _engine;
   final TrackerClock _clock;
 
   // --- reads ---------------------------------------------------------------
@@ -31,13 +36,9 @@ final class TrackerRepository {
 
   Stream<Tracker?> watchTracker(String id) => _trackers.watchById(id);
 
-  /// Every tracker's total for [day], keyed by tracker id.
-  Stream<Map<String, double>> watchTotals(DateKey day) =>
-      _entries.watchDayTotals(day);
-
   /// One tracker's total for [day], read once: the snackbar after a tap.
   Future<double> totalOn(String trackerId, DateKey day) async =>
-      (await _entries.dayTotals(day))[trackerId] ?? 0;
+      (await _engine.runTracker(TrackerQueries.dayTotal(trackerId, day))).sum;
 
   /// Fires after any entry write, so a loaded history can reload.
   Stream<void> entryChanges() => _entries.changes();
