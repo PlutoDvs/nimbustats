@@ -28,4 +28,12 @@ abstract final class TrackerQueries {
         groupBy: const TrackerGroupByNone(),
         aggregate: Aggregate.sum,
       );
+
+  /// Every day [trackerId] was ever logged, one bucket each: the streaks'
+  /// input. Undated on purpose, because the longest streak can be anywhere.
+  static TrackerQuerySpec loggedDays(String trackerId) => TrackerQuerySpec(
+        trackerIds: [trackerId],
+        groupBy: const TrackerGroupByDay(),
+        aggregate: Aggregate.count,
+      );
 }

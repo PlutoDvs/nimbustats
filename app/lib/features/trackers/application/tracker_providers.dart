@@ -99,3 +99,18 @@ final archivedTrackersProvider = StreamProvider<List<Tracker>>(
 /// detail screen.
 final trackerByIdProvider = StreamProvider.autoDispose.family<Tracker?, String>(
     (ref, id) => ref.watch(trackerRepositoryProvider).watchTracker(id));
+
+/// A tracker's streaks as of today, read from every day it was ever logged.
+///
+/// Synchronous over [trackerResultProvider], like [trackerTotalsProvider], and
+/// it re-derives on the day rolling over as well as on a write.
+final trackerStreaksProvider =
+    Provider.autoDispose.family<AsyncValue<TrackerStreaks>, String>((ref, id) {
+  final today = ref.watch(trackerTodayProvider);
+  return ref
+      .watch(trackerResultProvider(TrackerQueries.loggedDays(id)))
+      .whenData((result) => TrackerStreaks.of([
+            for (final bucket in result.buckets)
+              if (bucket.key case PeriodKey(:final range)) range.startInclusive,
+          ], today: today));
+});

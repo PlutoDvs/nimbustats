@@ -72,6 +72,10 @@ void main() {
           value['placeholders'] as Map<String, dynamic>? ?? const {};
       for (final MapEntry(key: name, value: meta) in placeholders.entries) {
         final fields = meta as Map<String, dynamic>;
+        // The rule keeps a raw int from being printed in Latin digits. A
+        // placeholder that only selects a plural branch is never printed.
+        final message = decoded[key.substring(1)] as String;
+        if (!message.contains('{$name}')) continue;
         if (const {'int', 'double', 'num'}.contains(fields['type']) &&
             fields['format'] == null) {
           unformatted.add('${key.substring(1)}.$name');

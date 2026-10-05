@@ -279,6 +279,16 @@
   "trackerHistoryEmptyTitle": "Nothing logged yet",
   "trackerHistoryErrorTitle": "Could not load the history",
   "trackerHoursLabel": "Hours",
+  "trackerLastEntryDaysAgo": "Last entry: {days} days ago",
+  "@trackerLastEntryDaysAgo": {
+    "placeholders": {
+      "days": {
+        "type": "String"
+      }
+    }
+  },
+  "trackerLastEntryToday": "Last entry: today",
+  "trackerLastEntryYesterday": "Last entry: yesterday",
   "trackerLogAction": "Log",
   "trackerLoggedToday": "{name} · {total} today",
   "@trackerLoggedToday": {
@@ -354,6 +364,32 @@
   "@trackerStopTimer": {
     "placeholders": {
       "name": {
+        "type": "String"
+      }
+    }
+  },
+  "trackerStreakBestOnly": "{count, plural, =1{Best: {best} day} other{Best: {best} days}}",
+  "@trackerStreakBestOnly": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "best": {
+        "type": "String"
+      }
+    }
+  },
+  "trackerStreakErrorTitle": "Could not load the streak",
+  "trackerStreakLine": "{count, plural, =1{{days} day in a row · best {best}} other{{days} days in a row · best {best}}}",
+  "@trackerStreakLine": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "days": {
+        "type": "String"
+      },
+      "best": {
         "type": "String"
       }
     }

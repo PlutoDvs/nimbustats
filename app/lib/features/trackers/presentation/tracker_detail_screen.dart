@@ -17,6 +17,7 @@ import 'widgets/tracker_duration_sheet.dart';
 import 'widgets/tracker_editor_sheet.dart';
 import 'widgets/tracker_entry_sheet.dart';
 import 'widgets/tracker_logger.dart';
+import 'widgets/tracker_streak_lines.dart';
 import 'widgets/tracker_today_text.dart';
 
 /// One tracker: today's total, its history newest first, and the quick log
@@ -120,11 +121,18 @@ class _Header extends StatelessWidget {
           ),
           const SizedBox(width: NimbusTokens.space4),
           Expanded(
-            child: TrackerTodayText(
-              key: const Key('tracker-detail-total'),
-              tracker: tracker,
-              total: total,
-              style: theme.textTheme.headlineSmall,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TrackerTodayText(
+                  key: const Key('tracker-detail-total'),
+                  tracker: tracker,
+                  total: total,
+                  style: theme.textTheme.headlineSmall,
+                ),
+                TrackerStreakLines(trackerId: tracker.id),
+              ],
             ),
           ),
         ],

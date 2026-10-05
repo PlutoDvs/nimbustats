@@ -644,6 +644,17 @@ class AppLocalizationsFa extends AppLocalizations {
   String get trackerHoursLabel => 'ساعت';
 
   @override
+  String trackerLastEntryDaysAgo(String days) {
+    return 'آخرین ثبت: $days روز پیش';
+  }
+
+  @override
+  String get trackerLastEntryToday => 'آخرین ثبت: امروز';
+
+  @override
+  String get trackerLastEntryYesterday => 'آخرین ثبت: دیروز';
+
+  @override
   String get trackerLogAction => 'ثبت';
 
   @override
@@ -737,6 +748,29 @@ class AppLocalizationsFa extends AppLocalizations {
   @override
   String trackerStopTimer(String name) {
     return 'توقف زمان‌سنج $name';
+  }
+
+  @override
+  String trackerStreakBestOnly(int count, String best) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'بهترین: $best روز',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get trackerStreakErrorTitle => 'پیوستگی بارگیری نشد';
+
+  @override
+  String trackerStreakLine(int count, String days, String best) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$days روز پشت سر هم · بهترین $best',
+    );
+    return '$_temp0';
   }
 
   @override

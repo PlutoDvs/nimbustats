@@ -49,5 +49,6 @@ export 'src/trackers/tracker_queries.dart';
 export 'src/trackers/tracker_query_spec.dart';
 export 'src/trackers/tracker_result.dart';
 export 'src/trackers/tracker_results.dart';
+export 'src/trackers/tracker_streaks.dart';
 export 'src/trackers/tracker_type.dart';
 export 'src/trackers/tracker_values.dart';

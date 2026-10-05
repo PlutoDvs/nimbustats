@@ -27,6 +27,10 @@ final class TrackerFormat {
   /// float sum like 0.1 + 0.2 reads as 0.3.
   String number(double value) => _number.format(value);
 
+  /// A whole number in the settings' digits, without grouping: a day count, a
+  /// day of the month, an hour, a year. [number] would write 1405 as `1,405`.
+  String digits(int value) => _digits('$value');
+
   /// A tracker's total as its type shows it: a count, an amount with its unit,
   /// or a time as h:mm.
   ///

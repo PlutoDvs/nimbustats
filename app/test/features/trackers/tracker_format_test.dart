@@ -57,4 +57,10 @@ void main() {
     expect(english.date(const DateKey(20261005)), '2026/10/05');
     expect(persian.date(const DateKey(20261005)), '۲۰۲۶/۱۰/۰۵');
   });
+
+  test('a whole number has digits but no grouping', () {
+    // number() would write the year 1405 as "1,405".
+    expect(persian.digits(1405), '۱۴۰۵');
+    expect(english.digits(1405), '1405');
+  });
 }

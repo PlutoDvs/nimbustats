@@ -646,6 +646,17 @@ class AppLocalizationsEn extends AppLocalizations {
   String get trackerHoursLabel => 'Hours';
 
   @override
+  String trackerLastEntryDaysAgo(String days) {
+    return 'Last entry: $days days ago';
+  }
+
+  @override
+  String get trackerLastEntryToday => 'Last entry: today';
+
+  @override
+  String get trackerLastEntryYesterday => 'Last entry: yesterday';
+
+  @override
   String get trackerLogAction => 'Log';
 
   @override
@@ -739,6 +750,31 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String trackerStopTimer(String name) {
     return 'Stop $name timer';
+  }
+
+  @override
+  String trackerStreakBestOnly(int count, String best) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Best: $best days',
+      one: 'Best: $best day',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get trackerStreakErrorTitle => 'Could not load the streak';
+
+  @override
+  String trackerStreakLine(int count, String days, String best) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$days days in a row · best $best',
+      one: '$days day in a row · best $best',
+    );
+    return '$_temp0';
   }
 
   @override

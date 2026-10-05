@@ -1220,6 +1220,24 @@ abstract class AppLocalizations {
   /// **'Hours'**
   String get trackerHoursLabel;
 
+  /// No description provided for @trackerLastEntryDaysAgo.
+  ///
+  /// In en, this message translates to:
+  /// **'Last entry: {days} days ago'**
+  String trackerLastEntryDaysAgo(String days);
+
+  /// No description provided for @trackerLastEntryToday.
+  ///
+  /// In en, this message translates to:
+  /// **'Last entry: today'**
+  String get trackerLastEntryToday;
+
+  /// No description provided for @trackerLastEntryYesterday.
+  ///
+  /// In en, this message translates to:
+  /// **'Last entry: yesterday'**
+  String get trackerLastEntryYesterday;
+
   /// No description provided for @trackerLogAction.
   ///
   /// In en, this message translates to:
@@ -1381,6 +1399,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Stop {name} timer'**
   String trackerStopTimer(String name);
+
+  /// No description provided for @trackerStreakBestOnly.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Best: {best} day} other{Best: {best} days}}'**
+  String trackerStreakBestOnly(int count, String best);
+
+  /// No description provided for @trackerStreakErrorTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load the streak'**
+  String get trackerStreakErrorTitle;
+
+  /// No description provided for @trackerStreakLine.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{{days} day in a row · best {best}} other{{days} days in a row · best {best}}}'**
+  String trackerStreakLine(int count, String days, String best);
 
   /// No description provided for @trackerTimerDiscarded.
   ///

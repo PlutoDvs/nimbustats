@@ -24,4 +24,13 @@ void main() {
             groupBy: const TrackerGroupByNone(),
             aggregate: Aggregate.sum));
   });
+
+  test('the streaks ask for every day ever logged, undated', () {
+    expect(
+        TrackerQueries.loggedDays('cig'),
+        TrackerQuerySpec(
+            trackerIds: ['cig'],
+            groupBy: const TrackerGroupByDay(),
+            aggregate: Aggregate.count));
+  });
 }
