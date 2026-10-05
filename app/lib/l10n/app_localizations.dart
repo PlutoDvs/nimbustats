@@ -1088,11 +1088,35 @@ abstract class AppLocalizations {
   /// **'Amount'**
   String get trackerAmountLabel;
 
+  /// No description provided for @trackerArchived.
+  ///
+  /// In en, this message translates to:
+  /// **'Archived {name}'**
+  String trackerArchived(String name);
+
+  /// No description provided for @trackerArchivedSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Archived'**
+  String get trackerArchivedSection;
+
+  /// No description provided for @trackerCreateOwn.
+  ///
+  /// In en, this message translates to:
+  /// **'Create your own'**
+  String get trackerCreateOwn;
+
   /// No description provided for @trackerDoneToday.
   ///
   /// In en, this message translates to:
   /// **'Done today'**
   String get trackerDoneToday;
+
+  /// No description provided for @trackerEditTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit tracker'**
+  String get trackerEditTitle;
 
   /// No description provided for @trackerEmptyMessage.
   ///
@@ -1124,6 +1148,24 @@ abstract class AppLocalizations {
   /// **'{name} · {total} today'**
   String trackerLoggedToday(String name, String total);
 
+  /// No description provided for @trackerManagerEmptyMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Create one to count anything you do.'**
+  String get trackerManagerEmptyMessage;
+
+  /// No description provided for @trackerManagerEmptyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No trackers yet'**
+  String get trackerManagerEmptyTitle;
+
+  /// No description provided for @trackerManagerTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage trackers'**
+  String get trackerManagerTitle;
+
   /// No description provided for @trackerMarkDone.
   ///
   /// In en, this message translates to:
@@ -1148,6 +1190,18 @@ abstract class AppLocalizations {
   /// **'Mark {name} not done'**
   String trackerMarkNotDone(String name);
 
+  /// No description provided for @trackerNameLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Name'**
+  String get trackerNameLabel;
+
+  /// No description provided for @trackerNew.
+  ///
+  /// In en, this message translates to:
+  /// **'New tracker'**
+  String get trackerNew;
+
   /// No description provided for @trackerNotDoneToday.
   ///
   /// In en, this message translates to:
@@ -1159,6 +1213,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Log another amount'**
   String get trackerOtherAmount;
+
+  /// No description provided for @trackerPerTapLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Amount per tap'**
+  String get trackerPerTapLabel;
 
   /// No description provided for @trackerPresetCigarettes.
   ///
@@ -1237,6 +1297,48 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{total} today'**
   String trackerTodayTotal(String total);
+
+  /// No description provided for @trackerTypeBoolean.
+  ///
+  /// In en, this message translates to:
+  /// **'Done or not'**
+  String get trackerTypeBoolean;
+
+  /// No description provided for @trackerTypeCounter.
+  ///
+  /// In en, this message translates to:
+  /// **'Count'**
+  String get trackerTypeCounter;
+
+  /// No description provided for @trackerTypeDuration.
+  ///
+  /// In en, this message translates to:
+  /// **'Time'**
+  String get trackerTypeDuration;
+
+  /// No description provided for @trackerTypeFixedHint.
+  ///
+  /// In en, this message translates to:
+  /// **'The type is fixed once the tracker exists.'**
+  String get trackerTypeFixedHint;
+
+  /// No description provided for @trackerTypeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Type'**
+  String get trackerTypeLabel;
+
+  /// No description provided for @trackerTypeQuantity.
+  ///
+  /// In en, this message translates to:
+  /// **'Amount'**
+  String get trackerTypeQuantity;
+
+  /// No description provided for @trackerUnitLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Unit (optional)'**
+  String get trackerUnitLabel;
 
   /// No description provided for @trackerWriteFailed.
   ///

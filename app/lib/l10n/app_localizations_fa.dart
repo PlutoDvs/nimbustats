@@ -574,7 +574,21 @@ class AppLocalizationsFa extends AppLocalizations {
   String get trackerAmountLabel => 'مقدار';
 
   @override
+  String trackerArchived(String name) {
+    return '$name بایگانی شد';
+  }
+
+  @override
+  String get trackerArchivedSection => 'بایگانی‌شده';
+
+  @override
+  String get trackerCreateOwn => 'خودتان بسازید';
+
+  @override
   String get trackerDoneToday => 'امروز انجام شد';
+
+  @override
+  String get trackerEditTitle => 'ویرایش عادت';
 
   @override
   String get trackerEmptyMessage =>
@@ -593,6 +607,16 @@ class AppLocalizationsFa extends AppLocalizations {
   String trackerLoggedToday(String name, String total) {
     return '$name · امروز $total';
   }
+
+  @override
+  String get trackerManagerEmptyMessage =>
+      'یکی بسازید تا هر کاری را که انجام می‌دهید بشمارید.';
+
+  @override
+  String get trackerManagerEmptyTitle => 'هنوز عادتی ندارید';
+
+  @override
+  String get trackerManagerTitle => 'مدیریت عادت‌ها';
 
   @override
   String trackerMarkDone(String name) {
@@ -615,10 +639,19 @@ class AppLocalizationsFa extends AppLocalizations {
   }
 
   @override
+  String get trackerNameLabel => 'نام';
+
+  @override
+  String get trackerNew => 'عادت جدید';
+
+  @override
   String get trackerNotDoneToday => 'امروز انجام نشده';
 
   @override
   String get trackerOtherAmount => 'ثبت مقدار دیگر';
+
+  @override
+  String get trackerPerTapLabel => 'مقدار هر لمس';
 
   @override
   String get trackerPresetCigarettes => 'سیگار';
@@ -668,6 +701,27 @@ class AppLocalizationsFa extends AppLocalizations {
   String trackerTodayTotal(String total) {
     return 'امروز $total';
   }
+
+  @override
+  String get trackerTypeBoolean => 'انجام یا نه';
+
+  @override
+  String get trackerTypeCounter => 'شمارش';
+
+  @override
+  String get trackerTypeDuration => 'زمان';
+
+  @override
+  String get trackerTypeFixedHint => 'نوع عادت پس از ساخت تغییر نمی‌کند.';
+
+  @override
+  String get trackerTypeLabel => 'نوع';
+
+  @override
+  String get trackerTypeQuantity => 'مقدار';
+
+  @override
+  String get trackerUnitLabel => 'واحد (اختیاری)';
 
   @override
   String get trackerWriteFailed => 'ذخیره نشد. دوباره تلاش کنید.';

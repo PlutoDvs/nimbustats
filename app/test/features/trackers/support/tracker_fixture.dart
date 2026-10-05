@@ -127,3 +127,13 @@ List<String> captureHaptics(WidgetTester tester) {
       .setMockMethodCallHandler(SystemChannels.platform, null));
   return haptics;
 }
+
+/// Taps [finder] after scrolling it into view.
+///
+/// The editor sheets scroll: with the shared icon grid they are taller than
+/// an 800 x 600 test screen, and a user scrolls to Save the same way.
+Future<void> tapVisible(WidgetTester tester, Finder finder) async {
+  await tester.ensureVisible(finder);
+  await tester.pumpAndSettle();
+  await tester.tap(finder);
+}

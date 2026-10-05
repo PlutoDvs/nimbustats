@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:nimbus_design/nimbus_design.dart';
 
 import '../../../l10n/app_localizations.dart';
 import '../application/tracker_providers.dart';
+import '../routes.dart';
 import 'widgets/tracker_day_rollover.dart';
 import 'widgets/tracker_presets_empty.dart';
 import 'widgets/tracker_tile.dart';
@@ -62,7 +64,17 @@ class TrackersScreen extends ConsumerWidget {
 
     return TrackerDayRollover(
       child: Scaffold(
-        appBar: AppBar(title: Text(l10n.trackerScreenTitle)),
+        appBar: AppBar(
+          title: Text(l10n.trackerScreenTitle),
+          actions: [
+            IconButton(
+              key: const Key('trackers-manage'),
+              tooltip: l10n.trackerManagerTitle,
+              icon: const Icon(Icons.tune),
+              onPressed: () => context.push(trackerManagerRoute),
+            ),
+          ],
+        ),
         body: body,
       ),
     );

@@ -576,7 +576,21 @@ class AppLocalizationsEn extends AppLocalizations {
   String get trackerAmountLabel => 'Amount';
 
   @override
+  String trackerArchived(String name) {
+    return 'Archived $name';
+  }
+
+  @override
+  String get trackerArchivedSection => 'Archived';
+
+  @override
+  String get trackerCreateOwn => 'Create your own';
+
+  @override
   String get trackerDoneToday => 'Done today';
+
+  @override
+  String get trackerEditTitle => 'Edit tracker';
 
   @override
   String get trackerEmptyMessage =>
@@ -595,6 +609,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String trackerLoggedToday(String name, String total) {
     return '$name · $total today';
   }
+
+  @override
+  String get trackerManagerEmptyMessage =>
+      'Create one to count anything you do.';
+
+  @override
+  String get trackerManagerEmptyTitle => 'No trackers yet';
+
+  @override
+  String get trackerManagerTitle => 'Manage trackers';
 
   @override
   String trackerMarkDone(String name) {
@@ -617,10 +641,19 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get trackerNameLabel => 'Name';
+
+  @override
+  String get trackerNew => 'New tracker';
+
+  @override
   String get trackerNotDoneToday => 'Not done today';
 
   @override
   String get trackerOtherAmount => 'Log another amount';
+
+  @override
+  String get trackerPerTapLabel => 'Amount per tap';
 
   @override
   String get trackerPresetCigarettes => 'Cigarettes';
@@ -670,6 +703,28 @@ class AppLocalizationsEn extends AppLocalizations {
   String trackerTodayTotal(String total) {
     return '$total today';
   }
+
+  @override
+  String get trackerTypeBoolean => 'Done or not';
+
+  @override
+  String get trackerTypeCounter => 'Count';
+
+  @override
+  String get trackerTypeDuration => 'Time';
+
+  @override
+  String get trackerTypeFixedHint =>
+      'The type is fixed once the tracker exists.';
+
+  @override
+  String get trackerTypeLabel => 'Type';
+
+  @override
+  String get trackerTypeQuantity => 'Amount';
+
+  @override
+  String get trackerUnitLabel => 'Unit (optional)';
 
   @override
   String get trackerWriteFailed => 'Could not save. Try again.';

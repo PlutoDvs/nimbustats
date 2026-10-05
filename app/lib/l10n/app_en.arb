@@ -250,7 +250,18 @@
   },
   "trackerAmountInvalid": "Enter an amount above zero",
   "trackerAmountLabel": "Amount",
+  "trackerArchived": "Archived {name}",
+  "@trackerArchived": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "trackerArchivedSection": "Archived",
+  "trackerCreateOwn": "Create your own",
   "trackerDoneToday": "Done today",
+  "trackerEditTitle": "Edit tracker",
   "trackerEmptyMessage": "A tracker counts what you do besides spending: cigarettes, glasses of water, gym days, hours of sleep. Pick some to start.",
   "trackerEmptyTitle": "Track more than money",
   "trackerErrorTitle": "Could not load trackers",
@@ -266,6 +277,9 @@
       }
     }
   },
+  "trackerManagerEmptyMessage": "Create one to count anything you do.",
+  "trackerManagerEmptyTitle": "No trackers yet",
+  "trackerManagerTitle": "Manage trackers",
   "trackerMarkDone": "Mark {name} done",
   "@trackerMarkDone": {
     "placeholders": {
@@ -298,8 +312,11 @@
       }
     }
   },
+  "trackerNameLabel": "Name",
+  "trackerNew": "New tracker",
   "trackerNotDoneToday": "Not done today",
   "trackerOtherAmount": "Log another amount",
+  "trackerPerTapLabel": "Amount per tap",
   "trackerPresetCigarettes": "Cigarettes",
   "trackerPresetGym": "Gym",
   "trackerPresetsAdd": "Start tracking",
@@ -351,6 +368,13 @@
       }
     }
   },
+  "trackerTypeBoolean": "Done or not",
+  "trackerTypeCounter": "Count",
+  "trackerTypeDuration": "Time",
+  "trackerTypeFixedHint": "The type is fixed once the tracker exists.",
+  "trackerTypeLabel": "Type",
+  "trackerTypeQuantity": "Amount",
+  "trackerUnitLabel": "Unit (optional)",
   "trackerWriteFailed": "Could not save. Try again.",
   "trendsCurrentPeriod": "This month",
   "trendsDeltaNoBaseline": "No spending to compare",

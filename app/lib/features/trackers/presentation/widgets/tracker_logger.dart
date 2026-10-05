@@ -103,6 +103,14 @@ final class TrackerLogger {
     }
   }
 
+  /// Archives the tracker, with an undo. Undo, never confirm (screen contract
+  /// §1.3): archiving loses nothing, and the undo puts it back.
+  Future<void> archive() async {
+    await _write(() => repository.archive(tracker.id));
+    _showUndo(l10n.trackerArchived(tracker.name),
+        () => repository.unarchive(tracker.id));
+  }
+
   Future<T> _write<T>(Future<T> Function() write) =>
       reportingTrackerFailure(messenger: messenger, l10n: l10n, write: write);
 

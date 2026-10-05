@@ -44,3 +44,7 @@ final trackersProvider = StreamProvider<List<Tracker>>(
 final trackerTotalsProvider = StreamProvider<Map<String, double>>((ref) => ref
     .watch(trackerRepositoryProvider)
     .watchTotals(ref.watch(trackerTodayProvider)));
+
+/// The manager's "Archived" section.
+final archivedTrackersProvider = StreamProvider<List<Tracker>>(
+    (ref) => ref.watch(trackerRepositoryProvider).watchArchived());

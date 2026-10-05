@@ -7,6 +7,7 @@ import 'package:nimbus_design/nimbus_design.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../application/tracker_providers.dart';
 import '../../data/tracker_presets.dart';
+import 'tracker_editor_sheet.dart';
 import 'tracker_write.dart';
 
 /// The tab's empty state: what a tracker is, and the four presets to start
@@ -91,6 +92,13 @@ class _TrackerPresetsEmptyState extends ConsumerState<TrackerPresetsEmpty> {
               key: const Key('tracker-presets-add'),
               onPressed: _chosen.isEmpty ? null : _add,
               child: Text(l10n.trackerPresetsAdd),
+            ),
+            const SizedBox(height: NimbusTokens.space2),
+            TextButton(
+              key: const Key('tracker-create-own'),
+              onPressed: () => showTrackerEditorSheet(context,
+                  repository: ref.read(trackerRepositoryProvider)),
+              child: Text(l10n.trackerCreateOwn),
             ),
           ],
         ),
