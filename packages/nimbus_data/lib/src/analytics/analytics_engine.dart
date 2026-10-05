@@ -12,6 +12,10 @@ import 'group_expressions.dart';
 /// One engine, not two: a screen that needs a bespoke query is a missing
 /// `QuerySpec` capability. A second query path beside this one is how the
 /// numbers start disagreeing between two charts that should match.
+///
+/// Tracker questions come here too, as a [TrackerQuerySpec]: the same engine
+/// over `tracker_entries`, with the same SQL for the dimensions the two
+/// tables share.
 final class AnalyticsEngine {
   AnalyticsEngine(this._db, {required this.calendar});
 
@@ -109,6 +113,113 @@ final class AnalyticsEngine {
       bucketsMayOverlap: spec.isTagDimension,
     );
   }
+
+  /// The statement for a tracker question: [compile]'s counterpart over
+  /// `tracker_entries`.
+  ///
+  /// Still one engine. The dimensions trackers share with transactions come
+  /// from the same [GroupExpressions], and the soft-delete rule from the same
+  /// [AnalyticsPredicates.notDeleted].
+  CompiledQuery compileTracker(TrackerQuerySpec spec) {
+    final group = GroupExpressions.forTrackerDimension(
+      spec.groupBy,
+      span: spec.dateRange,
+      calendar: calendar,
+    );
+    final placeholders = List.filled(spec.trackerIds.length, '?').join(',');
+    final conditions = <String>[
+      AnalyticsPredicates.notDeleted('te'),
+      'te.tracker_id IN ($placeholders)',
+    ];
+    // Variable order must match placeholder order in the finished statement:
+    // SELECT fragments first, then WHERE.
+    final variables = <Variable<Object>>[
+      ...group.variables,
+      ...spec.trackerIds.map(Variable.withString),
+    ];
+    final range = spec.dateRange;
+    if (range != null) {
+      conditions.add('te.local_date_key BETWEEN ? AND ?');
+      variables
+        ..add(Variable.withInt(range.startInclusive.value))
+        ..add(Variable.withInt(range.endInclusive.value));
+    }
+
+    final sql = 'SELECT ${group.selectSql}, '
+        'COALESCE(SUM(te.value), 0) AS total, '
+        'COUNT(*) AS n, '
+        'MIN(te.value) AS low, MAX(te.value) AS high, AVG(te.value) AS mean '
+        'FROM tracker_entries te '
+        'WHERE ${conditions.join(' AND ')} '
+        'GROUP BY ${group.groupSql} '
+        'ORDER BY ${group.groupSql}';
+    return CompiledQuery(sql: sql, variables: variables);
+  }
+
+  /// Fires whenever a tracker entry is written. A spec names its trackers by
+  /// id, so a write to `trackers` itself changes no answer.
+  Stream<void> trackerChanges() => _db
+      .tableUpdates(TableUpdateQuery.onTable(_db.trackerEntries))
+      .map((_) {});
+
+  Future<TrackerResult> runTracker(TrackerQuerySpec spec) async {
+    final compiled = compileTracker(spec);
+    final rows = await _db
+        .customSelect(compiled.sql, variables: compiled.variables)
+        .get();
+
+    final periods = switch (spec.groupBy) {
+      TrackerGroupByPeriod(:final period) =>
+        GroupExpressions.periodsOf(period, spec.dateRange!, calendar),
+      _ => const <DateRange>[],
+    };
+
+    // No tracker dimension puts an entry in two buckets, so the totals are
+    // the rows' own, added up -- no second statement.
+    final buckets = <TrackerBucket>[];
+    var sum = 0.0;
+    var count = 0;
+    for (final row in rows) {
+      final n = row.data['n']! as int;
+      sum += _real(row.data['total']);
+      count += n;
+      buckets.add(TrackerBucket(
+        key: _trackerKeyOf(spec.groupBy, row, periods),
+        value: _trackerValueOf(spec.aggregate, row),
+        count: n,
+      ));
+    }
+    return TrackerResult(buckets: buckets, sum: sum, count: count);
+  }
+
+  BucketKey _trackerKeyOf(
+      TrackerGroupBy dimension, QueryRow row, List<DateRange> periods) {
+    final bucket = row.data['bucket'];
+    return switch (dimension) {
+      TrackerGroupByNone() => const TotalKey(),
+      TrackerGroupByTracker() => TrackerKey(bucket! as String),
+      TrackerGroupByDay() => PeriodKey(
+          DateRange(DateKey(bucket! as int), DateKey(bucket as int))),
+      TrackerGroupByPeriod() => PeriodKey(periods[bucket! as int]),
+      TrackerGroupByHourOfDay() => HourOfDayKey(bucket! as int),
+      // SQLite's %w is 0=Sunday; ISO is 1=Monday..7=Sunday.
+      TrackerGroupByDayOfWeek() =>
+        DayOfWeekKey(bucket! as int == 0 ? DateTime.sunday : bucket as int),
+    };
+  }
+
+  static double _trackerValueOf(Aggregate aggregate, QueryRow row) =>
+      switch (aggregate) {
+        Aggregate.sum => _real(row.data['total']),
+        Aggregate.count => (row.data['n']! as int).toDouble(),
+        Aggregate.min => _real(row.data['low']),
+        Aggregate.max => _real(row.data['high']),
+        Aggregate.average => _real(row.data['mean']),
+      };
+
+  /// SQLite hands a REAL back as a double, but it may store a whole value as
+  /// an integer, and an aggregate over those can come back as an int.
+  static double _real(Object? raw) => (raw! as num).toDouble();
 
   BucketKey _keyOf(GroupBy dimension, QueryRow row, List<DateRange> periods) {
     final bucket = row.data['bucket'];
