@@ -177,14 +177,72 @@ edit/delete with undo · 9. tracker detail with today's total and history list.
 
 `CONVENTIONS.md` §5, plus:
 
-- [ ] All four tracker types implemented and tested.
-- [ ] Timer state verified to survive a killed process (test the persisted-start
-      calculation; verify once on a real device).
-- [ ] Partial unique index on boolean trackers proven by a test that logs twice.
+- [x] All four tracker types implemented and tested:
+      `tracker_entry_test.dart` (counter, boolean), `tracker_quantity_test.dart`,
+      `tracker_timer_test.dart`, `tracker_repository_test.dart` and
+      `tracker_entries_dao_test.dart`.
+- [x] Timer state verified to survive a killed process.
+      - Tests: `timer_persistence_test.dart` closes and reopens the database
+        file; "a timer started before the app was killed is still running" is
+        the widget test.
+      - On the Galaxy A53 (2026-10-05): the Sleep timer started at 16:22:22,
+        the app was force-stopped at 16:22:41 and relaunched at 16:24:56, and
+        at 16:26:17 the tab read "Running · 0:03:55". Stopping it logged 249 s,
+        stamped at the start and dated that day, and cleared the timer.
+- [x] Partial unique index on boolean trackers proven by a test that logs twice:
+      `migration_test.dart` ("an upgraded v21 database enforces one live done
+      per day") and `tracker_entries_dao_test.dart` ("a second done on the same
+      day is refused…", "a fast double-tap logs exactly one").
 - [ ] **[4b]** No aggregation SQL exists outside Phase 3's engine — grep proves
       it.
-- [ ] Entry surfaces meet the one-tap budget from the spec's UX constraints.
-- [ ] `git tag phase-4-complete`.
+- [x] Entry surfaces meet the one-tap budget from the spec's UX constraints.
+      Every widget test logs with a single `tap`. On the A53, one tap on
+      Cigarettes' +1 read "1 today" with the snackbar "Cigarettes · 1 today ·
+      Undo", which sits clear of the bottom tile.
+- [ ] `git tag phase-4-complete` (after 4b). 4a is tagged `phase-4a-complete`.
+
+**4a gate record (2026-10-05), against `CONVENTIONS.md` §5 on `9403009`.**
+- `dart analyze --fatal-infos` is clean.
+- Test suites, all green: architecture 4; `nimbus_domain` 296; `nimbus_data`
+  209, including the migration tests; `nimbus_design` 36; `app` 453, run with
+  `--no-pub` because pub.dev returns 403 on the current exit.
+- **Aggregation stays a DAO count.** A grep over
+  `nimbus_data/lib/src/trackers/` and `app/lib/features/trackers/` finds one
+  aggregate: today's one-day `SUM … GROUP BY tracker_id`. The only other hit
+  is `insertAll`'s `sortOrder.max()`, which places new trackers.
+- **Migration on a real device.** The A53's v21 database (5,000 demo
+  transactions, backed up first to
+  `~/nimbustats-backups/pre-v30-20261005-1616-nimbustats.sqlite`) upgraded to
+  v30 with every transaction and all four tracker indexes.
+- **Strings** exist in both ARBs; `localization_test.dart` enforces it. The
+  operator reviewed every Persian string, chose عادت for "tracker", and had
+  the entry sheet's time label changed to «زمان ثبت».
+- **RTL and Persian digits** are covered by the Persian tests in
+  `trackers_screen_test.dart`, `tracker_quantity_test.dart`,
+  `tracker_detail_screen_test.dart` and `tracker_format_test.dart`. The
+  device check in Persian was waived by the operator, as in Phase 3.
+- **States.** Loading, error, empty and populated are tested on the tab, the
+  manager and the detail screen, including the history's states and a missing
+  tracker.
+- **Accessibility.**
+  - Semantics labels are tested with `isSemantics`, and were read on the A53:
+    "Add one to Cigarettes", "Mark Gym done", "Add 0.25 L to Water", "Start
+    Sleep timer".
+  - Tap targets are at least 48.
+  - Dynamic type: the tab and the Persian empty state are tested at twice the
+    font size.
+  - Contrast comes from the `nimbus_design` tokens, with no contrast tool run.
+- **Haptics.**
+  - The A53 (Android 15) drops Flutter's light, medium, heavy and selection
+    haptics as "vibration absent". Tracker taps now use
+    `HapticFeedback.vibrate()`, which plays, at the operator's choice.
+  - Android logs each tap as a finished touch haptic. At the phone's lowest
+    touch-feedback strength (`VIB_FEEDBACK_MAGNITUDE=1`), the operator could
+    not feel it; a full 300 ms vibration was felt. See D18, and D17 for
+    Phase 1's haptics.
+- **Not checked on the device:** drag-to-reorder in the manager, which adb
+  cannot drive. It is covered by the widget tests, including a failed reorder.
+- The schema registry records v30, and the status board is updated.
 
 ---
 

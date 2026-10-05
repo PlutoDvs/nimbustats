@@ -171,10 +171,12 @@ Keys and l10n strings are prefixed `tracker`.
   undo) · quantity **+per-tap amount** (long-press, or a TalkBack action, opens a
   small keypad for another amount) · duration **▶ / ■** with live elapsed time,
   ticking once a second only while that tile is on screen.
-- Logging is optimistic: haptic (`lightImpact` on counter and quantity,
-  `mediumImpact` on done and timer start/stop), no spinner, and a snackbar
+- Logging is optimistic: a haptic on every tap, no spinner, and a snackbar
   "Cigarettes · 5 today · Undo" that each tap replaces. Undo removes that entry —
-  the contract's decrement.
+  the contract's decrement. (The haptic was designed as `lightImpact` and
+  `mediumImpact`. Both are silent on a Galaxy A53 with Android 15, so every
+  tap uses `HapticFeedback.vibrate()`; changed 2026-10-05, see DEFERRED D17
+  and D18.)
 - Tapping the tile body opens detail. The app bar opens the manager.
 - **States.** Loading skeleton; error with retry; **empty** explains what a
   tracker is and offers the four presets — Water (quantity, 0.25 per tap, unit

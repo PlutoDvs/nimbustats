@@ -14,6 +14,8 @@ blocked, and who can unblock it.
 | D10 | No saved-view builder: views can only be pinned from what a tab shows | "#travel by category" and other tag-scoped views cannot be pinned | Next analytics phase, or on demand |
 | D12 | No global uncaught-error handler: a rethrown write failure reaches only the console | Nothing user-facing; failures are surfaced but not recorded | Phase 8 hardening, or sooner if a real failure needs a record |
 | D16 | Month-change rebuilds drop frames on a 120 Hz display | Nothing under the agreed 60 fps bar; smoothness on 120 Hz screens | Next analytics phase, or on demand |
+| D17 | Phase 1's haptics are silent on the A53 | The expense save's and category chips' haptic feedback on Samsung Android 15 | Phase 1 follow-up, on demand |
+| D18 | Tracker haptics are too faint to feel at the lowest touch strength | Feeling a tracker tap on a phone set to the lowest touch feedback | Phase 6's Android work, or on demand |
 | D13 | ~~The add-expense FAB carries no accessibility label~~ | — | **Resolved 2026-10-04** |
 | D14 | ~~Pinning offers a name a card on the dashboard already uses~~ | — | **Resolved 2026-10-04** |
 | D15 | ~~The starter card is named "This month by category" but follows the dashboard's month~~ | — | **Resolved 2026-10-04** |
@@ -691,3 +693,64 @@ on it and track this separately.
 its budget is fixed at 16.67 ms, which is why this doesn't show as over budget.
 Then re-run `--scenario months` on the dashboard and on Breakdown with the
 display at 120 Hz. The fix holds when p99 build is ≤ 8.33 ms in every pass.
+
+## D17 — Phase 1's haptics are silent on the A53
+
+**Status:** open. Found 2026-10-05 during the Phase 4a device check.
+
+**What happens.** The A53 runs Android 15. On it, Android drops every Flutter
+haptic except `HapticFeedback.vibrate()`, logging "performHapticFeedback;
+vibration absent for constant N". Probed with `cmd vibrator_manager feedback`:
+
+| Constant | Flutter call | Result |
+|---|---|---|
+| 0 `LONG_PRESS` | `vibrate` | **plays** |
+| 1 `VIRTUAL_KEY` | `lightImpact` | dropped |
+| 3 `KEYBOARD_TAP` | `mediumImpact` | dropped |
+| 4 `CLOCK_TICK` | `selectionClick` | dropped |
+| 6 `CONTEXT_CLICK` | `heavyImpact` | dropped |
+| 16 `CONFIRM` | none | dropped |
+
+Phase 4a moved tracker taps to `vibrate()`. Phase 1 still uses
+`mediumImpact` when an expense is saved (`add_transaction_screen.dart`) and
+`selectionClick` on the category chips (`category_chips.dart`), so those are
+almost certainly silent on this phone. Their widget tests pass, because they
+check the request, not what the phone does with it.
+
+**Blocks:** haptic confirmation on capture (screen contract §1.3), on this
+phone and, presumably, others like it.
+
+**Check:** run `adb logcat -c`, save an expense, then
+`adb logcat -d | grep "vibration absent"`. The fix holds when nothing prints
+and `dumpsys vibrator_manager` shows a finished TOUCH effect from
+`com.nimbustats.app`. The fix is to use `vibrate()`, as trackers do.
+
+## D18 — Tracker haptics are too faint to feel at the lowest touch strength
+
+**Status:** open. Found 2026-10-05 during the Phase 4a device check.
+
+**What happens.** After the D17 finding, tracker taps use
+`HapticFeedback.vibrate()`. Android plays each one and logs it as a finished
+45 ms TOUCH effect from `com.nimbustats.app`, the same feedback other apps'
+taps produce. The operator's A53 has touch feedback at its lowest step
+(`VIB_FEEDBACK_MAGNITUDE=1`, shown as `TOUCH = LOW`), and its motor has no
+amplitude control. At that setting the operator could not feel the taps,
+whether normal or forced. A full-strength 300 ms vibration was felt clearly.
+The operator tried raising the setting, but it still read 1 afterwards, and
+a later tap was not felt. Perceptibility at a higher setting is unverified.
+
+**Blocks:** a tracker tap felt on a phone set to the lowest touch feedback.
+For a one-tap counter, the haptic is the main confirmation; the total and the
+snackbar still change.
+
+**Options:**
+- Leave it. The app follows the user's touch-feedback preference, as every
+  app does.
+- A native Android vibration (`VibrationEffect`): longer, or under a usage
+  the touch setting does not scale. That would override the user's
+  preference, so it is a design decision, not a fix.
+
+**Check:** set Settings → Sounds and vibration → Vibration intensity → Touch
+interaction above the lowest step, confirm `adb shell settings get system
+VIB_FEEDBACK_MAGNITUDE` reads above 1, then tap a tracker and ask whether it
+was felt.
