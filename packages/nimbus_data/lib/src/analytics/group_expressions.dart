@@ -51,20 +51,13 @@ abstract final class GroupExpressions {
             variables: const [],
           ),
         GroupByHourOfDay() => (
-            // Integer arithmetic on an absolute instant. No calendar involved.
-            selectSql: 'CAST(((t.occurred_at_utc + t.tz_offset_minutes*60000)'
-                '/3600000) % 24 AS INTEGER) AS bucket',
+            selectSql: '${hourOfDaySql('t')} AS bucket',
             groupSql: 'bucket',
             joinSql: '',
             variables: const [],
           ),
         GroupByDayOfWeek() => (
-            // strftime is permitted here and nowhere else: the seven-day cycle
-            // is identical in both calendars, so no calendar decision is being
-            // made. 0 = Sunday; the engine maps it to an ISO weekday.
-            selectSql: "CAST(strftime('%w', "
-                '(t.occurred_at_utc + t.tz_offset_minutes*60000)/1000, '
-                "'unixepoch') AS INTEGER) AS bucket",
+            selectSql: '${dayOfWeekSql('t')} AS bucket',
             groupSql: 'bucket',
             joinSql: '',
             variables: const [],
@@ -77,10 +70,78 @@ abstract final class GroupExpressions {
                 ' JOIN tags tg ON tg.id = tt.tag_id AND tg.deleted_at IS NULL',
             variables: const [],
           ),
-        GroupByPeriod(:final period) => _periodFragment(period, span, calendar),
+        GroupByPeriod(:final period) =>
+          _periodFragment(period, span, calendar, alias: 't'),
         GroupByTagCrossCategory(:final depth) =>
           _tagCrossCategoryFragment(depth),
       };
+
+  /// Builds the fragment for a tracker query's [dimension], against
+  /// `tracker_entries` aliased as `te`.
+  ///
+  /// The dimensions trackers share with transactions -- hour, weekday,
+  /// period -- come from the same expressions as [forDimension], so a
+  /// tracker's hours and an expense's hours cannot be computed two ways.
+  static GroupFragment forTrackerDimension(
+    TrackerGroupBy dimension, {
+    DateRange? span,
+    AppCalendar? calendar,
+  }) =>
+      switch (dimension) {
+        TrackerGroupByNone() => (
+            selectSql: '0 AS bucket',
+            groupSql: 'bucket',
+            joinSql: '',
+            variables: const [],
+          ),
+        TrackerGroupByTracker() => (
+            selectSql: 'te.tracker_id AS bucket',
+            groupSql: 'bucket',
+            joinSql: '',
+            variables: const [],
+          ),
+        // A local day is the same day in every calendar, so this needs
+        // neither a range nor a calendar: only the key stamped at write time.
+        TrackerGroupByDay() => (
+            selectSql: 'te.local_date_key AS bucket',
+            groupSql: 'bucket',
+            joinSql: '',
+            variables: const [],
+          ),
+        TrackerGroupByPeriod(:final period) =>
+          _periodFragment(period, span, calendar, alias: 'te'),
+        TrackerGroupByHourOfDay() => (
+            selectSql: '${hourOfDaySql('te')} AS bucket',
+            groupSql: 'bucket',
+            joinSql: '',
+            variables: const [],
+          ),
+        TrackerGroupByDayOfWeek() => (
+            selectSql: '${dayOfWeekSql('te')} AS bucket',
+            groupSql: 'bucket',
+            joinSql: '',
+            variables: const [],
+          ),
+      };
+
+  /// A row's local hour, 0..23, from its UTC instant and the offset stamped
+  /// on it: integer arithmetic on an absolute instant, no calendar involved.
+  ///
+  /// [alias] names the table: `t` for transactions, `te` for tracker entries.
+  /// Both carry `occurred_at_utc` and `tz_offset_minutes`, so one expression
+  /// serves both.
+  static String hourOfDaySql(String alias) =>
+      'CAST((($alias.occurred_at_utc + $alias.tz_offset_minutes*60000)'
+      '/3600000) % 24 AS INTEGER)';
+
+  /// A row's local weekday as SQLite's `%w` counts it, 0 = Sunday; the engine
+  /// maps it to an ISO weekday.
+  ///
+  /// strftime is permitted here and nowhere else: the seven-day cycle is
+  /// identical in both calendars, so no calendar decision is being made.
+  static String dayOfWeekSql(String alias) => "CAST(strftime('%w', "
+      '($alias.occurred_at_utc + $alias.tz_offset_minutes*60000)/1000, '
+      "'unixepoch') AS INTEGER)";
 
   /// Groups on the ancestor category at [depth], not on the leaf.
   ///
@@ -134,7 +195,8 @@ abstract final class GroupExpressions {
   /// This is what keeps the "never do calendar math in SQL" rule: SQLite is
   /// only ever asked whether an integer falls between two other integers.
   static GroupFragment _periodFragment(
-      PeriodType period, DateRange? span, AppCalendar? calendar) {
+      PeriodType period, DateRange? span, AppCalendar? calendar,
+      {required String alias}) {
     if (span == null || calendar == null) {
       throw ArgumentError('grouping by period needs a bounded date range: '
           'without one there is no finite set of periods to enumerate');
@@ -143,7 +205,7 @@ abstract final class GroupExpressions {
     final buffer = StringBuffer('CASE');
     final variables = <Variable<Object>>[];
     for (var i = 0; i < periods.length; i++) {
-      buffer.write(' WHEN t.local_date_key BETWEEN ? AND ? THEN $i');
+      buffer.write(' WHEN $alias.local_date_key BETWEEN ? AND ? THEN $i');
       variables
         ..add(Variable.withInt(periods[i].startInclusive.value))
         ..add(Variable.withInt(periods[i].endInclusive.value));
