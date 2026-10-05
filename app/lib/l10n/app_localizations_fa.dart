@@ -625,7 +625,7 @@ class AppLocalizationsFa extends AppLocalizations {
   String get trackerEntryOptions => 'گزینه‌های مورد';
 
   @override
-  String get trackerEntryTimeLabel => 'ساعت';
+  String get trackerEntryTimeLabel => 'زمان ثبت';
 
   @override
   String get trackerErrorTitle => 'عادت‌ها بارگیری نشدند';

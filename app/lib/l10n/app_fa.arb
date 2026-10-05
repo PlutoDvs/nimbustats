@@ -181,7 +181,7 @@
   "trackerEntryEditTitle": "ویرایش مورد",
   "trackerEntryNoteLabel": "یادداشت",
   "trackerEntryOptions": "گزینه‌های مورد",
-  "trackerEntryTimeLabel": "ساعت",
+  "trackerEntryTimeLabel": "زمان ثبت",
   "trackerErrorTitle": "عادت‌ها بارگیری نشدند",
   "trackerHistoryEmptyMessage": "اولین مورد را با دکمه پایین ثبت کنید.",
   "trackerHistoryEmptyTitle": "هنوز چیزی ثبت نشده",
