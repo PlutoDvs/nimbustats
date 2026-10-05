@@ -33,4 +33,24 @@ void main() {
             groupBy: const TrackerGroupByDay(),
             aggregate: Aggregate.count));
   });
+
+  test('the week and month charts ask for one bucket per day', () {
+    expect(
+        TrackerQueries.byDay('cig', oneDay),
+        TrackerQuerySpec(
+            trackerIds: ['cig'],
+            dateRange: oneDay,
+            groupBy: const TrackerGroupByDay(),
+            aggregate: Aggregate.sum));
+  });
+
+  test('the year chart asks for one bucket per calendar month', () {
+    expect(
+        TrackerQueries.byMonth('cig', oneDay),
+        TrackerQuerySpec(
+            trackerIds: ['cig'],
+            dateRange: oneDay,
+            groupBy: TrackerGroupByPeriod(PeriodType.month),
+            aggregate: Aggregate.sum));
+  });
 }

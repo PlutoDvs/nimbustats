@@ -644,6 +644,46 @@ class AppLocalizationsFa extends AppLocalizations {
   String get trackerHoursLabel => 'ساعت';
 
   @override
+  String get trackerInsightsByDay => 'روزانه';
+
+  @override
+  String get trackerInsightsByMonth => 'ماهانه';
+
+  @override
+  String trackerInsightsDoneCaption(String done, String days) {
+    return '$done روز از $days روز انجام شد';
+  }
+
+  @override
+  String get trackerInsightsEmptyMessage =>
+      'چند بار ثبت کنید تا الگوهایتان اینجا دیده شود.';
+
+  @override
+  String get trackerInsightsEmptyTitle => 'هنوز تحلیلی نیست';
+
+  @override
+  String get trackerInsightsErrorTitle => 'این نمودار بارگیری نشد';
+
+  @override
+  String trackerInsightsHistorySummary(
+    String name,
+    String period,
+    String total,
+    String peak,
+    String peakValue,
+  ) {
+    return '$name، $period: در کل $total؛ بیشترین در $peak، $peakValue';
+  }
+
+  @override
+  String get trackerInsightsNothingLogged => 'در این بازه چیزی ثبت نشده';
+
+  @override
+  String trackerInsightsTotalCaption(String total, String average) {
+    return '$total در کل · $average در روز';
+  }
+
+  @override
   String trackerLastEntryDaysAgo(String days) {
     return 'آخرین ثبت: $days روز پیش';
   }
@@ -738,6 +778,21 @@ class AppLocalizationsFa extends AppLocalizations {
   String get trackerPresetWaterUnit => 'لیتر';
 
   @override
+  String get trackerRangeMonth => 'ماه';
+
+  @override
+  String get trackerRangeNext => 'بعدی';
+
+  @override
+  String get trackerRangePrevious => 'قبلی';
+
+  @override
+  String get trackerRangeWeek => 'هفته';
+
+  @override
+  String get trackerRangeYear => 'سال';
+
+  @override
   String get trackerScreenTitle => 'عادت‌ها';
 
   @override
@@ -772,6 +827,12 @@ class AppLocalizationsFa extends AppLocalizations {
     );
     return '$_temp0';
   }
+
+  @override
+  String get trackerTabHistory => 'تاریخچه';
+
+  @override
+  String get trackerTabInsights => 'تحلیل';
 
   @override
   String get trackerTimerDiscarded => 'کمتر از یک ثانیه — چیزی ثبت نشد';

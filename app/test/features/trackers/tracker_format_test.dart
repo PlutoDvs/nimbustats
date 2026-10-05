@@ -63,4 +63,17 @@ void main() {
     expect(persian.digits(1405), '۱۴۰۵');
     expect(english.digits(1405), '1405');
   });
+
+  test('a month and a year in the active calendar', () {
+    expect(english.month(const DateKey(20261005)), '2026/10');
+    expect(persian.year(const DateKey(20261005)), '۲۰۲۶');
+  });
+
+  test('the value axis shows a duration as h:mm', () {
+    expect(english.axis(tracker(TrackerType.duration), 5400), '1:30');
+  });
+
+  test('the value axis shows a bare number, without a unit', () {
+    expect(english.axis(tracker(TrackerType.quantity, unit: 'L'), 2.5), '2.5');
+  });
 }

@@ -63,6 +63,23 @@ final class TrackerFormat {
     return _digits('${parts.year}/${_two(parts.month)}/${_two(parts.day)}');
   }
 
+  /// A month in the active calendar, as Phase 3's period labels write one:
+  /// `1405/07`.
+  String month(DateKey day) {
+    final parts = calendar.partsOf(day);
+    return _digits('${parts.year}/${_two(parts.month)}');
+  }
+
+  /// A year in the active calendar: `1405`.
+  String year(DateKey day) => _digits('${calendar.partsOf(day).year}');
+
+  /// A chart's value axis: the bare number, or h:mm for a duration. There is
+  /// no unit, which the axis has no room for and the caption already says.
+  String axis(Tracker tracker, double value) =>
+      tracker.type == TrackerType.duration
+          ? duration(TrackerValues.durationOf(value))
+          : number(value);
+
   String _digits(String latin) =>
       persianDigits ? Digits.toPersian(latin) : latin;
 

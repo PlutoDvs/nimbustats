@@ -646,6 +646,46 @@ class AppLocalizationsEn extends AppLocalizations {
   String get trackerHoursLabel => 'Hours';
 
   @override
+  String get trackerInsightsByDay => 'By day';
+
+  @override
+  String get trackerInsightsByMonth => 'By month';
+
+  @override
+  String trackerInsightsDoneCaption(String done, String days) {
+    return 'Done on $done of $days days';
+  }
+
+  @override
+  String get trackerInsightsEmptyMessage =>
+      'Log a few entries and your patterns show up here.';
+
+  @override
+  String get trackerInsightsEmptyTitle => 'No insights yet';
+
+  @override
+  String get trackerInsightsErrorTitle => 'Could not load this chart';
+
+  @override
+  String trackerInsightsHistorySummary(
+    String name,
+    String period,
+    String total,
+    String peak,
+    String peakValue,
+  ) {
+    return '$name, $period: $total in all; most on $peak, $peakValue';
+  }
+
+  @override
+  String get trackerInsightsNothingLogged => 'Nothing logged in this period';
+
+  @override
+  String trackerInsightsTotalCaption(String total, String average) {
+    return '$total in all · $average a day';
+  }
+
+  @override
   String trackerLastEntryDaysAgo(String days) {
     return 'Last entry: $days days ago';
   }
@@ -740,6 +780,21 @@ class AppLocalizationsEn extends AppLocalizations {
   String get trackerPresetWaterUnit => 'L';
 
   @override
+  String get trackerRangeMonth => 'Month';
+
+  @override
+  String get trackerRangeNext => 'Later';
+
+  @override
+  String get trackerRangePrevious => 'Earlier';
+
+  @override
+  String get trackerRangeWeek => 'Week';
+
+  @override
+  String get trackerRangeYear => 'Year';
+
+  @override
   String get trackerScreenTitle => 'Trackers';
 
   @override
@@ -776,6 +831,12 @@ class AppLocalizationsEn extends AppLocalizations {
     );
     return '$_temp0';
   }
+
+  @override
+  String get trackerTabHistory => 'History';
+
+  @override
+  String get trackerTabInsights => 'Insights';
 
   @override
   String get trackerTimerDiscarded => 'Under a second — nothing logged';

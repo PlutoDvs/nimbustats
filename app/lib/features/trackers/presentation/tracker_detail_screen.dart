@@ -16,20 +16,26 @@ import 'widgets/tracker_day_rollover.dart';
 import 'widgets/tracker_duration_sheet.dart';
 import 'widgets/tracker_editor_sheet.dart';
 import 'widgets/tracker_entry_sheet.dart';
+import 'widgets/tracker_insights.dart';
 import 'widgets/tracker_logger.dart';
 import 'widgets/tracker_streak_lines.dart';
 import 'widgets/tracker_today_text.dart';
 
-/// One tracker: today's total, its history newest first, and the quick log
-/// pinned in the bottom third while the history scrolls (screen contract
-/// §6.2).
+/// One tracker: today's total and streak, its history and its insights, and
+/// the quick log pinned in the bottom third while the history scrolls (screen
+/// contract §6.2).
 class TrackerDetailScreen extends ConsumerWidget {
   const TrackerDetailScreen({super.key, required this.id});
 
   final String id;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context, WidgetRef ref) =>
+      // Above every state, so the chosen tab survives the screen passing
+      // through loading when the calendar or the day changes its queries.
+      DefaultTabController(length: 2, child: _screen(context, ref));
+
+  Widget _screen(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
     final tracker = ref.watch(trackerByIdProvider(id));
     final dayTotal = ref.watch(trackerDayTotalProvider(id));
@@ -80,8 +86,20 @@ class TrackerDetailScreen extends ConsumerWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             _Header(tracker: current, total: total),
-            const Divider(height: 1),
-            Expanded(child: _History(tracker: current)),
+            TabBar(tabs: [
+              Tab(
+                  key: const Key('tracker-tab-history'),
+                  text: l10n.trackerTabHistory),
+              Tab(
+                  key: const Key('tracker-tab-insights'),
+                  text: l10n.trackerTabInsights),
+            ]),
+            Expanded(
+              child: TabBarView(children: [
+                _History(tracker: current),
+                TrackerInsights(tracker: current),
+              ]),
+            ),
           ],
         ),
         // Outside the scrolling body, so it stays put while history scrolls.

@@ -279,6 +279,54 @@
   "trackerHistoryEmptyTitle": "Nothing logged yet",
   "trackerHistoryErrorTitle": "Could not load the history",
   "trackerHoursLabel": "Hours",
+  "trackerInsightsByDay": "By day",
+  "trackerInsightsByMonth": "By month",
+  "trackerInsightsDoneCaption": "Done on {done} of {days} days",
+  "@trackerInsightsDoneCaption": {
+    "placeholders": {
+      "done": {
+        "type": "String"
+      },
+      "days": {
+        "type": "String"
+      }
+    }
+  },
+  "trackerInsightsEmptyMessage": "Log a few entries and your patterns show up here.",
+  "trackerInsightsEmptyTitle": "No insights yet",
+  "trackerInsightsErrorTitle": "Could not load this chart",
+  "trackerInsightsHistorySummary": "{name}, {period}: {total} in all; most on {peak}, {peakValue}",
+  "@trackerInsightsHistorySummary": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "period": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      },
+      "peak": {
+        "type": "String"
+      },
+      "peakValue": {
+        "type": "String"
+      }
+    }
+  },
+  "trackerInsightsNothingLogged": "Nothing logged in this period",
+  "trackerInsightsTotalCaption": "{total} in all · {average} a day",
+  "@trackerInsightsTotalCaption": {
+    "placeholders": {
+      "total": {
+        "type": "String"
+      },
+      "average": {
+        "type": "String"
+      }
+    }
+  },
   "trackerLastEntryDaysAgo": "Last entry: {days} days ago",
   "@trackerLastEntryDaysAgo": {
     "placeholders": {
@@ -351,6 +399,11 @@
   "trackerPresetSleep": "Sleep",
   "trackerPresetWater": "Water",
   "trackerPresetWaterUnit": "L",
+  "trackerRangeMonth": "Month",
+  "trackerRangeNext": "Later",
+  "trackerRangePrevious": "Earlier",
+  "trackerRangeWeek": "Week",
+  "trackerRangeYear": "Year",
   "trackerScreenTitle": "Trackers",
   "trackerStartTimer": "Start {name} timer",
   "@trackerStartTimer": {
@@ -394,6 +447,8 @@
       }
     }
   },
+  "trackerTabHistory": "History",
+  "trackerTabInsights": "Insights",
   "trackerTimerDiscarded": "Under a second — nothing logged",
   "trackerTimerLogged": "{name} · {duration} logged",
   "@trackerTimerLogged": {

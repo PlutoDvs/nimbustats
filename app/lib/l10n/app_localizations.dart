@@ -1220,6 +1220,66 @@ abstract class AppLocalizations {
   /// **'Hours'**
   String get trackerHoursLabel;
 
+  /// No description provided for @trackerInsightsByDay.
+  ///
+  /// In en, this message translates to:
+  /// **'By day'**
+  String get trackerInsightsByDay;
+
+  /// No description provided for @trackerInsightsByMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'By month'**
+  String get trackerInsightsByMonth;
+
+  /// No description provided for @trackerInsightsDoneCaption.
+  ///
+  /// In en, this message translates to:
+  /// **'Done on {done} of {days} days'**
+  String trackerInsightsDoneCaption(String done, String days);
+
+  /// No description provided for @trackerInsightsEmptyMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Log a few entries and your patterns show up here.'**
+  String get trackerInsightsEmptyMessage;
+
+  /// No description provided for @trackerInsightsEmptyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No insights yet'**
+  String get trackerInsightsEmptyTitle;
+
+  /// No description provided for @trackerInsightsErrorTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load this chart'**
+  String get trackerInsightsErrorTitle;
+
+  /// No description provided for @trackerInsightsHistorySummary.
+  ///
+  /// In en, this message translates to:
+  /// **'{name}, {period}: {total} in all; most on {peak}, {peakValue}'**
+  String trackerInsightsHistorySummary(
+    String name,
+    String period,
+    String total,
+    String peak,
+    String peakValue,
+  );
+
+  /// No description provided for @trackerInsightsNothingLogged.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing logged in this period'**
+  String get trackerInsightsNothingLogged;
+
+  /// No description provided for @trackerInsightsTotalCaption.
+  ///
+  /// In en, this message translates to:
+  /// **'{total} in all · {average} a day'**
+  String trackerInsightsTotalCaption(String total, String average);
+
   /// No description provided for @trackerLastEntryDaysAgo.
   ///
   /// In en, this message translates to:
@@ -1382,6 +1442,36 @@ abstract class AppLocalizations {
   /// **'L'**
   String get trackerPresetWaterUnit;
 
+  /// No description provided for @trackerRangeMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'Month'**
+  String get trackerRangeMonth;
+
+  /// No description provided for @trackerRangeNext.
+  ///
+  /// In en, this message translates to:
+  /// **'Later'**
+  String get trackerRangeNext;
+
+  /// No description provided for @trackerRangePrevious.
+  ///
+  /// In en, this message translates to:
+  /// **'Earlier'**
+  String get trackerRangePrevious;
+
+  /// No description provided for @trackerRangeWeek.
+  ///
+  /// In en, this message translates to:
+  /// **'Week'**
+  String get trackerRangeWeek;
+
+  /// No description provided for @trackerRangeYear.
+  ///
+  /// In en, this message translates to:
+  /// **'Year'**
+  String get trackerRangeYear;
+
   /// No description provided for @trackerScreenTitle.
   ///
   /// In en, this message translates to:
@@ -1417,6 +1507,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{count, plural, =1{{days} day in a row · best {best}} other{{days} days in a row · best {best}}}'**
   String trackerStreakLine(int count, String days, String best);
+
+  /// No description provided for @trackerTabHistory.
+  ///
+  /// In en, this message translates to:
+  /// **'History'**
+  String get trackerTabHistory;
+
+  /// No description provided for @trackerTabInsights.
+  ///
+  /// In en, this message translates to:
+  /// **'Insights'**
+  String get trackerTabInsights;
 
   /// No description provided for @trackerTimerDiscarded.
   ///
