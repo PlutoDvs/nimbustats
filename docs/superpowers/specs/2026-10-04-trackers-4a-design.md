@@ -61,8 +61,9 @@ migration test, and the registry row.
 
 ### Indexes
 
-- `idx_tracker_entries_day` on `(tracker_id, local_date_key)` — today's totals
-  and the day's entries.
+- `idx_tracker_entries_day` on `(local_date_key, tracker_id)` — today's totals
+  and the day's entries. Date first, because today's totals read every
+  tracker for one day (changed in the implementation plan).
 - `idx_tracker_entries_history` on `(tracker_id, occurred_at_utc DESC, id DESC)`
   — the detail screen's cursor pagination.
 - `idx_tracker_entries_once_per_day` — **UNIQUE** `(tracker_id, local_date_key)`

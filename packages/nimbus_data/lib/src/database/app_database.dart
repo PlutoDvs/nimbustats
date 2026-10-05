@@ -11,6 +11,8 @@ import '../tables/payment_methods_table.dart';
 import '../tables/saved_views_table.dart';
 import '../tables/settings_table.dart';
 import '../tables/tags_table.dart';
+import '../tables/tracker_entries_table.dart';
+import '../tables/trackers_table.dart';
 import '../tables/transaction_tags_table.dart';
 import '../tables/transactions_table.dart';
 import '../tree/materialized_path.dart';
@@ -28,6 +30,8 @@ part 'app_database.g.dart';
     Transactions,
     TransactionTags,
     SavedViews,
+    Trackers,
+    TrackerEntries,
   ],
 )
 class AppDatabase extends _$AppDatabase {
@@ -52,7 +56,7 @@ class AppDatabase extends _$AppDatabase {
   factory AppDatabase.openInMemory() => AppDatabase(NativeDatabase.memory());
 
   @override
-  int get schemaVersion => 21;
+  int get schemaVersion => 30;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -84,6 +88,21 @@ class AppDatabase extends _$AppDatabase {
             // month -- which is what every v20 pin source meant.
             await m.addColumn(savedViews, savedViews.periodType);
             await m.addColumn(savedViews, savedViews.periodCount);
+          }
+          // v21 -> v30: Phase 4 adds trackers and their entries. New tables
+          // only, so every older version takes this same step, after the
+          // saved-views chain above.
+          if (from < 30) {
+            await m.createTable(trackers);
+            await m.createTable(trackerEntries);
+            // As with saved_views: createTable leaves the indexes behind, and
+            // the once-per-day index is a correctness rule rather than a
+            // speed-up -- an upgraded device without it could log "done"
+            // twice where a fresh install cannot.
+            await m.create(idxTrackersLive);
+            await m.create(idxTrackerEntriesDay);
+            await m.create(idxTrackerEntriesHistory);
+            await m.create(idxTrackerEntriesOncePerDay);
           }
         },
         beforeOpen: (details) async {

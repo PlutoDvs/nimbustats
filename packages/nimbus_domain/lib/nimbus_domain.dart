@@ -41,3 +41,4 @@ export 'src/parsing/token.dart';
 export 'src/prediction/category_observation.dart';
 export 'src/prediction/category_predictor.dart';
 export 'src/prediction/mru_frequency_predictor.dart';
+export 'src/trackers/tracker_type.dart';

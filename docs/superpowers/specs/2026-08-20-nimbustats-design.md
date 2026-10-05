@@ -192,8 +192,10 @@ Written automatically the first time a captured expense with a merchant string i
 every later match from that merchant needs zero taps.
 
 **`trackers`** — `name`, `icon_key`, `color`, `type` (counter|boolean|quantity|duration), `unit?`,
-`archived`, `sort_order`.
-**`tracker_entries`** — `tracker_id`, `value REAL`, `occurred_at_utc`, `local_date_key`, `note?`.
+`per_tap_value?` (what one tap logs on a quantity tracker), `archived`, `sort_order`,
+`timer_started_at_utc?` (a running timer's persisted start: one per tracker, survives process death).
+**`tracker_entries`** — `tracker_id`, `value REAL`, `occurred_at_utc`, `local_date_key`, `note?`,
+`once_per_day` (copied from a boolean tracker, so a partial unique index allows one live "done" a day).
 Per-increment timestamps mean time-of-day habit patterns come for free.
 
 **`goals`** — one table, one engine, all four goal types:

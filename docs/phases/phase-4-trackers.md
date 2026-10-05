@@ -97,9 +97,20 @@ app/lib/features/trackers/**
 Take the schema lock per `CONVENTIONS.md` §2.
 
 - `trackers` — `name`, `icon_key`, `color`, `type`
-  (counter|boolean|quantity|duration), `unit?`, `archived`, `sort_order`.
+  (counter|boolean|quantity|duration), `unit?`, `per_tap_value?`, `archived`,
+  `sort_order`, `timer_started_at_utc?`.
 - `tracker_entries` — `tracker_id`, `value REAL`, `occurred_at_utc`,
-  `local_date_key`, `note?`.
+  `local_date_key`, `note?`, `once_per_day`.
+
+Three columns were added in 4a's design (2026-10-04), each because a rule has
+to hold at the data layer:
+
+- `timer_started_at_utc` holds a running timer's start. It survives a killed
+  process and holds one start per tracker by construction.
+- `once_per_day` is copied from boolean trackers so a partial unique index can
+  allow one live "done" per day. A partial index can only test its own table's
+  columns.
+- `per_tap_value` is what one tap logs on a quantity tracker.
 
 **Per-increment rows, not daily totals.** Five cigarettes on one day is five
 rows with five timestamps. That is what makes time-of-day patterns free, and
