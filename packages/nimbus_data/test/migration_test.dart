@@ -1,3 +1,4 @@
+import 'package:drift/drift.dart' show MigrationStrategy;
 import 'package:drift_dev/api/migrations_native.dart';
 import 'package:nimbus_data/nimbus_data.dart';
 import 'package:nimbus_domain/nimbus_domain.dart';
@@ -205,6 +206,43 @@ void main() {
       await verifier.migrateAndValidate(db, 32);
       expect(await offsets(db), {'winter': 210, 'summer': 270});
     });
+
+    test('an upgrade killed after the v31 step reopens and finishes',
+        () async {
+      // Killed after every step of onUpgrade has run, before drift writes 32.
+      // Two guards make the next start succeed: the v31 step records its own
+      // version, or the reopen would add the offset column a second time; and
+      // the v32 drop says IF EXISTS, because the index is already gone.
+      final schema = await verifier.schemaAt(30);
+      seedV30(schema.rawDatabase);
+      final killed = _KilledAfterUpgrade(schema.newConnection(),
+          trackerOffsetAt: seasonal);
+      await expectLater(
+          killed.customSelect('SELECT 1').get(), throwsA(anything));
+      await killed.close();
+
+      expect(schema.rawDatabase.userVersion, 31);
+      expect(
+        [
+          for (final column in schema.rawDatabase
+              .select('PRAGMA table_info(tracker_entries)'))
+            column['name'] as String,
+        ],
+        contains('tz_offset_minutes'),
+      );
+      expect(
+        schema.rawDatabase.select("SELECT name FROM sqlite_master WHERE "
+            "type = 'index' AND name = 'idx_tracker_entries_day'"),
+        isEmpty,
+        reason: 'the re-run meets a database whose day index is already gone',
+      );
+
+      final db = AppDatabase(schema.newConnection());
+      addTearDown(db.close);
+      await verifier.migrateAndValidate(db, 32,
+          options: const ValidationOptions(validateDropped: true));
+      expect(await offsets(db), {'winter': 210, 'summer': 270});
+    });
   });
 
   test("a v31 database drops 4a's day index and keeps its entries", () async {
@@ -234,4 +272,24 @@ void main() {
         .getSingle();
     expect(row.read<int>('o'), 210);
   });
+}
+
+/// The real upgrade, then a kill: every step of onUpgrade runs and commits,
+/// and the process dies before drift records the new version. No production
+/// seam is needed, because drift reads the strategy from [migration].
+class _KilledAfterUpgrade extends AppDatabase {
+  _KilledAfterUpgrade(super.e, {super.trackerOffsetAt});
+
+  @override
+  MigrationStrategy get migration {
+    final real = super.migration;
+    return MigrationStrategy(
+      onCreate: real.onCreate,
+      onUpgrade: (m, from, to) async {
+        await real.onUpgrade(m, from, to);
+        throw StateError('killed before drift records v$to');
+      },
+      beforeOpen: real.beforeOpen,
+    );
+  }
 }
