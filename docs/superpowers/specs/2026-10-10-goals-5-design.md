@@ -1,6 +1,6 @@
 # Phase 5 — Goals & limits — design
 
-**Status:** approved in conversation 2026-10-10; awaiting written-spec review.
+**Status:** approved 2026-10-10; the plan is `docs/superpowers/plans/2026-10-10-nimbustats-phase-5-goals.md`.
 **Brief:** `docs/phases/phase-5-goals.md`.
 **Prerequisites:** `phase-3-complete` and `phase-4-complete` both exist.
 **Schema:** v40 · **Branch:** `phase/5-goals` · **Gate:** `phase-5-complete`
