@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/misc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:nimbus_data/nimbus_data.dart';
@@ -12,6 +13,7 @@ import 'package:nimbustats/features/settings/data/settings_repository.dart';
 import 'package:nimbustats/features/trackers/application/tracker_insights_controller.dart';
 import 'package:nimbustats/features/trackers/application/tracker_providers.dart';
 import 'package:nimbustats/features/trackers/data/tracker_repository.dart';
+import 'package:nimbustats/features/trackers/presentation/tracker_detail_screen.dart';
 import 'package:nimbustats/features/trackers/routes.dart';
 
 import '../../support/harness.dart';
@@ -249,6 +251,72 @@ void main() {
 
     expect(textOf(tester, 'tracker-range-label'), '2026/10');
     expect(barsOf(tester, 'tracker-history-chart'), hasLength(31));
+  });
+
+  /// The screen's own loading view replaces the whole Scaffold, tabs and all,
+  /// so the tabs being gone is the proof it is showing.
+  bool screenIsLoading() =>
+      find.byKey(const Key('tracker-tab-insights')).evaluate().isEmpty;
+
+  testWidgets('a new day keeps the screen, the tab and the chosen range',
+      (tester) async {
+    await useGregorianEnglish();
+    final cig = await repo.create(cigarettes);
+    await logDaysAgo(cig, 0);
+    // The new day's total is a new question, so it has no earlier answer to
+    // show while it loads. Held open here, as it is on a slow device.
+    final never = Completer<TrackerResult>();
+    await openInsights(tester, cig.id, overrides: [
+      trackerResultProvider(
+              TrackerQueries.dayTotal(cig.id, const DateKey(20261006)))
+          .overrideWith((ref) => never.future),
+    ]);
+    await tester.tap(find.byKey(const Key('tracker-range-previous')));
+    await tester.pumpAndSettle();
+    expect(textOf(tester, 'tracker-range-label'), '2026/09');
+
+    // Local midnight: the rollover timer fires and today becomes the 6th.
+    fake.advance(const Duration(days: 1));
+    await tester.pump(const Duration(days: 1));
+    await tester.pump();
+    final container = ProviderScope.containerOf(
+        tester.element(find.byType(TrackerDetailScreen)));
+    expect(container.read(trackerTodayProvider), const DateKey(20261006),
+        reason: 'the day did roll over');
+    expect(container.read(trackerDayTotalProvider(cig.id)).isLoading, isTrue,
+        reason: 'and the new day total is still being asked');
+
+    expect(screenIsLoading(), isFalse,
+        reason: 'the screen swapped for its loading view');
+    expect(textOf(tester, 'tracker-range-label'), '2026/09');
+    expect(find.byKey(const Key('tracker-quick-log')), findsOneWidget);
+  });
+
+  testWidgets('switching the calendar never replaces the screen with loading',
+      (tester) async {
+    await useEnglishDigits(db);
+    final cig = await repo.create(cigarettes);
+    await logDaysAgo(cig, 0);
+    await openInsights(tester, cig.id);
+
+    var frames = 0;
+    var loadingFrames = 0;
+    var saved = false;
+    final save = useGregorianEnglish().then((_) => saved = true);
+    for (var i = 0; i < 200 && !saved; i++) {
+      await tester.runAsync(
+          () => Future<void>.delayed(const Duration(milliseconds: 10)));
+      await tester.pump();
+      frames++;
+      if (screenIsLoading()) loadingFrames++;
+    }
+    await save;
+    await tester.pumpAndSettle();
+
+    expect(textOf(tester, 'tracker-range-label'), '2026/10');
+    expect(loadingFrames, 0,
+        reason: 'the screen showed its loading view in $loadingFrames of '
+            '$frames frames');
   });
 
   testWidgets('Persian digits on the range', (tester) async {

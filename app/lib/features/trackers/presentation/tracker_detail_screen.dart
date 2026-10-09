@@ -24,21 +24,47 @@ import 'widgets/tracker_today_text.dart';
 /// One tracker: today's total and streak, its history and its insights, and
 /// the quick log pinned in the bottom third while the history scrolls (screen
 /// contract §6.2).
-class TrackerDetailScreen extends ConsumerWidget {
+class TrackerDetailScreen extends ConsumerStatefulWidget {
   const TrackerDetailScreen({super.key, required this.id});
 
   final String id;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) =>
-      // Above every state, so the chosen tab survives the screen passing
-      // through loading when the calendar or the day changes its queries.
-      DefaultTabController(length: 2, child: _screen(context, ref));
+  ConsumerState<TrackerDetailScreen> createState() =>
+      _TrackerDetailScreenState();
+}
 
-  Widget _screen(BuildContext context, WidgetRef ref) {
+class _TrackerDetailScreenState extends ConsumerState<TrackerDetailScreen> {
+  /// The last day total the screen had. The total is derived from a query
+  /// that is a new question whenever the day rolls over, and a derived
+  /// provider drops the previous value of a query that is reloading (the
+  /// calendar changing re-runs every query). Either way the provider has no
+  /// value for a moment, and the screen must not mistake that for never
+  /// having loaded: it would tear down the tabs, the Insights range and the
+  /// history scroll for the length of one query.
+  double? _lastTotal;
+
+  String get id => widget.id;
+
+  @override
+  void didUpdateWidget(TrackerDetailScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // Another tracker's total is not this one's last.
+    if (oldWidget.id != widget.id) _lastTotal = null;
+  }
+
+  @override
+  Widget build(BuildContext context) =>
+      // Above every state, so the chosen tab also survives the screen passing
+      // through a state that is not the tracker, such as an error and a retry.
+      DefaultTabController(length: 2, child: _screen(context));
+
+  Widget _screen(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final tracker = ref.watch(trackerByIdProvider(id));
     final dayTotal = ref.watch(trackerDayTotalProvider(id));
+    if (dayTotal.hasValue) _lastTotal = dayTotal.requireValue;
+    final shownTotal = _lastTotal;
 
     if (tracker.hasError || dayTotal.hasError) {
       return Scaffold(
@@ -55,7 +81,7 @@ class TrackerDetailScreen extends ConsumerWidget {
         ),
       );
     }
-    if (!tracker.hasValue || !dayTotal.hasValue) {
+    if (!tracker.hasValue || shownTotal == null) {
       return Scaffold(appBar: AppBar(), body: const NimbusLoadingList(rows: 6));
     }
     final current = tracker.requireValue;
@@ -74,7 +100,7 @@ class TrackerDetailScreen extends ConsumerWidget {
       );
     }
 
-    final total = dayTotal.requireValue;
+    final total = shownTotal;
     return TrackerDayRollover(
       child: Scaffold(
         appBar: AppBar(
