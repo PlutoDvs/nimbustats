@@ -76,3 +76,23 @@ String rangeLabel(TrackerInsightsView view, TrackerFormat format) =>
       TrackerRangeKind.month => format.month(view.range.startInclusive),
       TrackerRangeKind.year => format.year(view.range.startInclusive),
     };
+
+/// The twenty-four hour bars, quiet hours included.
+List<double> hourBars(TrackerResult result) {
+  final byHour = <int, double>{
+    for (final bucket in result.buckets)
+      if (bucket.key case HourOfDayKey(:final hour)) hour: bucket.value,
+  };
+  return [for (var hour = 0; hour < 24; hour++) byHour[hour] ?? 0];
+}
+
+/// The seven weekday bars, in [order]: the user's week, as Phase 3's
+/// `weekdaysFrom` lists it. Iran's week starts on Saturday, and ISO order
+/// would shift every bar by two days in a way that reads as data.
+List<double> weekdayBars(TrackerResult result, List<int> order) {
+  final byWeekday = <int, double>{
+    for (final bucket in result.buckets)
+      if (bucket.key case DayOfWeekKey(:final weekday)) weekday: bucket.value,
+  };
+  return [for (final weekday in order) byWeekday[weekday] ?? 0];
+}

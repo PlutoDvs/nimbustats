@@ -31,6 +31,25 @@ abstract final class TrackerQueries {
         aggregate: Aggregate.sum,
       );
 
+  /// [trackerId]'s entries over [range] by local hour: the time-of-day
+  /// pattern.
+  static TrackerQuerySpec byHour(String trackerId, DateRange range) =>
+      TrackerQuerySpec(
+        trackerIds: [trackerId],
+        dateRange: range,
+        groupBy: const TrackerGroupByHourOfDay(),
+        aggregate: Aggregate.sum,
+      );
+
+  /// [trackerId]'s entries over [range] by weekday: the day-of-week pattern.
+  static TrackerQuerySpec byWeekday(String trackerId, DateRange range) =>
+      TrackerQuerySpec(
+        trackerIds: [trackerId],
+        dateRange: range,
+        groupBy: const TrackerGroupByDayOfWeek(),
+        aggregate: Aggregate.sum,
+      );
+
   /// Each of [trackerIds]' totals on [day]: the tab. A tracker with nothing
   /// logged that day has no bucket.
   static TrackerQuerySpec dayTotals(List<String> trackerIds, DateKey day) =>

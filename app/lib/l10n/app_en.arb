@@ -280,7 +280,10 @@
   "trackerHistoryErrorTitle": "Could not load the history",
   "trackerHoursLabel": "Hours",
   "trackerInsightsByDay": "By day",
+  "trackerInsightsByHour": "Time of day",
   "trackerInsightsByMonth": "By month",
+  "trackerInsightsByStartHour": "Time of day · by start time",
+  "trackerInsightsByWeekday": "Day of week",
   "trackerInsightsDoneCaption": "Done on {done} of {days} days",
   "@trackerInsightsDoneCaption": {
     "placeholders": {
@@ -315,6 +318,23 @@
       }
     }
   },
+  "trackerInsightsHourSummary": "{name} by time of day, {period}: most around {hour}, {peakValue}",
+  "@trackerInsightsHourSummary": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "period": {
+        "type": "String"
+      },
+      "hour": {
+        "type": "String"
+      },
+      "peakValue": {
+        "type": "String"
+      }
+    }
+  },
   "trackerInsightsNothingLogged": "Nothing logged in this period",
   "trackerInsightsTotalCaption": "{total} in all · {average} a day",
   "@trackerInsightsTotalCaption": {
@@ -323,6 +343,23 @@
         "type": "String"
       },
       "average": {
+        "type": "String"
+      }
+    }
+  },
+  "trackerInsightsWeekdaySummary": "{name} by day of week, {period}: most on {weekday}, {peakValue}",
+  "@trackerInsightsWeekdaySummary": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "period": {
+        "type": "String"
+      },
+      "weekday": {
+        "type": "String"
+      },
+      "peakValue": {
         "type": "String"
       }
     }

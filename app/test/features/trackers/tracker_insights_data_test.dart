@@ -117,4 +117,24 @@ void main() {
             persian),
         '۲۰۲۶/۱۰');
   });
+
+  test('twenty-four hour bars, quiet hours at zero', () {
+    final bars = hourBars(TrackerResult(buckets: [
+      TrackerBucket(key: HourOfDayKey(7), value: 1, count: 1),
+      TrackerBucket(key: HourOfDayKey(12), value: 2, count: 2),
+    ], sum: 3, count: 3));
+    expect(bars, hasLength(24));
+    expect(bars[7], 1);
+    expect(bars[12], 2);
+    expect(bars.where((value) => value == 0), hasLength(22));
+  });
+
+  test("weekday bars follow the user's week, not ISO order", () {
+    final result = TrackerResult(buckets: [
+      TrackerBucket(key: DayOfWeekKey(DateTime.monday), value: 3, count: 3),
+      TrackerBucket(key: DayOfWeekKey(DateTime.saturday), value: 1, count: 1),
+    ], sum: 4, count: 4);
+    const saturdayFirst = [6, 7, 1, 2, 3, 4, 5];
+    expect(weekdayBars(result, saturdayFirst), [1, 0, 3, 0, 0, 0, 0]);
+  });
 }

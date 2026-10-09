@@ -1226,11 +1226,29 @@ abstract class AppLocalizations {
   /// **'By day'**
   String get trackerInsightsByDay;
 
+  /// No description provided for @trackerInsightsByHour.
+  ///
+  /// In en, this message translates to:
+  /// **'Time of day'**
+  String get trackerInsightsByHour;
+
   /// No description provided for @trackerInsightsByMonth.
   ///
   /// In en, this message translates to:
   /// **'By month'**
   String get trackerInsightsByMonth;
+
+  /// No description provided for @trackerInsightsByStartHour.
+  ///
+  /// In en, this message translates to:
+  /// **'Time of day · by start time'**
+  String get trackerInsightsByStartHour;
+
+  /// No description provided for @trackerInsightsByWeekday.
+  ///
+  /// In en, this message translates to:
+  /// **'Day of week'**
+  String get trackerInsightsByWeekday;
 
   /// No description provided for @trackerInsightsDoneCaption.
   ///
@@ -1268,6 +1286,17 @@ abstract class AppLocalizations {
     String peakValue,
   );
 
+  /// No description provided for @trackerInsightsHourSummary.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} by time of day, {period}: most around {hour}, {peakValue}'**
+  String trackerInsightsHourSummary(
+    String name,
+    String period,
+    String hour,
+    String peakValue,
+  );
+
   /// No description provided for @trackerInsightsNothingLogged.
   ///
   /// In en, this message translates to:
@@ -1279,6 +1308,17 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{total} in all · {average} a day'**
   String trackerInsightsTotalCaption(String total, String average);
+
+  /// No description provided for @trackerInsightsWeekdaySummary.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} by day of week, {period}: most on {weekday}, {peakValue}'**
+  String trackerInsightsWeekdaySummary(
+    String name,
+    String period,
+    String weekday,
+    String peakValue,
+  );
 
   /// No description provided for @trackerLastEntryDaysAgo.
   ///

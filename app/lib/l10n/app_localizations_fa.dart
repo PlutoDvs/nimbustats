@@ -647,7 +647,16 @@ class AppLocalizationsFa extends AppLocalizations {
   String get trackerInsightsByDay => 'روزانه';
 
   @override
+  String get trackerInsightsByHour => 'ساعت روز';
+
+  @override
   String get trackerInsightsByMonth => 'ماهانه';
+
+  @override
+  String get trackerInsightsByStartHour => 'ساعت روز · بر اساس زمان شروع';
+
+  @override
+  String get trackerInsightsByWeekday => 'روز هفته';
 
   @override
   String trackerInsightsDoneCaption(String done, String days) {
@@ -676,11 +685,31 @@ class AppLocalizationsFa extends AppLocalizations {
   }
 
   @override
+  String trackerInsightsHourSummary(
+    String name,
+    String period,
+    String hour,
+    String peakValue,
+  ) {
+    return '$name بر اساس ساعت، $period: بیشترین حدود $hour، $peakValue';
+  }
+
+  @override
   String get trackerInsightsNothingLogged => 'در این بازه چیزی ثبت نشده';
 
   @override
   String trackerInsightsTotalCaption(String total, String average) {
     return '$total در کل · $average در روز';
+  }
+
+  @override
+  String trackerInsightsWeekdaySummary(
+    String name,
+    String period,
+    String weekday,
+    String peakValue,
+  ) {
+    return '$name بر اساس روز هفته، $period: بیشترین در $weekday، $peakValue';
   }
 
   @override

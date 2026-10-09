@@ -649,7 +649,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get trackerInsightsByDay => 'By day';
 
   @override
+  String get trackerInsightsByHour => 'Time of day';
+
+  @override
   String get trackerInsightsByMonth => 'By month';
+
+  @override
+  String get trackerInsightsByStartHour => 'Time of day · by start time';
+
+  @override
+  String get trackerInsightsByWeekday => 'Day of week';
 
   @override
   String trackerInsightsDoneCaption(String done, String days) {
@@ -678,11 +687,31 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String trackerInsightsHourSummary(
+    String name,
+    String period,
+    String hour,
+    String peakValue,
+  ) {
+    return '$name by time of day, $period: most around $hour, $peakValue';
+  }
+
+  @override
   String get trackerInsightsNothingLogged => 'Nothing logged in this period';
 
   @override
   String trackerInsightsTotalCaption(String total, String average) {
     return '$total in all · $average a day';
+  }
+
+  @override
+  String trackerInsightsWeekdaySummary(
+    String name,
+    String period,
+    String weekday,
+    String peakValue,
+  ) {
+    return '$name by day of week, $period: most on $weekday, $peakValue';
   }
 
   @override

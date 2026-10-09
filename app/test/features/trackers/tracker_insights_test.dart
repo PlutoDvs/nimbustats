@@ -357,4 +357,105 @@ void main() {
           reason: '$finder');
     }
   });
+
+  /// Scrolls the Insights list until [key] is on screen: the patterns sit
+  /// below the history chart.
+  Future<void> scrollTo(WidgetTester tester, String key) =>
+      tester.scrollUntilVisible(find.byKey(Key(key)), 200,
+          scrollable: find.descendant(
+              of: find.byKey(const Key('tracker-insights')),
+              matching: find.byType(Scrollable)));
+
+  group('patterns', () {
+    /// Two cigarettes now (12:30 in Tehran) and one at 07:30, all on Monday
+    /// 5 October.
+    Future<Tracker> cigarettesAtNoonAndDawn() async {
+      final cig = await repo.create(cigarettes);
+      await repo.logEntry(cig.id);
+      await repo.logEntry(cig.id);
+      await repo.logEntry(cig.id,
+          at: fake.nowUtc.subtract(const Duration(hours: 5)));
+      return cig;
+    }
+
+    testWidgets("the hours are local, from each entry's own offset",
+        (tester) async {
+      await useGregorianEnglish();
+      final cig = await cigarettesAtNoonAndDawn();
+      await openInsights(tester, cig.id);
+      await scrollTo(tester, 'tracker-hour-chart');
+
+      final hours = barsOf(tester, 'tracker-hour-chart');
+      expect(hours, hasLength(24));
+      expect(hours[12], 2);
+      expect(hours[7], 1);
+    });
+
+    testWidgets("a duration's hours are its start times, and it says so",
+        (tester) async {
+      await useGregorianEnglish();
+      final s = await repo.create(sleep);
+      await repo.addDuration(s.id, const Duration(minutes: 30));
+      await openInsights(tester, s.id);
+      await scrollTo(tester, 'tracker-hour-chart');
+
+      expect(find.text('Time of day · by start time'), findsOneWidget);
+    });
+
+    testWidgets("weekdays run in the user's week, Saturday first",
+        (tester) async {
+      await useGregorianEnglish();
+      final cig = await cigarettesAtNoonAndDawn();
+      await openInsights(tester, cig.id);
+      await scrollTo(tester, 'tracker-weekday-chart');
+
+      expect(barsOf(tester, 'tracker-weekday-chart'),
+          [0.0, 0.0, 3.0, 0.0, 0.0, 0.0, 0.0]);
+      expect(textOf(tester, 'tracker-weekday-label-0'), 'Sat');
+    });
+
+    testWidgets('a Monday week start moves Monday to the front',
+        (tester) async {
+      await useGregorianEnglish(firstDayOfWeek: DateTime.monday);
+      final cig = await cigarettesAtNoonAndDawn();
+      await openInsights(tester, cig.id);
+      await scrollTo(tester, 'tracker-weekday-chart');
+
+      expect(barsOf(tester, 'tracker-weekday-chart').first, 3);
+      expect(textOf(tester, 'tracker-weekday-label-0'), 'Mon');
+    });
+
+    testWidgets('both patterns speak their peaks', (tester) async {
+      final semantics = tester.ensureSemantics();
+      await useGregorianEnglish();
+      final cig = await cigarettesAtNoonAndDawn();
+      await openInsights(tester, cig.id);
+
+      await scrollTo(tester, 'tracker-hour-chart');
+      expect(
+          find.bySemanticsLabel(
+              'Cigarettes by time of day, 2026/10: most around 12:00, 2'),
+          findsOneWidget);
+      await scrollTo(tester, 'tracker-weekday-chart');
+      expect(
+          find.bySemanticsLabel(
+              'Cigarettes by day of week, 2026/10: most on Mon, 3'),
+          findsOneWidget);
+      semantics.dispose();
+    });
+
+    testWidgets("a failed pattern blanks only itself", (tester) async {
+      await useGregorianEnglish();
+      final cig = await cigarettesAtNoonAndDawn();
+      await openInsights(tester, cig.id, overrides: [
+        trackerResultProvider(TrackerQueries.byHour(cig.id, october))
+            .overrideWith(
+                (ref) => Future<TrackerResult>.error(Exception('boom'))),
+      ]);
+
+      expect(find.byKey(const Key('tracker-history-chart')), findsOneWidget);
+      await scrollTo(tester, 'tracker-hour-error');
+      expect(find.byKey(const Key('tracker-hour-error')), findsOneWidget);
+    });
+  });
 }

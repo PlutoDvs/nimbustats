@@ -53,4 +53,24 @@ void main() {
             groupBy: TrackerGroupByPeriod(PeriodType.month),
             aggregate: Aggregate.sum));
   });
+
+  test('the time-of-day pattern asks by hour', () {
+    expect(
+        TrackerQueries.byHour('cig', oneDay),
+        TrackerQuerySpec(
+            trackerIds: ['cig'],
+            dateRange: oneDay,
+            groupBy: const TrackerGroupByHourOfDay(),
+            aggregate: Aggregate.sum));
+  });
+
+  test('the day-of-week pattern asks by weekday', () {
+    expect(
+        TrackerQueries.byWeekday('cig', oneDay),
+        TrackerQuerySpec(
+            trackerIds: ['cig'],
+            dateRange: oneDay,
+            groupBy: const TrackerGroupByDayOfWeek(),
+            aggregate: Aggregate.sum));
+  });
 }
