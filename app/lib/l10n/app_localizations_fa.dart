@@ -659,8 +659,13 @@ class AppLocalizationsFa extends AppLocalizations {
   String get trackerInsightsByWeekday => 'روز هفته';
 
   @override
-  String trackerInsightsDoneCaption(String done, String days) {
-    return '$done روز از $days روز انجام شد';
+  String trackerInsightsDoneCaption(int count, String done, String days) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$done روز از $days روز انجام شد',
+    );
+    return '$_temp0';
   }
 
   @override

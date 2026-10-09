@@ -192,7 +192,7 @@
   "trackerInsightsByMonth": "ماهانه",
   "trackerInsightsByStartHour": "ساعت روز · بر اساس زمان شروع",
   "trackerInsightsByWeekday": "روز هفته",
-  "trackerInsightsDoneCaption": "{done} روز از {days} روز انجام شد",
+  "trackerInsightsDoneCaption": "{count, plural, other{{done} روز از {days} روز انجام شد}}",
   "trackerInsightsEmptyMessage": "چند بار ثبت کنید تا الگوهایتان اینجا دیده شود.",
   "trackerInsightsEmptyTitle": "هنوز تحلیلی نیست",
   "trackerInsightsErrorTitle": "این نمودار بارگیری نشد",

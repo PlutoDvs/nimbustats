@@ -661,8 +661,14 @@ class AppLocalizationsEn extends AppLocalizations {
   String get trackerInsightsByWeekday => 'Day of week';
 
   @override
-  String trackerInsightsDoneCaption(String done, String days) {
-    return 'Done on $done of $days days';
+  String trackerInsightsDoneCaption(int count, String done, String days) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Done on $done of $days days',
+      one: 'Done on $done of $days day',
+    );
+    return '$_temp0';
   }
 
   @override

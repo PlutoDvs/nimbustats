@@ -90,10 +90,12 @@ class _HistorySection extends ConsumerWidget {
         final peak = bars[peakIndex(values)];
         final days = elapsedDays(view.range, today);
         // A boolean's per-day average would be a fraction of a "done", so it
-        // says on how many days it was done instead.
+        // says on how many days it was done instead. The day count only picks
+        // "day" or "days"; it is printed through format, in the settings'
+        // digits.
         final caption = tracker.type == TrackerType.boolean
             ? l10n.trackerInsightsDoneCaption(
-                format.number(result.sum), format.digits(days))
+                days, format.number(result.sum), format.digits(days))
             : l10n.trackerInsightsTotalCaption(
                 format.total(tracker, result.sum),
                 format.total(tracker, days == 0 ? 0 : result.sum / days));

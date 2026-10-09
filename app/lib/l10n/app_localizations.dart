@@ -1253,8 +1253,8 @@ abstract class AppLocalizations {
   /// No description provided for @trackerInsightsDoneCaption.
   ///
   /// In en, this message translates to:
-  /// **'Done on {done} of {days} days'**
-  String trackerInsightsDoneCaption(String done, String days);
+  /// **'{count, plural, =1{Done on {done} of {days} day} other{Done on {done} of {days} days}}'**
+  String trackerInsightsDoneCaption(int count, String done, String days);
 
   /// No description provided for @trackerInsightsEmptyMessage.
   ///

@@ -126,6 +126,19 @@ void main() {
     expect(textOf(tester, 'tracker-history-caption'), 'Done on 2 of 5 days');
   });
 
+  testWidgets('on the first day of the month it is one day, not one days',
+      (tester) async {
+    // Month is the default view, so this is the caption on every 1st.
+    fake.nowUtc = DateTime.utc(2026, 10, 1, 9);
+    await useGregorianEnglish();
+    final g = await repo.create(gym);
+    await logDaysAgo(g, 0);
+
+    await openInsights(tester, g.id);
+
+    expect(textOf(tester, 'tracker-history-caption'), 'Done on 1 of 1 day');
+  });
+
   group('the value axis steps in whole units', () {
     // Left to itself, fl_chart steps a 152-pixel axis in "round" fractions:
     // half a "done", half a cigarette, 1000 seconds.

@@ -284,9 +284,12 @@
   "trackerInsightsByMonth": "By month",
   "trackerInsightsByStartHour": "Time of day · by start time",
   "trackerInsightsByWeekday": "Day of week",
-  "trackerInsightsDoneCaption": "Done on {done} of {days} days",
+  "trackerInsightsDoneCaption": "{count, plural, =1{Done on {done} of {days} day} other{Done on {done} of {days} days}}",
   "@trackerInsightsDoneCaption": {
     "placeholders": {
+      "count": {
+        "type": "int"
+      },
       "done": {
         "type": "String"
       },
