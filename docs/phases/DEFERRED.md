@@ -16,6 +16,10 @@ blocked, and who can unblock it.
 | D16 | Month-change rebuilds drop frames on a 120 Hz display | Nothing under the agreed 60 fps bar; smoothness on 120 Hz screens | Next analytics phase, or on demand |
 | D17 | Phase 1's haptics are silent on the A53 | The expense save's and category chips' haptic feedback on Samsung Android 15 | Phase 1 follow-up, on demand |
 | D18 | Tracker haptics are too faint to feel at the lowest touch strength | Feeling a tracker tap on a phone set to the lowest touch feedback | Phase 6's Android work, or on demand |
+| D19 | Tracker charts misread at the edges of their scale: a sub-minute duration average, a small duration peak's axis, large text on the axes | The charts' labels in those cases; nothing else | Next trackers/insights work, or on demand |
+| D20 | A calendar switch rebuilds the tracker repository | Nothing today (unreachable); a tracker screen that stays mounted across a settings change | Whoever makes tracker screens stay mounted across settings, or Phase 5 |
+| D21 | 4b's test and guard gaps, one of them a Phase 5 prerequisite | Phase 5 storing `TrackerQuerySpec` as JSON (the `fromJson` tests); nothing else | Phase 5 |
+| D22 | Tracker copy edge cases: tied boolean peaks, a stale "done" tap after midnight, English weekday names | Nothing hard-blocked; spoken and snackbar wording | On demand |
 | D13 | ~~The add-expense FAB carries no accessibility label~~ | — | **Resolved 2026-10-04** |
 | D14 | ~~Pinning offers a name a card on the dashboard already uses~~ | — | **Resolved 2026-10-04** |
 | D15 | ~~The starter card is named "This month by category" but follows the dashboard's month~~ | — | **Resolved 2026-10-04** |
@@ -754,3 +758,99 @@ snackbar still change.
 interaction above the lowest step, confirm `adb shell settings get system
 VIB_FEEDBACK_MAGNITUDE` reads above 1, then tap a tracker and ask whether it
 was felt.
+
+## D19 — Tracker charts at the edges of their scale
+
+**Status:** open. Found 2026-10-09 in Phase 4b, on the A53 and in the final
+review.
+
+**What happens.** Three cases, none of which throws:
+- **A duration's average under a minute.** The Sleep header for `1405/07` on the
+  A53 reads "0:00 a day" beside "0:04 in all".
+- **A small duration peak.** The value axis steps by 15 minutes and suppresses
+  its top label, so a 4-minute peak shows only `0:00`.
+- **Large text.** The left and bottom axes reserve a fixed size (44 and 28), which
+  does not scale with the font. At 2× text, labels such as `1,234.5` or `0:50`
+  wrap or clip. No exception, and the 2× overflow tests pass.
+
+**Blocks:** nothing hard-blocked; the labels in these cases mislead or clip.
+
+**Check:** on the A53, open Sleep's Insights for a month holding one 4-minute
+entry and read the header and the value axis. For the third case, set the font
+to its largest and look at a chart with a four-digit axis. The fix holds when
+the average reads "<1 min" or similar, the axis shows its peak, and the
+reserved size follows the text scale.
+
+**Unblocked by:** the next trackers or insights work, or on demand.
+
+## D20 — A calendar switch rebuilds the tracker repository
+
+**Status:** open. Found 2026-10-09 by the Phase 4b final review.
+
+**What happens.** `trackerRepositoryProvider` watches `analyticsEngineProvider`
+(`app/lib/features/trackers/application/tracker_providers.dart`), so a change of
+calendar rebuilds the repository. That re-subscribes `trackersProvider` and
+`archivedTrackersProvider`, and would rebuild a live `trackerHistoryProvider`
+back to its first page.
+
+**Blocks:** nothing today. It is unreachable: Settings is a sibling shell route,
+so no tracker screen is mounted when the calendar changes. It becomes reachable
+if a tracker screen can stay mounted across a settings change.
+
+**Check:** still blocked while Settings stays a sibling route of the tracker
+screens, and while `trackerRepositoryProvider` still watches the engine. The fix
+holds when a calendar change leaves a scrolled history on its page. The fix
+is for `totalOn` to take the engine at call time, or for the repository to stop
+watching it.
+
+**Unblocked by:** whoever makes tracker screens stay mounted across settings, or
+Phase 5.
+
+## D21 — 4b's test and guard gaps
+
+**Status:** open. Found 2026-10-09 by the Phase 4b final review.
+
+**What is missing.**
+- **`TrackerQuerySpec.fromJson` tests.** A missing or non-object `groupBy` or
+  `dateRange`, and a non-int end, are untested. The code is right (`jsonMapOf`,
+  `_rangeOf`); the tests are what pin a storage format. **They must land before
+  Phase 5 stores specs as JSON.**
+- **The architecture test's aggregate pattern.** `test/architecture_test.dart`
+  misses `countAll()`, `total()` and lowercase SQL.
+- **`FakeClock`** applies its current offset to every instant, so the
+  offset-at-start tests cannot tell "start" from "now". A real test needs a
+  clock with a DST rule.
+- **`trackerInsightsProvider`** is one global notifier, not a family per
+  tracker.
+- **`TrackerQuerySpec.toString`** omits `dateRange`, so two family members that
+  differ only by range print identically in Riverpod debugging.
+
+**Blocks:** Phase 5 storing `TrackerQuerySpec` as JSON (the first item). The
+rest block nothing.
+
+**Check:** read `packages/nimbus_domain/test` for `fromJson` cases on a missing
+and a non-object `groupBy` and `dateRange`, and a non-int end. The first item
+holds once they exist.
+
+**Unblocked by:** Phase 5, whose prerequisite is the `fromJson` tests.
+
+## D22 — Tracker copy edge cases
+
+**Status:** open. Found 2026-10-09 in Phase 4b.
+
+**What happens.**
+- A boolean's spoken history peak names the earliest of many tied days, which
+  says nothing useful.
+- In the minutes after midnight, a stale "done" tap runs a no-op clear and still
+  shows "marked not done". The fix is to skip the snackbar when nothing was
+  cleared (`app/lib/features/trackers/presentation/widgets/tracker_logger.dart`).
+- English spoken weekday summaries use the shared abbreviated keys ("most on
+  Mon"), while Persian gets full names.
+
+**Blocks:** nothing hard-blocked; wording only.
+
+**Check:** log a boolean on several days and read the history chart's spoken
+summary; tap "done" on a boolean whose day has just rolled over; read the
+day-of-week summary in English.
+
+**Unblocked by:** on demand.

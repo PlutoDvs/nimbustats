@@ -125,7 +125,10 @@ Each is a small, reasoned change to the spec, named here so a reviewer can rejec
 6. **`TrackerQueries`, the spec builders, live in `nimbus_domain`,** so the repository (data layer) and the providers (application layer) use the same ones. The repository must not import from `application/`.
 7. **The detail header reads `trackerDayTotalProvider(id)`, not the tab's map,** because an archived tracker is not on the tab and so not in the map.
    - The derived providers (`trackerTotalsProvider`, `trackerDayTotalProvider`, `trackerStreaksProvider`) are synchronous `Provider<AsyncValue<…>>` views over `trackerResultProvider`, not futures that await one another.
-   - **Why:** no `ref` is used after an `await`, which Riverpod 3 can reject once a provider has rebuilt. A refresh keeps the previous value, so nothing flickers.
+   - **Why:** no `ref` is used after an `await`, which Riverpod 3 can reject once a provider has rebuilt. A write's refresh keeps the previous value, so the tab does not flicker. **That does not hold for a reload (a dependency change) or a new question (a new family member), and it shipped corrected:**
+     - the derived providers use a value-keeping derivation (`deriveKeepingValue`);
+     - the tab's totals are a non-disposing Notifier that keeps its last map while a new question loads;
+     - the detail screen keeps its last day total (fb0410f, 2ae8ee1).
    - Consumers keep using `hasError`/`hasValue`/`requireValue` unchanged.
    - A retry invalidates `trackerResultProvider` as a whole family, so whichever question failed is asked again.
 8. **The definition-of-done grep becomes a test** in `test/architecture_test.dart`, so it cannot be forgotten at a later gate.
@@ -2763,8 +2766,9 @@ final trackerResultProvider =
 ///
 /// A synchronous view over [trackerResultProvider] rather than a future that
 /// awaits two others: it re-derives the moment either input changes, with no
-/// `ref` used after an await. A refresh keeps the previous value, so the tab
-/// does not flicker to a skeleton between a tap and its new total.
+/// `ref` used after an await. A write's refresh keeps the previous value, so the tab
+/// does not flicker to a skeleton between a tap and its new total. (As
+/// shipped, a reload or a new question keeps the value too: see Decision 7.)
 final trackerTotalsProvider =
     Provider.autoDispose<AsyncValue<Map<String, double>>>((ref) {
   final today = ref.watch(trackerTodayProvider);
@@ -2933,8 +2937,11 @@ In `packages/nimbus_data/test/migration_test.dart`:
     final db = AppDatabase(schema.newConnection());
     addTearDown(db.close);
 
-    // Validation against the v32 snapshot proves the index is gone.
-    await verifier.migrateAndValidate(db, 32);
+    // Validation against the v32 snapshot proves the index is gone, but only
+    // with `validateDropped: true` (ruling R8): by default the verifier ignores
+    // objects the snapshot does not list.
+    await verifier.migrateAndValidate(db, 32,
+        options: const ValidationOptions(validateDropped: true));
 
     final row = await db
         .customSelect(
@@ -5546,7 +5553,7 @@ print('indexes', sorted(r[0] for r in db.execute(
    - `user_version 30`;
    - a live-entry count, **write it down**;
    - `offsets: no column yet`;
-   - four indexes, including `idx_tracker_entries_day`.
+   - three indexes: `idx_tracker_entries_day`, `idx_tracker_entries_history` and `idx_tracker_entries_once_per_day` (the v30 snapshot has three; "four" was a miscount).
 
    A missing `-wal` file prints an error from `run-as` and leaves an empty file. That is harmless: SQLite ignores an empty WAL.
 

@@ -1,7 +1,6 @@
 # Phase 4b — Trackers: analytics on Phase 3's engine — design
 
-**Status:** approved in conversation 2026-10-05; this document awaits the
-operator's review before the implementation plan is written.
+**Status:** implemented; the gate record is in the brief.
 **Brief:** `docs/phases/phase-4-trackers.md` (4b: tasks 10–13).
 **Prerequisites:** `phase-3-complete` and `phase-4a-complete` both exist.
 **Schema:** v31, v32 · **Gate:** `phase-4-complete`
@@ -110,8 +109,10 @@ instant**:
 
 The function is a constructor parameter of `AppDatabase`. It defaults to the
 system zone, so production behaviour is unchanged, and the migration test
-pins it to known offsets. The step runs inside the migration's transaction: it
-reads `id, occurred_at_utc` and writes one `UPDATE` per row.
+pins it to known offsets. The step runs in an explicit transaction inside
+`onUpgrade` that also writes `PRAGMA user_version = 31`, because drift runs
+`onUpgrade` outside a transaction (the plan's Decision 2): it reads
+`id, occurred_at_utc` and writes one `UPDATE` per row.
 
 ### Indexes
 
@@ -324,8 +325,10 @@ would add nothing here, so there is none.
   - time for a duration, formatted as 4a's `tracker_format` does;
   - done days for a boolean.
 - **Chart widget:** one `TrackerBarChart` on `fl_chart`. Values are `double`,
-  labels come from `tracker_format`, numerals follow the locale, and the axes
-  run RTL in `fa`. Bars take the tracker's own color.
+  labels come from `tracker_format`, numerals follow the locale, and the charts
+  are not mirrored in `fa`, following Phase 3's (the plan's Decision 10,
+  operator-approved 2026-10-09). The range arrows mirror. Bars take the
+  tracker's own color.
 
 ### 4.3 States, accessibility, strings
 
@@ -336,14 +339,15 @@ would add nothing here, so there is none.
   - A tracker never logged shows one empty state on the Insights tab instead
     of three empty charts.
 - **Accessibility:**
-  - Each chart carries a spoken summary, for example "Water by day, Mehr:
-    total 42 L, most on the 9th, 2.5 L". A screen reader cannot read bars.
+  - Each chart carries a spoken summary, for example "Water by day, 1405/07:
+    total 42 L, most on the 9th, 2.5 L" (period labels are numeric, following
+    the plan's Decision 9). A screen reader cannot read bars.
   - The range segments and arrows are labelled, and tap targets are at least
     48.
   - The Insights tab and the header lines are tested at twice the font size.
-- **Strings:** every new string is a `trackers…` key, inserted in alphabetical
-  position in both `app_en.arb` and `app_fa.arb`, and enforced by
-  `localization_test.dart`. The operator reviews the Persian, as in 4a.
+- **Strings:** every new string is a `tracker…` key (the plan's Decision 16),
+  inserted in alphabetical position in both `app_en.arb` and `app_fa.arb`, and
+  enforced by `localization_test.dart`. The operator reviews the Persian, as in 4a.
 
 ## 5. Testing
 

@@ -199,13 +199,15 @@ edit/delete with undo · 9. tracker detail with today's total and history list.
       `migration_test.dart` ("an upgraded v21 database enforces one live done
       per day") and `tracker_entries_dao_test.dart` ("a second done on the same
       day is refused…", "a fast double-tap logs exactly one").
-- [ ] **[4b]** No aggregation SQL exists outside Phase 3's engine — grep proves
-      it.
+- [x] **[4b]** No aggregation SQL exists outside Phase 3's engine — grep proves
+      it. `test/architecture_test.dart` ("tracker code aggregates only through
+      the analytics engine") enforces it on every run; its one allowed line
+      places a new tracker (`sortOrder.max()`).
 - [x] Entry surfaces meet the one-tap budget from the spec's UX constraints.
       Every widget test logs with a single `tap`. On the A53, one tap on
       Cigarettes' +1 read "1 today" with the snackbar "Cigarettes · 1 today ·
       Undo", which sits clear of the bottom tile.
-- [ ] `git tag phase-4-complete` (after 4b). 4a is tagged `phase-4a-complete`.
+- [x] `git tag phase-4-complete` (after 4b). 4a is tagged `phase-4a-complete`.
 
 **4a gate record (2026-10-05), against `CONVENTIONS.md` §5 on `9403009`.**
 - `dart analyze --fatal-infos` is clean.
@@ -249,6 +251,82 @@ edit/delete with undo · 9. tracker detail with today's total and history list.
 - **Not checked on the device:** drag-to-reorder in the manager, which adb
   cannot drive. It is covered by the widget tests, including a failed reorder.
 - The schema registry records v30, and the status board is updated.
+
+**4b gate record (2026-10-09), against `CONVENTIONS.md` §5 on `7d3097e`.**
+- `dart analyze --fatal-infos` reports no issues.
+- Test suites, all green at `7d3097e`: architecture 5; `nimbus_domain` 328;
+  `nimbus_data` 246; `nimbus_design` 36; `app` 527.
+  - The app suite runs with `--concurrency=4`. At the default concurrency this
+    machine hits loopback "semaphore timeout" load errors, which are
+    environmental (one capped run also hit one and was re-run).
+  - The plan's expected 243 and 506 predate the Task 9 fix round (+2 app) and
+    the final-review fix wave (+3 data, +19 app).
+- **Device upgrade** (Galaxy A53 SM-A536E, `RZCT209E3QX`, profile build of
+  `7d3097e`, display at 120 Hz).
+  - Backup first, at
+    `~/nimbustats-backups/pre-v32-20261009-1849-nimbustats.sqlite` (the phone
+    had no -wal or -shm).
+  - Before: `user_version` 30, 20 live entries, no offset column, and three
+    indexes: `idx_tracker_entries_day`, `idx_tracker_entries_history`,
+    `idx_tracker_entries_once_per_day`. The plan said four; that was a
+    miscount, and the v30 snapshot has three.
+  - Install: Success, and the app opened on Home with its data.
+  - After, read from a copy of the device database: `user_version` 32, 20
+    live entries, offsets `[(210, 23)]` (every row, soft-deleted ones
+    included, stamped +3:30), and indexes `idx_tracker_entries_history`,
+    `idx_tracker_entries_once_per_day`, `idx_tracker_entries_tracker_day`. The
+    day index is gone.
+- **Insights on the A53**, read off the semantics tree (English). The real data
+  has entries on one day only (2026-10-05: Cigarettes 18, Water 1, Sleep one
+  entry of 4 min, Gym none). No entries were added to the operator's log.
+  - Cigarettes header: "0 today", "Best: 1 day", "Last entry: 4 days ago".
+  - Month `1405/07`: "18 in all · 1.06 a day". The history summary's peak is
+    1405/07/13, 18. Time of day reads "most around 16:00, 9" (the database has
+    9 entries at 16h and 9 at 17h, and a tie names the earlier). Day of week
+    reads "most on Mon, 18" (2026-10-05 is a Monday).
+  - Week `1405/07/11 – 1405/07/17`: "2.57 a day". Earlier goes to
+    `1405/07/04 – 1405/07/10`, "Nothing logged in this period", with Later
+    enabled. Year `1405` has its peak in `1405/07`; Earlier goes to `1404`,
+    empty. Later is disabled whenever the range holds today.
+  - Sleep (a duration): the pattern's title is "Time of day · by start time".
+    The value axis shows no odd minutes; for a 4-minute peak it shows only
+    `0:00` (see D19).
+  - **Not checkable on the device:** a boolean's axis (Gym has no entries) and
+    the one-frame flash on a tab return. Their widget tests stand in:
+    `tracker_insights_test.dart` ("a boolean counts days done, never half of
+    one") and `trackers_screen_test.dart` ("once totals were shown, the
+    skeleton never comes back").
+- **Strings.** 27 new tracker keys across Tasks 8–10 and the fix wave exist in
+  both ARBs, plus `trackerInsightsDoneCaption`'s plural form. Both ARBs are
+  CRLF, sorted and literal, and `localization_test.dart` is green. The
+  operator reviewed all 27 new or changed Persian values on 2026-10-09 and
+  approved them without changes.
+- **RTL and Persian digits.** The Persian tests that stand in are
+  `tracker_insights_test.dart` ("Persian digits on the range"),
+  `tracker_streak_lines_test.dart` ("Persian digits and words") and
+  `tracker_detail_screen_test.dart` ("Persian digits in the header and the
+  history"). The device check in Persian was waived by the operator, as in
+  Phases 3 and 4a. The operator explicitly approved Decision 10 on 2026-10-09:
+  charts run left to right in Persian, as Phase 3's do, and the range arrows
+  mirror.
+- **States.** Each chart section has loading, error, empty and populated tests
+  in `tracker_insights_test.dart`: "the chart loads on its own", "a failed
+  chart retries and hides the raw exception", "a range with nothing in it says
+  so", "a failed pattern blanks only itself" and the populated chart and
+  pattern tests. The never-logged state is "a tracker never logged shows one
+  empty state"; the header's version is "a tracker never logged shows neither
+  line" in `tracker_streak_lines_test.dart`.
+- **Accessibility.**
+  - Spoken summaries on all three charts: "the chart speaks its numbers" and
+    "both patterns speak their peaks".
+  - 48-point range controls: "the range controls are full-size tap targets".
+  - Twice the font size: "at twice the font size Insights overflows nothing"
+    and "at twice the font size the header overflows nothing".
+- The schema registry holds `drift_schema_v30.json`, `v31` and `v32` in
+  `packages/nimbus_data/drift_schemas/`.
+- **Deferred from this gate:** D19 to D22 (chart edges, a calendar switch
+  rebuilding the repository, test and guard gaps, and copy edge cases), found
+  by the final review and the device check.
 
 ---
 
