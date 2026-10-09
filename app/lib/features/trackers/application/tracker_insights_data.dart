@@ -57,6 +57,53 @@ int elapsedDays(DateRange range, DateKey today) {
   return range.startInclusive.daysUntil(end) + 1;
 }
 
+/// The value-axis step for a [type] tracker whose highest bar is [peak], on
+/// an axis with room for [intervals] steps. Null leaves the step to fl_chart.
+///
+/// Left to itself, fl_chart picks a "round" step from the axis height alone.
+/// For a boolean (peak 1) that is 0.5, half a "done"; for a counter at 2,
+/// halves again; for an hour, 1000 seconds, labelled 0:16 and 0:33. So:
+/// - A boolean or a counter steps in whole numbers, 1, 2 or 5 times a power
+///   of ten, and never below 1.
+/// - A duration steps in 15 or 30 minutes, or in whole hours.
+/// - Each takes the smallest such step that fits [peak] in [intervals]
+///   steps, the count fl_chart itself aims for, so the axis never carries
+///   more labels than it did.
+///
+/// An amount keeps fl_chart's step: with 0.25 L a tap, a fraction is a real
+/// value.
+double? valueAxisStep(TrackerType type, double peak,
+        {required int intervals}) =>
+    switch (type) {
+      TrackerType.boolean || TrackerType.counter =>
+        _wholeStep(peak / intervals),
+      TrackerType.duration => _durationStep(peak / intervals),
+      TrackerType.quantity => null,
+    };
+
+/// The smallest of 1, 2, 5, 10, 20, 50, ... that is at least [atLeast].
+double _wholeStep(double atLeast) {
+  var power = 1.0;
+  while (power * 10 < atLeast) {
+    power *= 10;
+  }
+  for (final multiple in const [1, 2, 5]) {
+    if (multiple * power >= atLeast) return multiple * power;
+  }
+  return 10 * power;
+}
+
+/// The smallest of 15 minutes, 30 minutes or a whole number of hours that
+/// is at least [atLeast] seconds. A duration's value is in seconds.
+double _durationStep(double atLeast) {
+  const quarterHour = 15 * 60.0;
+  const halfHour = 30 * 60.0;
+  const hour = 60 * 60.0;
+  if (atLeast <= quarterHour) return quarterHour;
+  if (atLeast <= halfHour) return halfHour;
+  return (atLeast / hour).ceil() * hour;
+}
+
 /// The index of the highest bar, the earliest one on a tie.
 int peakIndex(List<double> values) {
   var peak = 0;

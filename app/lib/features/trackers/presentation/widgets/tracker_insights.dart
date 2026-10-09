@@ -111,6 +111,8 @@ class _HistorySection extends ConsumerWidget {
                 return format.digits(year ? parts.month : parts.day);
               },
               axisLabelOf: (value) => format.axis(tracker, value),
+              axisStepOf: (peak, intervals) =>
+                  valueAxisStep(tracker.type, peak, intervals: intervals),
               semanticsLabel: l10n.trackerInsightsHistorySummary(
                 tracker.name,
                 rangeLabel(view, format),
@@ -163,6 +165,8 @@ class _HourSection extends ConsumerWidget {
           labelOf: format.digits,
           labelKeyPrefix: 'tracker-hour-label',
           axisLabelOf: (value) => format.axis(tracker, value),
+          axisStepOf: (peak, intervals) =>
+              valueAxisStep(tracker.type, peak, intervals: intervals),
           semanticsLabel: l10n.trackerInsightsHourSummary(
             tracker.name,
             rangeLabel(view, format),
@@ -201,6 +205,8 @@ class _WeekdaySection extends ConsumerWidget {
           labelOf: (index) => _weekdayName(l10n, order[index]),
           labelKeyPrefix: 'tracker-weekday-label',
           axisLabelOf: (value) => format.axis(tracker, value),
+          axisStepOf: (peak, intervals) =>
+              valueAxisStep(tracker.type, peak, intervals: intervals),
           semanticsLabel: l10n.trackerInsightsWeekdaySummary(
             tracker.name,
             rangeLabel(view, format),

@@ -137,4 +137,33 @@ void main() {
     const saturdayFirst = [6, 7, 1, 2, 3, 4, 5];
     expect(weekdayBars(result, saturdayFirst), [1, 0, 3, 0, 0, 0, 0]);
   });
+
+  group('the value axis step', () {
+    // Three steps fit on the 180-pixel chart, as fl_chart reckons it.
+    double? step(TrackerType type, double peak) =>
+        valueAxisStep(type, peak, intervals: 3);
+    const minute = 60.0;
+
+    test('a boolean or a counter steps in whole numbers, never below 1', () {
+      expect(step(TrackerType.boolean, 1), 1);
+      expect(step(TrackerType.counter, 0), 1);
+      expect(step(TrackerType.counter, 2), 1);
+      expect(step(TrackerType.counter, 4), 2);
+      expect(step(TrackerType.counter, 7), 5);
+      expect(step(TrackerType.counter, 100), 50);
+    });
+
+    test('a duration steps in 15 or 30 minutes, or whole hours', () {
+      expect(step(TrackerType.duration, 0), 15 * minute);
+      expect(step(TrackerType.duration, 45 * minute), 15 * minute);
+      expect(step(TrackerType.duration, 60 * minute), 30 * minute);
+      expect(step(TrackerType.duration, 90 * minute), 30 * minute);
+      expect(step(TrackerType.duration, 8 * 60 * minute), 3 * 60 * minute);
+    });
+
+    test("an amount keeps the chart library's own step", () {
+      // 0.25 L a tap: any fraction is a real value.
+      expect(step(TrackerType.quantity, 0.75), isNull);
+    });
+  });
 }

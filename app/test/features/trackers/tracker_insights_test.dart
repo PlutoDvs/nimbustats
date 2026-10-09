@@ -70,6 +70,19 @@ void main() {
   String textOf(WidgetTester tester, String key) =>
       tester.widget<Text>(find.byKey(Key(key))).data!;
 
+  /// The value-axis labels a chart draws, bottom to top.
+  List<String> axisLabelsOf(WidgetTester tester, String chartKey) => [
+        for (final label in tester.widgetList<Text>(find.descendant(
+            of: find.byKey(Key(chartKey)),
+            matching: find.byWidgetPredicate((widget) =>
+                widget is Text &&
+                widget.key is ValueKey<String> &&
+                (widget.key! as ValueKey<String>)
+                    .value
+                    .startsWith('tracker-axis-label-')))))
+          label.data!,
+      ];
+
   testWidgets('Insights opens on this month, with the quick log kept',
       (tester) async {
     await useGregorianEnglish();
@@ -111,6 +124,48 @@ void main() {
     await openInsights(tester, g.id);
 
     expect(textOf(tester, 'tracker-history-caption'), 'Done on 2 of 5 days');
+  });
+
+  group('the value axis steps in whole units', () {
+    // Left to itself, fl_chart steps a 152-pixel axis in "round" fractions:
+    // half a "done", half a cigarette, 1000 seconds.
+    testWidgets('a boolean counts days done, never half of one',
+        (tester) async {
+      await useGregorianEnglish();
+      final g = await repo.create(gym);
+      await logDaysAgo(g, 0);
+      await logDaysAgo(g, 2);
+
+      await openInsights(tester, g.id);
+
+      expect(axisLabelsOf(tester, 'tracker-history-chart'), ['0', '1'],
+          reason: 'no 0.5');
+    });
+
+    testWidgets('a counter peaking at 2 steps by one', (tester) async {
+      await useGregorianEnglish();
+      final cig = await repo.create(cigarettes);
+      await logDaysAgo(cig, 0);
+      await logDaysAgo(cig, 0);
+      await logDaysAgo(cig, 3);
+
+      await openInsights(tester, cig.id);
+
+      expect(axisLabelsOf(tester, 'tracker-history-chart'), ['0', '1', '2'],
+          reason: 'no 0.5 or 1.5');
+    });
+
+    testWidgets('an hour steps in half hours', (tester) async {
+      await useGregorianEnglish();
+      final s = await repo.create(sleep);
+      await repo.addDuration(s.id, const Duration(hours: 1));
+
+      await openInsights(tester, s.id);
+
+      expect(axisLabelsOf(tester, 'tracker-history-chart'),
+          ['0:00', '0:30', '1:00'],
+          reason: 'no 0:16, 0:33 or 0:50');
+    });
   });
 
   testWidgets('a week draws seven days and a year twelve months',
