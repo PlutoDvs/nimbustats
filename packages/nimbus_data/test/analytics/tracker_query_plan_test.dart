@@ -39,6 +39,10 @@ void main() {
         dateRange: today,
         groupBy: const TrackerGroupByTracker(),
         aggregate: Aggregate.sum),
+    // The detail header, and the snackbar after every tap. Worded through
+    // TrackerQueries, so this is the statement the app actually sends.
+    "one tracker's day total":
+        TrackerQueries.dayTotal('cig', today.startInclusive),
     'a range by day': TrackerQuerySpec(
         trackerIds: ['cig'],
         dateRange: mehr,
@@ -75,6 +79,19 @@ void main() {
       expect(plan, isNot(scansEntries), reason: 'plan: $plan');
     });
   }
+
+  test("a day total seeks one tracker's one day, not its whole history",
+      () async {
+    // Measured on SQLite 3.45.3 against the v32 DDL (final review, M-3). The
+    // index name alone would also match a seek on tracker_id only, which
+    // walks every day the tracker was ever logged.
+    final plan = await planFor(shapes["one tracker's day total"]!);
+    expect(
+        plan,
+        contains('SEARCH te USING INDEX idx_tracker_entries_tracker_day '
+            '(tracker_id=? AND local_date_key>? AND local_date_key<?)'),
+        reason: plan);
+  });
 
   test('the whole history by day reads in index order, with no sort',
       () async {
