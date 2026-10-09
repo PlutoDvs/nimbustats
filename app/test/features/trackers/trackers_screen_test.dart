@@ -6,6 +6,7 @@ import 'package:nimbus_data/nimbus_data.dart';
 import 'package:nimbus_design/nimbus_design.dart';
 import 'package:nimbus_domain/nimbus_domain.dart';
 import 'package:nimbustats/features/trackers/application/tracker_providers.dart';
+import 'package:nimbustats/features/trackers/presentation/trackers_screen.dart';
 import 'package:nimbustats/features/trackers/routes.dart';
 
 import '../../support/harness.dart';
@@ -277,6 +278,70 @@ void main() {
       await backgroundAndResume(tester);
       await tester.pumpAndSettle();
 
+      expect(textIn(tester, Key('tracker-total-${cig.id}')), '0 today');
+    });
+  });
+
+  group('returning to the tab', () {
+    // Switching tabs unmounts the Trackers tab. Totals that were let go with
+    // it were asked again from nothing on every return, and the list blanked
+    // to its skeleton for one query.
+    Finder nav(String label) => find.descendant(
+        of: find.byKey(const Key('nav-bar')), matching: find.text(label));
+    // Offstage frames count too. The first frame of a tab switch builds the
+    // incoming page offstage (go_router gives the shell's navigator a hero
+    // controller), so an in-memory query lands before the skeleton is ever
+    // painted. It is still the list torn down and built again, and on screen
+    // once the query takes longer than a frame.
+    final tabSkeleton = find.descendant(
+        of: find.byType(TrackersScreen, skipOffstage: false),
+        matching: find.byType(NimbusLoadingList, skipOffstage: false),
+        skipOffstage: false);
+
+    /// Goes back to the tab from Home, frame by frame, and counts the frames
+    /// that drew the tab's skeleton.
+    Future<int> skeletonFramesOnReturn(WidgetTester tester) async {
+      await tester.tap(nav('Trackers'));
+      var frames = 0;
+      for (var i = 0; i < 30; i++) {
+        await tester.pump(const Duration(milliseconds: 16));
+        if (tabSkeleton.evaluate().isNotEmpty) frames++;
+      }
+      await tester.pumpAndSettle();
+      return frames;
+    }
+
+    testWidgets('once totals were shown, the skeleton never comes back',
+        (tester) async {
+      final db = await freshDb();
+      await useEnglishDigits(db);
+      final repo = repositoryFor(db, fake);
+      final cig = await repo.create(cigarettes);
+      await repo.logEntry(cig.id);
+      await openTab(tester, db);
+      expect(textIn(tester, Key('tracker-total-${cig.id}')), '1 today');
+      await tester.tap(nav('Home'));
+      await tester.pumpAndSettle();
+
+      expect(await skeletonFramesOnReturn(tester), 0);
+      expect(textIn(tester, Key('tracker-total-${cig.id}')), '1 today');
+    });
+
+    testWidgets("on a new day, the last totals stay until the day's land",
+        (tester) async {
+      // The morning path: the new day's totals are a new question, asked
+      // only once the tab is back.
+      final db = await freshDb();
+      await useEnglishDigits(db);
+      final repo = repositoryFor(db, fake);
+      final cig = await repo.create(cigarettes);
+      await repo.logEntry(cig.id);
+      await openTab(tester, db);
+      await tester.tap(nav('Home'));
+      await tester.pumpAndSettle();
+      fake.advance(const Duration(days: 1));
+
+      expect(await skeletonFramesOnReturn(tester), 0);
       expect(textIn(tester, Key('tracker-total-${cig.id}')), '0 today');
     });
   });

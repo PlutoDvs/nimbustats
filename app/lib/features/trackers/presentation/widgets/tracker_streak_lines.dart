@@ -10,7 +10,9 @@ import '../../application/tracker_providers.dart';
 ///
 /// Nothing at all for a tracker never logged, because the History tab's empty
 /// state already says what to do. Nothing while the first answer loads, so
-/// the header does not jump on open; a refresh keeps the previous lines.
+/// the header does not jump on open. After that the lines stay: a write's
+/// re-run, a calendar switch and a new day all keep the previous streaks
+/// until the new ones land (`trackerStreaksProvider`).
 class TrackerStreakLines extends ConsumerWidget {
   const TrackerStreakLines({super.key, required this.trackerId});
 

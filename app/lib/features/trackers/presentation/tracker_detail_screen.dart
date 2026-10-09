@@ -35,13 +35,11 @@ class TrackerDetailScreen extends ConsumerStatefulWidget {
 }
 
 class _TrackerDetailScreenState extends ConsumerState<TrackerDetailScreen> {
-  /// The last day total the screen had. The total is derived from a query
-  /// that is a new question whenever the day rolls over, and a derived
-  /// provider drops the previous value of a query that is reloading (the
-  /// calendar changing re-runs every query). Either way the provider has no
-  /// value for a moment, and the screen must not mistake that for never
-  /// having loaded: it would tear down the tabs, the Insights range and the
-  /// history scroll for the length of one query.
+  /// The last day total the screen had. The total keeps its value while its
+  /// query re-runs or reloads, but a new day is a new question, with no
+  /// value until it is answered. The screen must not mistake that moment for
+  /// never having loaded: it would tear down the tabs, the Insights range and
+  /// the history scroll for the length of one query.
   double? _lastTotal;
 
   String get id => widget.id;
