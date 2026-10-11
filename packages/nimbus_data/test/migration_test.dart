@@ -18,15 +18,15 @@ void main() {
   // the schema it produces is identical to the one a new install creates.
   // A migration that half-works leaves two populations of users on subtly
   // different schemas, and the divergence surfaces phases later.
-  for (final from in [1, 20, 21, 30, 31]) {
-    test('a v$from database upgrades to v32 and matches a fresh install',
+  for (final from in [1, 20, 21, 30, 31, 32]) {
+    test('a v$from database upgrades to v40 and matches a fresh install',
         () async {
       final db = AppDatabase(await verifier.startAt(from));
       addTearDown(db.close);
 
       // validateDropped: by default the verifier ignores objects the snapshot
       // lacks, so a leftover idx_tracker_entries_day would pass unseen.
-      await verifier.migrateAndValidate(db, 32,
+      await verifier.migrateAndValidate(db, 40,
           options: const ValidationOptions(validateDropped: true));
     });
   }
@@ -43,7 +43,7 @@ void main() {
     final db = AppDatabase(schema.newConnection());
     addTearDown(db.close);
 
-    await verifier.migrateAndValidate(db, 32);
+    await verifier.migrateAndValidate(db, 40);
 
     final row = await db
         .customSelect(
@@ -57,7 +57,7 @@ void main() {
     // Validating the shape is not the same as proving the table works.
     final db = AppDatabase(await verifier.startAt(1));
     addTearDown(db.close);
-    await verifier.migrateAndValidate(db, 32);
+    await verifier.migrateAndValidate(db, 40);
 
     await db.savedViewsDao.create([
       (
@@ -85,7 +85,7 @@ void main() {
 
     setUp(() async {
       db = AppDatabase(await verifier.startAt(21));
-      await verifier.migrateAndValidate(db, 32);
+      await verifier.migrateAndValidate(db, 40);
       await db.customStatement(
         'INSERT INTO trackers (id, name, icon_key, color, type, created_at, '
         "updated_at) VALUES ('gym', 'Gym', 'fitness_center', 0, 'boolean', "
@@ -168,7 +168,7 @@ void main() {
           AppDatabase(schema.newConnection(), trackerOffsetAt: seasonal);
       addTearDown(db.close);
 
-      await verifier.migrateAndValidate(db, 32);
+      await verifier.migrateAndValidate(db, 40);
 
       expect(await offsets(db), {'winter': 210, 'summer': 270});
     });
@@ -203,16 +203,17 @@ void main() {
       final db =
           AppDatabase(schema.newConnection(), trackerOffsetAt: seasonal);
       addTearDown(db.close);
-      await verifier.migrateAndValidate(db, 32);
+      await verifier.migrateAndValidate(db, 40);
       expect(await offsets(db), {'winter': 210, 'summer': 270});
     });
 
     test('an upgrade killed after the v31 step reopens and finishes',
         () async {
-      // Killed after every step of onUpgrade has run, before drift writes 32.
-      // Two guards make the next start succeed: the v31 step records its own
-      // version, or the reopen would add the offset column a second time; and
-      // the v32 drop says IF EXISTS, because the index is already gone.
+      // Killed after every step of onUpgrade has run, before drift writes 40.
+      // Three guards make the next start succeed: the v31 step records its
+      // own version, or the reopen would add the offset column a second time;
+      // the v32 drop says IF EXISTS, because the index is already gone; and
+      // the v40 step re-runs harmlessly over the goal tables it already made.
       final schema = await verifier.schemaAt(30);
       seedV30(schema.rawDatabase);
       final killed = _KilledAfterUpgrade(schema.newConnection(),
@@ -236,10 +237,17 @@ void main() {
         isEmpty,
         reason: 'the re-run meets a database whose day index is already gone',
       );
+      expect(
+        schema.rawDatabase.select("SELECT name FROM sqlite_master WHERE name "
+            "IN ('goals', 'goal_period_results', "
+            "'idx_goal_period_results_period')"),
+        hasLength(3),
+        reason: 'the re-run meets the goal tables and index already made',
+      );
 
       final db = AppDatabase(schema.newConnection());
       addTearDown(db.close);
-      await verifier.migrateAndValidate(db, 32,
+      await verifier.migrateAndValidate(db, 40,
           options: const ValidationOptions(validateDropped: true));
       expect(await offsets(db), {'winter': 210, 'summer': 270});
     });
@@ -263,7 +271,7 @@ void main() {
 
     // Validation against the v32 snapshot proves the index is gone -- but only
     // with validateDropped, which is what flags an object the snapshot lacks.
-    await verifier.migrateAndValidate(db, 32,
+    await verifier.migrateAndValidate(db, 40,
         options: const ValidationOptions(validateDropped: true));
 
     final row = await db
@@ -271,6 +279,46 @@ void main() {
             "SELECT tz_offset_minutes AS o FROM tracker_entries WHERE id = 'e'")
         .getSingle();
     expect(row.read<int>('o'), 210);
+  });
+
+  group('an upgraded v32 database keeps goal periods sound', () {
+    // The UNIQUE index is the conflict target of every cache write, and the
+    // foreign key keeps a period row from outliving its goal. Both are
+    // proven on the upgraded path, not only on a fresh install.
+    late AppDatabase db;
+
+    setUp(() async {
+      db = AppDatabase(await verifier.startAt(32));
+      await verifier.migrateAndValidate(db, 40);
+      await db.customStatement(
+        'INSERT INTO goals (id, name, metric, scope_json, direction, '
+        'target_minor, period, calendar, week_start, start_date, created_at, '
+        'updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, 0)',
+        [
+          'g', 'Dining out', 'moneySum', '{"type":"money","filters":{}}',
+          'atMost', 10000, 'month', 'gregorian', 6, 20260101,
+        ],
+      );
+    });
+    tearDown(() => db.close());
+
+    Future<void> period(String id, {String goal = 'g', int start = 20260101}) =>
+        db.customStatement(
+          'INSERT INTO goal_period_results (id, goal_id, period_start, '
+          'period_end, created_at, updated_at) VALUES (?, ?, ?, ?, 0, 0)',
+          [id, goal, start, start + 30],
+        );
+
+    test('a second row for one goal period is refused', () async {
+      await period('first');
+      await expectLater(period('second'), throwsA(isA<SqliteException>()));
+      await period('next-month', start: 20260201);
+    });
+
+    test('a row for no goal is refused', () async {
+      await expectLater(
+          period('orphan', goal: 'nope'), throwsA(isA<SqliteException>()));
+    });
   });
 }
 

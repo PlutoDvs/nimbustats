@@ -6,6 +6,8 @@ import 'package:drift/native.dart';
 import 'package:nimbus_domain/nimbus_domain.dart';
 
 import '../tables/categories_table.dart';
+import '../tables/goal_period_results_table.dart';
+import '../tables/goals_table.dart';
 import '../analytics/saved_view.dart';
 import '../tables/payment_methods_table.dart';
 import '../tables/saved_views_table.dart';
@@ -34,6 +36,8 @@ part 'app_database.g.dart';
     SavedViews,
     Trackers,
     TrackerEntries,
+    Goals,
+    GoalPeriodResults,
   ],
 )
 class AppDatabase extends _$AppDatabase {
@@ -68,7 +72,7 @@ class AppDatabase extends _$AppDatabase {
   factory AppDatabase.openInMemory() => AppDatabase(NativeDatabase.memory());
 
   @override
-  int get schemaVersion => 32;
+  int get schemaVersion => 40;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -145,6 +149,26 @@ class AppDatabase extends _$AppDatabase {
           if (from >= 30 && from < 32) {
             await customStatement(
                 'DROP INDEX IF EXISTS idx_tracker_entries_day');
+          }
+          // v32 -> v40: Phase 5 adds goals and their per-period results. New
+          // tables only, so every older version takes this step.
+          //
+          // Nothing here records v40 before drift does, so every statement
+          // must be safe to run twice: createTable says IF NOT EXISTS, and
+          // the index -- which m.create does not guard -- is dropped by name
+          // first. An upgrade killed after this step but before drift writes
+          // the version then reopens cleanly, as the v32 step's IF EXISTS
+          // already lets it.
+          if (from < 40) {
+            await m.createTable(goals);
+            await m.createTable(goalPeriodResults);
+            // As above, createTable leaves the indexes behind. This one is a
+            // correctness rule: the cache's upsert names it as its conflict
+            // target, so an upgraded device without it could not store a
+            // goal's history at all.
+            await customStatement(
+                'DROP INDEX IF EXISTS idx_goal_period_results_period');
+            await m.create(idxGoalPeriodResultsPeriod);
           }
         },
         beforeOpen: (details) async {

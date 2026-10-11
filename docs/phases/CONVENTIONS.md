@@ -59,7 +59,7 @@ front so parallel phases never contend for the same number.
 | 2 — Capture | v10–v19 | — | captured_messages, message_templates, merchant_rules |
 | 3 — Analytics | v20–v29 | **v20, v21** | saved_views; v21 adds its period_type and period_count |
 | 4 — Trackers | v30–v39 | **v30, v31, v32** | trackers, tracker_entries; v31 adds tracker_entries.tz_offset_minutes; v32 drops idx_tracker_entries_day |
-| 5 — Goals | v40–v49 | — | goals, goal_period_results |
+| 5 — Goals | v40–v49 | **v40** | goals, goal_period_results |
 | 6 — Outside the app | v50–v59 | — | (none expected) |
 | 7 — Backup | v60–v69 | — | (none expected) |
 | 8 — Release | v70–v79 | — | (none expected) |
@@ -106,6 +106,7 @@ phase's files without saying so explicitly in the commit message.
 | `packages/nimbus_data/lib/src/capture/**` | Phase 2 |
 | `packages/nimbus_data/lib/src/analytics/**` | Phase 3 |
 | `packages/nimbus_data/lib/src/trackers/**` | Phase 4 |
+| `packages/nimbus_data/lib/src/goals/**` | Phase 5 |
 | `packages/nimbus_data/lib/src/backup/**` | Phase 7 |
 | `packages/nimbus_design/**` | Phase 1 (tokens land with the first screens) |
 | `app/lib/features/{transactions,categories,tags,payment_methods,onboarding,settings}/**` | Phase 1 |

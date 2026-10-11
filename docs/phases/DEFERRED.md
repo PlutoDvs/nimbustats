@@ -18,7 +18,7 @@ blocked, and who can unblock it.
 | D18 | Tracker haptics are too faint to feel at the lowest touch strength | Feeling a tracker tap on a phone set to the lowest touch feedback | Phase 6's Android work, or on demand |
 | D19 | Tracker charts misread at the edges of their scale: a sub-minute duration average, a small duration peak's axis, large text on the axes | The charts' labels in those cases; nothing else | Next trackers/insights work, or on demand |
 | D20 | A calendar switch rebuilds the tracker repository | Nothing today (unreachable); a tracker screen that stays mounted across a settings change | Whoever makes tracker screens stay mounted across settings, or Phase 5 |
-| D21 | 4b's test and guard gaps, one of them a Phase 5 prerequisite | Phase 5 storing `TrackerQuerySpec` as JSON (the `fromJson` tests); nothing else | Phase 5 |
+| D21 | 4b's test and guard gaps | Storing a `TrackerQuerySpec` as JSON (the `fromJson` tests), which nothing does yet; nothing else | Next trackers work, or on demand |
 | D22 | Tracker copy edge cases: tied boolean peaks, a stale "done" tap after midnight, English weekday names | Nothing hard-blocked; spoken and snackbar wording | On demand |
 | D13 | ~~The add-expense FAB carries no accessibility label~~ | — | **Resolved 2026-10-04** |
 | D14 | ~~Pinning offers a name a card on the dashboard already uses~~ | — | **Resolved 2026-10-04** |
@@ -808,13 +808,15 @@ Phase 5.
 
 ## D21 — 4b's test and guard gaps
 
-**Status:** open. Found 2026-10-09 by the Phase 4b final review.
+**Status:** open. Found 2026-10-09 by the Phase 4b final review. Re-scoped
+2026-10-10: Phase 5 stores a tracker goal's tracker id, not a
+`TrackerQuerySpec` (goals design, departure 7), so nothing here blocks it.
 
 **What is missing.**
 - **`TrackerQuerySpec.fromJson` tests.** A missing or non-object `groupBy` or
   `dateRange`, and a non-int end, are untested. The code is right (`jsonMapOf`,
   `_rangeOf`); the tests are what pin a storage format. **They must land before
-  Phase 5 stores specs as JSON.**
+  anything stores a `TrackerQuerySpec` as JSON.**
 - **The architecture test's aggregate pattern.** `test/architecture_test.dart`
   misses `countAll()`, `total()` and lowercase SQL.
 - **`FakeClock`** applies its current offset to every instant, so the
@@ -825,14 +827,14 @@ Phase 5.
 - **`TrackerQuerySpec.toString`** omits `dateRange`, so two family members that
   differ only by range print identically in Riverpod debugging.
 
-**Blocks:** Phase 5 storing `TrackerQuerySpec` as JSON (the first item). The
-rest block nothing.
+**Blocks:** storing a `TrackerQuerySpec` as JSON (the first item), which
+nothing does yet. The rest block nothing.
 
 **Check:** read `packages/nimbus_domain/test` for `fromJson` cases on a missing
 and a non-object `groupBy` and `dateRange`, and a non-int end. The first item
 holds once they exist.
 
-**Unblocked by:** Phase 5, whose prerequisite is the `fromJson` tests.
+**Unblocked by:** the next trackers work, or on demand.
 
 ## D22 — Tracker copy edge cases
 

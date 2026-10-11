@@ -5789,6 +5789,1701 @@ class TrackerEntriesCompanion extends UpdateCompanion<TrackerEntryRow> {
   }
 }
 
+class $GoalsTable extends Goals with TableInfo<$GoalsTable, GoalRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $GoalsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _createdAtMeta = const VerificationMeta(
+    'createdAt',
+  );
+  @override
+  late final GeneratedColumn<int> createdAt = GeneratedColumn<int>(
+    'created_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _updatedAtMeta = const VerificationMeta(
+    'updatedAt',
+  );
+  @override
+  late final GeneratedColumn<int> updatedAt = GeneratedColumn<int>(
+    'updated_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _deletedAtMeta = const VerificationMeta(
+    'deletedAt',
+  );
+  @override
+  late final GeneratedColumn<int> deletedAt = GeneratedColumn<int>(
+    'deleted_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _nameMeta = const VerificationMeta('name');
+  @override
+  late final GeneratedColumn<String> name = GeneratedColumn<String>(
+    'name',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _metricMeta = const VerificationMeta('metric');
+  @override
+  late final GeneratedColumn<String> metric = GeneratedColumn<String>(
+    'metric',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _scopeJsonMeta = const VerificationMeta(
+    'scopeJson',
+  );
+  @override
+  late final GeneratedColumn<String> scopeJson = GeneratedColumn<String>(
+    'scope_json',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _directionMeta = const VerificationMeta(
+    'direction',
+  );
+  @override
+  late final GeneratedColumn<String> direction = GeneratedColumn<String>(
+    'direction',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _targetMinorMeta = const VerificationMeta(
+    'targetMinor',
+  );
+  @override
+  late final GeneratedColumn<int> targetMinor = GeneratedColumn<int>(
+    'target_minor',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _targetQuantityMeta = const VerificationMeta(
+    'targetQuantity',
+  );
+  @override
+  late final GeneratedColumn<double> targetQuantity = GeneratedColumn<double>(
+    'target_quantity',
+    aliasedName,
+    true,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _periodMeta = const VerificationMeta('period');
+  @override
+  late final GeneratedColumn<String> period = GeneratedColumn<String>(
+    'period',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _calendarMeta = const VerificationMeta(
+    'calendar',
+  );
+  @override
+  late final GeneratedColumn<String> calendar = GeneratedColumn<String>(
+    'calendar',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _weekStartMeta = const VerificationMeta(
+    'weekStart',
+  );
+  @override
+  late final GeneratedColumn<int> weekStart = GeneratedColumn<int>(
+    'week_start',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _startDateMeta = const VerificationMeta(
+    'startDate',
+  );
+  @override
+  late final GeneratedColumn<int> startDate = GeneratedColumn<int>(
+    'start_date',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _endDateMeta = const VerificationMeta(
+    'endDate',
+  );
+  @override
+  late final GeneratedColumn<int> endDate = GeneratedColumn<int>(
+    'end_date',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _alertPercentsMeta = const VerificationMeta(
+    'alertPercents',
+  );
+  @override
+  late final GeneratedColumn<String> alertPercents = GeneratedColumn<String>(
+    'alert_percents',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant('[80,100]'),
+  );
+  static const VerificationMeta _activeMeta = const VerificationMeta('active');
+  @override
+  late final GeneratedColumn<bool> active = GeneratedColumn<bool>(
+    'active',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("active" IN (0, 1))',
+    ),
+    defaultValue: const Constant(true),
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    createdAt,
+    updatedAt,
+    deletedAt,
+    name,
+    metric,
+    scopeJson,
+    direction,
+    targetMinor,
+    targetQuantity,
+    period,
+    calendar,
+    weekStart,
+    startDate,
+    endDate,
+    alertPercents,
+    active,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'goals';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<GoalRow> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(
+        _createdAtMeta,
+        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_createdAtMeta);
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(
+        _updatedAtMeta,
+        updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_updatedAtMeta);
+    }
+    if (data.containsKey('deleted_at')) {
+      context.handle(
+        _deletedAtMeta,
+        deletedAt.isAcceptableOrUnknown(data['deleted_at']!, _deletedAtMeta),
+      );
+    }
+    if (data.containsKey('name')) {
+      context.handle(
+        _nameMeta,
+        name.isAcceptableOrUnknown(data['name']!, _nameMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_nameMeta);
+    }
+    if (data.containsKey('metric')) {
+      context.handle(
+        _metricMeta,
+        metric.isAcceptableOrUnknown(data['metric']!, _metricMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_metricMeta);
+    }
+    if (data.containsKey('scope_json')) {
+      context.handle(
+        _scopeJsonMeta,
+        scopeJson.isAcceptableOrUnknown(data['scope_json']!, _scopeJsonMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_scopeJsonMeta);
+    }
+    if (data.containsKey('direction')) {
+      context.handle(
+        _directionMeta,
+        direction.isAcceptableOrUnknown(data['direction']!, _directionMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_directionMeta);
+    }
+    if (data.containsKey('target_minor')) {
+      context.handle(
+        _targetMinorMeta,
+        targetMinor.isAcceptableOrUnknown(
+          data['target_minor']!,
+          _targetMinorMeta,
+        ),
+      );
+    }
+    if (data.containsKey('target_quantity')) {
+      context.handle(
+        _targetQuantityMeta,
+        targetQuantity.isAcceptableOrUnknown(
+          data['target_quantity']!,
+          _targetQuantityMeta,
+        ),
+      );
+    }
+    if (data.containsKey('period')) {
+      context.handle(
+        _periodMeta,
+        period.isAcceptableOrUnknown(data['period']!, _periodMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_periodMeta);
+    }
+    if (data.containsKey('calendar')) {
+      context.handle(
+        _calendarMeta,
+        calendar.isAcceptableOrUnknown(data['calendar']!, _calendarMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_calendarMeta);
+    }
+    if (data.containsKey('week_start')) {
+      context.handle(
+        _weekStartMeta,
+        weekStart.isAcceptableOrUnknown(data['week_start']!, _weekStartMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_weekStartMeta);
+    }
+    if (data.containsKey('start_date')) {
+      context.handle(
+        _startDateMeta,
+        startDate.isAcceptableOrUnknown(data['start_date']!, _startDateMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_startDateMeta);
+    }
+    if (data.containsKey('end_date')) {
+      context.handle(
+        _endDateMeta,
+        endDate.isAcceptableOrUnknown(data['end_date']!, _endDateMeta),
+      );
+    }
+    if (data.containsKey('alert_percents')) {
+      context.handle(
+        _alertPercentsMeta,
+        alertPercents.isAcceptableOrUnknown(
+          data['alert_percents']!,
+          _alertPercentsMeta,
+        ),
+      );
+    }
+    if (data.containsKey('active')) {
+      context.handle(
+        _activeMeta,
+        active.isAcceptableOrUnknown(data['active']!, _activeMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  GoalRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return GoalRow(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}created_at'],
+      )!,
+      updatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}updated_at'],
+      )!,
+      deletedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}deleted_at'],
+      ),
+      name: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}name'],
+      )!,
+      metric: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}metric'],
+      )!,
+      scopeJson: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}scope_json'],
+      )!,
+      direction: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}direction'],
+      )!,
+      targetMinor: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}target_minor'],
+      ),
+      targetQuantity: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}target_quantity'],
+      ),
+      period: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}period'],
+      )!,
+      calendar: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}calendar'],
+      )!,
+      weekStart: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}week_start'],
+      )!,
+      startDate: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}start_date'],
+      )!,
+      endDate: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}end_date'],
+      ),
+      alertPercents: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}alert_percents'],
+      )!,
+      active: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}active'],
+      )!,
+    );
+  }
+
+  @override
+  $GoalsTable createAlias(String alias) {
+    return $GoalsTable(attachedDatabase, alias);
+  }
+}
+
+class GoalRow extends DataClass implements Insertable<GoalRow> {
+  final String id;
+  final int createdAt;
+  final int updatedAt;
+  final int? deletedAt;
+
+  /// Non-blank. The editor suggests one from the scope.
+  final String name;
+
+  /// A `GoalMetric` name: `moneySum`, `txnCount`, `trackerSum`,
+  /// `trackerCount` or `netSavings`.
+  final String metric;
+
+  /// A `GoalScope` as JSON: `{"type":"money","filters":{...}}` or
+  /// `{"type":"tracker","trackerId":"..."}`. Filters rather than a whole
+  /// query: the metric and the period decide grouping, aggregate and dates.
+  final String scopeJson;
+
+  /// A `GoalDirection` name: `atMost` or `atLeast`.
+  final String direction;
+
+  /// The target in minor units, for `moneySum` and `netSavings`; null
+  /// otherwise. Exactly one of this and [targetQuantity] is set: two columns,
+  /// so money is never stored as a double.
+  final int? targetMinor;
+
+  /// The target for `txnCount`, `trackerSum` and `trackerCount`; null
+  /// otherwise.
+  final double? targetQuantity;
+
+  /// A `PeriodType` name, or `fixedRange`.
+  final String period;
+
+  /// A `CalendarKind` name: the goal's own calendar, copied from settings
+  /// when it is created, so switching the app's calendar never moves it.
+  final String calendar;
+
+  /// The first day of a week, 1 (Monday) to 7 (Sunday), copied from settings
+  /// when the goal is created, for the same reason as [calendar].
+  final int weekStart;
+
+  /// A `DateKey`. Recurring: history starts with the period containing it.
+  /// Fixed range: its first day.
+  final int startDate;
+
+  /// A `DateKey`: a fixed range's last day. Null for a recurring goal.
+  final int? endDate;
+
+  /// A JSON list of whole percents, ascending: `[80,100]`.
+  final String alertPercents;
+
+  /// False is paused: not evaluated, and no alerts.
+  final bool active;
+  const GoalRow({
+    required this.id,
+    required this.createdAt,
+    required this.updatedAt,
+    this.deletedAt,
+    required this.name,
+    required this.metric,
+    required this.scopeJson,
+    required this.direction,
+    this.targetMinor,
+    this.targetQuantity,
+    required this.period,
+    required this.calendar,
+    required this.weekStart,
+    required this.startDate,
+    this.endDate,
+    required this.alertPercents,
+    required this.active,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['created_at'] = Variable<int>(createdAt);
+    map['updated_at'] = Variable<int>(updatedAt);
+    if (!nullToAbsent || deletedAt != null) {
+      map['deleted_at'] = Variable<int>(deletedAt);
+    }
+    map['name'] = Variable<String>(name);
+    map['metric'] = Variable<String>(metric);
+    map['scope_json'] = Variable<String>(scopeJson);
+    map['direction'] = Variable<String>(direction);
+    if (!nullToAbsent || targetMinor != null) {
+      map['target_minor'] = Variable<int>(targetMinor);
+    }
+    if (!nullToAbsent || targetQuantity != null) {
+      map['target_quantity'] = Variable<double>(targetQuantity);
+    }
+    map['period'] = Variable<String>(period);
+    map['calendar'] = Variable<String>(calendar);
+    map['week_start'] = Variable<int>(weekStart);
+    map['start_date'] = Variable<int>(startDate);
+    if (!nullToAbsent || endDate != null) {
+      map['end_date'] = Variable<int>(endDate);
+    }
+    map['alert_percents'] = Variable<String>(alertPercents);
+    map['active'] = Variable<bool>(active);
+    return map;
+  }
+
+  GoalsCompanion toCompanion(bool nullToAbsent) {
+    return GoalsCompanion(
+      id: Value(id),
+      createdAt: Value(createdAt),
+      updatedAt: Value(updatedAt),
+      deletedAt: deletedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(deletedAt),
+      name: Value(name),
+      metric: Value(metric),
+      scopeJson: Value(scopeJson),
+      direction: Value(direction),
+      targetMinor: targetMinor == null && nullToAbsent
+          ? const Value.absent()
+          : Value(targetMinor),
+      targetQuantity: targetQuantity == null && nullToAbsent
+          ? const Value.absent()
+          : Value(targetQuantity),
+      period: Value(period),
+      calendar: Value(calendar),
+      weekStart: Value(weekStart),
+      startDate: Value(startDate),
+      endDate: endDate == null && nullToAbsent
+          ? const Value.absent()
+          : Value(endDate),
+      alertPercents: Value(alertPercents),
+      active: Value(active),
+    );
+  }
+
+  factory GoalRow.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return GoalRow(
+      id: serializer.fromJson<String>(json['id']),
+      createdAt: serializer.fromJson<int>(json['createdAt']),
+      updatedAt: serializer.fromJson<int>(json['updatedAt']),
+      deletedAt: serializer.fromJson<int?>(json['deletedAt']),
+      name: serializer.fromJson<String>(json['name']),
+      metric: serializer.fromJson<String>(json['metric']),
+      scopeJson: serializer.fromJson<String>(json['scopeJson']),
+      direction: serializer.fromJson<String>(json['direction']),
+      targetMinor: serializer.fromJson<int?>(json['targetMinor']),
+      targetQuantity: serializer.fromJson<double?>(json['targetQuantity']),
+      period: serializer.fromJson<String>(json['period']),
+      calendar: serializer.fromJson<String>(json['calendar']),
+      weekStart: serializer.fromJson<int>(json['weekStart']),
+      startDate: serializer.fromJson<int>(json['startDate']),
+      endDate: serializer.fromJson<int?>(json['endDate']),
+      alertPercents: serializer.fromJson<String>(json['alertPercents']),
+      active: serializer.fromJson<bool>(json['active']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'createdAt': serializer.toJson<int>(createdAt),
+      'updatedAt': serializer.toJson<int>(updatedAt),
+      'deletedAt': serializer.toJson<int?>(deletedAt),
+      'name': serializer.toJson<String>(name),
+      'metric': serializer.toJson<String>(metric),
+      'scopeJson': serializer.toJson<String>(scopeJson),
+      'direction': serializer.toJson<String>(direction),
+      'targetMinor': serializer.toJson<int?>(targetMinor),
+      'targetQuantity': serializer.toJson<double?>(targetQuantity),
+      'period': serializer.toJson<String>(period),
+      'calendar': serializer.toJson<String>(calendar),
+      'weekStart': serializer.toJson<int>(weekStart),
+      'startDate': serializer.toJson<int>(startDate),
+      'endDate': serializer.toJson<int?>(endDate),
+      'alertPercents': serializer.toJson<String>(alertPercents),
+      'active': serializer.toJson<bool>(active),
+    };
+  }
+
+  GoalRow copyWith({
+    String? id,
+    int? createdAt,
+    int? updatedAt,
+    Value<int?> deletedAt = const Value.absent(),
+    String? name,
+    String? metric,
+    String? scopeJson,
+    String? direction,
+    Value<int?> targetMinor = const Value.absent(),
+    Value<double?> targetQuantity = const Value.absent(),
+    String? period,
+    String? calendar,
+    int? weekStart,
+    int? startDate,
+    Value<int?> endDate = const Value.absent(),
+    String? alertPercents,
+    bool? active,
+  }) => GoalRow(
+    id: id ?? this.id,
+    createdAt: createdAt ?? this.createdAt,
+    updatedAt: updatedAt ?? this.updatedAt,
+    deletedAt: deletedAt.present ? deletedAt.value : this.deletedAt,
+    name: name ?? this.name,
+    metric: metric ?? this.metric,
+    scopeJson: scopeJson ?? this.scopeJson,
+    direction: direction ?? this.direction,
+    targetMinor: targetMinor.present ? targetMinor.value : this.targetMinor,
+    targetQuantity: targetQuantity.present
+        ? targetQuantity.value
+        : this.targetQuantity,
+    period: period ?? this.period,
+    calendar: calendar ?? this.calendar,
+    weekStart: weekStart ?? this.weekStart,
+    startDate: startDate ?? this.startDate,
+    endDate: endDate.present ? endDate.value : this.endDate,
+    alertPercents: alertPercents ?? this.alertPercents,
+    active: active ?? this.active,
+  );
+  GoalRow copyWithCompanion(GoalsCompanion data) {
+    return GoalRow(
+      id: data.id.present ? data.id.value : this.id,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+      deletedAt: data.deletedAt.present ? data.deletedAt.value : this.deletedAt,
+      name: data.name.present ? data.name.value : this.name,
+      metric: data.metric.present ? data.metric.value : this.metric,
+      scopeJson: data.scopeJson.present ? data.scopeJson.value : this.scopeJson,
+      direction: data.direction.present ? data.direction.value : this.direction,
+      targetMinor: data.targetMinor.present
+          ? data.targetMinor.value
+          : this.targetMinor,
+      targetQuantity: data.targetQuantity.present
+          ? data.targetQuantity.value
+          : this.targetQuantity,
+      period: data.period.present ? data.period.value : this.period,
+      calendar: data.calendar.present ? data.calendar.value : this.calendar,
+      weekStart: data.weekStart.present ? data.weekStart.value : this.weekStart,
+      startDate: data.startDate.present ? data.startDate.value : this.startDate,
+      endDate: data.endDate.present ? data.endDate.value : this.endDate,
+      alertPercents: data.alertPercents.present
+          ? data.alertPercents.value
+          : this.alertPercents,
+      active: data.active.present ? data.active.value : this.active,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('GoalRow(')
+          ..write('id: $id, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('deletedAt: $deletedAt, ')
+          ..write('name: $name, ')
+          ..write('metric: $metric, ')
+          ..write('scopeJson: $scopeJson, ')
+          ..write('direction: $direction, ')
+          ..write('targetMinor: $targetMinor, ')
+          ..write('targetQuantity: $targetQuantity, ')
+          ..write('period: $period, ')
+          ..write('calendar: $calendar, ')
+          ..write('weekStart: $weekStart, ')
+          ..write('startDate: $startDate, ')
+          ..write('endDate: $endDate, ')
+          ..write('alertPercents: $alertPercents, ')
+          ..write('active: $active')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    createdAt,
+    updatedAt,
+    deletedAt,
+    name,
+    metric,
+    scopeJson,
+    direction,
+    targetMinor,
+    targetQuantity,
+    period,
+    calendar,
+    weekStart,
+    startDate,
+    endDate,
+    alertPercents,
+    active,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is GoalRow &&
+          other.id == this.id &&
+          other.createdAt == this.createdAt &&
+          other.updatedAt == this.updatedAt &&
+          other.deletedAt == this.deletedAt &&
+          other.name == this.name &&
+          other.metric == this.metric &&
+          other.scopeJson == this.scopeJson &&
+          other.direction == this.direction &&
+          other.targetMinor == this.targetMinor &&
+          other.targetQuantity == this.targetQuantity &&
+          other.period == this.period &&
+          other.calendar == this.calendar &&
+          other.weekStart == this.weekStart &&
+          other.startDate == this.startDate &&
+          other.endDate == this.endDate &&
+          other.alertPercents == this.alertPercents &&
+          other.active == this.active);
+}
+
+class GoalsCompanion extends UpdateCompanion<GoalRow> {
+  final Value<String> id;
+  final Value<int> createdAt;
+  final Value<int> updatedAt;
+  final Value<int?> deletedAt;
+  final Value<String> name;
+  final Value<String> metric;
+  final Value<String> scopeJson;
+  final Value<String> direction;
+  final Value<int?> targetMinor;
+  final Value<double?> targetQuantity;
+  final Value<String> period;
+  final Value<String> calendar;
+  final Value<int> weekStart;
+  final Value<int> startDate;
+  final Value<int?> endDate;
+  final Value<String> alertPercents;
+  final Value<bool> active;
+  final Value<int> rowid;
+  const GoalsCompanion({
+    this.id = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.deletedAt = const Value.absent(),
+    this.name = const Value.absent(),
+    this.metric = const Value.absent(),
+    this.scopeJson = const Value.absent(),
+    this.direction = const Value.absent(),
+    this.targetMinor = const Value.absent(),
+    this.targetQuantity = const Value.absent(),
+    this.period = const Value.absent(),
+    this.calendar = const Value.absent(),
+    this.weekStart = const Value.absent(),
+    this.startDate = const Value.absent(),
+    this.endDate = const Value.absent(),
+    this.alertPercents = const Value.absent(),
+    this.active = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  GoalsCompanion.insert({
+    required String id,
+    required int createdAt,
+    required int updatedAt,
+    this.deletedAt = const Value.absent(),
+    required String name,
+    required String metric,
+    required String scopeJson,
+    required String direction,
+    this.targetMinor = const Value.absent(),
+    this.targetQuantity = const Value.absent(),
+    required String period,
+    required String calendar,
+    required int weekStart,
+    required int startDate,
+    this.endDate = const Value.absent(),
+    this.alertPercents = const Value.absent(),
+    this.active = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       createdAt = Value(createdAt),
+       updatedAt = Value(updatedAt),
+       name = Value(name),
+       metric = Value(metric),
+       scopeJson = Value(scopeJson),
+       direction = Value(direction),
+       period = Value(period),
+       calendar = Value(calendar),
+       weekStart = Value(weekStart),
+       startDate = Value(startDate);
+  static Insertable<GoalRow> custom({
+    Expression<String>? id,
+    Expression<int>? createdAt,
+    Expression<int>? updatedAt,
+    Expression<int>? deletedAt,
+    Expression<String>? name,
+    Expression<String>? metric,
+    Expression<String>? scopeJson,
+    Expression<String>? direction,
+    Expression<int>? targetMinor,
+    Expression<double>? targetQuantity,
+    Expression<String>? period,
+    Expression<String>? calendar,
+    Expression<int>? weekStart,
+    Expression<int>? startDate,
+    Expression<int>? endDate,
+    Expression<String>? alertPercents,
+    Expression<bool>? active,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (createdAt != null) 'created_at': createdAt,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (deletedAt != null) 'deleted_at': deletedAt,
+      if (name != null) 'name': name,
+      if (metric != null) 'metric': metric,
+      if (scopeJson != null) 'scope_json': scopeJson,
+      if (direction != null) 'direction': direction,
+      if (targetMinor != null) 'target_minor': targetMinor,
+      if (targetQuantity != null) 'target_quantity': targetQuantity,
+      if (period != null) 'period': period,
+      if (calendar != null) 'calendar': calendar,
+      if (weekStart != null) 'week_start': weekStart,
+      if (startDate != null) 'start_date': startDate,
+      if (endDate != null) 'end_date': endDate,
+      if (alertPercents != null) 'alert_percents': alertPercents,
+      if (active != null) 'active': active,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  GoalsCompanion copyWith({
+    Value<String>? id,
+    Value<int>? createdAt,
+    Value<int>? updatedAt,
+    Value<int?>? deletedAt,
+    Value<String>? name,
+    Value<String>? metric,
+    Value<String>? scopeJson,
+    Value<String>? direction,
+    Value<int?>? targetMinor,
+    Value<double?>? targetQuantity,
+    Value<String>? period,
+    Value<String>? calendar,
+    Value<int>? weekStart,
+    Value<int>? startDate,
+    Value<int?>? endDate,
+    Value<String>? alertPercents,
+    Value<bool>? active,
+    Value<int>? rowid,
+  }) {
+    return GoalsCompanion(
+      id: id ?? this.id,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      deletedAt: deletedAt ?? this.deletedAt,
+      name: name ?? this.name,
+      metric: metric ?? this.metric,
+      scopeJson: scopeJson ?? this.scopeJson,
+      direction: direction ?? this.direction,
+      targetMinor: targetMinor ?? this.targetMinor,
+      targetQuantity: targetQuantity ?? this.targetQuantity,
+      period: period ?? this.period,
+      calendar: calendar ?? this.calendar,
+      weekStart: weekStart ?? this.weekStart,
+      startDate: startDate ?? this.startDate,
+      endDate: endDate ?? this.endDate,
+      alertPercents: alertPercents ?? this.alertPercents,
+      active: active ?? this.active,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<int>(createdAt.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<int>(updatedAt.value);
+    }
+    if (deletedAt.present) {
+      map['deleted_at'] = Variable<int>(deletedAt.value);
+    }
+    if (name.present) {
+      map['name'] = Variable<String>(name.value);
+    }
+    if (metric.present) {
+      map['metric'] = Variable<String>(metric.value);
+    }
+    if (scopeJson.present) {
+      map['scope_json'] = Variable<String>(scopeJson.value);
+    }
+    if (direction.present) {
+      map['direction'] = Variable<String>(direction.value);
+    }
+    if (targetMinor.present) {
+      map['target_minor'] = Variable<int>(targetMinor.value);
+    }
+    if (targetQuantity.present) {
+      map['target_quantity'] = Variable<double>(targetQuantity.value);
+    }
+    if (period.present) {
+      map['period'] = Variable<String>(period.value);
+    }
+    if (calendar.present) {
+      map['calendar'] = Variable<String>(calendar.value);
+    }
+    if (weekStart.present) {
+      map['week_start'] = Variable<int>(weekStart.value);
+    }
+    if (startDate.present) {
+      map['start_date'] = Variable<int>(startDate.value);
+    }
+    if (endDate.present) {
+      map['end_date'] = Variable<int>(endDate.value);
+    }
+    if (alertPercents.present) {
+      map['alert_percents'] = Variable<String>(alertPercents.value);
+    }
+    if (active.present) {
+      map['active'] = Variable<bool>(active.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('GoalsCompanion(')
+          ..write('id: $id, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('deletedAt: $deletedAt, ')
+          ..write('name: $name, ')
+          ..write('metric: $metric, ')
+          ..write('scopeJson: $scopeJson, ')
+          ..write('direction: $direction, ')
+          ..write('targetMinor: $targetMinor, ')
+          ..write('targetQuantity: $targetQuantity, ')
+          ..write('period: $period, ')
+          ..write('calendar: $calendar, ')
+          ..write('weekStart: $weekStart, ')
+          ..write('startDate: $startDate, ')
+          ..write('endDate: $endDate, ')
+          ..write('alertPercents: $alertPercents, ')
+          ..write('active: $active, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $GoalPeriodResultsTable extends GoalPeriodResults
+    with TableInfo<$GoalPeriodResultsTable, GoalPeriodResultRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $GoalPeriodResultsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _createdAtMeta = const VerificationMeta(
+    'createdAt',
+  );
+  @override
+  late final GeneratedColumn<int> createdAt = GeneratedColumn<int>(
+    'created_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _updatedAtMeta = const VerificationMeta(
+    'updatedAt',
+  );
+  @override
+  late final GeneratedColumn<int> updatedAt = GeneratedColumn<int>(
+    'updated_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _deletedAtMeta = const VerificationMeta(
+    'deletedAt',
+  );
+  @override
+  late final GeneratedColumn<int> deletedAt = GeneratedColumn<int>(
+    'deleted_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _goalIdMeta = const VerificationMeta('goalId');
+  @override
+  late final GeneratedColumn<String> goalId = GeneratedColumn<String>(
+    'goal_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES goals (id)',
+    ),
+  );
+  @override
+  late final GeneratedColumnWithTypeConverter<DateKey, int> periodStart =
+      GeneratedColumn<int>(
+        'period_start',
+        aliasedName,
+        false,
+        type: DriftSqlType.int,
+        requiredDuringInsert: true,
+      ).withConverter<DateKey>($GoalPeriodResultsTable.$converterperiodStart);
+  @override
+  late final GeneratedColumnWithTypeConverter<DateKey, int> periodEnd =
+      GeneratedColumn<int>(
+        'period_end',
+        aliasedName,
+        false,
+        type: DriftSqlType.int,
+        requiredDuringInsert: true,
+      ).withConverter<DateKey>($GoalPeriodResultsTable.$converterperiodEnd);
+  static const VerificationMeta _currentMinorMeta = const VerificationMeta(
+    'currentMinor',
+  );
+  @override
+  late final GeneratedColumn<int> currentMinor = GeneratedColumn<int>(
+    'current_minor',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _currentQuantityMeta = const VerificationMeta(
+    'currentQuantity',
+  );
+  @override
+  late final GeneratedColumn<double> currentQuantity = GeneratedColumn<double>(
+    'current_quantity',
+    aliasedName,
+    true,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _sourceWatermarkMeta = const VerificationMeta(
+    'sourceWatermark',
+  );
+  @override
+  late final GeneratedColumn<int> sourceWatermark = GeneratedColumn<int>(
+    'source_watermark',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _lastAlertedPercentMeta =
+      const VerificationMeta('lastAlertedPercent');
+  @override
+  late final GeneratedColumn<int> lastAlertedPercent = GeneratedColumn<int>(
+    'last_alerted_percent',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    createdAt,
+    updatedAt,
+    deletedAt,
+    goalId,
+    periodStart,
+    periodEnd,
+    currentMinor,
+    currentQuantity,
+    sourceWatermark,
+    lastAlertedPercent,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'goal_period_results';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<GoalPeriodResultRow> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(
+        _createdAtMeta,
+        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_createdAtMeta);
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(
+        _updatedAtMeta,
+        updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_updatedAtMeta);
+    }
+    if (data.containsKey('deleted_at')) {
+      context.handle(
+        _deletedAtMeta,
+        deletedAt.isAcceptableOrUnknown(data['deleted_at']!, _deletedAtMeta),
+      );
+    }
+    if (data.containsKey('goal_id')) {
+      context.handle(
+        _goalIdMeta,
+        goalId.isAcceptableOrUnknown(data['goal_id']!, _goalIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_goalIdMeta);
+    }
+    if (data.containsKey('current_minor')) {
+      context.handle(
+        _currentMinorMeta,
+        currentMinor.isAcceptableOrUnknown(
+          data['current_minor']!,
+          _currentMinorMeta,
+        ),
+      );
+    }
+    if (data.containsKey('current_quantity')) {
+      context.handle(
+        _currentQuantityMeta,
+        currentQuantity.isAcceptableOrUnknown(
+          data['current_quantity']!,
+          _currentQuantityMeta,
+        ),
+      );
+    }
+    if (data.containsKey('source_watermark')) {
+      context.handle(
+        _sourceWatermarkMeta,
+        sourceWatermark.isAcceptableOrUnknown(
+          data['source_watermark']!,
+          _sourceWatermarkMeta,
+        ),
+      );
+    }
+    if (data.containsKey('last_alerted_percent')) {
+      context.handle(
+        _lastAlertedPercentMeta,
+        lastAlertedPercent.isAcceptableOrUnknown(
+          data['last_alerted_percent']!,
+          _lastAlertedPercentMeta,
+        ),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  GoalPeriodResultRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return GoalPeriodResultRow(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}created_at'],
+      )!,
+      updatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}updated_at'],
+      )!,
+      deletedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}deleted_at'],
+      ),
+      goalId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}goal_id'],
+      )!,
+      periodStart: $GoalPeriodResultsTable.$converterperiodStart.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.int,
+          data['${effectivePrefix}period_start'],
+        )!,
+      ),
+      periodEnd: $GoalPeriodResultsTable.$converterperiodEnd.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.int,
+          data['${effectivePrefix}period_end'],
+        )!,
+      ),
+      currentMinor: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}current_minor'],
+      ),
+      currentQuantity: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}current_quantity'],
+      ),
+      sourceWatermark: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}source_watermark'],
+      ),
+      lastAlertedPercent: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}last_alerted_percent'],
+      ),
+    );
+  }
+
+  @override
+  $GoalPeriodResultsTable createAlias(String alias) {
+    return $GoalPeriodResultsTable(attachedDatabase, alias);
+  }
+
+  static TypeConverter<DateKey, int> $converterperiodStart =
+      const DateKeyConverter();
+  static TypeConverter<DateKey, int> $converterperiodEnd =
+      const DateKeyConverter();
+}
+
+class GoalPeriodResultRow extends DataClass
+    implements Insertable<GoalPeriodResultRow> {
+  final String id;
+  final int createdAt;
+  final int updatedAt;
+  final int? deletedAt;
+  final String goalId;
+
+  /// The period's first day, in the goal's own calendar when it was written.
+  final DateKey periodStart;
+
+  /// The period's last day.
+  final DateKey periodEnd;
+
+  /// The cached value in minor units, for a money goal; null until computed.
+  final int? currentMinor;
+
+  /// The cached value for a quantity goal; null until computed.
+  final double? currentQuantity;
+
+  /// The watermark the value was computed at. Null means stale.
+  final int? sourceWatermark;
+
+  /// The highest alert percent already announced for this period; null
+  /// below every threshold.
+  final int? lastAlertedPercent;
+  const GoalPeriodResultRow({
+    required this.id,
+    required this.createdAt,
+    required this.updatedAt,
+    this.deletedAt,
+    required this.goalId,
+    required this.periodStart,
+    required this.periodEnd,
+    this.currentMinor,
+    this.currentQuantity,
+    this.sourceWatermark,
+    this.lastAlertedPercent,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['created_at'] = Variable<int>(createdAt);
+    map['updated_at'] = Variable<int>(updatedAt);
+    if (!nullToAbsent || deletedAt != null) {
+      map['deleted_at'] = Variable<int>(deletedAt);
+    }
+    map['goal_id'] = Variable<String>(goalId);
+    {
+      map['period_start'] = Variable<int>(
+        $GoalPeriodResultsTable.$converterperiodStart.toSql(periodStart),
+      );
+    }
+    {
+      map['period_end'] = Variable<int>(
+        $GoalPeriodResultsTable.$converterperiodEnd.toSql(periodEnd),
+      );
+    }
+    if (!nullToAbsent || currentMinor != null) {
+      map['current_minor'] = Variable<int>(currentMinor);
+    }
+    if (!nullToAbsent || currentQuantity != null) {
+      map['current_quantity'] = Variable<double>(currentQuantity);
+    }
+    if (!nullToAbsent || sourceWatermark != null) {
+      map['source_watermark'] = Variable<int>(sourceWatermark);
+    }
+    if (!nullToAbsent || lastAlertedPercent != null) {
+      map['last_alerted_percent'] = Variable<int>(lastAlertedPercent);
+    }
+    return map;
+  }
+
+  GoalPeriodResultsCompanion toCompanion(bool nullToAbsent) {
+    return GoalPeriodResultsCompanion(
+      id: Value(id),
+      createdAt: Value(createdAt),
+      updatedAt: Value(updatedAt),
+      deletedAt: deletedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(deletedAt),
+      goalId: Value(goalId),
+      periodStart: Value(periodStart),
+      periodEnd: Value(periodEnd),
+      currentMinor: currentMinor == null && nullToAbsent
+          ? const Value.absent()
+          : Value(currentMinor),
+      currentQuantity: currentQuantity == null && nullToAbsent
+          ? const Value.absent()
+          : Value(currentQuantity),
+      sourceWatermark: sourceWatermark == null && nullToAbsent
+          ? const Value.absent()
+          : Value(sourceWatermark),
+      lastAlertedPercent: lastAlertedPercent == null && nullToAbsent
+          ? const Value.absent()
+          : Value(lastAlertedPercent),
+    );
+  }
+
+  factory GoalPeriodResultRow.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return GoalPeriodResultRow(
+      id: serializer.fromJson<String>(json['id']),
+      createdAt: serializer.fromJson<int>(json['createdAt']),
+      updatedAt: serializer.fromJson<int>(json['updatedAt']),
+      deletedAt: serializer.fromJson<int?>(json['deletedAt']),
+      goalId: serializer.fromJson<String>(json['goalId']),
+      periodStart: serializer.fromJson<DateKey>(json['periodStart']),
+      periodEnd: serializer.fromJson<DateKey>(json['periodEnd']),
+      currentMinor: serializer.fromJson<int?>(json['currentMinor']),
+      currentQuantity: serializer.fromJson<double?>(json['currentQuantity']),
+      sourceWatermark: serializer.fromJson<int?>(json['sourceWatermark']),
+      lastAlertedPercent: serializer.fromJson<int?>(json['lastAlertedPercent']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'createdAt': serializer.toJson<int>(createdAt),
+      'updatedAt': serializer.toJson<int>(updatedAt),
+      'deletedAt': serializer.toJson<int?>(deletedAt),
+      'goalId': serializer.toJson<String>(goalId),
+      'periodStart': serializer.toJson<DateKey>(periodStart),
+      'periodEnd': serializer.toJson<DateKey>(periodEnd),
+      'currentMinor': serializer.toJson<int?>(currentMinor),
+      'currentQuantity': serializer.toJson<double?>(currentQuantity),
+      'sourceWatermark': serializer.toJson<int?>(sourceWatermark),
+      'lastAlertedPercent': serializer.toJson<int?>(lastAlertedPercent),
+    };
+  }
+
+  GoalPeriodResultRow copyWith({
+    String? id,
+    int? createdAt,
+    int? updatedAt,
+    Value<int?> deletedAt = const Value.absent(),
+    String? goalId,
+    DateKey? periodStart,
+    DateKey? periodEnd,
+    Value<int?> currentMinor = const Value.absent(),
+    Value<double?> currentQuantity = const Value.absent(),
+    Value<int?> sourceWatermark = const Value.absent(),
+    Value<int?> lastAlertedPercent = const Value.absent(),
+  }) => GoalPeriodResultRow(
+    id: id ?? this.id,
+    createdAt: createdAt ?? this.createdAt,
+    updatedAt: updatedAt ?? this.updatedAt,
+    deletedAt: deletedAt.present ? deletedAt.value : this.deletedAt,
+    goalId: goalId ?? this.goalId,
+    periodStart: periodStart ?? this.periodStart,
+    periodEnd: periodEnd ?? this.periodEnd,
+    currentMinor: currentMinor.present ? currentMinor.value : this.currentMinor,
+    currentQuantity: currentQuantity.present
+        ? currentQuantity.value
+        : this.currentQuantity,
+    sourceWatermark: sourceWatermark.present
+        ? sourceWatermark.value
+        : this.sourceWatermark,
+    lastAlertedPercent: lastAlertedPercent.present
+        ? lastAlertedPercent.value
+        : this.lastAlertedPercent,
+  );
+  GoalPeriodResultRow copyWithCompanion(GoalPeriodResultsCompanion data) {
+    return GoalPeriodResultRow(
+      id: data.id.present ? data.id.value : this.id,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+      deletedAt: data.deletedAt.present ? data.deletedAt.value : this.deletedAt,
+      goalId: data.goalId.present ? data.goalId.value : this.goalId,
+      periodStart: data.periodStart.present
+          ? data.periodStart.value
+          : this.periodStart,
+      periodEnd: data.periodEnd.present ? data.periodEnd.value : this.periodEnd,
+      currentMinor: data.currentMinor.present
+          ? data.currentMinor.value
+          : this.currentMinor,
+      currentQuantity: data.currentQuantity.present
+          ? data.currentQuantity.value
+          : this.currentQuantity,
+      sourceWatermark: data.sourceWatermark.present
+          ? data.sourceWatermark.value
+          : this.sourceWatermark,
+      lastAlertedPercent: data.lastAlertedPercent.present
+          ? data.lastAlertedPercent.value
+          : this.lastAlertedPercent,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('GoalPeriodResultRow(')
+          ..write('id: $id, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('deletedAt: $deletedAt, ')
+          ..write('goalId: $goalId, ')
+          ..write('periodStart: $periodStart, ')
+          ..write('periodEnd: $periodEnd, ')
+          ..write('currentMinor: $currentMinor, ')
+          ..write('currentQuantity: $currentQuantity, ')
+          ..write('sourceWatermark: $sourceWatermark, ')
+          ..write('lastAlertedPercent: $lastAlertedPercent')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    createdAt,
+    updatedAt,
+    deletedAt,
+    goalId,
+    periodStart,
+    periodEnd,
+    currentMinor,
+    currentQuantity,
+    sourceWatermark,
+    lastAlertedPercent,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is GoalPeriodResultRow &&
+          other.id == this.id &&
+          other.createdAt == this.createdAt &&
+          other.updatedAt == this.updatedAt &&
+          other.deletedAt == this.deletedAt &&
+          other.goalId == this.goalId &&
+          other.periodStart == this.periodStart &&
+          other.periodEnd == this.periodEnd &&
+          other.currentMinor == this.currentMinor &&
+          other.currentQuantity == this.currentQuantity &&
+          other.sourceWatermark == this.sourceWatermark &&
+          other.lastAlertedPercent == this.lastAlertedPercent);
+}
+
+class GoalPeriodResultsCompanion extends UpdateCompanion<GoalPeriodResultRow> {
+  final Value<String> id;
+  final Value<int> createdAt;
+  final Value<int> updatedAt;
+  final Value<int?> deletedAt;
+  final Value<String> goalId;
+  final Value<DateKey> periodStart;
+  final Value<DateKey> periodEnd;
+  final Value<int?> currentMinor;
+  final Value<double?> currentQuantity;
+  final Value<int?> sourceWatermark;
+  final Value<int?> lastAlertedPercent;
+  final Value<int> rowid;
+  const GoalPeriodResultsCompanion({
+    this.id = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.deletedAt = const Value.absent(),
+    this.goalId = const Value.absent(),
+    this.periodStart = const Value.absent(),
+    this.periodEnd = const Value.absent(),
+    this.currentMinor = const Value.absent(),
+    this.currentQuantity = const Value.absent(),
+    this.sourceWatermark = const Value.absent(),
+    this.lastAlertedPercent = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  GoalPeriodResultsCompanion.insert({
+    required String id,
+    required int createdAt,
+    required int updatedAt,
+    this.deletedAt = const Value.absent(),
+    required String goalId,
+    required DateKey periodStart,
+    required DateKey periodEnd,
+    this.currentMinor = const Value.absent(),
+    this.currentQuantity = const Value.absent(),
+    this.sourceWatermark = const Value.absent(),
+    this.lastAlertedPercent = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       createdAt = Value(createdAt),
+       updatedAt = Value(updatedAt),
+       goalId = Value(goalId),
+       periodStart = Value(periodStart),
+       periodEnd = Value(periodEnd);
+  static Insertable<GoalPeriodResultRow> custom({
+    Expression<String>? id,
+    Expression<int>? createdAt,
+    Expression<int>? updatedAt,
+    Expression<int>? deletedAt,
+    Expression<String>? goalId,
+    Expression<int>? periodStart,
+    Expression<int>? periodEnd,
+    Expression<int>? currentMinor,
+    Expression<double>? currentQuantity,
+    Expression<int>? sourceWatermark,
+    Expression<int>? lastAlertedPercent,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (createdAt != null) 'created_at': createdAt,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (deletedAt != null) 'deleted_at': deletedAt,
+      if (goalId != null) 'goal_id': goalId,
+      if (periodStart != null) 'period_start': periodStart,
+      if (periodEnd != null) 'period_end': periodEnd,
+      if (currentMinor != null) 'current_minor': currentMinor,
+      if (currentQuantity != null) 'current_quantity': currentQuantity,
+      if (sourceWatermark != null) 'source_watermark': sourceWatermark,
+      if (lastAlertedPercent != null)
+        'last_alerted_percent': lastAlertedPercent,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  GoalPeriodResultsCompanion copyWith({
+    Value<String>? id,
+    Value<int>? createdAt,
+    Value<int>? updatedAt,
+    Value<int?>? deletedAt,
+    Value<String>? goalId,
+    Value<DateKey>? periodStart,
+    Value<DateKey>? periodEnd,
+    Value<int?>? currentMinor,
+    Value<double?>? currentQuantity,
+    Value<int?>? sourceWatermark,
+    Value<int?>? lastAlertedPercent,
+    Value<int>? rowid,
+  }) {
+    return GoalPeriodResultsCompanion(
+      id: id ?? this.id,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      deletedAt: deletedAt ?? this.deletedAt,
+      goalId: goalId ?? this.goalId,
+      periodStart: periodStart ?? this.periodStart,
+      periodEnd: periodEnd ?? this.periodEnd,
+      currentMinor: currentMinor ?? this.currentMinor,
+      currentQuantity: currentQuantity ?? this.currentQuantity,
+      sourceWatermark: sourceWatermark ?? this.sourceWatermark,
+      lastAlertedPercent: lastAlertedPercent ?? this.lastAlertedPercent,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<int>(createdAt.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<int>(updatedAt.value);
+    }
+    if (deletedAt.present) {
+      map['deleted_at'] = Variable<int>(deletedAt.value);
+    }
+    if (goalId.present) {
+      map['goal_id'] = Variable<String>(goalId.value);
+    }
+    if (periodStart.present) {
+      map['period_start'] = Variable<int>(
+        $GoalPeriodResultsTable.$converterperiodStart.toSql(periodStart.value),
+      );
+    }
+    if (periodEnd.present) {
+      map['period_end'] = Variable<int>(
+        $GoalPeriodResultsTable.$converterperiodEnd.toSql(periodEnd.value),
+      );
+    }
+    if (currentMinor.present) {
+      map['current_minor'] = Variable<int>(currentMinor.value);
+    }
+    if (currentQuantity.present) {
+      map['current_quantity'] = Variable<double>(currentQuantity.value);
+    }
+    if (sourceWatermark.present) {
+      map['source_watermark'] = Variable<int>(sourceWatermark.value);
+    }
+    if (lastAlertedPercent.present) {
+      map['last_alerted_percent'] = Variable<int>(lastAlertedPercent.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('GoalPeriodResultsCompanion(')
+          ..write('id: $id, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('deletedAt: $deletedAt, ')
+          ..write('goalId: $goalId, ')
+          ..write('periodStart: $periodStart, ')
+          ..write('periodEnd: $periodEnd, ')
+          ..write('currentMinor: $currentMinor, ')
+          ..write('currentQuantity: $currentQuantity, ')
+          ..write('sourceWatermark: $sourceWatermark, ')
+          ..write('lastAlertedPercent: $lastAlertedPercent, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
@@ -5803,6 +7498,9 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $SavedViewsTable savedViews = $SavedViewsTable(this);
   late final $TrackersTable trackers = $TrackersTable(this);
   late final $TrackerEntriesTable trackerEntries = $TrackerEntriesTable(this);
+  late final $GoalsTable goals = $GoalsTable(this);
+  late final $GoalPeriodResultsTable goalPeriodResults =
+      $GoalPeriodResultsTable(this);
   late final Index idxCategoriesPath = Index(
     'idx_categories_path',
     'CREATE INDEX idx_categories_path ON categories (path)',
@@ -5851,6 +7549,10 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     'idx_tracker_entries_once_per_day',
     'CREATE UNIQUE INDEX idx_tracker_entries_once_per_day ON tracker_entries (tracker_id, local_date_key) WHERE once_per_day = 1 AND deleted_at IS NULL',
   );
+  late final Index idxGoalPeriodResultsPeriod = Index(
+    'idx_goal_period_results_period',
+    'CREATE UNIQUE INDEX idx_goal_period_results_period ON goal_period_results (goal_id, period_start)',
+  );
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -5865,6 +7567,8 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     savedViews,
     trackers,
     trackerEntries,
+    goals,
+    goalPeriodResults,
     idxCategoriesPath,
     idxTagsPath,
     idxTxDate,
@@ -5877,6 +7581,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     idxTrackerEntriesHistory,
     idxTrackerEntriesTrackerDay,
     idxTrackerEntriesOncePerDay,
+    idxGoalPeriodResultsPeriod,
   ];
   @override
   StreamQueryUpdateRules get streamUpdateRules => const StreamQueryUpdateRules([
@@ -9897,6 +11602,997 @@ typedef $$TrackerEntriesTableProcessedTableManager =
       TrackerEntryRow,
       PrefetchHooks Function({bool trackerId})
     >;
+typedef $$GoalsTableCreateCompanionBuilder = GoalsCompanion Function({
+  required String id,
+  required int createdAt,
+  required int updatedAt,
+  Value<int?> deletedAt,
+  required String name,
+  required String metric,
+  required String scopeJson,
+  required String direction,
+  Value<int?> targetMinor,
+  Value<double?> targetQuantity,
+  required String period,
+  required String calendar,
+  required int weekStart,
+  required int startDate,
+  Value<int?> endDate,
+  Value<String> alertPercents,
+  Value<bool> active,
+  Value<int> rowid,
+});
+typedef $$GoalsTableUpdateCompanionBuilder = GoalsCompanion Function({
+  Value<String> id,
+  Value<int> createdAt,
+  Value<int> updatedAt,
+  Value<int?> deletedAt,
+  Value<String> name,
+  Value<String> metric,
+  Value<String> scopeJson,
+  Value<String> direction,
+  Value<int?> targetMinor,
+  Value<double?> targetQuantity,
+  Value<String> period,
+  Value<String> calendar,
+  Value<int> weekStart,
+  Value<int> startDate,
+  Value<int?> endDate,
+  Value<String> alertPercents,
+  Value<bool> active,
+  Value<int> rowid,
+});
+
+final class $$GoalsTableReferences
+    extends BaseReferences<_$AppDatabase, $GoalsTable, GoalRow> {
+  $$GoalsTableReferences(super.$_db, super.$_table, super.$_typedResult);
+
+  static MultiTypedResultKey<$GoalPeriodResultsTable, List<GoalPeriodResultRow>>
+  _goalPeriodResultsRefsTable(_$AppDatabase db) =>
+      MultiTypedResultKey.fromTable(
+        db.goalPeriodResults,
+        aliasName: 'goals__id__goal_period_results__goal_id',
+      );
+
+  $$GoalPeriodResultsTableProcessedTableManager get goalPeriodResultsRefs {
+    final manager = $$GoalPeriodResultsTableTableManager(
+      $_db,
+      $_db.goalPeriodResults,
+    ).filter((f) => f.goalId.id.sqlEquals($_itemColumn<String>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(
+      _goalPeriodResultsRefsTable($_db),
+    );
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+}
+
+class $$GoalsTableFilterComposer extends Composer<_$AppDatabase, $GoalsTable> {
+  $$GoalsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get deletedAt => $composableBuilder(
+    column: $table.deletedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get name => $composableBuilder(
+    column: $table.name,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get metric => $composableBuilder(
+    column: $table.metric,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get scopeJson => $composableBuilder(
+    column: $table.scopeJson,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get direction => $composableBuilder(
+    column: $table.direction,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get targetMinor => $composableBuilder(
+    column: $table.targetMinor,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get targetQuantity => $composableBuilder(
+    column: $table.targetQuantity,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get period => $composableBuilder(
+    column: $table.period,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get calendar => $composableBuilder(
+    column: $table.calendar,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get weekStart => $composableBuilder(
+    column: $table.weekStart,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get startDate => $composableBuilder(
+    column: $table.startDate,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get endDate => $composableBuilder(
+    column: $table.endDate,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get alertPercents => $composableBuilder(
+    column: $table.alertPercents,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get active => $composableBuilder(
+    column: $table.active,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  Expression<bool> goalPeriodResultsRefs(
+    Expression<bool> Function($$GoalPeriodResultsTableFilterComposer f) f,
+  ) {
+    final $$GoalPeriodResultsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.goalPeriodResults,
+      getReferencedColumn: (t) => t.goalId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$GoalPeriodResultsTableFilterComposer(
+            $db: $db,
+            $table: $db.goalPeriodResults,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+}
+
+class $$GoalsTableOrderingComposer
+    extends Composer<_$AppDatabase, $GoalsTable> {
+  $$GoalsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get deletedAt => $composableBuilder(
+    column: $table.deletedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get name => $composableBuilder(
+    column: $table.name,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get metric => $composableBuilder(
+    column: $table.metric,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get scopeJson => $composableBuilder(
+    column: $table.scopeJson,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get direction => $composableBuilder(
+    column: $table.direction,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get targetMinor => $composableBuilder(
+    column: $table.targetMinor,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get targetQuantity => $composableBuilder(
+    column: $table.targetQuantity,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get period => $composableBuilder(
+    column: $table.period,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get calendar => $composableBuilder(
+    column: $table.calendar,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get weekStart => $composableBuilder(
+    column: $table.weekStart,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get startDate => $composableBuilder(
+    column: $table.startDate,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get endDate => $composableBuilder(
+    column: $table.endDate,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get alertPercents => $composableBuilder(
+    column: $table.alertPercents,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get active => $composableBuilder(
+    column: $table.active,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$GoalsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $GoalsTable> {
+  $$GoalsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<int> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<int> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+
+  GeneratedColumn<int> get deletedAt =>
+      $composableBuilder(column: $table.deletedAt, builder: (column) => column);
+
+  GeneratedColumn<String> get name =>
+      $composableBuilder(column: $table.name, builder: (column) => column);
+
+  GeneratedColumn<String> get metric =>
+      $composableBuilder(column: $table.metric, builder: (column) => column);
+
+  GeneratedColumn<String> get scopeJson =>
+      $composableBuilder(column: $table.scopeJson, builder: (column) => column);
+
+  GeneratedColumn<String> get direction =>
+      $composableBuilder(column: $table.direction, builder: (column) => column);
+
+  GeneratedColumn<int> get targetMinor => $composableBuilder(
+    column: $table.targetMinor,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<double> get targetQuantity => $composableBuilder(
+    column: $table.targetQuantity,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get period =>
+      $composableBuilder(column: $table.period, builder: (column) => column);
+
+  GeneratedColumn<String> get calendar =>
+      $composableBuilder(column: $table.calendar, builder: (column) => column);
+
+  GeneratedColumn<int> get weekStart =>
+      $composableBuilder(column: $table.weekStart, builder: (column) => column);
+
+  GeneratedColumn<int> get startDate =>
+      $composableBuilder(column: $table.startDate, builder: (column) => column);
+
+  GeneratedColumn<int> get endDate =>
+      $composableBuilder(column: $table.endDate, builder: (column) => column);
+
+  GeneratedColumn<String> get alertPercents => $composableBuilder(
+    column: $table.alertPercents,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<bool> get active =>
+      $composableBuilder(column: $table.active, builder: (column) => column);
+
+  Expression<T> goalPeriodResultsRefs<T extends Object>(
+    Expression<T> Function($$GoalPeriodResultsTableAnnotationComposer a) f,
+  ) {
+    final $$GoalPeriodResultsTableAnnotationComposer composer =
+        $composerBuilder(
+          composer: this,
+          getCurrentColumn: (t) => t.id,
+          referencedTable: $db.goalPeriodResults,
+          getReferencedColumn: (t) => t.goalId,
+          builder:
+              (
+                joinBuilder, {
+                $addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer,
+              }) => $$GoalPeriodResultsTableAnnotationComposer(
+                $db: $db,
+                $table: $db.goalPeriodResults,
+                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                joinBuilder: joinBuilder,
+                $removeJoinBuilderFromRootComposer:
+                    $removeJoinBuilderFromRootComposer,
+              ),
+        );
+    return f(composer);
+  }
+}
+
+class $$GoalsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $GoalsTable,
+          GoalRow,
+          $$GoalsTableFilterComposer,
+          $$GoalsTableOrderingComposer,
+          $$GoalsTableAnnotationComposer,
+          $$GoalsTableCreateCompanionBuilder,
+          $$GoalsTableUpdateCompanionBuilder,
+          (GoalRow, $$GoalsTableReferences),
+          GoalRow,
+          PrefetchHooks Function({bool goalPeriodResultsRefs})
+        > {
+  $$GoalsTableTableManager(_$AppDatabase db, $GoalsTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$GoalsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$GoalsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$GoalsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<int> createdAt = const Value.absent(),
+                Value<int> updatedAt = const Value.absent(),
+                Value<int?> deletedAt = const Value.absent(),
+                Value<String> name = const Value.absent(),
+                Value<String> metric = const Value.absent(),
+                Value<String> scopeJson = const Value.absent(),
+                Value<String> direction = const Value.absent(),
+                Value<int?> targetMinor = const Value.absent(),
+                Value<double?> targetQuantity = const Value.absent(),
+                Value<String> period = const Value.absent(),
+                Value<String> calendar = const Value.absent(),
+                Value<int> weekStart = const Value.absent(),
+                Value<int> startDate = const Value.absent(),
+                Value<int?> endDate = const Value.absent(),
+                Value<String> alertPercents = const Value.absent(),
+                Value<bool> active = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => GoalsCompanion(
+                id: id,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+                deletedAt: deletedAt,
+                name: name,
+                metric: metric,
+                scopeJson: scopeJson,
+                direction: direction,
+                targetMinor: targetMinor,
+                targetQuantity: targetQuantity,
+                period: period,
+                calendar: calendar,
+                weekStart: weekStart,
+                startDate: startDate,
+                endDate: endDate,
+                alertPercents: alertPercents,
+                active: active,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required int createdAt,
+                required int updatedAt,
+                Value<int?> deletedAt = const Value.absent(),
+                required String name,
+                required String metric,
+                required String scopeJson,
+                required String direction,
+                Value<int?> targetMinor = const Value.absent(),
+                Value<double?> targetQuantity = const Value.absent(),
+                required String period,
+                required String calendar,
+                required int weekStart,
+                required int startDate,
+                Value<int?> endDate = const Value.absent(),
+                Value<String> alertPercents = const Value.absent(),
+                Value<bool> active = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => GoalsCompanion.insert(
+                id: id,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+                deletedAt: deletedAt,
+                name: name,
+                metric: metric,
+                scopeJson: scopeJson,
+                direction: direction,
+                targetMinor: targetMinor,
+                targetQuantity: targetQuantity,
+                period: period,
+                calendar: calendar,
+                weekStart: weekStart,
+                startDate: startDate,
+                endDate: endDate,
+                alertPercents: alertPercents,
+                active: active,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) =>
+                    (e.readTable(table), $$GoalsTableReferences(db, table, e)),
+              )
+              .toList(),
+          prefetchHooksCallback: ({goalPeriodResultsRefs = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [
+                if (goalPeriodResultsRefs) db.goalPeriodResults,
+              ],
+              addJoins: null,
+              getPrefetchedDataCallback: (items) async {
+                return [
+                  if (goalPeriodResultsRefs)
+                    await $_getPrefetchedData<
+                      GoalRow,
+                      $GoalsTable,
+                      GoalPeriodResultRow
+                    >(
+                      currentTable: table,
+                      referencedTable: $$GoalsTableReferences
+                          ._goalPeriodResultsRefsTable(db),
+                      managerFromTypedResult: (p0) => $$GoalsTableReferences(
+                        db,
+                        table,
+                        p0,
+                      ).goalPeriodResultsRefs,
+                      referencedItemsForCurrentItem: (item, referencedItems) =>
+                          referencedItems.where((e) => e.goalId == item.id),
+                      typedResults: items,
+                    ),
+                ];
+              },
+            );
+          },
+        ),
+      );
+}
+
+typedef $$GoalsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $GoalsTable,
+      GoalRow,
+      $$GoalsTableFilterComposer,
+      $$GoalsTableOrderingComposer,
+      $$GoalsTableAnnotationComposer,
+      $$GoalsTableCreateCompanionBuilder,
+      $$GoalsTableUpdateCompanionBuilder,
+      (GoalRow, $$GoalsTableReferences),
+      GoalRow,
+      PrefetchHooks Function({bool goalPeriodResultsRefs})
+    >;
+typedef $$GoalPeriodResultsTableCreateCompanionBuilder =
+    GoalPeriodResultsCompanion Function({
+      required String id,
+      required int createdAt,
+      required int updatedAt,
+      Value<int?> deletedAt,
+      required String goalId,
+      required DateKey periodStart,
+      required DateKey periodEnd,
+      Value<int?> currentMinor,
+      Value<double?> currentQuantity,
+      Value<int?> sourceWatermark,
+      Value<int?> lastAlertedPercent,
+      Value<int> rowid,
+    });
+typedef $$GoalPeriodResultsTableUpdateCompanionBuilder =
+    GoalPeriodResultsCompanion Function({
+      Value<String> id,
+      Value<int> createdAt,
+      Value<int> updatedAt,
+      Value<int?> deletedAt,
+      Value<String> goalId,
+      Value<DateKey> periodStart,
+      Value<DateKey> periodEnd,
+      Value<int?> currentMinor,
+      Value<double?> currentQuantity,
+      Value<int?> sourceWatermark,
+      Value<int?> lastAlertedPercent,
+      Value<int> rowid,
+    });
+
+final class $$GoalPeriodResultsTableReferences
+    extends
+        BaseReferences<
+          _$AppDatabase,
+          $GoalPeriodResultsTable,
+          GoalPeriodResultRow
+        > {
+  $$GoalPeriodResultsTableReferences(
+    super.$_db,
+    super.$_table,
+    super.$_typedResult,
+  );
+
+  static $GoalsTable _goalIdTable(_$AppDatabase db) =>
+      db.goals.createAlias('goal_period_results__goal_id__goals__id');
+
+  $$GoalsTableProcessedTableManager get goalId {
+    final $_column = $_itemColumn<String>('goal_id')!;
+
+    final manager = $$GoalsTableTableManager(
+      $_db,
+      $_db.goals,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_goalIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+}
+
+class $$GoalPeriodResultsTableFilterComposer
+    extends Composer<_$AppDatabase, $GoalPeriodResultsTable> {
+  $$GoalPeriodResultsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get deletedAt => $composableBuilder(
+    column: $table.deletedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnWithTypeConverterFilters<DateKey, DateKey, int> get periodStart =>
+      $composableBuilder(
+        column: $table.periodStart,
+        builder: (column) => ColumnWithTypeConverterFilters(column),
+      );
+
+  ColumnWithTypeConverterFilters<DateKey, DateKey, int> get periodEnd =>
+      $composableBuilder(
+        column: $table.periodEnd,
+        builder: (column) => ColumnWithTypeConverterFilters(column),
+      );
+
+  ColumnFilters<int> get currentMinor => $composableBuilder(
+    column: $table.currentMinor,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get currentQuantity => $composableBuilder(
+    column: $table.currentQuantity,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get sourceWatermark => $composableBuilder(
+    column: $table.sourceWatermark,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get lastAlertedPercent => $composableBuilder(
+    column: $table.lastAlertedPercent,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  $$GoalsTableFilterComposer get goalId {
+    final $$GoalsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.goalId,
+      referencedTable: $db.goals,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$GoalsTableFilterComposer(
+            $db: $db,
+            $table: $db.goals,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$GoalPeriodResultsTableOrderingComposer
+    extends Composer<_$AppDatabase, $GoalPeriodResultsTable> {
+  $$GoalPeriodResultsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get deletedAt => $composableBuilder(
+    column: $table.deletedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get periodStart => $composableBuilder(
+    column: $table.periodStart,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get periodEnd => $composableBuilder(
+    column: $table.periodEnd,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get currentMinor => $composableBuilder(
+    column: $table.currentMinor,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get currentQuantity => $composableBuilder(
+    column: $table.currentQuantity,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get sourceWatermark => $composableBuilder(
+    column: $table.sourceWatermark,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get lastAlertedPercent => $composableBuilder(
+    column: $table.lastAlertedPercent,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  $$GoalsTableOrderingComposer get goalId {
+    final $$GoalsTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.goalId,
+      referencedTable: $db.goals,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$GoalsTableOrderingComposer(
+            $db: $db,
+            $table: $db.goals,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$GoalPeriodResultsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $GoalPeriodResultsTable> {
+  $$GoalPeriodResultsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<int> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<int> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+
+  GeneratedColumn<int> get deletedAt =>
+      $composableBuilder(column: $table.deletedAt, builder: (column) => column);
+
+  GeneratedColumnWithTypeConverter<DateKey, int> get periodStart =>
+      $composableBuilder(
+        column: $table.periodStart,
+        builder: (column) => column,
+      );
+
+  GeneratedColumnWithTypeConverter<DateKey, int> get periodEnd =>
+      $composableBuilder(column: $table.periodEnd, builder: (column) => column);
+
+  GeneratedColumn<int> get currentMinor => $composableBuilder(
+    column: $table.currentMinor,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<double> get currentQuantity => $composableBuilder(
+    column: $table.currentQuantity,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get sourceWatermark => $composableBuilder(
+    column: $table.sourceWatermark,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get lastAlertedPercent => $composableBuilder(
+    column: $table.lastAlertedPercent,
+    builder: (column) => column,
+  );
+
+  $$GoalsTableAnnotationComposer get goalId {
+    final $$GoalsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.goalId,
+      referencedTable: $db.goals,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$GoalsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.goals,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$GoalPeriodResultsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $GoalPeriodResultsTable,
+          GoalPeriodResultRow,
+          $$GoalPeriodResultsTableFilterComposer,
+          $$GoalPeriodResultsTableOrderingComposer,
+          $$GoalPeriodResultsTableAnnotationComposer,
+          $$GoalPeriodResultsTableCreateCompanionBuilder,
+          $$GoalPeriodResultsTableUpdateCompanionBuilder,
+          (GoalPeriodResultRow, $$GoalPeriodResultsTableReferences),
+          GoalPeriodResultRow,
+          PrefetchHooks Function({bool goalId})
+        > {
+  $$GoalPeriodResultsTableTableManager(
+    _$AppDatabase db,
+    $GoalPeriodResultsTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$GoalPeriodResultsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$GoalPeriodResultsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$GoalPeriodResultsTableAnnotationComposer(
+                $db: db,
+                $table: table,
+              ),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<int> createdAt = const Value.absent(),
+                Value<int> updatedAt = const Value.absent(),
+                Value<int?> deletedAt = const Value.absent(),
+                Value<String> goalId = const Value.absent(),
+                Value<DateKey> periodStart = const Value.absent(),
+                Value<DateKey> periodEnd = const Value.absent(),
+                Value<int?> currentMinor = const Value.absent(),
+                Value<double?> currentQuantity = const Value.absent(),
+                Value<int?> sourceWatermark = const Value.absent(),
+                Value<int?> lastAlertedPercent = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => GoalPeriodResultsCompanion(
+                id: id,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+                deletedAt: deletedAt,
+                goalId: goalId,
+                periodStart: periodStart,
+                periodEnd: periodEnd,
+                currentMinor: currentMinor,
+                currentQuantity: currentQuantity,
+                sourceWatermark: sourceWatermark,
+                lastAlertedPercent: lastAlertedPercent,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required int createdAt,
+                required int updatedAt,
+                Value<int?> deletedAt = const Value.absent(),
+                required String goalId,
+                required DateKey periodStart,
+                required DateKey periodEnd,
+                Value<int?> currentMinor = const Value.absent(),
+                Value<double?> currentQuantity = const Value.absent(),
+                Value<int?> sourceWatermark = const Value.absent(),
+                Value<int?> lastAlertedPercent = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => GoalPeriodResultsCompanion.insert(
+                id: id,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+                deletedAt: deletedAt,
+                goalId: goalId,
+                periodStart: periodStart,
+                periodEnd: periodEnd,
+                currentMinor: currentMinor,
+                currentQuantity: currentQuantity,
+                sourceWatermark: sourceWatermark,
+                lastAlertedPercent: lastAlertedPercent,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable(table),
+                  $$GoalPeriodResultsTableReferences(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: ({goalId = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [],
+              addJoins:
+                  <
+                    T extends TableManagerState<
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic
+                    >
+                  >(state) {
+                    if (goalId) {
+                      state = state.withJoin(
+                        currentTable: table,
+                        currentColumn: table.goalId,
+                        referencedTable: $$GoalPeriodResultsTableReferences
+                            ._goalIdTable(db),
+                        referencedColumn: $$GoalPeriodResultsTableReferences
+                            ._goalIdTable(db)
+                            .id,
+                      ) as T;
+                    }
+
+                    return state;
+                  },
+              getPrefetchedDataCallback: (items) async {
+                return [];
+              },
+            );
+          },
+        ),
+      );
+}
+
+typedef $$GoalPeriodResultsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $GoalPeriodResultsTable,
+      GoalPeriodResultRow,
+      $$GoalPeriodResultsTableFilterComposer,
+      $$GoalPeriodResultsTableOrderingComposer,
+      $$GoalPeriodResultsTableAnnotationComposer,
+      $$GoalPeriodResultsTableCreateCompanionBuilder,
+      $$GoalPeriodResultsTableUpdateCompanionBuilder,
+      (GoalPeriodResultRow, $$GoalPeriodResultsTableReferences),
+      GoalPeriodResultRow,
+      PrefetchHooks Function({bool goalId})
+    >;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -9918,4 +12614,8 @@ class $AppDatabaseManager {
       $$TrackersTableTableManager(_db, _db.trackers);
   $$TrackerEntriesTableTableManager get trackerEntries =>
       $$TrackerEntriesTableTableManager(_db, _db.trackerEntries);
+  $$GoalsTableTableManager get goals =>
+      $$GoalsTableTableManager(_db, _db.goals);
+  $$GoalPeriodResultsTableTableManager get goalPeriodResults =>
+      $$GoalPeriodResultsTableTableManager(_db, _db.goalPeriodResults);
 }

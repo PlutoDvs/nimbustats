@@ -11,6 +11,7 @@ import 'schema_v21.dart' as v21;
 import 'schema_v30.dart' as v30;
 import 'schema_v31.dart' as v31;
 import 'schema_v32.dart' as v32;
+import 'schema_v40.dart' as v40;
 
 class GeneratedHelper implements SchemaInstantiationHelper {
   @override
@@ -28,10 +29,12 @@ class GeneratedHelper implements SchemaInstantiationHelper {
         return v31.DatabaseAtV31(db);
       case 32:
         return v32.DatabaseAtV32(db);
+      case 40:
+        return v40.DatabaseAtV40(db);
       default:
         throw MissingSchemaException(version, versions);
     }
   }
 
-  static const versions = const [1, 20, 21, 30, 31, 32];
+  static const versions = const [1, 20, 21, 30, 31, 32, 40];
 }

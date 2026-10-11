@@ -10,12 +10,22 @@ void main() {
   setUp(() => db = openTestDatabase());
   tearDown(() => db.close());
 
-  test('opens at schema version 32', () async {
-    // Phase 3 took v20 and v21, Phase 4 v30 to v32. Ranges are reserved per
-    // phase, so this number jumps rather than increments; see the registry in
-    // CONVENTIONS.md.
-    expect(db.schemaVersion, 32);
+  test('opens at schema version 40', () async {
+    // Phase 3 took v20 and v21, Phase 4 v30 to v32, Phase 5 v40. Ranges are
+    // reserved per phase, so this number jumps rather than increments; see
+    // the registry in CONVENTIONS.md.
+    expect(db.schemaVersion, 40);
     await db.customSelect('SELECT 1').get();
+  });
+
+  test('a fresh install keeps one cache row per goal period', () async {
+    final rows = await db
+        .customSelect("SELECT sql FROM sqlite_master WHERE type = 'index' "
+            "AND name = 'idx_goal_period_results_period'")
+        .get();
+    final sql = rows.single.read<String>('sql');
+    expect(sql, startsWith('CREATE UNIQUE INDEX'));
+    expect(sql, contains('(goal_id, period_start)'));
   });
 
   test("a fresh install has no 4a day index", () async {
