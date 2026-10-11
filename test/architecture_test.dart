@@ -119,4 +119,41 @@ void main() {
         reason: 'aggregation belongs in AnalyticsEngine:\n'
             '${offenders.join('\n')}');
   });
+
+  test('goal code below the app never names a goal kind', () {
+    // Phase 5's grep criterion, kept as a test. A kind is the editor's word
+    // for a metric and direction pair and lives only in the app
+    // (goal_kind.dart). The engine and storage branch on metric and
+    // direction, so a kind named here would be a second, kind-shaped code
+    // path. Comment lines are skipped: they may name what they avoid.
+    final kind =
+        RegExp(r'GoalKind|spendingCap|habitLimit|habitGoal|savingsTarget');
+    final domain = Directory('packages/nimbus_domain/lib/src/goals');
+    // nimbus_data's goals directory arrives with Phase 5's data tasks; until
+    // then it has nothing to check. The domain's must exist, or this test
+    // would pass by checking nothing.
+    final data = Directory('packages/nimbus_data/lib/src/goals');
+    expect(domain.existsSync(), isTrue,
+        reason: '${domain.path} moved; point this test at it');
+
+    final offenders = <String>[];
+    for (final dir in [domain, data].where((d) => d.existsSync())) {
+      final files = dir
+          .listSync(recursive: true)
+          .whereType<File>()
+          .where((f) => f.path.endsWith('.dart') && !f.path.endsWith('.g.dart'));
+      for (final file in files) {
+        for (final (index, line) in file.readAsLinesSync().indexed) {
+          final code = line.trim();
+          if (code.startsWith('//')) continue;
+          if (kind.hasMatch(code)) {
+            offenders.add('${file.path}:${index + 1}: $code');
+          }
+        }
+      }
+    }
+    expect(offenders, isEmpty,
+        reason: 'a goal kind is the app editor\'s idea:\n'
+            '${offenders.join('\n')}');
+  });
 }
