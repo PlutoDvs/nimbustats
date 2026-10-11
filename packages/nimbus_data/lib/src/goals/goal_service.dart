@@ -57,9 +57,6 @@ final class GoalService {
     // rows stamped with the older watermark, so the next load recomputes
     // them. Read after, it would stamp old values as current for ever.
     final watermark = await _watermark(goal);
-    // The goal row's stamp, read before measuring, so history can tell an
-    // edit that landed mid-measure (controller ruling D-C4).
-    final stamp = await _goals.stampOf(goal.id);
     final values = <DateRange, GoalAmount>{
       for (final row in await _results.forGoal(goal.id))
         if (row.watermark == watermark && row.value != null)
@@ -71,13 +68,16 @@ final class GoalService {
     ];
     if (stale.isNotEmpty) {
       final measured = await _measured(goal, stale);
-      // One transaction: the per-period inserts commit together, and the
-      // write is skipped when the goal was edited or deleted since [stamp].
-      // Edits do not move the watermark, so values of the old definition
-      // would otherwise be served to the edit. The measured values are still
-      // right for the [goal] the caller passed.
+      // Controller ruling D-C4. One transaction: the per-period inserts
+      // commit together, and the write happens only if the stored goal still
+      // equals the [goal] measured. Edits do not move the watermark, so
+      // values of another definition (an edit that landed mid-measure, or a
+      // stale caller) would otherwise be served to the stored goal. Comparing
+      // content, not a row stamp, closes every ordering. The measured values
+      // are still right for the [goal] the caller passed.
       await _db.transaction(() async {
-        if (stamp == null || await _goals.stampOf(goal.id) != stamp) return;
+        final stored = await _goals.byId(goal.id);
+        if (stored is! GoalReadable || stored.goal != goal) return;
         await _results.writeValues(
           goal.id,
           [

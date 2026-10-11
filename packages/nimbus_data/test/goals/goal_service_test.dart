@@ -311,6 +311,46 @@ void main() {
       expect(after.outcomes.first.value, const MoneyAmount(Money(7000)),
           reason: 'the edit must not be served the previous definition cache');
     });
+
+    Goal edit(Goal g) => g.copyWith(
+        scope: MoneyScope(const QueryFilters(
+            direction: MoneyDirection.expense,
+            categorySubtreePaths: ['/rent/'])));
+    const sinceOct = RecurringPeriod(PeriodType.month, DateKey(20251001));
+
+    Future<void> seedRacing(Goal old) async {
+      await f.expense(1000, const DateKey(20251010));
+      await f.expense(7000, const DateKey(20251010), category: 'rent');
+      await service.save(old);
+    }
+
+    test('a save queued behind the first history query does not leak the old '
+        'definition into the edit', () async {
+      final old = moneyGoal(period: sinceOct);
+      final edited = edit(old);
+      await seedRacing(old);
+
+      final raced = service.history(old);
+      await service.save(edited);
+      await raced;
+      final after = await service.history(edited);
+
+      expect(after.outcomes.first.value, const MoneyAmount(Money(7000)));
+    });
+
+    test('a stale caller cannot cache an old definition over the edit',
+        () async {
+      final old = moneyGoal(period: sinceOct);
+      final edited = edit(old);
+      await seedRacing(old);
+
+      await service.save(edited);
+      final stale = await service.history(old);
+      final after = await service.history(edited);
+
+      expect(stale.outcomes.first.value, const MoneyAmount(Money(1000)));
+      expect(after.outcomes.first.value, const MoneyAmount(Money(7000)));
+    });
   });
 
   group('preview', () {
