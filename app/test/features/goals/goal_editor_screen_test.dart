@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -468,6 +470,95 @@ void main() {
     ))!;
     final scope = (await savedGoal(tester)).scope as MoneyScope;
     expect(scope.filters.tags, TagsAny([fresh.path]));
+  });
+
+  testWidgets('a tag already in the filter stays when the reads omit it', (
+    tester,
+  ) async {
+    // Archived tags are not offered by the fresh read, and the tag map is
+    // stale here, so only the filter's own stored path can keep it.
+    final repo = TagRepository(db.tagsDao);
+    final old = (await tester.runAsync(() => repo.findOrCreate('Old')))!;
+    await tester.runAsync(() => repo.archive(old.id));
+    await tester.runAsync(
+      () => service.save(
+        Goal(
+          id: 'cap',
+          name: 'Dining out',
+          metric: GoalMetric.moneySum,
+          scope: MoneyScope(
+            QueryFilters(
+              direction: MoneyDirection.expense,
+              categorySubtreePaths: const [diningPath],
+              tags: TagsAny([old.path]),
+            ),
+          ),
+          direction: GoalDirection.atMost,
+          target: const MoneyAmount(Money(1000000)),
+          period: const RecurringPeriod(PeriodType.month, day5),
+          calendar: CalendarKind.jalali,
+          weekStart: DateTime.saturday,
+        ),
+      ),
+    );
+    await pumpGoals(
+      tester,
+      db,
+      fake,
+      location: editGoalRoute('cap'),
+      overrides: [
+        tagNodesByIdProvider.overrideWithValue(
+          const AsyncData(<String, TagNode>{}),
+        ),
+      ],
+    );
+
+    await tester.tap(find.byKey(const Key('goal-tags')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('tag-picker-done')));
+    await tester.runAsync(
+      () => Future<void>.delayed(const Duration(milliseconds: 200)),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('goal-save')));
+    await tester.pumpAndSettle();
+
+    final scope = (await savedGoal(tester)).scope as MoneyScope;
+    expect(scope.filters.tags, TagsAny([old.path]));
+  });
+
+  testWidgets('a failed save says so, keeps the form and the error reaches '
+      'the zone', (tester) async {
+    await openNew(tester);
+    await choose(tester, GoalKind.spendingCap);
+    await tester.enterText(find.byKey(const Key('tx-amount-field')), '500000');
+    await tester.enterText(find.byKey(const Key('goal-name')), 'Eat less');
+    await tester.pump();
+    await db.customStatement(
+      'CREATE TEMP TRIGGER fail_goal BEFORE INSERT ON goals '
+      "BEGIN SELECT RAISE(ABORT, 'disk I/O error'); END",
+    );
+
+    // The rethrow comes from a detached future the tap never awaits, which
+    // is how it reaches the framework's handler in the app.
+    Object? caught;
+    await runZonedGuarded(() async {
+      await tester.tap(find.byKey(const Key('goal-save')));
+      await tester.pumpAndSettle();
+    }, (error, stack) => caught = error);
+
+    expect(caught, isNotNull);
+    expect(find.text('Could not save the goal'), findsOneWidget);
+    expect(find.byKey(const Key('goal-editor')), findsOneWidget);
+    expect(nameText(tester), 'Eat less');
+    expect(
+      tester
+          .widget<TextField>(find.byKey(const Key('tx-amount-field')))
+          .controller!
+          .text,
+      isNotEmpty,
+    );
+    expect(save(tester), isNotNull);
   });
 
   testWidgets('editing a goal opens its own form, and saving keeps the goal', (

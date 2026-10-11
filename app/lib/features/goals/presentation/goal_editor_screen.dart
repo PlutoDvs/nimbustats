@@ -491,16 +491,21 @@ class _GoalFormState extends ConsumerState<_GoalForm> {
   }
 
   Future<void> _pickTags() async {
-    final current = {
+    // The filter's own paths, by tag id: the last answer for a tag the other
+    // two reads no longer return, such as an archived one.
+    final stored = {
       for (final path
           in ref.read(_provider).tags?.subtreePaths ?? const <String>[])
-        _leafOf(path),
+        _leafOf(path): path,
     };
-    final picked = await showTagPickerSheet(context, selected: current);
+    final picked = await showTagPickerSheet(
+      context,
+      selected: stored.keys.toSet(),
+    );
     if (picked == null || !mounted) return;
     // The tag tree stream may not have caught up with a tag the sheet just
     // created, so ask the repository for the live tags now. The tree map
-    // still answers for an archived tag the goal already names.
+    // answers for an archived tag, and the stored path for one neither knows.
     final fresh = {
       for (final tag
           in await ref.read(tagRepositoryProvider).suggestions(limit: null))
@@ -510,7 +515,10 @@ class _GoalFormState extends ConsumerState<_GoalForm> {
     final nodes = ref.read(tagNodesByIdProvider).value ?? const {};
     final paths = [
       for (final id in picked)
-        if (fresh[id] ?? nodes[id]?.value.path case final path?) path,
+        fresh[id] ??
+            nodes[id]?.value.path ??
+            stored[id] ??
+            (throw StateError('Picked tag $id has no path')),
     ];
     _controller.setTags(paths.isEmpty ? null : TagsAny(paths));
   }
