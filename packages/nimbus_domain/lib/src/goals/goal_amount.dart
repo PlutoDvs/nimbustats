@@ -33,7 +33,19 @@ sealed class GoalAmount implements Comparable<GoalAmount> {
   /// exactly, `minor * 100 >= target.minor * percent`, so 7 999 of 10 000 is
   /// not 80%. A zero target is reached by anything above zero.
   bool reaches(GoalAmount target, int percent);
+
+  /// Whether this amount is over [target]. Uses the same tolerance as
+  /// [reaches], so a value that reaches 100% is never also over it. A zero
+  /// target is exceeded by anything above zero.
+  bool exceeds(GoalAmount target);
 }
+
+/// Tracker values are typed decimals summed in binary (0.29 * 100 is 28.999...,
+/// 0.7 + 0.1 + 0.2 is 0.9999999999999999). A relative tolerance far below any
+/// loggable difference keeps an exact threshold a crossing without admitting a
+/// value that is really short of it. The one definition, shared by [reaches]
+/// and [exceeds].
+const _relativeTolerance = 1e-9;
 
 /// A money target or value, in exact minor units.
 final class MoneyAmount extends GoalAmount {
@@ -74,6 +86,9 @@ final class MoneyAmount extends GoalAmount {
     if (of == 0) return money.minorUnits > 0;
     return money.minorUnits * 100 >= of * percent;
   }
+
+  @override
+  bool exceeds(GoalAmount target) => compareTo(target) > 0;
 
   @override
   bool operator ==(Object other) =>
@@ -123,12 +138,14 @@ final class QuantityAmount extends GoalAmount {
   bool reaches(GoalAmount target, int percent) {
     final of = _valueOf(target);
     if (of == 0) return value > 0;
-    // Tracker values are typed decimals, and 0.29 * 100 is 28.999... in
-    // binary: 0.29 of a 1-litre goal would never reach 29%. A relative
-    // tolerance far below any loggable difference keeps an exact threshold
-    // a crossing without admitting a value that is really short of it.
     final needed = of * percent;
-    return value * 100 >= needed - needed.abs() * 1e-9;
+    return value * 100 >= needed - needed.abs() * _relativeTolerance;
+  }
+
+  @override
+  bool exceeds(GoalAmount target) {
+    final of = _valueOf(target);
+    return value > of + of.abs() * _relativeTolerance;
   }
 
   @override
