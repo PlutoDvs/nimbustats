@@ -873,6 +873,15 @@ watermark; `setTags` alone adds nothing. Plan Decision 5 rests on a one-time gre
 **Needed.** An app-level test that a tag edit made through `TransactionRepository`
 stamps `transactions.updated_at`.
 
+**Also owed: the code fix.** `TransactionRepository.update` stamps the row, then
+rewrites its tag links, as separate awaited statements with no transaction around
+them. A history load that reads the watermark after the stamp but measures before
+the links caches the old tag membership under the new watermark, and nothing moves
+the watermark again until the next money write, so a tag-scoped goal stays wrong
+until then. The fix is to write the row and its links in one drift transaction
+(or write the links before the row), pinned by an atomicity test: a failing link
+write must roll back the row stamp.
+
 **Blocks:** nothing today. A save path that wrote tags without rewriting the row
 would leave a goal's cached history stale after a tag edit.
 
