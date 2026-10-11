@@ -170,4 +170,19 @@ void main() {
     expect(all[0], isA<GoalUnreadable>());
     expect(all[1], isA<GoalReadable>().having((r) => r.goal, 'goal', goals[1]));
   });
+
+  test('all reads live rows once; a malformed row is unreadable', () async {
+    await dao.upsert(goals[0]);
+    await dao.upsert(goals[1]);
+    await dao.upsert(goals[2]);
+    await dao.softDelete('g3');
+    await db.customStatement(
+        "UPDATE goals SET metric = 'moneyMax' WHERE id = 'g1'");
+
+    final all = await dao.all();
+
+    expect(all, hasLength(2), reason: 'the deleted goal is not live');
+    expect(all[0], isA<GoalUnreadable>().having((r) => r.id, 'id', 'g1'));
+    expect(all[1], isA<GoalReadable>().having((r) => r.goal, 'goal', goals[1]));
+  });
 }

@@ -267,6 +267,9 @@ void main() {
           reason: '$id is evaluated');
       expect(find.byKey(const Key('goal-detail-pace')), findsNothing,
           reason: '$id has no open period today');
+      expect(find.text('History'), findsNothing,
+          reason: '$id is one period, so it has no history');
+      expect(find.byKey(const Key('goal-history-empty')), findsNothing);
       await unmount(tester);
     }
   });

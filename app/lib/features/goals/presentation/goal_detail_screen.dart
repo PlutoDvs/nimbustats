@@ -202,15 +202,20 @@ class _Detail extends ConsumerWidget {
                     key: Key('goal-detail-status'), status: null),
               // A fixed range has one period, so no streak.
               if (goal.period is RecurringPeriod) _Streak(goal: goal),
-              const SizedBox(height: NimbusTokens.space4),
-              Text(l10n.goalsHistoryTitle, style: theme.textTheme.titleMedium),
+              // Nor history: its one period is the current one.
+              if (goal.period is RecurringPeriod) ...[
+                const SizedBox(height: NimbusTokens.space4),
+                Text(l10n.goalsHistoryTitle,
+                    style: theme.textTheme.titleMedium),
+              ],
             ]),
           ),
-          SliverPadding(
-            padding:
-                const EdgeInsets.symmetric(horizontal: NimbusTokens.space4),
-            sliver: GoalHistoryList(goal: goal, tracker: tracker),
-          ),
+          if (goal.period is RecurringPeriod)
+            SliverPadding(
+              padding:
+                  const EdgeInsets.symmetric(horizontal: NimbusTokens.space4),
+              sliver: GoalHistoryList(goal: goal, tracker: tracker),
+            ),
         ],
       ),
     );

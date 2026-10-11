@@ -98,8 +98,13 @@ final class GoalService {
     return GoalHistoryResult(outcomes, GoalStreaks.of(outcomes));
   }
 
+  /// Every live goal as stored now, one read.
+  Future<List<GoalRead>> goals() => _goals.all();
+
   /// Evaluates the current period and records a crossing. Returns null,
-  /// writing nothing, for a paused goal or a period that is not open.
+  /// writing nothing, for a paused goal, a period that is not open, or a
+  /// [goal] that is no longer what is stored (an edit, pause or delete
+  /// landed since the caller read it).
   Future<GoalAlert?> check(Goal goal) async {
     if (!goal.active) return null;
     final today = engine.today();
@@ -107,7 +112,17 @@ final class GoalService {
     // Only an open period alerts. A fixed range not yet begun, or already
     // over, is as closed as last month is (spec §4.1).
     if (!period.contains(today)) return null;
-    return _results.recordCrossing(goal, await engine.evaluate(goal, period));
+    final progress = await engine.evaluate(goal, period);
+    // A recurring goal whose `since` is after today has not begun.
+    if (progress.status == GoalStatus.notStarted) return null;
+    // Same content guard as [history]. Inside the crossing's own
+    // transaction (a savepoint), so no edit can land between the check and
+    // the write; an old definition must not write over the new baseline.
+    return _db.transaction(() async {
+      final stored = await _goals.byId(goal.id);
+      if (stored is! GoalReadable || stored.goal != goal) return null;
+      return _results.recordCrossing(goal, progress);
+    });
   }
 
   /// Upsert, drop the cache, evaluate, baseline: one transaction (§4.3).

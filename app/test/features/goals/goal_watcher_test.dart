@@ -196,6 +196,24 @@ void main() {
     expect(alerts.single.period, const DateRange(day6, day6));
   });
 
+  test('after a second read, a new day is still evaluated', () async {
+    await service.save(spendingCap(
+        id: 'daily',
+        name: 'Coffee',
+        target: 100000,
+        period: PeriodType.day,
+        alerts: const [100]));
+    await spend(db, 120000, day6);
+    await start();
+    container().read(goalWatcherProvider);
+    await settle();
+    expect(alerts, isEmpty);
+
+    fake.advance(const Duration(days: 1));
+    container().read(goalTodayProvider.notifier).refresh();
+    await until(() => alerts.length == 1, "the new day's evaluation");
+  });
+
   test('a paused goal never alerts', () async {
     await service.save(spendingCap());
     await service.setActive(spendingCap(), false);
@@ -217,6 +235,27 @@ void main() {
     await until(() => alerts.length == 1, 'the limit reached');
     expect(alerts.single.goalId, 'smoke');
     expect(alerts.single.direction, GoalDirection.atMost);
+  });
+
+  test('a second read of the watcher still evaluates the live goals',
+      () async {
+    // A remount or a Phase 6 subscriber reads the provider again; Riverpod
+    // then deactivates the watcher's own listens, which paused the goals
+    // stream behind them. The Goals tab is never built here.
+    await service.save(spendingCap(id: 'old', name: 'Old'));
+    await service.save(spendingCap(id: 'paused', name: 'Paused'));
+    await start();
+    container().read(goalWatcherProvider);
+    await settle();
+
+    await service.save(spendingCap(id: 'fresh', name: 'Fresh'));
+    await service.setActive(spendingCap(id: 'paused', name: 'Paused'), false);
+    await spend(db, 850000, day5);
+    await until(() => alerts.any((a) => a.goalId == 'fresh'),
+        'the new goal to alert');
+    await settle();
+    expect({for (final a in alerts) a.goalId}, {'old', 'fresh'},
+        reason: 'the paused goal must not alert');
   });
 
   test('stop drops a pending evaluation; start picks the crossing up',

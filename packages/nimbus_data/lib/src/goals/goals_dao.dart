@@ -65,6 +65,15 @@ final class GoalsDao {
       .watch()
       .map((rows) => rows.map(_parse).toList());
 
+  /// [watchAll]'s list, read once. For callers that need the goals as they
+  /// are now, not a stream that may be paused.
+  Future<List<GoalRead>> all() async => (await (_db.select(_db.goals)
+            ..where((t) => t.deletedAt.isNull())
+            ..orderBy([(t) => OrderingTerm.asc(t.id)]))
+          .get())
+      .map(_parse)
+      .toList();
+
   /// One live goal, or null when there is none.
   Future<GoalRead?> byId(String id) async {
     final row = await (_db.select(_db.goals)

@@ -141,15 +141,30 @@ final class GoalWatcher {
     final trackers = _trackersDue;
     _moneyDue = false;
     _trackersDue = false;
+    final service = _ref.read(goalServiceProvider);
+    // A one-shot read, not goalsProvider: when this provider is read again
+    // Riverpod deactivates the watcher's listens, and the paused stream
+    // behind goalsProvider then serves a stale list off the Goals tab.
+    final List<GoalRead> reads;
+    try {
+      reads = await service.goals();
+    } on Object catch (error, stack) {
+      FlutterError.reportError(FlutterErrorDetails(
+        exception: error,
+        stack: stack,
+        library: 'goal watcher',
+        context: ErrorDescription('while reading the goals'),
+      ));
+      return;
+    }
     final goals = [
-      for (final read in _ref.read(goalsProvider).value ?? const <GoalRead>[])
+      for (final read in reads)
         if (read case GoalReadable(:final goal)
             when goal.active &&
                 (goal.scope is TrackerScope ? trackers : money))
           goal,
     ];
     if (goals.isEmpty) return;
-    final service = _ref.read(goalServiceProvider);
     // Issued together. drift runs them on its one connection, so there is
     // no parallelism to cap (spec §3, Concurrency).
     final results =

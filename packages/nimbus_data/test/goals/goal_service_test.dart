@@ -201,6 +201,30 @@ void main() {
       expect(await f.db.goalPeriodResultsDao.forGoal(goal.id), isEmpty);
     });
 
+    test('a goal edited since the caller read it is not checked', () async {
+      today = const DateKey(20260115);
+      await f.expense(9000, const DateKey(20260110));
+      await service.save(goal);
+      final edited = goal.copyWith(target: const MoneyAmount(Money(20000)));
+      await service.save(edited);
+
+      expect(await service.check(goal), isNull,
+          reason: 'the old target would alert at 80');
+      expect((await rowFor(edited, january))!.lastAlerted, isNull,
+          reason: "the edited goal's baseline is untouched");
+    });
+
+    test('a recurring goal that starts after today does not alert', () async {
+      today = const DateKey(20260115);
+      final later = goal.copyWith(
+          period: const RecurringPeriod(PeriodType.month, DateKey(20260301)));
+      await service.save(later);
+      await f.expense(9500, const DateKey(20260110));
+
+      expect(await service.check(later), isNull);
+      expect((await rowFor(later, january))?.lastAlerted, isNull);
+    });
+
     test('resuming re-baselines', () async {
       today = const DateKey(20260115);
       await service.save(goal);
