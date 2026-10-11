@@ -13,6 +13,7 @@ import '../../application/goal_format.dart';
 import '../../application/goal_kind.dart';
 import '../../application/goal_providers.dart';
 import '../../routes.dart';
+import 'goal_inline_states.dart';
 import 'goal_write.dart';
 
 /// One goal on the Goals tab (spec §5.1).
@@ -189,14 +190,9 @@ class _CardSkeleton extends StatelessWidget {
         goal: goal,
         label: goal.name,
         children: [
-          Container(
-            key: Key('goal-skeleton-${goal.id}'),
-            height: NimbusTokens.space4,
-            decoration: BoxDecoration(
-              color: NimbusSemanticColors.of(context).skeleton,
-              borderRadius: NimbusTokens.borderRadiusSm,
-            ),
-          ),
+          GoalInlineSkeleton(
+              key: Key('goal-skeleton-${goal.id}'),
+              height: NimbusTokens.space4),
         ],
       );
 }
@@ -217,7 +213,7 @@ class _CardError extends StatelessWidget {
       name: goal.name,
       icon: Icons.error_outline,
       message: l10n.goalsCardErrorTitle,
-      actions: [TextButton(onPressed: onRetry, child: Text(l10n.commonRetry))],
+      actions: [GoalRetryButton(onRetry: onRetry)],
     );
   }
 }

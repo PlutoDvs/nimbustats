@@ -15,6 +15,7 @@ import '../application/goal_providers.dart';
 import '../routes.dart';
 import 'widgets/goal_card.dart';
 import 'widgets/goal_history_list.dart';
+import 'widgets/goal_inline_states.dart';
 import 'widgets/goal_write.dart';
 
 /// One goal: where this period stands and at what pace, its streak, and
@@ -230,26 +231,14 @@ class _Current extends ConsumerWidget {
     final theme = Theme.of(context);
     final progress = ref.watch(goalProgressProvider(goal));
     if (progress.hasError) {
-      return Row(
+      return GoalInlineError(
         key: const Key('goal-detail-progress-error'),
-        children: [
-          Expanded(child: Text(l10n.goalsCardErrorTitle)),
-          TextButton(
-            onPressed: () => ref.invalidate(goalProgressProvider(goal)),
-            child: Text(l10n.commonRetry),
-          ),
-        ],
+        message: l10n.goalsCardErrorTitle,
+        onRetry: () => ref.invalidate(goalProgressProvider(goal)),
       );
     }
     if (!progress.hasValue) {
-      return Container(
-        key: const Key('goal-detail-progress-loading'),
-        height: NimbusTokens.minTapTarget,
-        decoration: BoxDecoration(
-          color: NimbusSemanticColors.of(context).skeleton,
-          borderRadius: NimbusTokens.borderRadiusSm,
-        ),
-      );
+      return const GoalInlineSkeleton(key: Key('goal-detail-progress-loading'));
     }
     final value = progress.requireValue;
     final format = ref.watch(goalFormatProvider);

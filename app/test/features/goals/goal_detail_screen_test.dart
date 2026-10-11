@@ -51,6 +51,12 @@ void main() {
   String textOf(WidgetTester tester, String key) =>
       tester.widget<Text>(find.byKey(Key(key))).data!;
 
+  /// Lets the app's providers dispose, so a test can open a second screen.
+  Future<void> unmount(WidgetTester tester) async {
+    await tester.pumpWidget(const SizedBox());
+    await tester.pumpAndSettle();
+  }
+
   Finder historyRow(int start, String text) => find.descendant(
       of: find.byKey(Key('goal-history-$start')), matching: find.text(text));
 
@@ -243,5 +249,74 @@ void main() {
     expect(data.label, 'Dining out');
     expect(data.value, '30%');
     handle.dispose();
+  });
+
+  testWidgets(
+      'a fixed range not yet begun, or already over, has no pace to speak of',
+      (tester) async {
+    await service.save(savingsTarget(
+        id: 'later',
+        range: const DateRange(DateKey(20261101), DateKey(20270331))));
+    await service.save(savingsTarget(
+        id: 'over',
+        range: const DateRange(DateKey(20260601), DateKey(20260930))));
+
+    for (final id in ['later', 'over']) {
+      await pumpGoals(tester, db, fake, location: goalDetailRoute(id));
+      expect(find.byKey(const Key('goal-detail-amounts')), findsOneWidget,
+          reason: '$id is evaluated');
+      expect(find.byKey(const Key('goal-detail-pace')), findsNothing,
+          reason: '$id has no open period today');
+      await unmount(tester);
+    }
+  });
+
+  testWidgets(
+      'an unreadable goal, and one whose tracker is deleted, show the problem '
+      'card with Delete', (tester) async {
+    await insertUnreadableGoal(db);
+    final trackers = repositoryFor(db, fake);
+    final w = await trackers.create(water);
+    await service.save(habitGoal(w,
+        id: 'water',
+        metric: GoalMetric.trackerSum,
+        direction: GoalDirection.atLeast,
+        target: 2));
+    await db.customStatement(
+        'UPDATE trackers SET deleted_at = 1 WHERE id = ?', [w.id]);
+
+    for (final id in ['bad', 'water']) {
+      await pumpGoals(tester, db, fake, location: goalDetailRoute(id));
+      expect(find.byKey(Key('goal-problem-$id')), findsOneWidget);
+      expect(find.byKey(Key('goal-delete-$id')), findsOneWidget);
+      await unmount(tester);
+    }
+  });
+
+  testWidgets('a failed progress load says so, and Retry runs it again',
+      (tester) async {
+    await useEnglishDigits(db);
+    await seedHistory();
+    var calls = 0;
+
+    await openDetail(tester, overrides: [
+      goalProgressProvider(cap).overrideWith((ref) async {
+        if (++calls == 1) throw Exception('boom');
+        return ref.read(goalServiceProvider).engine.evaluateCurrent(cap);
+      }),
+    ]);
+
+    expect(find.byKey(const Key('goal-detail-progress-error')), findsOneWidget);
+    expect(find.text('Could not work out this goal'), findsOneWidget);
+    expect(find.text('Exception: boom'), findsNothing);
+
+    await tester.tap(find.descendant(
+        of: find.byKey(const Key('goal-detail-progress-error')),
+        matching: find.text('Retry')));
+    await tester.pumpAndSettle();
+
+    expect(calls, 2);
+    expect(find.byKey(const Key('goal-detail-progress-error')), findsNothing);
+    expect(textOf(tester, 'goal-detail-amounts'), '300,000 of 1,000,000');
   });
 }

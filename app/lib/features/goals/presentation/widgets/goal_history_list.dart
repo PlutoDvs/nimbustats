@@ -5,6 +5,7 @@ import 'package:nimbus_domain/nimbus_domain.dart';
 
 import '../../../../l10n/app_localizations.dart';
 import '../../application/goal_providers.dart';
+import 'goal_inline_states.dart';
 import 'goal_preview.dart';
 
 /// A goal's closed periods, newest first: met, exceeded or missed, each named
@@ -24,28 +25,16 @@ class GoalHistoryList extends ConsumerWidget {
     final history = ref.watch(goalHistoryProvider(goal));
     if (history.hasError) {
       return SliverToBoxAdapter(
-        child: Row(
+        child: GoalInlineError(
           key: const Key('goal-history-error'),
-          children: [
-            Expanded(child: Text(l10n.goalsHistoryErrorTitle)),
-            TextButton(
-              onPressed: () => ref.invalidate(goalHistoryProvider(goal)),
-              child: Text(l10n.commonRetry),
-            ),
-          ],
+          message: l10n.goalsHistoryErrorTitle,
+          onRetry: () => ref.invalidate(goalHistoryProvider(goal)),
         ),
       );
     }
     if (!history.hasValue) {
       return SliverToBoxAdapter(
-        child: Container(
-          key: const Key('goal-history-loading'),
-          height: NimbusTokens.minTapTarget,
-          decoration: BoxDecoration(
-            color: NimbusSemanticColors.of(context).skeleton,
-            borderRadius: NimbusTokens.borderRadiusSm,
-          ),
-        ),
+        child: GoalInlineSkeleton(key: Key('goal-history-loading')),
       );
     }
     final outcomes = history.requireValue.outcomes;
