@@ -10,6 +10,7 @@ import 'first_run.dart';
 
 import '../features/analytics/routes.dart';
 import '../features/categories/routes.dart';
+import '../features/goals/routes.dart';
 import '../features/onboarding/routes.dart';
 import '../features/payment_methods/routes.dart';
 import '../features/settings/routes.dart';
@@ -73,6 +74,7 @@ final appRouterProvider =
         routes: <RouteBase>[
           ...transactionShellRoutes,
           ...trackerShellRoutes,
+          ...goalShellRoutes,
           ...analyticsShellRoutes,
           ...settingsShellRoutes,
         ],
@@ -86,6 +88,7 @@ final appRouterProvider =
       ...onboardingRoutes,
       ...analyticsRoutes,
       ...trackerRoutes,
+      ...goalRoutes,
     ],
     errorBuilder: (context, state) => const RouteNotFoundScreen(),
   );

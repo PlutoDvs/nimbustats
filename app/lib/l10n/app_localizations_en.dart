@@ -213,7 +213,94 @@ class AppLocalizationsEn extends AppLocalizations {
       'Tags overlap, so cells add up to more than the total.';
 
   @override
+  String get goalsCardErrorTitle => 'Could not work out this goal';
+
+  @override
+  String goalsCardPausedSemantics(String name) {
+    return '$name, paused';
+  }
+
+  @override
+  String goalsCardSemantics(String name, String progress, String status) {
+    return '$name, $progress, $status';
+  }
+
+  @override
+  String get goalsDeleted => 'Goal deleted';
+
+  @override
+  String get goalsEdit => 'Edit';
+
+  @override
+  String get goalsEmptyBody =>
+      'A goal watches one number for you: a monthly spending cap, a daily habit limit, a weekly habit goal or a savings target. It warns you while there is still time to act.';
+
+  @override
+  String get goalsEmptyTitle => 'No goals yet';
+
+  @override
+  String get goalsErrorTitle => 'Could not load your goals';
+
+  @override
+  String get goalsNew => 'New goal';
+
+  @override
+  String get goalsPausedSection => 'Paused';
+
+  @override
+  String goalsProgressOf(String current, String target) {
+    return '$current of $target';
+  }
+
+  @override
+  String goalsSavingsRunRate(int count, String perMonth, String months) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$perMonth/month for $months more months',
+      one: '$perMonth/month for $months more month',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get goalsScreenTitle => 'Goals';
+
+  @override
+  String get goalsStatusAtRisk => 'At risk';
+
+  @override
+  String get goalsStatusExceeded => 'Over the limit';
+
+  @override
+  String get goalsStatusMet => 'Met';
+
+  @override
+  String get goalsStatusMissed => 'Missed';
+
+  @override
+  String get goalsStatusNotStarted => 'Not started';
+
+  @override
+  String get goalsStatusOnTrack => 'On track';
+
+  @override
+  String get goalsStatusPaused => 'Paused';
+
+  @override
+  String get goalsTrackerMissingTitle => 'This goal\'s tracker was deleted';
+
+  @override
+  String get goalsUnreadableTitle => 'This goal could not be read';
+
+  @override
+  String get goalsWriteFailed => 'Could not save the goal';
+
+  @override
   String get navAnalytics => 'Analytics';
+
+  @override
+  String get navGoals => 'Goals';
 
   @override
   String get navHome => 'Home';

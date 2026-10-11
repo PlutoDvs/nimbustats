@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../features/analytics/routes.dart';
+import '../features/goals/routes.dart';
 import '../features/settings/routes.dart';
 import '../features/trackers/routes.dart';
 import '../features/transactions/routes.dart';
@@ -9,7 +10,7 @@ import '../l10n/app_localizations.dart';
 
 /// The persistent bottom navigation around the app's top-level destinations.
 ///
-/// Only these four live inside the shell. Full-screen tasks -- adding an
+/// Only these five live inside the shell. Full-screen tasks -- adding an
 /// expense, editing a category -- are pushed over it, because a nav bar under
 /// a half-finished draft offers an exit that silently discards it.
 ///
@@ -26,6 +27,7 @@ class AppShell extends StatelessWidget {
   static const destinations = <String>[
     transactionListRoute,
     trackersRoute,
+    goalsRoute,
     analyticsRoute,
     settingsRoute,
   ];
@@ -78,6 +80,11 @@ class AppShell extends StatelessWidget {
             icon: const Icon(Icons.checklist_outlined),
             selectedIcon: const Icon(Icons.checklist),
             label: l10n.navTrackers,
+          ),
+          NavigationDestination(
+            icon: const Icon(Icons.flag_outlined),
+            selectedIcon: const Icon(Icons.flag),
+            label: l10n.navGoals,
           ),
           NavigationDestination(
             icon: const Icon(Icons.insights_outlined),

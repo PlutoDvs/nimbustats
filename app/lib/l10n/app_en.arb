@@ -80,7 +80,74 @@
   "dashboardErrorTitle": "Could not load the dashboard",
   "dashboardGoToBreakdown": "Go to Breakdown",
   "dashboardOverlapNote": "Tags overlap, so cells add up to more than the total.",
+  "goalsCardErrorTitle": "Could not work out this goal",
+  "goalsCardPausedSemantics": "{name}, paused",
+  "@goalsCardPausedSemantics": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "goalsCardSemantics": "{name}, {progress}, {status}",
+  "@goalsCardSemantics": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "progress": {
+        "type": "String"
+      },
+      "status": {
+        "type": "String"
+      }
+    }
+  },
+  "goalsDeleted": "Goal deleted",
+  "goalsEdit": "Edit",
+  "goalsEmptyBody": "A goal watches one number for you: a monthly spending cap, a daily habit limit, a weekly habit goal or a savings target. It warns you while there is still time to act.",
+  "goalsEmptyTitle": "No goals yet",
+  "goalsErrorTitle": "Could not load your goals",
+  "goalsNew": "New goal",
+  "goalsPausedSection": "Paused",
+  "goalsProgressOf": "{current} of {target}",
+  "@goalsProgressOf": {
+    "placeholders": {
+      "current": {
+        "type": "String"
+      },
+      "target": {
+        "type": "String"
+      }
+    }
+  },
+  "goalsSavingsRunRate": "{count, plural, =1{{perMonth}/month for {months} more month} other{{perMonth}/month for {months} more months}}",
+  "@goalsSavingsRunRate": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "perMonth": {
+        "type": "String"
+      },
+      "months": {
+        "type": "String"
+      }
+    }
+  },
+  "goalsScreenTitle": "Goals",
+  "goalsStatusAtRisk": "At risk",
+  "goalsStatusExceeded": "Over the limit",
+  "goalsStatusMet": "Met",
+  "goalsStatusMissed": "Missed",
+  "goalsStatusNotStarted": "Not started",
+  "goalsStatusOnTrack": "On track",
+  "goalsStatusPaused": "Paused",
+  "goalsTrackerMissingTitle": "This goal's tracker was deleted",
+  "goalsUnreadableTitle": "This goal could not be read",
+  "goalsWriteFailed": "Could not save the goal",
   "navAnalytics": "Analytics",
+  "navGoals": "Goals",
   "navHome": "Home",
   "navSettings": "Settings",
   "navTrackers": "Trackers",

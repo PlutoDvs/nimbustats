@@ -212,7 +212,93 @@ class AppLocalizationsFa extends AppLocalizations {
       'برچسب‌ها هم‌پوشانی دارند؛ جمع خانه‌ها از کل بیشتر است.';
 
   @override
+  String get goalsCardErrorTitle => 'وضعیت این هدف محاسبه نشد';
+
+  @override
+  String goalsCardPausedSemantics(String name) {
+    return '$name، متوقف';
+  }
+
+  @override
+  String goalsCardSemantics(String name, String progress, String status) {
+    return '$name، $progress، $status';
+  }
+
+  @override
+  String get goalsDeleted => 'هدف حذف شد';
+
+  @override
+  String get goalsEdit => 'ویرایش';
+
+  @override
+  String get goalsEmptyBody =>
+      'هدف یک عدد را برایتان زیر نظر می‌گیرد: سقف خرج ماهانه، حد روزانهٔ یک عادت، هدف هفتگی یک عادت یا هدف پس‌انداز. و تا وقتی هنوز فرصت هست، خبرتان می‌کند.';
+
+  @override
+  String get goalsEmptyTitle => 'هنوز هدفی ندارید';
+
+  @override
+  String get goalsErrorTitle => 'اهداف بارگیری نشد';
+
+  @override
+  String get goalsNew => 'هدف تازه';
+
+  @override
+  String get goalsPausedSection => 'متوقف‌شده‌ها';
+
+  @override
+  String goalsProgressOf(String current, String target) {
+    return '$current از $target';
+  }
+
+  @override
+  String goalsSavingsRunRate(int count, String perMonth, String months) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'ماهی $perMonth برای $months ماه دیگر',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get goalsScreenTitle => 'اهداف';
+
+  @override
+  String get goalsStatusAtRisk => 'در خطر';
+
+  @override
+  String get goalsStatusExceeded => 'از حد گذشته';
+
+  @override
+  String get goalsStatusMet => 'محقق شد';
+
+  @override
+  String get goalsStatusMissed => 'نرسید';
+
+  @override
+  String get goalsStatusNotStarted => 'شروع نشده';
+
+  @override
+  String get goalsStatusOnTrack => 'در مسیر';
+
+  @override
+  String get goalsStatusPaused => 'متوقف';
+
+  @override
+  String get goalsTrackerMissingTitle => 'عادتِ این هدف حذف شده است';
+
+  @override
+  String get goalsUnreadableTitle => 'این هدف خوانده نشد';
+
+  @override
+  String get goalsWriteFailed => 'هدف ذخیره نشد';
+
+  @override
   String get navAnalytics => 'تحلیل‌ها';
+
+  @override
+  String get navGoals => 'اهداف';
 
   @override
   String get navHome => 'خانه';

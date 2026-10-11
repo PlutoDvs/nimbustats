@@ -440,11 +440,155 @@ abstract class AppLocalizations {
   /// **'Tags overlap, so cells add up to more than the total.'**
   String get dashboardOverlapNote;
 
+  /// No description provided for @goalsCardErrorTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not work out this goal'**
+  String get goalsCardErrorTitle;
+
+  /// No description provided for @goalsCardPausedSemantics.
+  ///
+  /// In en, this message translates to:
+  /// **'{name}, paused'**
+  String goalsCardPausedSemantics(String name);
+
+  /// No description provided for @goalsCardSemantics.
+  ///
+  /// In en, this message translates to:
+  /// **'{name}, {progress}, {status}'**
+  String goalsCardSemantics(String name, String progress, String status);
+
+  /// No description provided for @goalsDeleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Goal deleted'**
+  String get goalsDeleted;
+
+  /// No description provided for @goalsEdit.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit'**
+  String get goalsEdit;
+
+  /// No description provided for @goalsEmptyBody.
+  ///
+  /// In en, this message translates to:
+  /// **'A goal watches one number for you: a monthly spending cap, a daily habit limit, a weekly habit goal or a savings target. It warns you while there is still time to act.'**
+  String get goalsEmptyBody;
+
+  /// No description provided for @goalsEmptyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No goals yet'**
+  String get goalsEmptyTitle;
+
+  /// No description provided for @goalsErrorTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load your goals'**
+  String get goalsErrorTitle;
+
+  /// No description provided for @goalsNew.
+  ///
+  /// In en, this message translates to:
+  /// **'New goal'**
+  String get goalsNew;
+
+  /// No description provided for @goalsPausedSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Paused'**
+  String get goalsPausedSection;
+
+  /// No description provided for @goalsProgressOf.
+  ///
+  /// In en, this message translates to:
+  /// **'{current} of {target}'**
+  String goalsProgressOf(String current, String target);
+
+  /// No description provided for @goalsSavingsRunRate.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{{perMonth}/month for {months} more month} other{{perMonth}/month for {months} more months}}'**
+  String goalsSavingsRunRate(int count, String perMonth, String months);
+
+  /// No description provided for @goalsScreenTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Goals'**
+  String get goalsScreenTitle;
+
+  /// No description provided for @goalsStatusAtRisk.
+  ///
+  /// In en, this message translates to:
+  /// **'At risk'**
+  String get goalsStatusAtRisk;
+
+  /// No description provided for @goalsStatusExceeded.
+  ///
+  /// In en, this message translates to:
+  /// **'Over the limit'**
+  String get goalsStatusExceeded;
+
+  /// No description provided for @goalsStatusMet.
+  ///
+  /// In en, this message translates to:
+  /// **'Met'**
+  String get goalsStatusMet;
+
+  /// No description provided for @goalsStatusMissed.
+  ///
+  /// In en, this message translates to:
+  /// **'Missed'**
+  String get goalsStatusMissed;
+
+  /// No description provided for @goalsStatusNotStarted.
+  ///
+  /// In en, this message translates to:
+  /// **'Not started'**
+  String get goalsStatusNotStarted;
+
+  /// No description provided for @goalsStatusOnTrack.
+  ///
+  /// In en, this message translates to:
+  /// **'On track'**
+  String get goalsStatusOnTrack;
+
+  /// No description provided for @goalsStatusPaused.
+  ///
+  /// In en, this message translates to:
+  /// **'Paused'**
+  String get goalsStatusPaused;
+
+  /// No description provided for @goalsTrackerMissingTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'This goal\'s tracker was deleted'**
+  String get goalsTrackerMissingTitle;
+
+  /// No description provided for @goalsUnreadableTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'This goal could not be read'**
+  String get goalsUnreadableTitle;
+
+  /// No description provided for @goalsWriteFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not save the goal'**
+  String get goalsWriteFailed;
+
   /// No description provided for @navAnalytics.
   ///
   /// In en, this message translates to:
   /// **'Analytics'**
   String get navAnalytics;
+
+  /// No description provided for @navGoals.
+  ///
+  /// In en, this message translates to:
+  /// **'Goals'**
+  String get navGoals;
 
   /// No description provided for @navHome.
   ///

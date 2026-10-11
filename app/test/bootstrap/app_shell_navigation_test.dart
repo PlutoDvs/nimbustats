@@ -21,13 +21,14 @@ Finder navItem(String label) => find.descendant(
     );
 
 void main() {
-  testWidgets('the shell offers home, trackers, analytics and settings',
+  testWidgets('the shell offers home, trackers, goals, analytics and settings',
       (tester) async {
     await pumpApp(tester);
 
     expect(find.byKey(const Key('nav-bar')), findsOneWidget);
     expect(navItem('Home'), findsOneWidget);
     expect(navItem('Trackers'), findsOneWidget);
+    expect(navItem('Goals'), findsOneWidget);
     expect(navItem('Analytics'), findsOneWidget);
     expect(navItem('Settings'), findsOneWidget);
   });
@@ -80,13 +81,17 @@ void main() {
     await tester.pumpAndSettle();
     expect(bar().selectedIndex, 1);
 
-    await tester.tap(navItem('Analytics'));
+    await tester.tap(navItem('Goals'));
     await tester.pumpAndSettle();
     expect(bar().selectedIndex, 2);
 
-    await tester.tap(navItem('Settings'));
+    await tester.tap(navItem('Analytics'));
     await tester.pumpAndSettle();
     expect(bar().selectedIndex, 3);
+
+    await tester.tap(navItem('Settings'));
+    await tester.pumpAndSettle();
+    expect(bar().selectedIndex, 4);
   });
 
   testWidgets('going back to home reselects home', (tester) async {
@@ -154,5 +159,15 @@ void main() {
       await pumpApp(tester, initialLocation: route);
       expect(fab, findsNothing, reason: route);
     }
+  });
+
+  testWidgets('tapping goals shows the goals tab', (tester) async {
+    await pumpApp(tester);
+
+    await tester.tap(navItem('Goals'));
+    await tester.pumpAndSettle();
+
+    // An empty database: the tab says what a goal is.
+    expect(find.byKey(const Key('goals-empty')), findsOneWidget);
   });
 }

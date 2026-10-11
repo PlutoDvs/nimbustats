@@ -1,7 +1,15 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/misc.dart';
+import 'package:flutter_test/flutter_test.dart';
 import 'package:nimbus_data/nimbus_data.dart';
 import 'package:nimbus_domain/nimbus_domain.dart';
+import 'package:nimbustats/features/goals/routes.dart';
 import 'package:nimbustats/features/transactions/data/transaction_draft.dart';
 import 'package:nimbustats/features/transactions/data/transaction_repository.dart';
+
+import '../../../support/harness.dart';
+import '../../trackers/support/tracker_fixture.dart';
 
 /// What every goals test stands on:
 /// - categories to scope by;
@@ -130,4 +138,36 @@ Goal savingsTarget({
       period: FixedRangePeriod(range),
       calendar: CalendarKind.gregorian,
       weekStart: DateTime.saturday,
+    );
+
+/// Pumps the real app at [location], standing on [fake]'s today.
+Future<AppDatabase> pumpGoals(
+  WidgetTester tester,
+  AppDatabase db,
+  FakeClock fake, {
+  String location = goalsRoute,
+  Locale locale = const Locale('en'),
+  List<Override> overrides = const [],
+  void Function(ProviderContainer container)? onContainer,
+}) =>
+    pumpApp(tester,
+        database: db,
+        initialLocation: location,
+        locale: locale,
+        overrides: [...trackerOverrides(fake), ...overrides],
+        onContainer: onContainer);
+
+/// A goals row whose scope is not JSON, which the list must show as
+/// unreadable, with a delete, rather than crash on it or default it (spec
+/// §1). The column names are spec §1's, created in Task 1: check them with
+/// `PRAGMA table_info(goals)` if this insert fails.
+Future<void> insertUnreadableGoal(AppDatabase db,
+        {String id = 'bad', String name = 'Broken'}) =>
+    db.customStatement(
+      'INSERT INTO goals (id, created_at, updated_at, name, metric, '
+      'scope_json, direction, target_minor, target_quantity, period, '
+      'calendar, week_start, start_date, end_date, alert_percents, active) '
+      "VALUES (?, 0, 0, ?, 'moneySum', '{not json', 'atMost', 1000, NULL, "
+      "'month', 'jalali', 6, 20260101, NULL, '[80,100]', 1)",
+      [id, name],
     );
