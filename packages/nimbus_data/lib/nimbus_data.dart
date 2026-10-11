@@ -12,6 +12,7 @@ export 'src/analytics/saved_view.dart';
 export 'src/database/app_database.dart';
 export 'src/database/columns.dart';
 export 'src/database/converters.dart';
+export 'src/goals/engine_goal_measurer.dart';
 export 'src/seed/category_seeder.dart';
 export 'src/seed/ids.dart';
 export 'src/seed/seed_category.dart';
