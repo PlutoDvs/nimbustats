@@ -38,6 +38,16 @@ sealed class GoalAmount implements Comparable<GoalAmount> {
   /// [reaches], so a value that reaches 100% is never also over it. A zero
   /// target is exceeded by anything above zero.
   bool exceeds(GoalAmount target);
+
+  /// This amount x [numerator] / [denominator]. Money stays integer, rounded
+  /// half away from zero. Throws [ArgumentError] unless [denominator] is
+  /// positive.
+  GoalAmount scaledBy(int numerator, int denominator);
+
+  /// This amount split into [parts] equal shares. Money rounds up (the
+  /// ceiling): it is a minimum to set aside, and rounding down would leave the
+  /// target short. Throws [ArgumentError] unless [parts] is positive.
+  GoalAmount dividedUp(int parts);
 }
 
 /// Tracker values are typed decimals summed in binary (0.29 * 100 is 28.999...,
@@ -89,6 +99,27 @@ final class MoneyAmount extends GoalAmount {
 
   @override
   bool exceeds(GoalAmount target) => compareTo(target) > 0;
+
+  @override
+  MoneyAmount scaledBy(int numerator, int denominator) {
+    _checkPositive(denominator, 'denominator');
+    final scaled = money.minorUnits * numerator;
+    final quotient = scaled ~/ denominator; // truncates toward zero
+    final remainder = scaled.remainder(denominator); // takes scaled's sign
+    return MoneyAmount(Money(remainder.abs() * 2 >= denominator
+        ? quotient + scaled.sign
+        : quotient));
+  }
+
+  @override
+  MoneyAmount dividedUp(int parts) {
+    _checkPositive(parts, 'parts');
+    final minor = money.minorUnits;
+    // ~/ truncates toward zero, which is already the ceiling below zero.
+    final quotient = minor ~/ parts;
+    return MoneyAmount(Money(
+        minor > 0 && minor.remainder(parts) != 0 ? quotient + 1 : quotient));
+  }
 
   @override
   bool operator ==(Object other) =>
@@ -149,6 +180,18 @@ final class QuantityAmount extends GoalAmount {
   }
 
   @override
+  QuantityAmount scaledBy(int numerator, int denominator) {
+    _checkPositive(denominator, 'denominator');
+    return QuantityAmount(value * numerator / denominator);
+  }
+
+  @override
+  QuantityAmount dividedUp(int parts) {
+    _checkPositive(parts, 'parts');
+    return QuantityAmount(value / parts);
+  }
+
+  @override
   bool operator ==(Object other) =>
       other is QuantityAmount && other.value == value;
 
@@ -172,3 +215,7 @@ double _valueOf(GoalAmount other) => switch (other) {
     };
 
 double _ratioToZero(bool above) => above ? double.infinity : 0;
+
+void _checkPositive(int value, String name) {
+  if (value <= 0) throw ArgumentError.value(value, name, 'must be positive');
+}

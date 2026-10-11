@@ -163,6 +163,32 @@ void main() {
         expect(rials(1).reaches(rials(0), percent), isTrue);
       }
     });
+
+    test('scaledBy keeps money integer, rounding half away from zero', () {
+      expect(rials(10).scaledBy(1, 4), rials(3)); // 2.5
+      expect(rials(-10).scaledBy(1, 4), rials(-3)); // -2.5
+      expect(rials(10).scaledBy(1, 3), rials(3)); // 3.33...
+      expect(rials(20).scaledBy(1, 3), rials(7)); // 6.66...
+      expect(rials(10000).scaledBy(31, 10), rials(31000));
+      expect(const QuantityAmount(10).scaledBy(1, 4),
+          const QuantityAmount(2.5));
+    });
+
+    test('dividedUp rounds money up: it is a minimum to set aside', () {
+      expect(rials(10).dividedUp(3), rials(4));
+      expect(rials(9).dividedUp(3), rials(3));
+      expect(rials(-10).dividedUp(3), rials(-3)); // the ceiling of -3.33...
+      expect(const QuantityAmount(10).dividedUp(4), const QuantityAmount(2.5));
+    });
+
+    test('scaling or dividing by nothing is refused', () {
+      // A quantity would otherwise turn into infinity without a word.
+      expect(() => rials(10).scaledBy(1, 0), throwsArgumentError);
+      expect(
+          () => const QuantityAmount(1).scaledBy(1, -2), throwsArgumentError);
+      expect(() => rials(10).dividedUp(0), throwsArgumentError);
+      expect(() => const QuantityAmount(1).dividedUp(0), throwsArgumentError);
+    });
   });
 
   group('GoalPeriod', () {

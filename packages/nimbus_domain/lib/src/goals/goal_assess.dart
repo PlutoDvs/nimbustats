@@ -1,7 +1,11 @@
+import '../analytics/period_boundaries.dart';
+import '../calendar/calendar.dart';
 import '../calendar/date_key.dart';
 import 'goal.dart';
 import 'goal_amount.dart';
 import 'goal_direction.dart';
+import 'goal_period.dart';
+import 'goal_periods.dart';
 import 'goal_progress.dart';
 import 'goal_status.dart';
 
@@ -26,10 +30,40 @@ GoalProgress assess(
       warned: _warned(goal, period, current, fraction, today),
     ),
     fractionOfTarget: fraction,
-    // A placeholder until Task 4, which projects the pace to the period's end
-    // and adds the fixed-range required rate. No status reads it.
-    projection: Projection(projectedEnd: current),
+    projection: Projection(
+      projectedEnd: _projectedEnd(position, period, current, today),
+      requiredRate: _requiredRate(goal, position, period, current, today),
+    ),
   );
+}
+
+/// `current / daysElapsedIncludingToday x daysInPeriod` while open. Nothing is
+/// projected before the goal starts, and a closed period ends where it ended.
+GoalAmount _projectedEnd(_Position position, DateRange period,
+        GoalAmount current, DateKey today) =>
+    switch (position) {
+      _Position.notStarted => current.zero,
+      _Position.open => current.scaledBy(
+          period.dayCount, period.startInclusive.daysUntil(today) + 1),
+      _Position.closed => current,
+    };
+
+/// What an open fixed range still needs each month, counting today's month
+/// and the range's last in the goal's own calendar: Esfand to Ordibehesht is
+/// three Jalali months but two Gregorian ones.
+RequiredRate? _requiredRate(Goal goal, _Position position, DateRange period,
+    GoalAmount current, DateKey today) {
+  if (goal.period is! FixedRangePeriod || position != _Position.open) {
+    return null;
+  }
+  final monthsLeft = PeriodBoundaries.series(
+          PeriodType.month,
+          DateRange(today, period.endInclusive),
+          GoalPeriods.calendarFor(goal.calendar))
+      .length;
+  final perMonth = (goal.target - current).dividedUp(monthsLeft);
+  return RequiredRate(
+      perMonth.isNegative ? perMonth.zero : perMonth, monthsLeft);
 }
 
 enum _Position { notStarted, open, closed }

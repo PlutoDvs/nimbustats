@@ -248,4 +248,93 @@ void main() {
           GoalStatus.missed);
     });
   });
+
+  group('projection', () {
+    GoalAmount projectedEnd(
+            Goal goal, DateRange period, GoalAmount current, int today) =>
+        assess(goal, period, current, DateKey(today)).projection.projectedEnd;
+    RequiredRate? requiredRate(
+            Goal goal, DateRange period, GoalAmount current, int today) =>
+        assess(goal, period, current, DateKey(today)).projection.requiredRate;
+
+    test('an open period projects its pace to the end', () {
+      // Ten days of October, today included, at 1 000 a day: 31 000.
+      expect(
+          assess(cap(), october, rials(10000), const DateKey(20261010))
+              .projection,
+          Projection(projectedEnd: rials(31000)));
+    });
+
+    test('a money projection rounds half away from zero', () {
+      // Two days into a seven-day range: 5 x 7 / 2 = 17.5, and -17.5.
+      final thisWeek = savings(week);
+      expect(projectedEnd(thisWeek, week, rials(5), 20261011), rials(18));
+      expect(projectedEnd(thisWeek, week, rials(-5), 20261011), rials(-18));
+    });
+
+    test('a quantity projection is not rounded', () {
+      // 2.5 sessions in two days of a seven-day week.
+      expect(projectedEnd(reading(), week, count(2.5), 20261011), count(8.75));
+    });
+
+    test('not started projects zero; closed projects what happened', () {
+      // The cap starting on the 20th has 9 000 in its month already, but has
+      // not started: nothing is projected from before it began.
+      expect(projectedEnd(cap(since: 20261020), october, rials(9000), 20261015),
+          rials(0));
+      expect(projectedEnd(cap(), october, rials(9000), 20261101), rials(9000));
+    });
+
+    test('a projection past the cap does not change the status', () {
+      // Information only: 5 000 on day one projects to 155 000.
+      final progress =
+          assess(cap(), october, rials(5000), const DateKey(20261001));
+      expect(progress.projection.projectedEnd, rials(155000));
+      expect(progress.status, GoalStatus.onTrack);
+    });
+
+    test('months left count the current one, across New Year', () {
+      // 15 December 2026 to 28 February 2027 touches three Gregorian months.
+      // 1 000 000 / 3 rounds up: a minimum to set aside.
+      final between = range(20261101, 20270228);
+      final laptop = savings(between);
+      expect(requiredRate(laptop, between, rials(0), 20261215),
+          RequiredRate(rials(333334), 3));
+      // On the last day, what is left is due this month.
+      expect(requiredRate(laptop, between, rials(400000), 20270228),
+          RequiredRate(rials(600000), 1));
+    });
+
+    test("months left are counted in the goal's calendar", () {
+      // 1 Dey 1404 (2025-12-22) to 10 Ordibehesht 1405 (2026-04-30), seen on
+      // 25 Esfand 1404 (2026-03-16): Esfand, Farvardin and Ordibehesht are
+      // three Jalali months, but the same days touch only March and April.
+      final between = range(20251222, 20260430);
+      final gregorian = savings(between);
+      final jalali = gregorian.copyWith(calendar: CalendarKind.jalali);
+      expect(requiredRate(jalali, between, rials(100000), 20260316),
+          RequiredRate(rials(300000), 3));
+      expect(requiredRate(gregorian, between, rials(100000), 20260316),
+          RequiredRate(rials(450000), 2));
+    });
+
+    test('the required rate is zero once the target is passed', () {
+      final between = range(20261101, 20270228);
+      final progress = assess(
+          savings(between), between, rials(1200000), const DateKey(20261215));
+      expect(progress.status, GoalStatus.met);
+      expect(progress.projection.requiredRate, RequiredRate(rials(0), 3));
+    });
+
+    test('only an open fixed range has a required rate', () {
+      final between = range(20261101, 20270228);
+      final laptop = savings(between);
+      expect(requiredRate(laptop, between, rials(0), 20261010), isNull,
+          reason: 'not started');
+      expect(requiredRate(laptop, between, rials(0), 20270301), isNull,
+          reason: 'closed');
+      expect(requiredRate(cap(), october, rials(0), 20261010), isNull,
+          reason: 'recurring');
+    });
+  });
 }
