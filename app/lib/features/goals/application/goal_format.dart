@@ -95,6 +95,31 @@ final class GoalFormat {
         rate.monthsLeft, compact(rate.perMonth), digits(rate.monthsLeft));
   }
 
+  /// What the shell's snackbar says about [alert] (spec §4.2).
+  ///
+  /// Below 100% it gives the percent reached, from the progress itself:
+  /// "82%", not the 80 that fired. At 100% a goal is "met" and a limit is
+  /// "over" only when it is exceeded; spending exactly the limit is within
+  /// it (spec §2), so that reads "reached". [period] is the goal's
+  /// `period.storedName`, which picks "today's", "this week's" and so on; a
+  /// fixed range reads plainly. Every at-most goal says "limit", because an
+  /// alert does not carry a goal's kind (Contract note 11).
+  String alertMessage(AppLocalizations l10n, GoalAlert alert, String period) {
+    final name = alert.goalName;
+    final reached = alert.percent >= 100;
+    final percent = this.percent(alert.progress.fractionOfTarget);
+    return switch (alert.direction) {
+      GoalDirection.atMost => !reached
+          ? l10n.goalsAlertLimitPercent(name, percent, period)
+          : alert.progress.status == GoalStatus.exceeded
+              ? l10n.goalsAlertLimitOver(name, period)
+              : l10n.goalsAlertLimitReached(name, period),
+      GoalDirection.atLeast => reached
+          ? l10n.goalsAlertGoalMet(name, period)
+          : l10n.goalsAlertGoalPercent(name, percent, period),
+    };
+  }
+
   String _quantity(double value, Tracker? tracker) =>
       tracker == null ? _trackers.number(value) : _trackers.total(tracker, value);
 }

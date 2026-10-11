@@ -1,7 +1,9 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:nimbus_domain/nimbus_domain.dart';
 import 'package:nimbustats/features/goals/application/goal_format.dart';
 import 'package:nimbustats/features/trackers/application/tracker_format.dart';
+import 'package:nimbustats/l10n/app_localizations.dart';
 
 import 'support/goal_test_app.dart';
 
@@ -92,5 +94,74 @@ void main() {
         english.period(savingsTarget(),
             const DateRange(DateKey(20261001), DateKey(20270331))),
         '2026/10/01 – 2027/03/31');
+  });
+
+  GoalAlert alert(GoalDirection direction, int percent, double fraction,
+      {String name = 'Dining out', GoalStatus status = GoalStatus.atRisk}) {
+    const day = DateRange(DateKey(20261005), DateKey(20261005));
+    return GoalAlert(
+      goalId: 'g',
+      goalName: name,
+      period: day,
+      percent: percent,
+      direction: direction,
+      progress: GoalProgress(
+        period: day,
+        current: QuantityAmount(fraction * 10),
+        target: const QuantityAmount(10),
+        status: status,
+        fractionOfTarget: fraction,
+        projection: const Projection(projectedEnd: QuantityAmount(0)),
+      ),
+    );
+  }
+
+  test('an alert is worded by its direction and by reaching 100% (spec §4.2)',
+      () async {
+    final en = await AppLocalizations.delegate.load(const Locale('en'));
+    expect(
+        english.alertMessage(en, alert(GoalDirection.atMost, 80, 0.82), 'month'),
+        "Dining out: 82% of this month's limit");
+    expect(
+        english.alertMessage(
+            en,
+            alert(GoalDirection.atMost, 100, 1.05,
+                status: GoalStatus.exceeded),
+            'month'),
+        "Dining out: over this month's limit");
+    expect(
+        english.alertMessage(
+            en, alert(GoalDirection.atLeast, 100, 1.0, name: 'Gym'), 'week'),
+        "Gym: this week's goal met");
+    expect(
+        english.alertMessage(
+            en, alert(GoalDirection.atLeast, 80, 0.8, name: 'Gym'), 'week'),
+        "Gym: 80% of this week's goal");
+    expect(english.alertMessage(en, alert(GoalDirection.atMost, 80, 0.8), 'day'),
+        "Dining out: 80% of today's limit");
+    expect(
+        english.alertMessage(en,
+            alert(GoalDirection.atLeast, 100, 1.2, name: 'Car'), 'fixedRange'),
+        'Car: goal met');
+  });
+
+  test('spending exactly the cap is within it: reached, not over (spec §2)',
+      () async {
+    final en = await AppLocalizations.delegate.load(const Locale('en'));
+    expect(
+        english.alertMessage(
+            en, alert(GoalDirection.atMost, 100, 1.0), 'month'),
+        "Dining out: reached this month's limit");
+  });
+
+  test('an alert in Persian', () async {
+    final fa = await AppLocalizations.delegate.load(const Locale('fa'));
+    expect(
+        persian.alertMessage(fa, alert(GoalDirection.atMost, 80, 0.82), 'month'),
+        'Dining out: ۸۲٪ از سقف این ماه');
+    expect(
+        persian.alertMessage(
+            fa, alert(GoalDirection.atLeast, 100, 1.0, name: 'Gym'), 'week'),
+        'Gym: هدف این هفته محقق شد');
   });
 }

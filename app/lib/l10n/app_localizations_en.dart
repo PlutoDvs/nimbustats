@@ -213,6 +213,74 @@ class AppLocalizationsEn extends AppLocalizations {
       'Tags overlap, so cells add up to more than the total.';
 
   @override
+  String goalsAlertGoalMet(String name, String period) {
+    String _temp0 = intl.Intl.selectLogic(period, {
+      'day': 'today\'s goal met',
+      'week': 'this week\'s goal met',
+      'month': 'this month\'s goal met',
+      'quarter': 'this quarter\'s goal met',
+      'year': 'this year\'s goal met',
+      'other': 'goal met',
+    });
+    return '$name: $_temp0';
+  }
+
+  @override
+  String goalsAlertGoalPercent(String name, String percent, String period) {
+    String _temp0 = intl.Intl.selectLogic(period, {
+      'day': 'today\'s goal',
+      'week': 'this week\'s goal',
+      'month': 'this month\'s goal',
+      'quarter': 'this quarter\'s goal',
+      'year': 'this year\'s goal',
+      'other': 'the goal',
+    });
+    return '$name: $percent of $_temp0';
+  }
+
+  @override
+  String goalsAlertLimitOver(String name, String period) {
+    String _temp0 = intl.Intl.selectLogic(period, {
+      'day': 'today\'s limit',
+      'week': 'this week\'s limit',
+      'month': 'this month\'s limit',
+      'quarter': 'this quarter\'s limit',
+      'year': 'this year\'s limit',
+      'other': 'the limit',
+    });
+    return '$name: over $_temp0';
+  }
+
+  @override
+  String goalsAlertLimitPercent(String name, String percent, String period) {
+    String _temp0 = intl.Intl.selectLogic(period, {
+      'day': 'today\'s limit',
+      'week': 'this week\'s limit',
+      'month': 'this month\'s limit',
+      'quarter': 'this quarter\'s limit',
+      'year': 'this year\'s limit',
+      'other': 'the limit',
+    });
+    return '$name: $percent of $_temp0';
+  }
+
+  @override
+  String goalsAlertLimitReached(String name, String period) {
+    String _temp0 = intl.Intl.selectLogic(period, {
+      'day': 'today\'s limit',
+      'week': 'this week\'s limit',
+      'month': 'this month\'s limit',
+      'quarter': 'this quarter\'s limit',
+      'year': 'this year\'s limit',
+      'other': 'the limit',
+    });
+    return '$name: reached $_temp0';
+  }
+
+  @override
+  String get goalsAlertView => 'View';
+
+  @override
   String get goalsAllExpenses => 'All expenses';
 
   @override

@@ -58,10 +58,17 @@ void main() {
 
   testWidgets('a failed read says so, retries, and hides the raw error',
       (tester) async {
+    // The shell's watcher reports a failed goals stream once (Task 10).
+    final reports = <FlutterErrorDetails>[];
+    final previous = FlutterError.onError;
+    FlutterError.onError = reports.add;
+    addTearDown(() => FlutterError.onError = previous);
+
     await pumpGoals(tester, db, fake, overrides: [
       goalsProvider.overrideWith(
           (ref) => Stream<List<GoalRead>>.error(Exception('boom'))),
     ]);
+    expect(reports, hasLength(1));
 
     expect(find.byKey(const Key('goals-error')), findsOneWidget);
     expect(find.text('Could not load your goals'), findsOneWidget);

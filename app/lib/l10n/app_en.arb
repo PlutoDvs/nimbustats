@@ -80,6 +80,68 @@
   "dashboardErrorTitle": "Could not load the dashboard",
   "dashboardGoToBreakdown": "Go to Breakdown",
   "dashboardOverlapNote": "Tags overlap, so cells add up to more than the total.",
+  "goalsAlertGoalMet": "{name}: {period, select, day{today's goal met} week{this week's goal met} month{this month's goal met} quarter{this quarter's goal met} year{this year's goal met} other{goal met}}",
+  "@goalsAlertGoalMet": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "period": {
+        "type": "String"
+      }
+    }
+  },
+  "goalsAlertGoalPercent": "{name}: {percent} of {period, select, day{today's goal} week{this week's goal} month{this month's goal} quarter{this quarter's goal} year{this year's goal} other{the goal}}",
+  "@goalsAlertGoalPercent": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "percent": {
+        "type": "String"
+      },
+      "period": {
+        "type": "String"
+      }
+    }
+  },
+  "goalsAlertLimitOver": "{name}: over {period, select, day{today's limit} week{this week's limit} month{this month's limit} quarter{this quarter's limit} year{this year's limit} other{the limit}}",
+  "@goalsAlertLimitOver": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "period": {
+        "type": "String"
+      }
+    }
+  },
+  "goalsAlertLimitPercent": "{name}: {percent} of {period, select, day{today's limit} week{this week's limit} month{this month's limit} quarter{this quarter's limit} year{this year's limit} other{the limit}}",
+  "@goalsAlertLimitPercent": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "percent": {
+        "type": "String"
+      },
+      "period": {
+        "type": "String"
+      }
+    }
+  },
+  "goalsAlertLimitReached": "{name}: reached {period, select, day{today's limit} week{this week's limit} month{this month's limit} quarter{this quarter's limit} year{this year's limit} other{the limit}}",
+  "@goalsAlertLimitReached": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "period": {
+        "type": "String"
+      }
+    }
+  },
+  "goalsAlertView": "View",
   "goalsAllExpenses": "All expenses",
   "goalsCardErrorTitle": "Could not work out this goal",
   "goalsCardPausedSemantics": "{name}, paused",

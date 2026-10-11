@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../features/analytics/routes.dart';
+import '../features/goals/presentation/goal_alert_listener.dart';
 import '../features/goals/routes.dart';
 import '../features/settings/routes.dart';
 import '../features/trackers/routes.dart';
@@ -46,7 +47,11 @@ class AppShell extends StatelessWidget {
     final l10n = AppLocalizations.of(context);
     final index = indexOf(GoRouterState.of(context).uri.path);
 
-    return Scaffold(
+    // Goal alerts show over whichever screen is up, queued behind any
+    // snackbar already showing. Mounted here because the shell is mounted
+    // for as long as the app runs (spec §4.2).
+    return GoalAlertListener(
+      child: Scaffold(
       body: child,
       // Home's add button lives on this Scaffold, not on the list's. Snackbars
       // show on the outermost Scaffold, and a Scaffold only lifts its *own*
@@ -98,6 +103,6 @@ class AppShell extends StatelessWidget {
           ),
         ],
       ),
-    );
+    ));
   }
 }

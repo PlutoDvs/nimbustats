@@ -440,6 +440,42 @@ abstract class AppLocalizations {
   /// **'Tags overlap, so cells add up to more than the total.'**
   String get dashboardOverlapNote;
 
+  /// No description provided for @goalsAlertGoalMet.
+  ///
+  /// In en, this message translates to:
+  /// **'{name}: {period, select, day{today\'s goal met} week{this week\'s goal met} month{this month\'s goal met} quarter{this quarter\'s goal met} year{this year\'s goal met} other{goal met}}'**
+  String goalsAlertGoalMet(String name, String period);
+
+  /// No description provided for @goalsAlertGoalPercent.
+  ///
+  /// In en, this message translates to:
+  /// **'{name}: {percent} of {period, select, day{today\'s goal} week{this week\'s goal} month{this month\'s goal} quarter{this quarter\'s goal} year{this year\'s goal} other{the goal}}'**
+  String goalsAlertGoalPercent(String name, String percent, String period);
+
+  /// No description provided for @goalsAlertLimitOver.
+  ///
+  /// In en, this message translates to:
+  /// **'{name}: over {period, select, day{today\'s limit} week{this week\'s limit} month{this month\'s limit} quarter{this quarter\'s limit} year{this year\'s limit} other{the limit}}'**
+  String goalsAlertLimitOver(String name, String period);
+
+  /// No description provided for @goalsAlertLimitPercent.
+  ///
+  /// In en, this message translates to:
+  /// **'{name}: {percent} of {period, select, day{today\'s limit} week{this week\'s limit} month{this month\'s limit} quarter{this quarter\'s limit} year{this year\'s limit} other{the limit}}'**
+  String goalsAlertLimitPercent(String name, String percent, String period);
+
+  /// No description provided for @goalsAlertLimitReached.
+  ///
+  /// In en, this message translates to:
+  /// **'{name}: reached {period, select, day{today\'s limit} week{this week\'s limit} month{this month\'s limit} quarter{this quarter\'s limit} year{this year\'s limit} other{the limit}}'**
+  String goalsAlertLimitReached(String name, String period);
+
+  /// No description provided for @goalsAlertView.
+  ///
+  /// In en, this message translates to:
+  /// **'View'**
+  String get goalsAlertView;
+
   /// No description provided for @goalsAllExpenses.
   ///
   /// In en, this message translates to:

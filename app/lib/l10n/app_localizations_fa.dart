@@ -212,6 +212,74 @@ class AppLocalizationsFa extends AppLocalizations {
       'برچسب‌ها هم‌پوشانی دارند؛ جمع خانه‌ها از کل بیشتر است.';
 
   @override
+  String goalsAlertGoalMet(String name, String period) {
+    String _temp0 = intl.Intl.selectLogic(period, {
+      'day': 'هدف امروز محقق شد',
+      'week': 'هدف این هفته محقق شد',
+      'month': 'هدف این ماه محقق شد',
+      'quarter': 'هدف این فصل محقق شد',
+      'year': 'هدف امسال محقق شد',
+      'other': 'هدف محقق شد',
+    });
+    return '$name: $_temp0';
+  }
+
+  @override
+  String goalsAlertGoalPercent(String name, String percent, String period) {
+    String _temp0 = intl.Intl.selectLogic(period, {
+      'day': 'هدف امروز',
+      'week': 'هدف این هفته',
+      'month': 'هدف این ماه',
+      'quarter': 'هدف این فصل',
+      'year': 'هدف امسال',
+      'other': 'هدف',
+    });
+    return '$name: $percent از $_temp0';
+  }
+
+  @override
+  String goalsAlertLimitOver(String name, String period) {
+    String _temp0 = intl.Intl.selectLogic(period, {
+      'day': 'سقف امروز',
+      'week': 'سقف این هفته',
+      'month': 'سقف این ماه',
+      'quarter': 'سقف این فصل',
+      'year': 'سقف امسال',
+      'other': 'سقف',
+    });
+    return '$name: از $_temp0 گذشت';
+  }
+
+  @override
+  String goalsAlertLimitPercent(String name, String percent, String period) {
+    String _temp0 = intl.Intl.selectLogic(period, {
+      'day': 'سقف امروز',
+      'week': 'سقف این هفته',
+      'month': 'سقف این ماه',
+      'quarter': 'سقف این فصل',
+      'year': 'سقف امسال',
+      'other': 'سقف',
+    });
+    return '$name: $percent از $_temp0';
+  }
+
+  @override
+  String goalsAlertLimitReached(String name, String period) {
+    String _temp0 = intl.Intl.selectLogic(period, {
+      'day': 'سقف امروز',
+      'week': 'سقف این هفته',
+      'month': 'سقف این ماه',
+      'quarter': 'سقف این فصل',
+      'year': 'سقف امسال',
+      'other': 'سقف',
+    });
+    return '$name: به $_temp0 رسید';
+  }
+
+  @override
+  String get goalsAlertView => 'مشاهده';
+
+  @override
   String get goalsAllExpenses => 'همهٔ هزینه‌ها';
 
   @override
