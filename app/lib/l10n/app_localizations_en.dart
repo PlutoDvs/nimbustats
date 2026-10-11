@@ -213,6 +213,9 @@ class AppLocalizationsEn extends AppLocalizations {
       'Tags overlap, so cells add up to more than the total.';
 
   @override
+  String get goalsAllExpenses => 'All expenses';
+
+  @override
   String get goalsCardErrorTitle => 'Could not work out this goal';
 
   @override
@@ -226,10 +229,16 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get goalsChooseTracker => 'Choose a tracker';
+
+  @override
   String get goalsDeleted => 'Goal deleted';
 
   @override
   String get goalsEdit => 'Edit';
+
+  @override
+  String get goalsEditTitle => 'Edit goal';
 
   @override
   String get goalsEmptyBody =>
@@ -239,13 +248,115 @@ class AppLocalizationsEn extends AppLocalizations {
   String get goalsEmptyTitle => 'No goals yet';
 
   @override
+  String get goalsErrorEndBeforeStart => 'The end must not be before the start';
+
+  @override
+  String get goalsErrorName => 'Give the goal a name';
+
+  @override
+  String get goalsErrorTargetInvalid => 'Enter a number';
+
+  @override
+  String get goalsErrorTargetZero => 'The goal must be more than zero';
+
+  @override
   String get goalsErrorTitle => 'Could not load your goals';
+
+  @override
+  String get goalsFieldAlerts => 'Alerts';
+
+  @override
+  String get goalsFieldCategory => 'Category';
+
+  @override
+  String get goalsFieldEnd => 'End';
+
+  @override
+  String get goalsFieldName => 'Name';
+
+  @override
+  String get goalsFieldPeriod => 'Period';
+
+  @override
+  String get goalsFieldStart => 'Start';
+
+  @override
+  String get goalsFieldTags => 'Tags';
+
+  @override
+  String get goalsFieldTarget => 'Target';
+
+  @override
+  String get goalsFieldTracker => 'Tracker';
+
+  @override
+  String get goalsKindHabitGoal => 'Habit goal';
+
+  @override
+  String get goalsKindHabitGoalHint =>
+      'Do something at least so often, such as the gym three times a week';
+
+  @override
+  String get goalsKindHabitLimit => 'Habit limit';
+
+  @override
+  String get goalsKindHabitLimitHint =>
+      'Keep something under a limit, such as five cigarettes a day';
+
+  @override
+  String get goalsKindSavingsTarget => 'Savings target';
+
+  @override
+  String get goalsKindSavingsTargetHint => 'Put an amount aside by a date';
+
+  @override
+  String get goalsKindSpendingCap => 'Spending cap';
+
+  @override
+  String get goalsKindSpendingCapHint =>
+      'Spend at most an amount in a month, on everything or on one category';
 
   @override
   String get goalsNew => 'New goal';
 
   @override
+  String get goalsNotFoundBody =>
+      'It may have been deleted. Your other goals are on the Goals tab.';
+
+  @override
+  String get goalsNotFoundTitle => 'This goal is gone';
+
+  @override
+  String get goalsNoTrackers => 'No trackers yet. Add one on the Trackers tab.';
+
+  @override
   String get goalsPausedSection => 'Paused';
+
+  @override
+  String get goalsPeriodDay => 'Day';
+
+  @override
+  String get goalsPeriodMonth => 'Month';
+
+  @override
+  String get goalsPeriodQuarter => 'Quarter';
+
+  @override
+  String get goalsPeriodWeek => 'Week';
+
+  @override
+  String get goalsPeriodYear => 'Year';
+
+  @override
+  String goalsPreviewCurrent(String progress) {
+    return 'This period: $progress';
+  }
+
+  @override
+  String get goalsPreviewError => 'Could not preview this goal';
+
+  @override
+  String get goalsPreviewTitle => 'What this goal would have said';
 
   @override
   String goalsProgressOf(String current, String target) {
@@ -262,6 +373,9 @@ class AppLocalizationsEn extends AppLocalizations {
     );
     return '$_temp0';
   }
+
+  @override
+  String get goalsScopeGone => 'Deleted';
 
   @override
   String get goalsScreenTitle => 'Goals';
@@ -286,6 +400,18 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get goalsStatusPaused => 'Paused';
+
+  @override
+  String get goalsTagsNone => 'No tag filter';
+
+  @override
+  String get goalsTargetDays => 'Days';
+
+  @override
+  String get goalsTargetMinutes => 'Minutes';
+
+  @override
+  String get goalsTargetTimes => 'Times';
 
   @override
   String get goalsTrackerMissingTitle => 'This goal\'s tracker was deleted';

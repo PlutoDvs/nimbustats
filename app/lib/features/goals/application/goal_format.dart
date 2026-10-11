@@ -48,6 +48,43 @@ final class GoalFormat {
   /// A whole number in the settings' digits, without grouping.
   String digits(int value) => _trackers.digits(value);
 
+  /// [day] as a date in [calendar], as the transaction list writes one:
+  /// `1405/07/13`.
+  String date(CalendarKind calendar, DateKey day) =>
+      _digits(_ymd(GoalPeriods.calendarFor(calendar), day));
+
+  /// [range], one of [goal]'s periods, named in the goal's own calendar, not
+  /// the app's (spec §5.2). Numeric, as Phase 3's period labels are:
+  /// - a day is its date;
+  /// - a month is `1405/07`;
+  /// - a year is `1405`;
+  /// - a week, a quarter and a fixed range are their first and last days.
+  String period(Goal goal, DateRange range) {
+    final calendar = GoalPeriods.calendarFor(goal.calendar);
+    final first = calendar.partsOf(range.startInclusive);
+    final type = switch (goal.period) {
+      RecurringPeriod(:final type) => type,
+      FixedRangePeriod() => null,
+    };
+    return _digits(switch (type) {
+      PeriodType.day => _ymd(calendar, range.startInclusive),
+      PeriodType.month => '${first.year}/${_two(first.month)}',
+      PeriodType.year => '${first.year}',
+      _ => '${_ymd(calendar, range.startInclusive)} – '
+          '${_ymd(calendar, range.endInclusive)}',
+    });
+  }
+
+  String _digits(String latin) =>
+      persianDigits ? Digits.toPersian(latin) : latin;
+
+  static String _ymd(AppCalendar calendar, DateKey day) {
+    final parts = calendar.partsOf(day);
+    return '${parts.year}/${_two(parts.month)}/${_two(parts.day)}';
+  }
+
+  static String _two(int value) => value.toString().padLeft(2, '0');
+
   /// A savings target's "900K/month for 6 more months", or null when there
   /// is no run-rate to state. That is the case when the range is not open, or
   /// nothing more is needed.

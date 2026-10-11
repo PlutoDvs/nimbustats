@@ -1,5 +1,6 @@
 import 'package:go_router/go_router.dart';
 
+import 'presentation/goal_editor_screen.dart';
 import 'presentation/goals_screen.dart';
 
 const goalsRoute = '/goals';
@@ -23,6 +24,18 @@ final goalShellRoutes = <RouteBase>[
 
 /// This feature's full-screen routes, composed by `app_router.dart`. The
 /// editor and the detail screen own the whole screen. A nav bar under a
-/// half-written goal would be an exit that silently discards it. Tasks 12
-/// and 13 add them.
-final goalRoutes = <RouteBase>[];
+/// half-written goal would be an exit that silently discards it. Task 13
+/// adds the detail screen.
+final goalRoutes = <RouteBase>[
+  GoRoute(
+    path: newGoalRoute,
+    name: 'goal-new',
+    builder: (context, state) => const GoalEditorScreen(),
+  ),
+  GoRoute(
+    path: '$goalsRoute/:id/edit',
+    name: 'goal-edit',
+    builder: (context, state) =>
+        GoalEditorScreen(id: state.pathParameters['id']!),
+  ),
+];

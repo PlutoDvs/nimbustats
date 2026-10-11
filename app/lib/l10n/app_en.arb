@@ -80,6 +80,7 @@
   "dashboardErrorTitle": "Could not load the dashboard",
   "dashboardGoToBreakdown": "Go to Breakdown",
   "dashboardOverlapNote": "Tags overlap, so cells add up to more than the total.",
+  "goalsAllExpenses": "All expenses",
   "goalsCardErrorTitle": "Could not work out this goal",
   "goalsCardPausedSemantics": "{name}, paused",
   "@goalsCardPausedSemantics": {
@@ -103,13 +104,54 @@
       }
     }
   },
+  "goalsChooseTracker": "Choose a tracker",
   "goalsDeleted": "Goal deleted",
   "goalsEdit": "Edit",
+  "goalsEditTitle": "Edit goal",
   "goalsEmptyBody": "A goal watches one number for you: a monthly spending cap, a daily habit limit, a weekly habit goal or a savings target. It warns you while there is still time to act.",
   "goalsEmptyTitle": "No goals yet",
+  "goalsErrorEndBeforeStart": "The end must not be before the start",
+  "goalsErrorName": "Give the goal a name",
+  "goalsErrorTargetInvalid": "Enter a number",
+  "goalsErrorTargetZero": "The goal must be more than zero",
   "goalsErrorTitle": "Could not load your goals",
+  "goalsFieldAlerts": "Alerts",
+  "goalsFieldCategory": "Category",
+  "goalsFieldEnd": "End",
+  "goalsFieldName": "Name",
+  "goalsFieldPeriod": "Period",
+  "goalsFieldStart": "Start",
+  "goalsFieldTags": "Tags",
+  "goalsFieldTarget": "Target",
+  "goalsFieldTracker": "Tracker",
+  "goalsKindHabitGoal": "Habit goal",
+  "goalsKindHabitGoalHint": "Do something at least so often, such as the gym three times a week",
+  "goalsKindHabitLimit": "Habit limit",
+  "goalsKindHabitLimitHint": "Keep something under a limit, such as five cigarettes a day",
+  "goalsKindSavingsTarget": "Savings target",
+  "goalsKindSavingsTargetHint": "Put an amount aside by a date",
+  "goalsKindSpendingCap": "Spending cap",
+  "goalsKindSpendingCapHint": "Spend at most an amount in a month, on everything or on one category",
   "goalsNew": "New goal",
+  "goalsNotFoundBody": "It may have been deleted. Your other goals are on the Goals tab.",
+  "goalsNotFoundTitle": "This goal is gone",
+  "goalsNoTrackers": "No trackers yet. Add one on the Trackers tab.",
   "goalsPausedSection": "Paused",
+  "goalsPeriodDay": "Day",
+  "goalsPeriodMonth": "Month",
+  "goalsPeriodQuarter": "Quarter",
+  "goalsPeriodWeek": "Week",
+  "goalsPeriodYear": "Year",
+  "goalsPreviewCurrent": "This period: {progress}",
+  "@goalsPreviewCurrent": {
+    "placeholders": {
+      "progress": {
+        "type": "String"
+      }
+    }
+  },
+  "goalsPreviewError": "Could not preview this goal",
+  "goalsPreviewTitle": "What this goal would have said",
   "goalsProgressOf": "{current} of {target}",
   "@goalsProgressOf": {
     "placeholders": {
@@ -135,6 +177,7 @@
       }
     }
   },
+  "goalsScopeGone": "Deleted",
   "goalsScreenTitle": "Goals",
   "goalsStatusAtRisk": "At risk",
   "goalsStatusExceeded": "Over the limit",
@@ -143,6 +186,10 @@
   "goalsStatusNotStarted": "Not started",
   "goalsStatusOnTrack": "On track",
   "goalsStatusPaused": "Paused",
+  "goalsTagsNone": "No tag filter",
+  "goalsTargetDays": "Days",
+  "goalsTargetMinutes": "Minutes",
+  "goalsTargetTimes": "Times",
   "goalsTrackerMissingTitle": "This goal's tracker was deleted",
   "goalsUnreadableTitle": "This goal could not be read",
   "goalsWriteFailed": "Could not save the goal",

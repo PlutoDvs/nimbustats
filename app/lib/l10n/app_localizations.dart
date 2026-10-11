@@ -440,6 +440,12 @@ abstract class AppLocalizations {
   /// **'Tags overlap, so cells add up to more than the total.'**
   String get dashboardOverlapNote;
 
+  /// No description provided for @goalsAllExpenses.
+  ///
+  /// In en, this message translates to:
+  /// **'All expenses'**
+  String get goalsAllExpenses;
+
   /// No description provided for @goalsCardErrorTitle.
   ///
   /// In en, this message translates to:
@@ -458,6 +464,12 @@ abstract class AppLocalizations {
   /// **'{name}, {progress}, {status}'**
   String goalsCardSemantics(String name, String progress, String status);
 
+  /// No description provided for @goalsChooseTracker.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a tracker'**
+  String get goalsChooseTracker;
+
   /// No description provided for @goalsDeleted.
   ///
   /// In en, this message translates to:
@@ -469,6 +481,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Edit'**
   String get goalsEdit;
+
+  /// No description provided for @goalsEditTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit goal'**
+  String get goalsEditTitle;
 
   /// No description provided for @goalsEmptyBody.
   ///
@@ -482,11 +500,137 @@ abstract class AppLocalizations {
   /// **'No goals yet'**
   String get goalsEmptyTitle;
 
+  /// No description provided for @goalsErrorEndBeforeStart.
+  ///
+  /// In en, this message translates to:
+  /// **'The end must not be before the start'**
+  String get goalsErrorEndBeforeStart;
+
+  /// No description provided for @goalsErrorName.
+  ///
+  /// In en, this message translates to:
+  /// **'Give the goal a name'**
+  String get goalsErrorName;
+
+  /// No description provided for @goalsErrorTargetInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a number'**
+  String get goalsErrorTargetInvalid;
+
+  /// No description provided for @goalsErrorTargetZero.
+  ///
+  /// In en, this message translates to:
+  /// **'The goal must be more than zero'**
+  String get goalsErrorTargetZero;
+
   /// No description provided for @goalsErrorTitle.
   ///
   /// In en, this message translates to:
   /// **'Could not load your goals'**
   String get goalsErrorTitle;
+
+  /// No description provided for @goalsFieldAlerts.
+  ///
+  /// In en, this message translates to:
+  /// **'Alerts'**
+  String get goalsFieldAlerts;
+
+  /// No description provided for @goalsFieldCategory.
+  ///
+  /// In en, this message translates to:
+  /// **'Category'**
+  String get goalsFieldCategory;
+
+  /// No description provided for @goalsFieldEnd.
+  ///
+  /// In en, this message translates to:
+  /// **'End'**
+  String get goalsFieldEnd;
+
+  /// No description provided for @goalsFieldName.
+  ///
+  /// In en, this message translates to:
+  /// **'Name'**
+  String get goalsFieldName;
+
+  /// No description provided for @goalsFieldPeriod.
+  ///
+  /// In en, this message translates to:
+  /// **'Period'**
+  String get goalsFieldPeriod;
+
+  /// No description provided for @goalsFieldStart.
+  ///
+  /// In en, this message translates to:
+  /// **'Start'**
+  String get goalsFieldStart;
+
+  /// No description provided for @goalsFieldTags.
+  ///
+  /// In en, this message translates to:
+  /// **'Tags'**
+  String get goalsFieldTags;
+
+  /// No description provided for @goalsFieldTarget.
+  ///
+  /// In en, this message translates to:
+  /// **'Target'**
+  String get goalsFieldTarget;
+
+  /// No description provided for @goalsFieldTracker.
+  ///
+  /// In en, this message translates to:
+  /// **'Tracker'**
+  String get goalsFieldTracker;
+
+  /// No description provided for @goalsKindHabitGoal.
+  ///
+  /// In en, this message translates to:
+  /// **'Habit goal'**
+  String get goalsKindHabitGoal;
+
+  /// No description provided for @goalsKindHabitGoalHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Do something at least so often, such as the gym three times a week'**
+  String get goalsKindHabitGoalHint;
+
+  /// No description provided for @goalsKindHabitLimit.
+  ///
+  /// In en, this message translates to:
+  /// **'Habit limit'**
+  String get goalsKindHabitLimit;
+
+  /// No description provided for @goalsKindHabitLimitHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep something under a limit, such as five cigarettes a day'**
+  String get goalsKindHabitLimitHint;
+
+  /// No description provided for @goalsKindSavingsTarget.
+  ///
+  /// In en, this message translates to:
+  /// **'Savings target'**
+  String get goalsKindSavingsTarget;
+
+  /// No description provided for @goalsKindSavingsTargetHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Put an amount aside by a date'**
+  String get goalsKindSavingsTargetHint;
+
+  /// No description provided for @goalsKindSpendingCap.
+  ///
+  /// In en, this message translates to:
+  /// **'Spending cap'**
+  String get goalsKindSpendingCap;
+
+  /// No description provided for @goalsKindSpendingCapHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Spend at most an amount in a month, on everything or on one category'**
+  String get goalsKindSpendingCapHint;
 
   /// No description provided for @goalsNew.
   ///
@@ -494,11 +638,77 @@ abstract class AppLocalizations {
   /// **'New goal'**
   String get goalsNew;
 
+  /// No description provided for @goalsNotFoundBody.
+  ///
+  /// In en, this message translates to:
+  /// **'It may have been deleted. Your other goals are on the Goals tab.'**
+  String get goalsNotFoundBody;
+
+  /// No description provided for @goalsNotFoundTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'This goal is gone'**
+  String get goalsNotFoundTitle;
+
+  /// No description provided for @goalsNoTrackers.
+  ///
+  /// In en, this message translates to:
+  /// **'No trackers yet. Add one on the Trackers tab.'**
+  String get goalsNoTrackers;
+
   /// No description provided for @goalsPausedSection.
   ///
   /// In en, this message translates to:
   /// **'Paused'**
   String get goalsPausedSection;
+
+  /// No description provided for @goalsPeriodDay.
+  ///
+  /// In en, this message translates to:
+  /// **'Day'**
+  String get goalsPeriodDay;
+
+  /// No description provided for @goalsPeriodMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'Month'**
+  String get goalsPeriodMonth;
+
+  /// No description provided for @goalsPeriodQuarter.
+  ///
+  /// In en, this message translates to:
+  /// **'Quarter'**
+  String get goalsPeriodQuarter;
+
+  /// No description provided for @goalsPeriodWeek.
+  ///
+  /// In en, this message translates to:
+  /// **'Week'**
+  String get goalsPeriodWeek;
+
+  /// No description provided for @goalsPeriodYear.
+  ///
+  /// In en, this message translates to:
+  /// **'Year'**
+  String get goalsPeriodYear;
+
+  /// No description provided for @goalsPreviewCurrent.
+  ///
+  /// In en, this message translates to:
+  /// **'This period: {progress}'**
+  String goalsPreviewCurrent(String progress);
+
+  /// No description provided for @goalsPreviewError.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not preview this goal'**
+  String get goalsPreviewError;
+
+  /// No description provided for @goalsPreviewTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'What this goal would have said'**
+  String get goalsPreviewTitle;
 
   /// No description provided for @goalsProgressOf.
   ///
@@ -511,6 +721,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{count, plural, =1{{perMonth}/month for {months} more month} other{{perMonth}/month for {months} more months}}'**
   String goalsSavingsRunRate(int count, String perMonth, String months);
+
+  /// No description provided for @goalsScopeGone.
+  ///
+  /// In en, this message translates to:
+  /// **'Deleted'**
+  String get goalsScopeGone;
 
   /// No description provided for @goalsScreenTitle.
   ///
@@ -559,6 +775,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Paused'**
   String get goalsStatusPaused;
+
+  /// No description provided for @goalsTagsNone.
+  ///
+  /// In en, this message translates to:
+  /// **'No tag filter'**
+  String get goalsTagsNone;
+
+  /// No description provided for @goalsTargetDays.
+  ///
+  /// In en, this message translates to:
+  /// **'Days'**
+  String get goalsTargetDays;
+
+  /// No description provided for @goalsTargetMinutes.
+  ///
+  /// In en, this message translates to:
+  /// **'Minutes'**
+  String get goalsTargetMinutes;
+
+  /// No description provided for @goalsTargetTimes.
+  ///
+  /// In en, this message translates to:
+  /// **'Times'**
+  String get goalsTargetTimes;
 
   /// No description provided for @goalsTrackerMissingTitle.
   ///

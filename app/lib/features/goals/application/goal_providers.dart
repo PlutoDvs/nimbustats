@@ -80,3 +80,11 @@ final goalHistoryProvider =
   _rerunOnWrites(ref, goal);
   return service.history(goal);
 });
+
+/// What a draft would have said over its last closed periods, and its
+/// current progress (spec §5.3). The editor asks once its form has settled
+/// for ~300 ms. The debounce lives in the editor's widget state, so no
+/// provider timer outlives the screen.
+final goalPreviewProvider = FutureProvider.autoDispose
+    .family<GoalPreview, Goal>(
+        (ref, draft) => ref.watch(goalServiceProvider).preview(draft));

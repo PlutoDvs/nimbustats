@@ -212,6 +212,9 @@ class AppLocalizationsFa extends AppLocalizations {
       'برچسب‌ها هم‌پوشانی دارند؛ جمع خانه‌ها از کل بیشتر است.';
 
   @override
+  String get goalsAllExpenses => 'همهٔ هزینه‌ها';
+
+  @override
   String get goalsCardErrorTitle => 'وضعیت این هدف محاسبه نشد';
 
   @override
@@ -225,10 +228,16 @@ class AppLocalizationsFa extends AppLocalizations {
   }
 
   @override
+  String get goalsChooseTracker => 'یک عادت انتخاب کنید';
+
+  @override
   String get goalsDeleted => 'هدف حذف شد';
 
   @override
   String get goalsEdit => 'ویرایش';
+
+  @override
+  String get goalsEditTitle => 'ویرایش هدف';
 
   @override
   String get goalsEmptyBody =>
@@ -238,13 +247,116 @@ class AppLocalizationsFa extends AppLocalizations {
   String get goalsEmptyTitle => 'هنوز هدفی ندارید';
 
   @override
+  String get goalsErrorEndBeforeStart => 'پایان نباید پیش از شروع باشد';
+
+  @override
+  String get goalsErrorName => 'برای هدف نامی بنویسید';
+
+  @override
+  String get goalsErrorTargetInvalid => 'یک عدد وارد کنید';
+
+  @override
+  String get goalsErrorTargetZero => 'هدف باید بیشتر از صفر باشد';
+
+  @override
   String get goalsErrorTitle => 'اهداف بارگیری نشد';
+
+  @override
+  String get goalsFieldAlerts => 'هشدارها';
+
+  @override
+  String get goalsFieldCategory => 'دسته';
+
+  @override
+  String get goalsFieldEnd => 'پایان';
+
+  @override
+  String get goalsFieldName => 'نام';
+
+  @override
+  String get goalsFieldPeriod => 'دوره';
+
+  @override
+  String get goalsFieldStart => 'شروع';
+
+  @override
+  String get goalsFieldTags => 'برچسب‌ها';
+
+  @override
+  String get goalsFieldTarget => 'مقدار هدف';
+
+  @override
+  String get goalsFieldTracker => 'عادت';
+
+  @override
+  String get goalsKindHabitGoal => 'هدف عادت';
+
+  @override
+  String get goalsKindHabitGoalHint =>
+      'کاری را دست‌کم چند بار انجام دهید، مثلاً هفته‌ای سه بار باشگاه';
+
+  @override
+  String get goalsKindHabitLimit => 'حد عادت';
+
+  @override
+  String get goalsKindHabitLimitHint =>
+      'چیزی را زیر یک حد نگه دارید، مثلاً روزی پنج نخ سیگار';
+
+  @override
+  String get goalsKindSavingsTarget => 'هدف پس‌انداز';
+
+  @override
+  String get goalsKindSavingsTargetHint => 'تا تاریخی مبلغی کنار بگذارید';
+
+  @override
+  String get goalsKindSpendingCap => 'سقف خرج';
+
+  @override
+  String get goalsKindSpendingCapHint =>
+      'در یک ماه بیش از یک مبلغ خرج نکنید، برای همه یا برای یک دسته';
 
   @override
   String get goalsNew => 'هدف تازه';
 
   @override
+  String get goalsNotFoundBody =>
+      'شاید حذف شده باشد. اهداف دیگرتان در زبانهٔ اهداف است.';
+
+  @override
+  String get goalsNotFoundTitle => 'این هدف دیگر وجود ندارد';
+
+  @override
+  String get goalsNoTrackers =>
+      'هنوز عادتی ندارید. از زبانهٔ عادت‌ها یکی بسازید.';
+
+  @override
   String get goalsPausedSection => 'متوقف‌شده‌ها';
+
+  @override
+  String get goalsPeriodDay => 'روز';
+
+  @override
+  String get goalsPeriodMonth => 'ماه';
+
+  @override
+  String get goalsPeriodQuarter => 'فصل';
+
+  @override
+  String get goalsPeriodWeek => 'هفته';
+
+  @override
+  String get goalsPeriodYear => 'سال';
+
+  @override
+  String goalsPreviewCurrent(String progress) {
+    return 'دورهٔ جاری: $progress';
+  }
+
+  @override
+  String get goalsPreviewError => 'پیش‌نمایش این هدف ممکن نشد';
+
+  @override
+  String get goalsPreviewTitle => 'این هدف تا امروز چه می‌گفت';
 
   @override
   String goalsProgressOf(String current, String target) {
@@ -260,6 +372,9 @@ class AppLocalizationsFa extends AppLocalizations {
     );
     return '$_temp0';
   }
+
+  @override
+  String get goalsScopeGone => 'حذف‌شده';
 
   @override
   String get goalsScreenTitle => 'اهداف';
@@ -284,6 +399,18 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get goalsStatusPaused => 'متوقف';
+
+  @override
+  String get goalsTagsNone => 'بدون فیلتر برچسب';
+
+  @override
+  String get goalsTargetDays => 'روز';
+
+  @override
+  String get goalsTargetMinutes => 'دقیقه';
+
+  @override
+  String get goalsTargetTimes => 'بار';
 
   @override
   String get goalsTrackerMissingTitle => 'عادتِ این هدف حذف شده است';
