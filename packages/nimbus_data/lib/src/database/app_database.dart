@@ -9,6 +9,8 @@ import '../tables/categories_table.dart';
 import '../tables/goal_period_results_table.dart';
 import '../tables/goals_table.dart';
 import '../analytics/saved_view.dart';
+import '../goals/goal_period_results_dao.dart';
+import '../goals/goals_dao.dart';
 import '../tables/payment_methods_table.dart';
 import '../tables/saved_views_table.dart';
 import '../tables/settings_table.dart';
@@ -205,6 +207,9 @@ class AppDatabase extends _$AppDatabase {
   late final SavedViewsDao savedViewsDao = SavedViewsDao(this);
   late final TrackersDao trackersDao = TrackersDao(this);
   late final TrackerEntriesDao trackerEntriesDao = TrackerEntriesDao(this);
+  late final GoalsDao goalsDao = GoalsDao(this);
+  late final GoalPeriodResultsDao goalPeriodResultsDao =
+      GoalPeriodResultsDao(this);
 }
 
 /// Application settings. Reads return null for an absent key rather than

@@ -85,3 +85,81 @@ final class GoalFixture {
   static DateTime _nineUtc(DateKey on) =>
       DateTime.utc(on.year, on.month, on.day, 9);
 }
+
+/// A money cap on the dining subtree's expenses: monthly from 1 January
+/// 2026, 10 000 minor units, alerts at 80 and 100 percent.
+Goal moneyGoal({
+  String id = 'dining',
+  int target = 10000,
+  GoalDirection direction = GoalDirection.atMost,
+  GoalPeriod period = const RecurringPeriod(PeriodType.month, DateKey(20260101)),
+  CalendarKind calendar = CalendarKind.gregorian,
+  int weekStart = DateTime.saturday,
+  bool active = true,
+}) =>
+    Goal(
+      id: id,
+      name: 'Dining out',
+      metric: GoalMetric.moneySum,
+      scope: MoneyScope(const QueryFilters(
+          direction: MoneyDirection.expense,
+          categorySubtreePaths: ['/food/dining/'])),
+      direction: direction,
+      target: MoneyAmount(Money(target)),
+      period: period,
+      calendar: calendar,
+      weekStart: weekStart,
+      active: active,
+    );
+
+/// A goal over one tracker: by default at most 5 entries a day.
+Goal trackerGoal(
+  String trackerId, {
+  String? id,
+  GoalMetric metric = GoalMetric.trackerCount,
+  GoalDirection direction = GoalDirection.atMost,
+  double target = 5,
+  GoalPeriod period = const RecurringPeriod(PeriodType.day, DateKey(20260101)),
+  int weekStart = DateTime.saturday,
+}) =>
+    Goal(
+      id: id ?? trackerId,
+      name: trackerId,
+      metric: metric,
+      scope: TrackerScope(trackerId),
+      direction: direction,
+      target: QuantityAmount(target),
+      period: period,
+      calendar: CalendarKind.gregorian,
+      weekStart: weekStart,
+    );
+
+/// Net savings over every transaction in [range], at least [target].
+Goal netSavingsGoal(DateRange range,
+        {String id = 'savings', int target = 100000}) =>
+    Goal(
+      id: id,
+      name: 'Savings',
+      metric: GoalMetric.netSavings,
+      scope: MoneyScope(const QueryFilters()),
+      direction: GoalDirection.atLeast,
+      target: MoneyAmount(Money(target)),
+      period: FixedRangePeriod(range),
+      calendar: CalendarKind.jalali,
+      weekStart: DateTime.saturday,
+    );
+
+/// Stamps every row the money watermark reads as written at epoch ms 1.
+///
+/// The next real write, stamped with the wall clock, is then certain to
+/// move the watermark. Without this, a write in the same millisecond as the
+/// fixture's own would not move it, and a test would flake.
+Future<void> ageMoneyRows(AppDatabase db) async {
+  for (final table in const ['transactions', 'categories', 'tags']) {
+    await db.customStatement('UPDATE $table SET updated_at = 1');
+  }
+}
+
+/// [ageMoneyRows] for tracker entries.
+Future<void> ageTrackerEntries(AppDatabase db) =>
+    db.customStatement('UPDATE tracker_entries SET updated_at = 1');

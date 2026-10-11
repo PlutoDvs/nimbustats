@@ -20,6 +20,7 @@ blocked, and who can unblock it.
 | D20 | A calendar switch rebuilds the tracker repository | Nothing today (unreachable); a tracker screen that stays mounted across a settings change | Whoever makes tracker screens stay mounted across settings, or Phase 5 |
 | D21 | 4b's test and guard gaps | Storing a `TrackerQuerySpec` as JSON (the `fromJson` tests), which nothing does yet; nothing else | Next trackers work, or on demand |
 | D22 | Tracker copy edge cases: tied boolean peaks, a stale "done" tap after midnight, English weekday names | Nothing hard-blocked; spoken and snackbar wording | On demand |
+| D23 | No app-level test that a tag edit stamps `transactions.updated_at` | The goals money watermark's claim that tag links need no term of their own (Phase 5, plan Decision 5) is pinned only by a one-time grep | On demand, or whoever next touches `TransactionRepository` |
 | D13 | ~~The add-expense FAB carries no accessibility label~~ | — | **Resolved 2026-10-04** |
 | D14 | ~~Pinning offers a name a card on the dashboard already uses~~ | — | **Resolved 2026-10-04** |
 | D15 | ~~The starter card is named "This month by category" but follows the dashboard's month~~ | — | **Resolved 2026-10-04** |
@@ -856,3 +857,26 @@ summary; tap "done" on a boolean whose day has just rolled over; read the
 day-of-week summary in English.
 
 **Unblocked by:** on demand.
+
+## D23 — A tag edit's `updated_at` stamp is not pinned by a test
+
+**Status:** open. Found 2026-10-11 in Phase 5 Task 8.
+
+**What is missing.** `GoalPeriodResultsDao.moneyWatermark` reads the maximum
+`updated_at` of transactions, categories and tags, and has no term for the
+transaction-tag links. That is safe only because `TransactionRepository` writes
+tags on the same save path that rewrites the transaction row (`updateTransaction`
+stamps `updated_at`, then `_attachTags` writes the links). Nothing tests that.
+The data-layer watermark test proves only that re-saving a transaction moves the
+watermark; `setTags` alone adds nothing. Plan Decision 5 rests on a one-time grep.
+
+**Needed.** An app-level test that a tag edit made through `TransactionRepository`
+stamps `transactions.updated_at`.
+
+**Blocks:** nothing today. A save path that wrote tags without rewriting the row
+would leave a goal's cached history stale after a tag edit.
+
+**Check:** `grep -n "_dao.updateTransaction(\|await _attachTags(" app/lib/features/transactions/data/transaction_repository.dart`
+shows the row write before the tag write.
+
+**Unblocked by:** on demand, or whoever next touches `TransactionRepository`.
