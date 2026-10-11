@@ -14,6 +14,7 @@ export 'src/database/columns.dart';
 export 'src/database/converters.dart';
 export 'src/goals/engine_goal_measurer.dart';
 export 'src/goals/goal_period_results_dao.dart';
+export 'src/goals/goal_service.dart';
 export 'src/goals/goals_dao.dart';
 export 'src/seed/category_seeder.dart';
 export 'src/seed/ids.dart';

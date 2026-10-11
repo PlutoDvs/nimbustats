@@ -74,6 +74,15 @@ final class GoalsDao {
     return row == null ? null : _parse(row);
   }
 
+  /// The live row's `updated_at`, or null when the row is missing or deleted.
+  Future<int?> stampOf(String id) async {
+    final row = await (_db.select(_db.goals)
+          ..where((t) => t.id.equals(id))
+          ..where((t) => t.deletedAt.isNull()))
+        .getSingleOrNull();
+    return row?.updatedAt;
+  }
+
   /// Inserts [goal], or rewrites every field of the row with its id.
   /// `created_at` is written once, on insert.
   Future<void> upsert(Goal goal) async {
