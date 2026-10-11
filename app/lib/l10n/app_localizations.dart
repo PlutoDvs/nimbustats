@@ -584,6 +584,24 @@ abstract class AppLocalizations {
   /// **'Tracker'**
   String get goalsFieldTracker;
 
+  /// No description provided for @goalsHistoryEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No finished periods yet'**
+  String get goalsHistoryEmpty;
+
+  /// No description provided for @goalsHistoryErrorTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load the history'**
+  String get goalsHistoryErrorTitle;
+
+  /// No description provided for @goalsHistoryTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'History'**
+  String get goalsHistoryTitle;
+
   /// No description provided for @goalsKindHabitGoal.
   ///
   /// In en, this message translates to:
@@ -656,6 +674,18 @@ abstract class AppLocalizations {
   /// **'No trackers yet. Add one on the Trackers tab.'**
   String get goalsNoTrackers;
 
+  /// No description provided for @goalsPace.
+  ///
+  /// In en, this message translates to:
+  /// **'At this pace: {amount} by {date}'**
+  String goalsPace(String amount, String date);
+
+  /// No description provided for @goalsPause.
+  ///
+  /// In en, this message translates to:
+  /// **'Pause'**
+  String get goalsPause;
+
   /// No description provided for @goalsPausedSection.
   ///
   /// In en, this message translates to:
@@ -716,6 +746,12 @@ abstract class AppLocalizations {
   /// **'{current} of {target}'**
   String goalsProgressOf(String current, String target);
 
+  /// No description provided for @goalsResume.
+  ///
+  /// In en, this message translates to:
+  /// **'Resume'**
+  String get goalsResume;
+
   /// No description provided for @goalsSavingsRunRate.
   ///
   /// In en, this message translates to:
@@ -775,6 +811,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Paused'**
   String get goalsStatusPaused;
+
+  /// No description provided for @goalsStreak.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{{current} period met in a row · best {best}} other{{current} periods met in a row · best {best}}}'**
+  String goalsStreak(int count, String current, String best);
 
   /// No description provided for @goalsTagsNone.
   ///

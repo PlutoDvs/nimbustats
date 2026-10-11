@@ -372,6 +372,10 @@ class GoalStatusLine extends StatelessWidget {
 /// Fills toward the target from the reading side: from the right in
 /// Persian. The bar names its goal and speaks its percent in the settings'
 /// digits; the default would speak Latin digits in Persian.
+///
+/// The indicator's own semantics are excluded: as a progress bar it must
+/// carry a Latin number, which Flutter's debug check enforces, so a Persian
+/// "۳۰٪" would assert wherever the bar is exposed (the detail screen).
 class GoalProgressBar extends ConsumerWidget {
   const GoalProgressBar({super.key, required this.goal, required this.progress});
 
@@ -381,14 +385,19 @@ class GoalProgressBar extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final fraction = progress.fractionOfTarget;
-    return LinearProgressIndicator(
-      // Infinite for anything on a zero limit, which is simply full.
-      value: fraction.isFinite ? fraction.clamp(0.0, 1.0).toDouble() : 1.0,
-      minHeight: NimbusTokens.space2,
-      borderRadius: NimbusTokens.borderRadiusSm,
-      color: _statusColor(Theme.of(context).colorScheme, progress.status),
-      semanticsLabel: goal.name,
-      semanticsValue: ref.watch(goalFormatProvider).percent(fraction),
+    return Semantics(
+      container: true,
+      label: goal.name,
+      value: ref.watch(goalFormatProvider).percent(fraction),
+      child: ExcludeSemantics(
+        child: LinearProgressIndicator(
+          // Infinite for anything on a zero limit, which is simply full.
+          value: fraction.isFinite ? fraction.clamp(0.0, 1.0).toDouble() : 1.0,
+          minHeight: NimbusTokens.space2,
+          borderRadius: NimbusTokens.borderRadiusSm,
+          color: _statusColor(Theme.of(context).colorScheme, progress.status),
+        ),
+      ),
     );
   }
 }

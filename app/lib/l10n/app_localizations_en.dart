@@ -290,6 +290,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get goalsFieldTracker => 'Tracker';
 
   @override
+  String get goalsHistoryEmpty => 'No finished periods yet';
+
+  @override
+  String get goalsHistoryErrorTitle => 'Could not load the history';
+
+  @override
+  String get goalsHistoryTitle => 'History';
+
+  @override
   String get goalsKindHabitGoal => 'Habit goal';
 
   @override
@@ -330,6 +339,14 @@ class AppLocalizationsEn extends AppLocalizations {
   String get goalsNoTrackers => 'No trackers yet. Add one on the Trackers tab.';
 
   @override
+  String goalsPace(String amount, String date) {
+    return 'At this pace: $amount by $date';
+  }
+
+  @override
+  String get goalsPause => 'Pause';
+
+  @override
   String get goalsPausedSection => 'Paused';
 
   @override
@@ -362,6 +379,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String goalsProgressOf(String current, String target) {
     return '$current of $target';
   }
+
+  @override
+  String get goalsResume => 'Resume';
 
   @override
   String goalsSavingsRunRate(int count, String perMonth, String months) {
@@ -400,6 +420,17 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get goalsStatusPaused => 'Paused';
+
+  @override
+  String goalsStreak(int count, String current, String best) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$current periods met in a row · best $best',
+      one: '$current period met in a row · best $best',
+    );
+    return '$_temp0';
+  }
 
   @override
   String get goalsTagsNone => 'No tag filter';

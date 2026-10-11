@@ -289,6 +289,15 @@ class AppLocalizationsFa extends AppLocalizations {
   String get goalsFieldTracker => 'عادت';
 
   @override
+  String get goalsHistoryEmpty => 'هنوز دوره‌ای تمام نشده';
+
+  @override
+  String get goalsHistoryErrorTitle => 'سابقه بارگیری نشد';
+
+  @override
+  String get goalsHistoryTitle => 'سابقه';
+
+  @override
   String get goalsKindHabitGoal => 'هدف عادت';
 
   @override
@@ -330,6 +339,14 @@ class AppLocalizationsFa extends AppLocalizations {
       'هنوز عادتی ندارید. از زبانهٔ عادت‌ها یکی بسازید.';
 
   @override
+  String goalsPace(String amount, String date) {
+    return 'با همین روند: $amount تا $date';
+  }
+
+  @override
+  String get goalsPause => 'توقف';
+
+  @override
   String get goalsPausedSection => 'متوقف‌شده‌ها';
 
   @override
@@ -362,6 +379,9 @@ class AppLocalizationsFa extends AppLocalizations {
   String goalsProgressOf(String current, String target) {
     return '$current از $target';
   }
+
+  @override
+  String get goalsResume => 'ادامه';
 
   @override
   String goalsSavingsRunRate(int count, String perMonth, String months) {
@@ -399,6 +419,16 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get goalsStatusPaused => 'متوقف';
+
+  @override
+  String goalsStreak(int count, String current, String best) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$current دورهٔ موفق پشت سر هم · بهترین $best',
+    );
+    return '$_temp0';
+  }
 
   @override
   String get goalsTagsNone => 'بدون فیلتر برچسب';

@@ -124,6 +124,9 @@
   "goalsFieldTags": "Tags",
   "goalsFieldTarget": "Target",
   "goalsFieldTracker": "Tracker",
+  "goalsHistoryEmpty": "No finished periods yet",
+  "goalsHistoryErrorTitle": "Could not load the history",
+  "goalsHistoryTitle": "History",
   "goalsKindHabitGoal": "Habit goal",
   "goalsKindHabitGoalHint": "Do something at least so often, such as the gym three times a week",
   "goalsKindHabitLimit": "Habit limit",
@@ -136,6 +139,18 @@
   "goalsNotFoundBody": "It may have been deleted. Your other goals are on the Goals tab.",
   "goalsNotFoundTitle": "This goal is gone",
   "goalsNoTrackers": "No trackers yet. Add one on the Trackers tab.",
+  "goalsPace": "At this pace: {amount} by {date}",
+  "@goalsPace": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      },
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "goalsPause": "Pause",
   "goalsPausedSection": "Paused",
   "goalsPeriodDay": "Day",
   "goalsPeriodMonth": "Month",
@@ -163,6 +178,7 @@
       }
     }
   },
+  "goalsResume": "Resume",
   "goalsSavingsRunRate": "{count, plural, =1{{perMonth}/month for {months} more month} other{{perMonth}/month for {months} more months}}",
   "@goalsSavingsRunRate": {
     "placeholders": {
@@ -186,6 +202,20 @@
   "goalsStatusNotStarted": "Not started",
   "goalsStatusOnTrack": "On track",
   "goalsStatusPaused": "Paused",
+  "goalsStreak": "{count, plural, =1{{current} period met in a row · best {best}} other{{current} periods met in a row · best {best}}}",
+  "@goalsStreak": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "current": {
+        "type": "String"
+      },
+      "best": {
+        "type": "String"
+      }
+    }
+  },
   "goalsTagsNone": "No tag filter",
   "goalsTargetDays": "Days",
   "goalsTargetMinutes": "Minutes",
