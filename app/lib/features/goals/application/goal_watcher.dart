@@ -64,6 +64,17 @@ final class GoalWatcher {
           analyticsEngineProvider, (_, engine) => _follow(engine),
           fireImmediately: true),
       _ref.listen<AsyncValue<List<GoalRead>>>(goalsProvider, (previous, next) {
+        // A failed goals stream leaves nothing to evaluate, so every alert
+        // would stop with no signal off the Goals tab. Say so, once per
+        // failure.
+        if (next.hasError && !(previous?.hasError ?? false)) {
+          FlutterError.reportError(FlutterErrorDetails(
+            exception: next.error!,
+            stack: next.stackTrace,
+            library: 'goal watcher',
+            context: ErrorDescription('while watching the goals'),
+          ));
+        }
         // The first list is the start-up evaluation. Later lists come from
         // edits, which re-baseline silently (spec §4.3), so they have
         // nothing to say.

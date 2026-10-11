@@ -1,4 +1,6 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/misc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:nimbus_data/nimbus_data.dart';
 import 'package:nimbus_domain/nimbus_domain.dart';
@@ -44,10 +46,11 @@ void main() {
 
   /// The app's providers over the test database, wired as main() wires
   /// them, with the watcher started and its alerts collected.
-  Future<GoalWatcher> start() async {
+  Future<GoalWatcher> start({List<Override> extra = const []}) async {
     final c = ProviderContainer(retry: nimbusNoRetry, overrides: [
       appDatabaseProvider.overrideWithValue(db),
       ...trackerOverrides(fake),
+      ...extra,
     ]);
     started = c;
     // Settings first, so their first emission is not mistaken for a
@@ -251,6 +254,24 @@ void main() {
     await spend(db, 200000, day5);
     await settle();
     expect(alerts, hasLength(1), reason: 'nobody holds the watcher now');
+  });
+
+  test('a goals stream that errors is reported once, not swallowed', () async {
+    final reports = <FlutterErrorDetails>[];
+    final previous = FlutterError.onError;
+    FlutterError.onError = reports.add;
+    addTearDown(() => FlutterError.onError = previous);
+
+    final boom = StateError('goals stream failed');
+    await start(extra: [
+      goalsProvider.overrideWith((ref) => Stream<List<GoalRead>>.error(boom)),
+    ]);
+    await until(() => reports.isNotEmpty, 'the report');
+    await settle();
+
+    expect(reports, hasLength(1));
+    expect(reports.single.library, 'goal watcher');
+    expect(reports.single.exception, same(boom));
   });
 
   test("a goal's progress re-runs on a write and keeps its value meanwhile",
