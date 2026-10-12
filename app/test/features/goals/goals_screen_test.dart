@@ -229,6 +229,22 @@ void main() {
     handle.dispose();
   });
 
+  testWidgets('a savings card reads as one sentence ending in its run-rate',
+      (tester) async {
+    final handle = tester.ensureSemantics();
+    await useEnglishDigits(db);
+    await service.save(savingsTarget());
+    await earn(db, 600000, const DateKey(20261002));
+
+    await pumpGoals(tester, db, fake);
+
+    expect(
+        find.bySemanticsLabel(
+            'Car, 600K of 6M, On track, 900K/month for 6 more months'),
+        findsOneWidget);
+    handle.dispose();
+  });
+
   testWidgets('Persian: right to left, Persian digits and words',
       (tester) async {
     // No useEnglishDigits: the default settings write Persian digits.

@@ -66,6 +66,7 @@
   "goalsAllExpenses": "همهٔ هزینه‌ها",
   "goalsCardErrorTitle": "وضعیت این هدف محاسبه نشد",
   "goalsCardPausedSemantics": "{name}، متوقف",
+  "goalsCardSavingsSemantics": "{name}، {progress}، {status}، {runRate}",
   "goalsCardSemantics": "{name}، {progress}، {status}",
   "goalsChooseTracker": "یک عادت انتخاب کنید",
   "goalsDeleted": "هدف حذف شد",

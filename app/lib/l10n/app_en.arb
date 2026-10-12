@@ -152,6 +152,24 @@
       }
     }
   },
+  "goalsCardSavingsSemantics": "{name}, {progress}, {status}, {runRate}",
+  "@goalsCardSavingsSemantics": {
+    "description": "A savings target's card, read as one sentence: the goal's name, its progress, its status, then what it needs a month.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "progress": {
+        "type": "String"
+      },
+      "status": {
+        "type": "String"
+      },
+      "runRate": {
+        "type": "String"
+      }
+    }
+  },
   "goalsCardSemantics": "{name}, {progress}, {status}",
   "@goalsCardSemantics": {
     "placeholders": {

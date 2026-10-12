@@ -112,10 +112,14 @@ class _GoalBody extends ConsumerWidget {
     // contract §7.1).
     final savings = kindOf(goal) == GoalKind.savingsTarget;
     final runRate = savings ? format.runRate(l10n, value) : null;
+    final statusText = goalStatusText(l10n, value.status);
     return _CardFrame(
       goal: goal,
-      label: l10n.goalsCardSemantics(
-          goal.name, amounts, goalStatusText(l10n, value.status)),
+      // The run-rate is the savings card's main line, so it is spoken too.
+      label: runRate == null
+          ? l10n.goalsCardSemantics(goal.name, amounts, statusText)
+          : l10n.goalsCardSavingsSemantics(
+              goal.name, amounts, statusText, runRate),
       children: [
         GoalStatusLine(status: value.status),
         const SizedBox(height: NimbusTokens.space1),

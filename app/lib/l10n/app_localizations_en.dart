@@ -292,6 +292,16 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String goalsCardSavingsSemantics(
+    String name,
+    String progress,
+    String status,
+    String runRate,
+  ) {
+    return '$name, $progress, $status, $runRate';
+  }
+
+  @override
   String goalsCardSemantics(String name, String progress, String status) {
     return '$name, $progress, $status';
   }

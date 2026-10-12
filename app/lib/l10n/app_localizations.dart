@@ -494,6 +494,17 @@ abstract class AppLocalizations {
   /// **'{name}, paused'**
   String goalsCardPausedSemantics(String name);
 
+  /// A savings target's card, read as one sentence: the goal's name, its progress, its status, then what it needs a month.
+  ///
+  /// In en, this message translates to:
+  /// **'{name}, {progress}, {status}, {runRate}'**
+  String goalsCardSavingsSemantics(
+    String name,
+    String progress,
+    String status,
+    String runRate,
+  );
+
   /// No description provided for @goalsCardSemantics.
   ///
   /// In en, this message translates to:
