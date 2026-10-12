@@ -301,6 +301,8 @@ void main() {
     expect(find.byKey(const Key('goal-delete-bad')), findsOneWidget);
     expect(inCard('failing', find.widgetWithText(TextButton, 'Retry')),
         findsOneWidget);
+    expect(find.byKey(const Key('goal-card-fuel')), findsOneWidget,
+        reason: 'the paused card is built, so the guideline sees it');
     await expectLater(tester, meetsGuideline(androidTapTargetGuideline));
     handle.dispose();
   });
