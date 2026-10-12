@@ -259,6 +259,52 @@ void main() {
     expect(inCard('cap', find.text('در خطر')), findsOneWidget);
   });
 
+  testWidgets('every tap target is at least 48 dp, problem cards included',
+      (tester) async {
+    // Tall enough that the lazy list builds every card.
+    tester.view.physicalSize = const Size(800, 4000);
+    addTearDown(tester.view.resetPhysicalSize);
+    final handle = tester.ensureSemantics();
+    await useEnglishDigits(db);
+    final trackers = repositoryFor(db, fake);
+    final cig = await trackers.create(cigarettes);
+    final w = await trackers.create(water);
+    await service.save(spendingCap());
+    await service.save(habitGoal(cig, id: 'smoke', target: 10));
+    await service.save(habitGoal(cig,
+        id: 'gym',
+        metric: GoalMetric.trackerSum,
+        direction: GoalDirection.atLeast,
+        target: 4));
+    await service.save(savingsTarget());
+    await service.save(habitGoal(w,
+        id: 'water',
+        metric: GoalMetric.trackerSum,
+        direction: GoalDirection.atLeast,
+        target: 2));
+    await db.customStatement(
+        'UPDATE trackers SET deleted_at = 1 WHERE id = ?', [w.id]);
+    await insertUnreadableGoal(db);
+    final fuel =
+        spendingCap(id: 'fuel', name: 'Fuel', paths: const [transportPath]);
+    await service.save(fuel);
+    await service.setActive(fuel, false);
+    final failing = spendingCap(id: 'failing', name: 'Failing');
+    await service.save(failing);
+
+    await pumpGoals(tester, db, fake, overrides: [
+      goalProgressProvider(failing).overrideWith(
+          (ref) => Future<GoalProgress>.error(Exception('boom'))),
+    ]);
+
+    expect(find.byKey(const Key('goal-edit-water')), findsOneWidget);
+    expect(find.byKey(const Key('goal-delete-bad')), findsOneWidget);
+    expect(inCard('failing', find.widgetWithText(TextButton, 'Retry')),
+        findsOneWidget);
+    await expectLater(tester, meetsGuideline(androidTapTargetGuideline));
+    handle.dispose();
+  });
+
   testWidgets('at twice the font size the tab overflows nothing',
       (tester) async {
     tester.platformDispatcher.textScaleFactorTestValue = 2.0;

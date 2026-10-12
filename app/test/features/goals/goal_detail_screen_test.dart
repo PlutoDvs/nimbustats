@@ -296,6 +296,24 @@ void main() {
     }
   });
 
+  testWidgets('the detail and its problem card meet the 48 dp tap target',
+      (tester) async {
+    final handle = tester.ensureSemantics();
+    await useEnglishDigits(db);
+    await seedHistory();
+    await insertUnreadableGoal(db);
+
+    await openDetail(tester);
+    expect(find.byKey(const Key('goal-detail-pause')), findsOneWidget);
+    await expectLater(tester, meetsGuideline(androidTapTargetGuideline));
+    await unmount(tester);
+
+    await pumpGoals(tester, db, fake, location: goalDetailRoute('bad'));
+    expect(find.byKey(const Key('goal-delete-bad')), findsOneWidget);
+    await expectLater(tester, meetsGuideline(androidTapTargetGuideline));
+    handle.dispose();
+  });
+
   testWidgets('a failed progress load says so, and Retry runs it again',
       (tester) async {
     await useEnglishDigits(db);

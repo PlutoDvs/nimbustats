@@ -618,6 +618,20 @@ void main() {
     );
   });
 
+  testWidgets('the kind tiles and every kind form meet the 48 dp tap target',
+      (tester) async {
+    final handle = tester.ensureSemantics();
+    await openNew(tester);
+    await expectLater(tester, meetsGuideline(androidTapTargetGuideline));
+    for (final kind in GoalKind.values) {
+      await openNew(tester);
+      await choose(tester, kind);
+      await expectLater(tester, meetsGuideline(androidTapTargetGuideline),
+          reason: kind.name);
+    }
+    handle.dispose();
+  });
+
   testWidgets('at twice the font size no form overflows', (tester) async {
     tester.platformDispatcher.textScaleFactorTestValue = 2.0;
     addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
