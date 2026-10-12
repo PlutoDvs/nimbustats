@@ -102,6 +102,27 @@ void main() {
       expect(find.byKey(const Key('tx-save')), findsOneWidget);
     });
 
+    testWidgets('"Saved" is announced once the screen has closed',
+        (tester) async {
+      // A device dump taken just after an add did not list the snackbar, and
+      // goal alerts queue behind it, so it is pinned as one live region.
+      final handle = tester.ensureSemantics();
+      await pumpApp(tester, seedFirstRun: true);
+
+      await tester.tap(find.byKey(const Key('tx-add-fab')));
+      await tester.pumpAndSettle();
+      await tester.enterText(
+          find.byKey(const Key('tx-amount-field')), '45000');
+      await tester.tap(find.byKey(const Key('tx-save')));
+      await tester.pumpAndSettle();
+
+      final saved = find.bySemanticsLabel('Saved');
+      expect(saved, findsOneWidget);
+      final data = tester.getSemantics(saved).getSemanticsData();
+      expect(data.flagsCollection.isLiveRegion, isTrue);
+      handle.dispose();
+    });
+
     testWidgets('a saved expense is on the list the moment Save returns',
         (tester) async {
       // Found on a device: the $55 saved, but the list and its month total
