@@ -4,13 +4,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:nimbus_data/nimbus_data.dart';
+import 'package:nimbus_design/nimbus_design.dart';
 import 'package:nimbus_domain/nimbus_domain.dart';
 import 'package:nimbustats/features/goals/application/goal_editor_controller.dart';
 import 'package:nimbustats/features/goals/application/goal_kind.dart';
+import 'package:nimbustats/features/goals/application/goal_providers.dart';
 import 'package:nimbustats/features/goals/routes.dart';
 import 'package:nimbustats/features/tags/application/tag_providers.dart';
 import 'package:nimbustats/features/tags/data/tag_repository.dart';
 import 'package:nimbustats/features/tags/data/tag_tree.dart';
+import 'package:nimbustats/features/trackers/application/tracker_providers.dart';
 import 'package:nimbustats/features/trackers/data/tracker_draft.dart';
 import 'package:nimbustats/features/trackers/data/tracker_repository.dart';
 
@@ -596,6 +599,97 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(await savedGoal(tester), spendingCap(target: 1200000));
+  });
+
+  group('editing a goal that is still loading or failed to load', () {
+    /// Reports the watcher makes of a failed read are not under test here.
+    void muteReports() {
+      final previous = FlutterError.onError;
+      FlutterError.onError = (_) {};
+      addTearDown(() => FlutterError.onError = previous);
+    }
+
+    testWidgets('the goals list loading shows the skeleton', (tester) async {
+      final never = StreamController<List<GoalRead>>();
+      addTearDown(never.close);
+
+      await pumpGoals(tester, db, fake,
+          location: editGoalRoute('cap'),
+          overrides: [goalsProvider.overrideWith((ref) => never.stream)]);
+
+      expect(find.byType(NimbusLoadingList), findsOneWidget);
+      expect(find.byKey(const Key('goal-save')), findsNothing);
+    });
+
+    testWidgets('a failed goals read says so, hides the raw error, and Retry '
+        'reads again and shows the form', (tester) async {
+      muteReports();
+      await useEnglishDigits(db);
+      await service.save(spendingCap());
+      var calls = 0;
+
+      await pumpGoals(tester, db, fake, location: editGoalRoute('cap'),
+          overrides: [
+            goalsProvider.overrideWith((ref) {
+              if (++calls == 1) {
+                return Stream<List<GoalRead>>.error(Exception('boom'));
+              }
+              return db.goalsDao.watchAll();
+            }),
+          ]);
+
+      expect(find.text('Could not load your goals'), findsOneWidget);
+      expect(find.text('Exception: boom'), findsNothing);
+      expect(find.byKey(const Key('goal-save')), findsNothing);
+
+      await tester.tap(find.widgetWithText(FilledButton, 'Retry'));
+      await tester.pumpAndSettle();
+
+      expect(calls, 2);
+      expect(nameText(tester), 'Dining out');
+    });
+
+    testWidgets("the goal's tracker loading shows the skeleton", (tester) async {
+      final w = await trackers.create(water);
+      await service.save(habitGoal(w, id: 'water'));
+      final never = StreamController<Tracker?>();
+      addTearDown(never.close);
+
+      await pumpGoals(tester, db, fake,
+          location: editGoalRoute('water'),
+          overrides: [
+            trackerByIdProvider(w.id).overrideWith((ref) => never.stream),
+          ]);
+
+      expect(find.byType(NimbusLoadingList), findsOneWidget);
+      expect(find.byKey(const Key('goal-save')), findsNothing);
+    });
+
+    testWidgets("a failed tracker read says so, hides the raw error, and "
+        'Retry reads again and shows the form', (tester) async {
+      muteReports();
+      final w = await trackers.create(water);
+      await service.save(habitGoal(w, id: 'water'));
+      var calls = 0;
+
+      await pumpGoals(tester, db, fake,
+          location: editGoalRoute('water'),
+          overrides: [
+            trackerByIdProvider(w.id).overrideWith((ref) {
+              if (++calls == 1) return Stream<Tracker?>.error(Exception('boom'));
+              return Stream.value(w);
+            }),
+          ]);
+
+      expect(find.text('Could not load your goals'), findsOneWidget);
+      expect(find.text('Exception: boom'), findsNothing);
+
+      await tester.tap(find.widgetWithText(FilledButton, 'Retry'));
+      await tester.pumpAndSettle();
+
+      expect(calls, 2);
+      expect(find.byKey(const Key('goal-save')), findsOneWidget);
+    });
   });
 
   testWidgets('Persian: right to left, Persian digits on the chips', (
