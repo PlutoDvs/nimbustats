@@ -21,6 +21,8 @@ blocked, and who can unblock it.
 | D21 | 4b's test and guard gaps | Storing a `TrackerQuerySpec` as JSON (the `fromJson` tests), which nothing does yet; nothing else | Next trackers work, or on demand |
 | D22 | Tracker copy edge cases: tied boolean peaks, a stale "done" tap after midnight, English weekday names | Nothing hard-blocked; spoken and snackbar wording | On demand |
 | D23 | No app-level test that a tag edit stamps `transactions.updated_at` | The goals money watermark's claim that tag links need no term of their own (Phase 5, plan Decision 5) is pinned only by a one-time grep | On demand, or whoever next touches `TransactionRepository` |
+| D25 | Phase 5's deferred review findings | Test gaps and small hardening items across the goals domain, data and app code, none judged worth fixing before the merge | On demand |
+| D24 | ~~Goal screens: the savings card's sentence omits its run-rate; no tap-target or edit-route state tests~~ | — | **Resolved 2026-10-12** |
 | D13 | ~~The add-expense FAB carries no accessibility label~~ | — | **Resolved 2026-10-04** |
 | D14 | ~~Pinning offers a name a card on the dashboard already uses~~ | — | **Resolved 2026-10-04** |
 | D15 | ~~The starter card is named "This month by category" but follows the dashboard's month~~ | — | **Resolved 2026-10-04** |
@@ -889,3 +891,124 @@ would leave a goal's cached history stale after a tag edit.
 shows the row write before the tag write.
 
 **Unblocked by:** on demand, or whoever next touches `TransactionRepository`.
+
+## D24 — Goal screens: gaps found at the Phase 5 gate — RESOLVED
+
+**Status:** resolved 2026-10-12, before the Phase 5 merge, by `4f9a05d` (the
+savings card speaks its run-rate), `5f82cd7` and `1de9f89` (tap-target pins on
+the tab, the editor and the detail), `ff281c7` (the edit route's loading and
+error tests) and `adaa986` (a pin that "Saved" is a live region after the add
+screen closes). A device re-check found "Saved" in a uiautomator dump 3.0 s
+after the tap, so the one miss was the dump's timing. TalkBack itself was not
+turned on. The original finding follows.
+
+Found 2026-10-12 in the Phase 5 device check and gate record.
+
+**What is missing.**
+- **The savings card does not speak its run-rate.** On the Galaxy A53 the card
+  showed "1.7M/month for 6 more months", but its one spoken sentence was
+  "Savings target, 0 of 10M, On track". A screen-reader user never hears what
+  the goal needs a month, which is the savings card's main line.
+- **No tap-target test on the goal screens.** Every clickable node in the
+  device dumps of the tab, the four editor forms and the detail measured at
+  least 48 dp (the alert chips and the detail's app-bar actions exactly 48),
+  but no goals test asserts it. The Edit, Delete and Retry `TextButton`s rely
+  on Material's padded tap target; the theme sets 48 only for `FilledButton`.
+- **The editor's loading and read-error states are untested.** Opening an
+  existing goal shows `_LoadingScaffold` and `_ErrorScaffold`
+  (`goal_editor_screen.dart`), and no test reaches either. The editor's tests
+  cover only the failed save and validation.
+- **A "Saved" snackbar missing from one dump.** After the 85,000 expense was
+  added, a uiautomator dump about 1.5 s after the tap had no "Saved", while the
+  goal alert behind it appeared in the next dump. Screenshots of the same flow
+  at 20,000 show "Saved" on screen from 1.2 s to 4.3 s. Seen once; it may be a
+  dump taken during the route's pop, or the snackbar's semantics being hidden
+  while the add screen leaves. Check with TalkBack whether "Saved" is announced.
+
+**Needed.** The run-rate line in the savings card's sentence (both ARBs); an
+`androidTapTargetGuideline` test on the tab, the editor and the detail, as
+`tracker_entry_test.dart` has; loading and error tests for the edit route; a
+TalkBack check of the add-expense "Saved" snackbar.
+
+**Blocks:** nothing. The visible screens are correct.
+
+**Check:** `grep -rn "androidTapTargetGuideline" app/test/features/goals` finds
+nothing.
+
+**Unblocked by:** on demand, or whoever next touches the goal screens.
+
+## D25 — Phase 5's deferred review findings
+
+**Status:** open. Collected 2026-10-12 from the Phase 5 task reviews and the
+final review. None was judged worth fixing before the merge.
+
+**Domain** (`nimbus_domain/lib/src/goals/`)
+- `QuantityAmount` accepts NaN and infinity as a target; `==` and `compareTo`
+  disagree on -0.0.
+- `MoneyAmount.scaledBy` can overflow past about 2.5e15 minor units with no
+  `shortcut:` comment at the code (the plan documents the limit).
+- `foldDaily` walks every day of a long sparse fixed range (linear; fine at
+  expected sizes).
+- Untested: `exceeds` directly and its tolerance edge; a negative numerator;
+  a crossing when `lastAlerted` is above every percent or not in an edited
+  list; `reachedPercent` for negative net savings; `engine.today()` returning
+  the injected clock; `Goal` equality beyond 3 of its 11 fields.
+- The zero-target branch is repeated in `ratioTo` and `reaches` across both
+  amount types; `goal_assess.dart`'s `.first` relies on sorted alert percents
+  without naming that invariant.
+- The kind-free grep test also flags a kind name in a trailing `//` comment.
+
+**Data** (`nimbus_data/lib/src/goals/`)
+- `EngineGoalMeasurer`: the seam test cannot catch overlapping 31-day windows
+  (an overlap would double-subtract net savings); net savings resolves stored
+  paths twice per call; `_leafId` parses materialized paths outside
+  `MaterializedPath`; an empty range and an id with no row are untested.
+- `GoalsDao` writes act on soft-deleted goals (`setActive` reports success,
+  `upsert` rewrites a deleted row); its TypeError-to-FormatException wrap is
+  untested.
+- Unpinned: the money watermark's `tags` term, and `deleteForGoal`'s hard
+  delete (a soft delete would pass, and the UNIQUE collision on the same
+  period would return).
+- `GoalService`: `check` on a fixed range not yet begun, and a goal deleted
+  mid-measure, are untested. A stale caller's `history(old)` after an edit is
+  served the edited goal's cached rows (the cache is keyed by goal id and
+  watermark). The comment in `goal_period_results_dao.dart` that the save path
+  rewrites the row with its tags reads as a guarantee beside D23.
+- The `migration_test` v32 group does not assert the new goal columns'
+  defaults (the DAO tests read them).
+
+**App** (`app/lib/features/goals/`)
+- Watcher: the calendar-switch test cannot tell a watcher that kept the old
+  engine's subscriptions; an evaluation already running at `stop()` still
+  emits and may write crossing state (idempotent); a failed one-shot goals
+  read drops that evaluation's flags until the next trigger; recovery after a
+  goals-stream error is untested.
+- Tab and cards: the twice-the-font-size tests assert only that nothing
+  throws and skip the problem, unreadable and paused cards; the card's
+  `excludeSemantics` hides the bar's own label; `Icons.error_outline` marks
+  both the problem card and `exceeded`.
+- Editor: the category and tracker pickers show "none yet" while loading or
+  on error, and the tag picker has no error handling; a 19-digit amount may
+  throw in `MoneyFormatter.parse` from `build` (unverified; add-expense shares
+  it); editing an unreadable goal says "This goal is gone"; habit targets
+  accept decimals for counter and boolean trackers; a tag id unknown to every
+  read is a zone error with no snackbar; the amount field is written twice and
+  the errors computed three times per build; test hygiene (a shared container,
+  fixed 200 ms waits).
+- Detail: "This goal is gone" can flash during a delete, and deleting from the
+  problem card leaves the gone screen; the semantics test is English-only; the
+  streak line can read "0 periods met in a row · best N"; the tracker branches
+  have no keys; `goal_preview.dart` keeps a fourth copy of the inline skeleton
+  and Retry.
+- Alerts: a queued alert reads its period when shown, not when raised; the
+  deleted-goal period fallback is untested at the listener.
+- Formatting: `dart format` is not in the gate; `app_shell.dart`,
+  `goal_card.dart` and two test lines are off its layout.
+- From the D24 fixes' review: the editor's state tests mute every
+  `FlutterError` (`muteReports`), not only their own, so an unrelated framework
+  error there would be hidden; the editor and detail tap-target tests dispose
+  their semantics handle inline rather than with `addTearDown`.
+
+**Blocks:** nothing.
+
+**Unblocked by:** on demand; each line names the file to start from.

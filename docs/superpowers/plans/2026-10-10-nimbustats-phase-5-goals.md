@@ -98,6 +98,8 @@ Each is a small, reasoned change to the spec, named so a reviewer can reject it 
 6. **`GoalKind` lives in the app** (`app/lib/features/goals/application/goal_kind.dart`). Nothing in `nimbus_domain` or `nimbus_data` can name a kind, which is what makes the brief's grep criterion a structural fact. Task 6 adds the grep as a test.
 7. **Today for goals** comes from `trackerClockProvider` (imported read-only): one clock for the whole app, already overridable in tests. Task 10 defines `goalTodayProvider` and its own midnight/resume refresh, because the trackers' rollover widget is mounted only on tracker screens.
 8. **Restore after delete re-baselines** like create, edit and resume: progress may have moved while the goal was deleted.
+9. **The pace line names a date** ("At this pace: 157,500 by 1405/07/30"), not "by the end of <month>": the date is unambiguous in both calendars and in a week or a fixed range, where "month" is wrong. Recorded at the Phase 5 gate.
+10. **A card speaks amounts, not a percent** ("Goal test, 85K of 100K, At risk"), not "82% of cap": the amounts carry the percent's facts and read the same for a limit and a goal. The bar still speaks its percent. Recorded at the Phase 5 gate.
 
 ## File map
 

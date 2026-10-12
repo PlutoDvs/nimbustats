@@ -40,6 +40,7 @@ data in, states, actions out, UX budget. Section 1 holds the rules that apply to
 | 17 | Tracker detail | 4 | [§6.2](#62-tracker-detail--phase-4) |
 | 18 | Goals | 5 | [§7.1](#71-goals--phase-5) |
 | 19 | Goal editor | 5 | [§7.2](#72-goal-editor--phase-5) |
+| 20 | Goal detail | 5 | [§7.3](#73-goal-detail--phase-5) |
 
 ---
 
@@ -119,7 +120,7 @@ be able to reach the same numbers a sighted user reads off the bars.
 **Does not exist yet** — named here so design has a stable target, to be built by
 the phase that owns it: `QuerySpec`, `AnalyticsResult`, `SavedView` (Phase 3),
 `CapturedMessage`, `Template`, `MerchantRule` (Phase 2), `Tracker`,
-`TrackerEntry` (Phase 4), `Goal`, `GoalEvaluation` (Phase 5).
+`TrackerEntry` (Phase 4), `Goal`, `GoalProgress` (Phase 5; this contract first called it `GoalEvaluation`).
 
 A screen entry naming a type from the second list is describing a contract, not
 an API that can be called today.
@@ -414,24 +415,35 @@ filters, group-by, and chart type — not by code path.
 ### 7.1 Goals — Phase 5
 
 1. **Purpose.** See at a glance whether each goal or limit is on track.
-2. **Data in.** `List<Goal>` each with a `GoalEvaluation`
-   (`{current, target, status, projection}`), active `AppCalendar` for period
-   boundaries.
-3. **States.** All four, plus the evaluation statuses as designed states rather
-   than colour swaps: **on track**, **at risk** (80% threshold), **exceeded**
-   (100%), and **period not started**. Degenerate: D1 on targets; a savings goal,
-   which reports required run-rate rather than period progress and therefore
-   cannot use the same progress bar semantics.
+2. **Data in.** `List<GoalRead>`: each readable `Goal` with a
+   `GoalProgress` (`{period, current, target, status, fractionOfTarget,
+   projection}`) for its current period, computed in the goal's own
+   calendar, not the app's.
+3. **States.** All four, plus the statuses as designed states rather than
+   colour swaps, each a word and an icon: **not started**, **on track**,
+   **at risk** (a limit at its lowest alert percent, or a goal behind
+   pace), **exceeded** (a limit gone over), **met**, **missed** (a closed
+   `atLeast` period short of its target), and **paused**. Degenerate:
+   - D1 on targets (`formatCompact` on the cards);
+   - a savings goal, which reports its required run-rate ("900K/month for
+     6 more months") instead of a progress bar;
+   - a goal whose tracker was deleted: an error card with Edit and Delete;
+   - an unreadable row: a card with Delete.
 4. **Actions out.** `onGoalTapped(String id)`, `onGoalCreated()`,
-   `onGoalPaused(String id)`, `onGoalDeleted(String id)` (undo).
+   `onGoalDeleted(String id)` (undo). Pause and resume live on the detail
+   (§7.3).
 5. **UX budget.** Threshold crossings drive alerts (80%, 100%) so a warning
    arrives while there is still time to act; the screen never nags on a schedule.
+   Until Phase 6 delivers them as notifications, each crossing is one snackbar
+   on the shell, queued behind any snackbar already showing.
 
 ### 7.2 Goal editor — Phase 5
 
 1. **Purpose.** Define a goal without the user needing to know that all four
    goal types are one formula.
-2. **Data in.** The `Goal` under construction; category and tag trees for scope
+2. **Data in.** The `Goal` under construction; for a new goal, four kind tiles
+   first (spending cap, habit limit, habit goal, savings target), each setting
+   the metric, direction and default period; category and tag trees for scope
    selection; `PeriodType` and `CalendarKind` options; a live evaluation preview
    against recent history.
 3. **States.** `populated`, `loading` (preview), `error` (a goal that cannot be
@@ -444,6 +456,22 @@ filters, group-by, and chart type — not by code path.
    `onThresholdsChanged(List<int>)`, `onSaved()`.
 5. **UX budget.** The preview shows what the goal *would* have said over the last
    few periods, so a target is chosen against reality rather than guessed.
+
+### 7.3 Goal detail — Phase 5
+
+1. **Purpose.** One goal: where this period stands and at what pace, its
+   streak, and how its past periods ended.
+2. **Data in.** One `Goal`, its `GoalProgress`, and its `GoalHistoryResult`
+   (closed periods as `PeriodOutcome`s, and `GoalStreaks`). Period names in
+   the goal's own calendar.
+3. **States.** All four. The history is empty for a goal with no finished
+   period. A deleted tracker or an unreadable row shows the Goals tab's
+   error card. Degenerate: years of a daily goal's history, computed once
+   into the cache and rendered as a lazy list.
+4. **Actions out.** `onGoalEdited(String id)`, `onGoalPaused(String id)`,
+   `onGoalResumed(String id)`, `onGoalDeleted(String id)` (undo).
+5. **UX budget.** The pace ("At this pace: 1,860,000 by 2026/10/31") is
+   information only; an at-most status never turns on projection.
 
 ---
 

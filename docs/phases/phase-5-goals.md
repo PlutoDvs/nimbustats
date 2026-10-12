@@ -165,15 +165,185 @@ Take the schema lock per `CONVENTIONS.md` §2.
 
 `CONVENTIONS.md` §5, plus:
 
-- [ ] All four goal types work through the **same** `evaluate` implementation —
+- [x] All four goal types work through the **same** `evaluate` implementation —
       grep proves there is no per-type branch beyond field values.
-- [ ] Threshold alerts tested for: first crossing, no re-fire on recomputation,
+      `test/architecture_test.dart` ("goal code below the app never names a
+      goal kind") runs the grep on every gate: no file under `nimbus_domain`
+      or `nimbus_data` can name a goal kind, which lives only in the app
+      (plan Decision 6).
+- [x] Threshold alerts tested for: first crossing, no re-fire on recomputation,
       and re-fire after a genuine drop and re-crossing.
-- [ ] Cache invalidation tested by dropping the cache and asserting identical
-      results.
-- [ ] Goals evaluated correctly in both calendars, including across a year
+      - Domain, `goal_alert_test.dart`: "the first crossing alerts once, at the
+        percent reached", "recomputing at the same level never re-fires", "a
+        drop below a threshold, then a genuine re-crossing, warns again", "a
+        jump over two thresholds alerts once, at the highest" and "falling
+        below every threshold resets to null, without an alert".
+      - Data, `goal_service_test.dart` group "alert state": "saving records
+        what the goal already reaches, without an alert", "an edit drops the
+        cache and re-baselines without an alert", "resuming re-baselines",
+        "restoring a deleted goal re-baselines", "a stale recompute keeps the
+        alert its period already gave". Concurrency:
+        `goal_period_results_dao_test.dart` ("two evaluations of one crossing
+        at once alert once") and the group "history racing an edit".
+      - App, `goal_watcher_test.dart`: "a crossing made while the app was
+        closed alerts once, at start" and "a calendar switch keeps each goal's
+        own calendar and re-fires nothing".
+      - On the Galaxy A53, end to end (see the gate record).
+- [x] Cache invalidation tested by dropping the cache and asserting identical
+      results: `goal_cache_drop_test.dart` ("a money goal", "a tracker goal")
+      drops every `goal_period_results` row and gets the same history,
+      streaks and progress back.
+- [x] Goals evaluated correctly in both calendars, including across a year
       boundary.
-- [ ] `git tag phase-5-complete`.
+      - `goal_periods_test.dart`: "a Jalali month turns over at Nowruz", "a
+        Gregorian month turns over at New Year", "the goal's own calendar
+        decides its month", "Jalali months close in order across Nowruz",
+        "Gregorian months close in order across New Year".
+      - `goal_assess_test.dart`: "months left count the current one, across
+        New Year", "months left are counted in the goal's calendar".
+      - `goal_service_test.dart` group "periods are the goal's, not the
+        engine's": "across the Gregorian new year", "across Nowruz in a
+        Jalali goal".
+- [x] `git tag phase-5-complete`.
+
+**Gate record (2026-10-12), against `CONVENTIONS.md` §5 on `1de9f89`.**
+- `dart analyze --fatal-infos` reports no issues.
+- Test suites, all green at `1de9f89`: architecture 6; `nimbus_domain` 417;
+  `nimbus_data` 326, including the migration tests; `nimbus_design` 36; `app`
+  609, run with `--no-pub --concurrency=4`. The plan expected 588 for the app;
+  the fix rounds of Tasks 13 and 14 and the final-review fix wave added 12,
+  and the fixes for the gaps this gate found (`4f9a05d`..`1de9f89`, reviewed
+  and approved) added 9.
+- **Device upgrade** (Galaxy A53 SM-A536E, `RZCT209E3QX`, profile build of
+  `53a09a9`, display at 120 Hz).
+  - Backup first, at
+    `~/nimbustats-backups/pre-v40-20261012-1418-nimbustats.sqlite` (the app
+    was closed cleanly; the phone had no -wal or -shm).
+  - Before: `user_version` 32, 5,000 live transactions, no goal tables.
+  - Install: Success; the app opened on Home with its data, and the nav bar
+    reads "Home, Trackers, Goals, Analytics, Settings", Goals third of five.
+  - After, read from a copy of the device database: `user_version` 40, 5,000
+    live transactions, tables `goal_period_results` and `goals`, no goals.
+- **Device scenarios** (English), read off the semantics tree and, for the
+  order of snackbars, from screenshots about every 0.5 s. Test data went into a
+  new "Goal test" category, as the operator chose.
+  - One goal of each kind, created by tapping. The cards read "Goal test, 0 of
+    100K, On track"; "Cigarettes, 0 of 5, On track"; "Gym, 0 of 3, At risk"
+    (day 3 of a Saturday week); "Savings target, 0 of 10M, On track". The
+    savings card shows "1.7M/month for 6 more months" and no bar.
+  - An 85,000 expense: one snackbar "Goal test: 85% of this month's limit",
+    about 4 s after the tap, behind the save's own.
+  - Another 20,000: "Saved" from 1.2 s to 4.3 s, then one "Goal test: over
+    this month's limit" with View from 5.3 s, and nothing after.
+  - No re-fire: a force-stop and relaunch, then an edit of another
+    transaction's note and its revert, raised no snackbar. The card read
+    "Goal test, 105K of 100K, Over the limit"; the alert state of the
+    current period (from 2026-09-23) was 100.
+  - Drop and re-cross: deleting the 20,000 expense ("Deleted", Undo not
+    taken) raised nothing, the card read "Goal test, 85K of 100K, At risk",
+    and the state was 80. Re-adding 20,000 gave "Saved", then one "over this
+    month's limit". The state went 100 → 80 → 100.
+  - A calendar switch to Gregorian raised no snackbar. The cap's detail kept
+    its own calendar ("At this pace: 157,500 by 1405/07/30") while Home's
+    dates turned to `2026/10/12`. Switched back to Jalali.
+  - **Not checkable on the device:** history period names (a goal made today
+    has no finished period; the detail read "No finished periods yet"), and a
+    long daily cap's detail open: the editor gives caps and limits no start
+    date, so one cannot be made through the app. Measured instead on this PC
+    against a copy of the A53's database: a daily cap over all expenses from
+    2024-10-05 (737 closed days) built its history in 161 ms the first time,
+    read it from the cache in 3–14 ms, and rebuilt it after a transaction
+    write in 4–8 ms. The money watermark took 268 µs on the same data (the
+    bar is 5 ms; 3.65 ms on 50,000 seeded rows at Task 8).
+  - Cleanup: the four goals, both expenses and the category were deleted with
+    the app's undoable deletes. Final copy: 5,000 live transactions, no live
+    goals, and the edited note back to empty.
+  - One dump after the 85,000 save did not list "Saved". A re-check with a
+    1,000 expense (deleted afterwards) found `content-desc="Saved"` in a dump
+    that finished 3.0 s after the tap, so the snackbar reaches accessibility;
+    the miss was the dump's timing. TalkBack itself was not turned on.
+- **Strings.** 77 new keys in both ARBs: Task 11 24 (with `navGoals`), Task 12
+  40, Task 13 7, Task 14 6 (its planned 5 plus the "reached" alert of the
+  pre-flight ruling on at-most wording). No Persian value repeats its English.
+  Both ARBs are CRLF and sorted case-insensitively, and
+  `localization_test.dart` is green. The operator reviewed all 77 Persian
+  values on 2026-10-12 and approved them without changes. The gap fixes added
+  a 78th key, `goalsCardSavingsSemantics`, whose Persian is the approved card
+  sentence with one more slot (`{name}، {progress}، {status}، {runRate}`).
+- **RTL and Persian digits.** The Persian tests that stand in are
+  `goals_screen_test.dart` ("Persian: right to left, Persian digits and
+  words"), `goal_editor_screen_test.dart` ("Persian: right to left, Persian
+  digits on the chips"), `goal_detail_screen_test.dart` ("Persian: right to
+  left, Persian digits, and still the goal's own calendar") and
+  `goal_format_test.dart` ("an alert in Persian"). The device check in Persian
+  was waived by the operator, as in Phases 3 and 4.
+- **States.**
+  - Tab, `goals_screen_test.dart`: "goals show a skeleton while they load",
+    "with no goals the tab says what a goal is and offers one", "a failed read
+    says so, retries, and hides the raw error", "a goal whose numbers fail
+    says so on its own card", and the populated tests for each kind and for
+    paused goals.
+  - Detail, `goal_detail_screen_test.dart`: "a skeleton while the goals
+    load", "a goal with no finished period says so", "a goal that is gone
+    says so and offers the way back", "a failed read offers a retry and hides
+    the raw error", "a failed history says so in its place; the rest
+    stands", "a failed progress load says so, and Retry runs it again", and
+    "this period: the amounts in full, the status in words, the bar and the
+    pace".
+  - Editor, `goal_editor_screen_test.dart`: "a failed save says so, keeps the
+    form and the error reaches the zone", "editing a goal opens its own form,
+    and saving keeps the goal", "the preview shows the last three periods'
+    outcomes and this period's progress". Opening an existing goal: "the
+    goals list loading shows the skeleton", "a failed goals read says so,
+    hides the raw error, and Retry reads again and shows the form", "the
+    goal's tracker loading shows the skeleton" and "a failed tracker read
+    says so, hides the raw error, and Retry reads again and shows the form".
+- **Accessibility.**
+  - The card's single spoken sentence: "a card reads as one sentence: name,
+    progress, status" (`goals_screen_test.dart`), read on the A53 as above.
+    The A53 showed the savings card's sentence leaving out its run-rate; it
+    now ends with it: "a savings card reads as one sentence ending in its
+    run-rate".
+  - The bar's spoken name and percent: "the bar speaks its goal's name and its
+    percent" (`goal_detail_screen_test.dart`).
+  - Status as a word and an icon: "a spending cap shows its status in words
+    and an icon, and a bar".
+  - Tap targets: every clickable node in the A53's dumps of the tab, the four
+    editor forms and the detail is at least 48 dp. Pinned with Flutter's
+    `androidTapTargetGuideline`: "every tap target is at least 48 dp, problem
+    cards included" (tab), "the kind tiles and every kind form meet the 48 dp
+    tap target" (editor), "the detail and its problem card meet the 48 dp tap
+    target" (detail).
+  - "Saved" after adding an expense is a live region once the screen has
+    closed: `add_transaction_screen_test.dart` ("\"Saved\" is announced once
+    the screen has closed"), since goal alerts queue behind it.
+  - Twice the font size: "at twice the font size the tab overflows nothing",
+    "at twice the font size no form overflows", "at twice the font size
+    nothing overflows" (detail).
+- **Review Focus.**
+  1. A moved category: `engine_goal_measurer_test.dart` group "stored paths
+     follow their nodes (Review Focus 1)".
+  2. A calendar switch with the app open: "a calendar switch keeps each
+     goal's own calendar and re-fires nothing" (`goal_watcher_test.dart`),
+     and on the A53.
+  3. Midnight with the app open: "the first crossing on a new day alerts
+     again" (`goal_watcher_test.dart`) and "the goals' day moves at midnight
+     and on resume" (`goal_alert_listener_test.dart`).
+  4. A crossing from a pushed screen: "a crossing from the add-expense screen
+     alerts once, after its own 'Saved'" and "a crossing from a tracker's
+     detail waits behind its Undo" (`goal_alert_listener_test.dart`), and on
+     the A53.
+  5. Archived against deleted tracker: "an archived tracker's goal reads
+     normally; a deleted one's offers Edit and Delete"
+     (`goals_screen_test.dart`) and "an archived tracker is still measured"
+     (`engine_goal_measurer_test.dart`).
+- The schema registry holds `drift_schema_v40.json` in
+  `packages/nimbus_data/drift_schemas/`, and `CONVENTIONS.md` records v40.
+- Plan Decisions 9 and 10 record two wording departures from the spec: the
+  pace line names a date, and a card speaks amounts, not a percent.
+- **Deferred from this gate:** D23 (a tag edit's watermark stamp, from Task
+  8) and D25 (the task reviews' deferred findings). D24, the gaps this gate
+  found, was fixed before the merge.
 
 ---
 
