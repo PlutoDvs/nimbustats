@@ -1,6 +1,7 @@
 # Phase 6 — Outside the app — design
 
-**Status:** approved design, awaiting the implementation plan.
+**Status:** approved design. Implementation plan:
+`docs/superpowers/plans/2026-10-12-nimbustats-phase-6-outside-the-app.md`.
 **Brief:** `docs/phases/phase-6-outside-the-app.md`.
 **Prerequisites:** `phase-1-complete`, `phase-4-complete` and `phase-5-complete`
 all exist.
@@ -60,6 +61,7 @@ decides *where* it is shown. It adds no firing logic.
 | The daily reminder | Off by default; 21:00 default time; fires every day around that time whether or not anything was logged |
 | Implementation approach | Native Kotlin on Android framework APIs + one MethodChannel; no new pub or runtime Gradle dependency |
 | Kotlin tests | `junit:junit:4.13.2` as a **test-only** Gradle dependency (Maven Central), never in the APK |
+| Android floor (settled while planning) | `minSdk` 26, up from Flutter's 24, so the `java.time` in §5 and §6.3 is native without desugaring. Phones on Android 7.0/7.1 can no longer install the app |
 
 ### Where this design departs from the brief
 
