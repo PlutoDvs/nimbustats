@@ -4,6 +4,7 @@ import android.content.Context
 import android.util.Log
 import com.nimbustats.app.notifications.Notifier
 import com.nimbustats.app.notifications.ReminderScheduler
+import com.nimbustats.app.widget.WidgetBuffer
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 
@@ -70,7 +71,28 @@ class OutsideChannelHandler(
                     )
                     result.success(null)
                 }
-                "takeLaunchRoute" -> result.success(takeLaunchRoute())
+                "takeBuffer" -> result.success(WidgetBuffer.lines(context))
+                "writeSnapshot" -> {
+                    WidgetBuffer.writeSnapshot(context, call.string("snapshot"))
+                    result.success(null)
+                }
+                "commitDrain" -> {
+                    val ackIds = call.argument<List<String>>("ackIds")
+                        ?: throw IllegalArgumentException("missing ackIds")
+                    val rejected = call.argument<List<Map<String, String>>>("rejected")
+                        ?: throw IllegalArgumentException("missing rejected")
+                    WidgetBuffer.commit(
+                        context,
+                        call.string("snapshot"),
+                        ackIds.toSet(),
+                        rejected.associate {
+                            (it["line"] ?: throw IllegalArgumentException("rejected without line")) to
+                                (it["reason"] ?: throw IllegalArgumentException("rejected without reason"))
+                        },
+                    )
+                    result.success(null)
+                }
+                "takeLaunchRoute" ->result.success(takeLaunchRoute())
                 else -> result.notImplemented()
             }
         } catch (error: Exception) {
