@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Phase 6 widget and dialog, dark. bg and text are ColorScheme.fromSeed(#2E7D64, dark)
+         surface and onSurface; muted and accent are the nimbus_design tokens; on_accent is
+         fromSeed(dark).onPrimary (8.62:1 against the accent). -->
+    <color name="nimbus_widget_bg">#FF0F1512</color>
+    <color name="nimbus_widget_text">#FFDEE4DF</color>
+    <color name="nimbus_widget_muted">#FFA8B0AC</color>
+    <color name="nimbus_widget_accent">#FF6EE7B7</color>
+    <color name="nimbus_widget_on_accent">#FF003829</color>
+</resources>

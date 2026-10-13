@@ -48,6 +48,16 @@
                 <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
             </intent-filter>
         </receiver>
+        <!-- Not exported: only the widget's own PendingIntent opens it. Its
+             own task affinity keeps MainActivity in the background. -->
+        <activity
+            android:name=".widget.ExpenseEntryActivity"
+            android:excludeFromRecents="true"
+            android:exported="false"
+            android:noHistory="true"
+            android:taskAffinity="com.nimbustats.app.entry"
+            android:theme="@style/EntryDialogTheme"
+            android:windowSoftInputMode="stateAlwaysVisible|adjustResize" />
         <service
             android:name=".widget.DrainJobService"
             android:exported="false"
