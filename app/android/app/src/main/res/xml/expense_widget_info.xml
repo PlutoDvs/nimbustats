@@ -5,7 +5,7 @@
 <appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
     android:initialLayout="@layout/widget_loading"
     android:minHeight="110dp"
-    android:minResizeHeight="100dp"
+    android:minResizeHeight="120dp"
     android:minResizeWidth="180dp"
     android:minWidth="250dp"
     android:previewLayout="@layout/widget_loading"

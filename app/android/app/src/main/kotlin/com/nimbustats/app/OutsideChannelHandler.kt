@@ -75,7 +75,7 @@ class OutsideChannelHandler(
                 "takeBuffer" -> result.success(WidgetBuffer.lines(context))
                 "writeSnapshot" -> {
                     WidgetBuffer.writeSnapshot(context, call.string("snapshot"))
-                    WidgetRenderer.renderAll(context)
+                    renderWidget()
                     result.success(null)
                 }
                 "commitDrain" -> {
@@ -92,7 +92,7 @@ class OutsideChannelHandler(
                                 (it["reason"] ?: throw IllegalArgumentException("rejected without reason"))
                         },
                     )
-                    WidgetRenderer.renderAll(context)
+                    renderWidget()
                     result.success(null)
                 }
                 "drainFinished" -> {
@@ -109,6 +109,15 @@ class OutsideChannelHandler(
             // Reaches Dart as a PlatformException, which Dart reports (spec §9).
             Log.e(TAG, "outside channel: ${call.method} failed", error)
             result.error("native-failure", error.message, null)
+        }
+    }
+
+    /** A render failure must not make the channel report a written snapshot or a committed drain as failed. */
+    private fun renderWidget() {
+        try {
+            WidgetRenderer.renderAll(context)
+        } catch (error: RuntimeException) {
+            Log.e(TAG, "widget render failed after the write", error)
         }
     }
 

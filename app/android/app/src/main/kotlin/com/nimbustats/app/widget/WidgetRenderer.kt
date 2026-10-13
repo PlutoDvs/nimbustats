@@ -28,7 +28,8 @@ import java.time.ZoneId
  * | empty     | no eligible trackers                     | "+ Expense" and the empty-trackers text  |
  * | populated | otherwise                                | "+ Expense" and one row per tracker      |
  *
- * Android 12+ gets responsive layouts with 1 to 4 rows by height; below 12 there are 2 rows.
+ * Android 12+ gets responsive layouts with 1 to 4 rows by height (120, 168, 216, 264 dp: 24 dp
+ * padding, the 48 dp button and 48 dp per row); below 12 there are 2 rows.
  * Numbers are formatted by ICU for the snapshot's language, with at most two fraction digits.
  * That is the CLDR data the app's `NumberFormat.decimalPattern` is built on (spec §6.2).
  */
@@ -55,10 +56,10 @@ object WidgetRenderer {
             if (Build.VERSION.SDK_INT >= 31) {
                 RemoteViews(
                     mapOf(
-                        SizeF(180f, 100f) to layout(context, snapshot, rows, 1),
-                        SizeF(180f, 150f) to layout(context, snapshot, rows, 2),
-                        SizeF(180f, 200f) to layout(context, snapshot, rows, 3),
-                        SizeF(180f, 250f) to layout(context, snapshot, rows, 4),
+                        SizeF(180f, 120f) to layout(context, snapshot, rows, 1),
+                        SizeF(180f, 168f) to layout(context, snapshot, rows, 2),
+                        SizeF(180f, 216f) to layout(context, snapshot, rows, 3),
+                        SizeF(180f, 264f) to layout(context, snapshot, rows, 4),
                     ),
                 )
             } else {

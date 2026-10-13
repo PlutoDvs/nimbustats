@@ -8,6 +8,7 @@ import android.net.Uri
 import android.util.Log
 import com.nimbustats.app.OutsideChannelHandler.Companion.TAG
 import com.nimbustats.app.notifications.ReminderScheduler
+import java.io.IOException
 
 /**
  * The widget's own actions. It is not exported: only this app's PendingIntents reach it.
@@ -24,15 +25,32 @@ class WidgetActionReceiver : BroadcastReceiver() {
                     Log.e(TAG, "widget tap without a tracker id; nothing logged")
                     return
                 }
-                WidgetBuffer.appendTrackerTap(context, System.currentTimeMillis(), trackerId)
-                WidgetRenderer.renderAll(context)
+                try {
+                    WidgetBuffer.appendTrackerTap(context, System.currentTimeMillis(), trackerId)
+                } catch (error: IOException) {
+                    Log.e(TAG, "widget tap not logged: the buffer append failed", error)
+                    return
+                } catch (error: RuntimeException) {
+                    Log.e(TAG, "widget tap not logged: the buffer append failed", error)
+                    return
+                }
+                // Enqueue first: a render failure must never leave a buffered tap undrained.
                 DrainScheduler.enqueue(context)
+                render(context)
             }
             ACTION_MIDNIGHT -> {
-                WidgetRenderer.renderAll(context)
+                render(context)
                 ReminderScheduler.armMidnight(context)
             }
             else -> Log.e(TAG, "unknown widget action ${intent.action}")
+        }
+    }
+
+    private fun render(context: Context) {
+        try {
+            WidgetRenderer.renderAll(context)
+        } catch (error: RuntimeException) {
+            Log.e(TAG, "widget render failed", error)
         }
     }
 
