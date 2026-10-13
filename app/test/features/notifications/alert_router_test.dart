@@ -11,6 +11,7 @@ import 'package:nimbustats/features/notifications/application/alert_router.dart'
 import 'package:nimbustats/features/notifications/application/notification_providers.dart';
 import 'package:nimbustats/features/notifications/data/notification_prefs.dart';
 import 'package:nimbustats/features/notifications/data/outside_channel.dart';
+import 'package:nimbustats/features/settings/data/settings_keys.dart';
 
 import '../goals/support/goal_test_app.dart';
 import '../trackers/support/tracker_fixture.dart';
@@ -119,5 +120,21 @@ void main() {
 
     expect(reported.single.library, 'alert router');
     expect(outside.calls.where((c) => c == 'postAlert'), hasLength(1));
+  });
+
+  test('a corrupt app setting still posts the alert, with no second report',
+      () async {
+    final reported = <FlutterErrorDetails>[];
+    final previous = FlutterError.onError;
+    FlutterError.onError = reported.add;
+    addTearDown(() => FlutterError.onError = previous);
+    // The settings screen surfaces this one; it must not cost an alert.
+    await db.settingsDao.put(SettingsKeys.themeMode, 'chartreuse');
+
+    final (router, watcher) = await start();
+    await cross(router, watcher);
+
+    expect(outside.posted.single.tag, 'goal:cap');
+    expect(reported, isEmpty);
   });
 }

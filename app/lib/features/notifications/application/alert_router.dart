@@ -10,6 +10,8 @@ import '../../goals/application/goal_providers.dart';
 import '../../goals/application/goal_watcher.dart';
 import '../../goals/routes.dart';
 import '../../settings/application/settings_providers.dart';
+import '../../settings/data/app_settings.dart';
+import '../../settings/data/settings_repository.dart';
 import '../../trackers/application/tracker_format.dart';
 import '../data/outside_channel.dart';
 import 'notification_providers.dart';
@@ -61,7 +63,13 @@ final class AlertRouter {
   /// The headless engine posts before that stream has emitted, and would
   /// otherwise word the alert in the default language.
   Future<void> _post(GoalAlert alert) async {
-    final settings = await _ref.read(settingsRepositoryProvider).load();
+    // As SnapshotWriter does: one corrupt setting reads as the defaults, and
+    // the settings screen surfaces it with its reset (settings_providers.dart),
+    // so it costs no alert and is not reported twice.
+    final settings = await _ref
+        .read(settingsRepositoryProvider)
+        .load()
+        .onError<SettingsFormatException>((_, __) => AppSettings.defaults);
     final prefs = await _ref.read(notificationPrefsRepositoryProvider).load();
     final l10n = lookupAppLocalizations(settings.locale);
     final discreet = l10n.notificationsAlertDiscreet;
