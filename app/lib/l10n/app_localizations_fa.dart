@@ -1432,4 +1432,33 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get weekdayWednesday => 'چهارشنبه';
+
+  @override
+  String get widgetAddExpense => '+ هزینه';
+
+  @override
+  String get widgetCancel => 'انصراف';
+
+  @override
+  String get widgetEmptyTrackers =>
+      'در برنامه یک عادت بسازید تا از اینجا ثبتش کنید';
+
+  @override
+  String get widgetEntryTitle => 'افزودن هزینه';
+
+  @override
+  String get widgetSave => 'ذخیره';
+
+  @override
+  String get widgetSaved => 'ذخیره شد';
+
+  @override
+  String widgetTrackerAdd(String name, String total) {
+    return '$name، امروز $total. افزودن یکی';
+  }
+
+  @override
+  String widgetTrackerDone(String name) {
+    return '$name، امروز انجام شد';
+  }
 }

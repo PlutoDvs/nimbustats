@@ -394,5 +394,13 @@
   "weekdaySunday": "یکشنبه",
   "weekdayThursday": "پنجشنبه",
   "weekdayTuesday": "سه‌شنبه",
-  "weekdayWednesday": "چهارشنبه"
+  "weekdayWednesday": "چهارشنبه",
+  "widgetAddExpense": "+ هزینه",
+  "widgetCancel": "انصراف",
+  "widgetEmptyTrackers": "در برنامه یک عادت بسازید تا از اینجا ثبتش کنید",
+  "widgetEntryTitle": "افزودن هزینه",
+  "widgetSave": "ذخیره",
+  "widgetSaved": "ذخیره شد",
+  "widgetTrackerAdd": "{name}، امروز {total}. افزودن یکی",
+  "widgetTrackerDone": "{name}، امروز انجام شد"
 }

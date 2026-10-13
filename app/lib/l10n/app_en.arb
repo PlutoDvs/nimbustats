@@ -820,5 +820,30 @@
   "weekdaySunday": "Sun",
   "weekdayThursday": "Thu",
   "weekdayTuesday": "Tue",
-  "weekdayWednesday": "Wed"
+  "weekdayWednesday": "Wed",
+  "widgetAddExpense": "+ Expense",
+  "widgetCancel": "Cancel",
+  "widgetEmptyTrackers": "Add a tracker in the app to log it from here",
+  "widgetEntryTitle": "Add expense",
+  "widgetSave": "Save",
+  "widgetSaved": "Saved",
+  "widgetTrackerAdd": "{name}, today {total}. Add one",
+  "@widgetTrackerAdd": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "widgetTrackerDone": "{name}, done today",
+  "@widgetTrackerDone": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  }
 }

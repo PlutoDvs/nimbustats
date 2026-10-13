@@ -12,6 +12,7 @@ import '../../payment_methods/routes.dart';
 import '../../tags/routes.dart';
 import '../application/settings_providers.dart';
 import '../data/app_settings.dart';
+import 'currency_label.dart';
 import 'widgets/demo_data_tile.dart';
 
 /// Currency, calendar, locale, first day of week, theme -- and nothing else.
@@ -74,9 +75,7 @@ class _Body extends ConsumerWidget {
     try {
       await ref.read(settingsRepositoryProvider).save(next);
     } on Object {
-      messenger.showSnackBar(
-        SnackBar(content: Text(l10n.settingsSaveFailed)),
-      );
+      messenger.showSnackBar(SnackBar(content: Text(l10n.settingsSaveFailed)));
       rethrow;
     }
   }
@@ -107,7 +106,7 @@ class _Body extends ConsumerWidget {
               (
                 value: currency,
                 key: Key('currency-${currency.code.toLowerCase()}'),
-                label: _currencyLabel(l10n, currency),
+                label: currencyLabel(l10n, currency),
               ),
           ],
           onSelected: (value) =>
@@ -137,16 +136,8 @@ class _Body extends ConsumerWidget {
           title: l10n.settingsLocale,
           value: settings.locale,
           options: const [
-            (
-              value: Locale('fa'),
-              key: Key('locale-fa'),
-              label: 'فارسی',
-            ),
-            (
-              value: Locale('en'),
-              key: Key('locale-en'),
-              label: 'English',
-            ),
+            (value: Locale('fa'), key: Key('locale-fa'), label: 'فارسی'),
+            (value: Locale('en'), key: Key('locale-en'), label: 'English'),
           ],
           onSelected: (value) =>
               _save(context, ref, settings.copyWith(locale: value)),
@@ -159,17 +150,17 @@ class _Body extends ConsumerWidget {
             (
               value: DateTime.saturday,
               key: const Key('first-day-6'),
-              label: l10n.weekdaySaturday
+              label: l10n.weekdaySaturday,
             ),
             (
               value: DateTime.sunday,
               key: const Key('first-day-7'),
-              label: l10n.weekdaySunday
+              label: l10n.weekdaySunday,
             ),
             (
               value: DateTime.monday,
               key: const Key('first-day-1'),
-              label: l10n.weekdayMonday
+              label: l10n.weekdayMonday,
             ),
           ],
           onSelected: (value) =>
@@ -242,14 +233,6 @@ class _Body extends ConsumerWidget {
       ],
     );
   }
-
-  static String _currencyLabel(AppLocalizations l10n, Currency currency) =>
-      switch (currency.code) {
-        'IRT' => l10n.currency_toman,
-        'USD' => l10n.currency_usd,
-        'EUR' => l10n.currency_eur,
-        _ => l10n.currency_try,
-      };
 }
 
 typedef _Option<T> = ({T value, Key key, String label});

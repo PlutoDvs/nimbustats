@@ -79,6 +79,11 @@ class TrackersDao {
           .watch()
           .map((rows) => rows.map(_toTracker).toList());
 
+  /// [watchLive] read once, for code that runs where no stream has emitted
+  /// yet: Phase 6's widget snapshot, built in a headless engine too.
+  Future<List<Tracker>> allLive({required bool archived}) async =>
+      (await liveQuery(archived: archived).get()).map(_toTracker).toList();
+
   /// Rewrites a tracker's editable fields in one statement, so an edit is
   /// never half-applied. The type is not among them: it is fixed at creation.
   /// The repository checks that [unit] and [perTapValue] fit the type.

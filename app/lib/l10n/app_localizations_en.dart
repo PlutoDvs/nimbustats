@@ -1441,4 +1441,33 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get weekdayWednesday => 'Wed';
+
+  @override
+  String get widgetAddExpense => '+ Expense';
+
+  @override
+  String get widgetCancel => 'Cancel';
+
+  @override
+  String get widgetEmptyTrackers =>
+      'Add a tracker in the app to log it from here';
+
+  @override
+  String get widgetEntryTitle => 'Add expense';
+
+  @override
+  String get widgetSave => 'Save';
+
+  @override
+  String get widgetSaved => 'Saved';
+
+  @override
+  String widgetTrackerAdd(String name, String total) {
+    return '$name, today $total. Add one';
+  }
+
+  @override
+  String widgetTrackerDone(String name) {
+    return '$name, done today';
+  }
 }

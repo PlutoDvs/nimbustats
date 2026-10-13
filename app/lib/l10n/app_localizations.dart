@@ -2488,6 +2488,54 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Wed'**
   String get weekdayWednesday;
+
+  /// No description provided for @widgetAddExpense.
+  ///
+  /// In en, this message translates to:
+  /// **'+ Expense'**
+  String get widgetAddExpense;
+
+  /// No description provided for @widgetCancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get widgetCancel;
+
+  /// No description provided for @widgetEmptyTrackers.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a tracker in the app to log it from here'**
+  String get widgetEmptyTrackers;
+
+  /// No description provided for @widgetEntryTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Add expense'**
+  String get widgetEntryTitle;
+
+  /// No description provided for @widgetSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get widgetSave;
+
+  /// No description provided for @widgetSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved'**
+  String get widgetSaved;
+
+  /// No description provided for @widgetTrackerAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'{name}, today {total}. Add one'**
+  String widgetTrackerAdd(String name, String total);
+
+  /// No description provided for @widgetTrackerDone.
+  ///
+  /// In en, this message translates to:
+  /// **'{name}, done today'**
+  String widgetTrackerDone(String name);
 }
 
 class _AppLocalizationsDelegate
