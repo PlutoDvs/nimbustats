@@ -8,6 +8,10 @@ import 'app.dart';
 import 'bootstrap/database_provider.dart';
 import 'bootstrap/provider_retry.dart';
 
+// Ruling R5: an AOT build compiles only what main reaches, and the drain
+// job boots `package:nimbustats/drain_main.dart`'s drainMain by name.
+export 'drain_main.dart' show drainMain;
+
 /// Bootstrap only.
 ///
 /// The app layer owns *where* the database file lives, because it is the only

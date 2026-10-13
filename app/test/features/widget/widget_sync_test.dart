@@ -1,13 +1,16 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:nimbus_data/nimbus_data.dart';
 import 'package:nimbustats/features/trackers/routes.dart';
+import 'package:nimbustats/features/widget/presentation/widget_sync.dart';
 
 import '../../support/harness.dart';
 import '../notifications/support/fake_outside_channel.dart';
 import '../trackers/support/tracker_fixture.dart';
+import 'support/buffer_lines.dart';
 
 void main() {
   late AppDatabase db;
@@ -76,5 +79,70 @@ void main() {
 
     expect(last()['localeTag'], 'en');
     expect(last()['rtl'], isFalse);
+  });
+
+  testWidgets('the app engine drains after the first frame', (tester) async {
+    outside.buffer = [expense('w1')];
+    await pumpApp(tester, database: db, seedFirstRun: true, outside: outside);
+    await tester.pumpAndSettle();
+
+    expect(outside.buffer, isEmpty);
+    expect(await db.transactionsDao.byId('w1'), isNotNull);
+  });
+
+  testWidgets("native's drainNow drains in the app engine and answers ok",
+      (tester) async {
+    await pumpApp(tester, database: db, seedFirstRun: true, outside: outside);
+    await tester.pumpAndSettle();
+    outside.buffer = [expense('w2')];
+
+    final answered = outside.onDrainNow!();
+    await tester.pumpAndSettle();
+
+    expect(await answered, isTrue);
+    expect(outside.buffer, isEmpty);
+  });
+
+  testWidgets('a resume drains', (tester) async {
+    await pumpApp(tester, database: db, seedFirstRun: true, outside: outside);
+    await tester.pumpAndSettle();
+    outside.buffer = [expense('w3')];
+
+    await backgroundAndResume(tester);
+    await tester.pumpAndSettle();
+
+    expect(outside.buffer, isEmpty);
+  });
+
+  testWidgets('leaving the shell unregisters the drain, so native drains '
+      'headless', (tester) async {
+    await pumpApp(tester, database: db, seedFirstRun: true, outside: outside);
+    expect(outside.onDrainNow, isNotNull);
+
+    await tester.pumpWidget(const SizedBox());
+    expect(outside.onDrainNow, isNull);
+  });
+
+  testWidgets('a shell leaving after a newer one mounted keeps the newer '
+      "one's drain", (tester) async {
+    late ProviderContainer container;
+    await pumpApp(tester,
+        database: db,
+        seedFirstRun: true,
+        outside: outside,
+        onContainer: (c) => container = c);
+    Widget shells(List<String> keys) => UncontrolledProviderScope(
+          container: container,
+          child: Column(children: [
+            for (final key in keys)
+              WidgetSync(key: Key(key), child: const SizedBox()),
+          ]),
+        );
+
+    // A router rebuild mounts the new shell before the old one disposes.
+    await tester.pumpWidget(shells(['old', 'new']));
+    await tester.pumpWidget(shells(['new']));
+
+    expect(outside.onDrainNow, isNotNull);
   });
 }

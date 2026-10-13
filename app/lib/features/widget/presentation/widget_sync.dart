@@ -9,7 +9,7 @@ import '../../notifications/application/outside_errors.dart';
 import '../../notifications/data/outside_channel.dart';
 import '../../settings/application/settings_providers.dart';
 import '../../trackers/application/tracker_providers.dart';
-import '../application/snapshot_writer.dart';
+import '../application/drain_service.dart';
 
 /// Keeps the home-screen widget's snapshot current while the app runs
 /// (spec §6.1). It rewrites the snapshot 300 ms after the last of these:
@@ -19,6 +19,9 @@ import '../application/snapshot_writer.dart';
 /// - a tracker entry write (today's totals);
 /// - a change to the tab's trackers;
 /// - a settings change (language, currency).
+///
+/// It also drains the buffer after the first frame, on every resume, and when
+/// native asks (drainNow).
 ///
 /// It sits on the shell (ruling R6): the widget is empty until first run is
 /// done, and so is the database it reads.
@@ -35,13 +38,26 @@ class _WidgetSyncState extends ConsumerState<WidgetSync> {
   static const _debounce = Duration(milliseconds: 300);
 
   late final AppLifecycleListener _lifecycle;
+  late final DrainService _drain;
+  late final OutsideChannel _channel;
+  late final Future<bool> Function() _onDrainNow;
   final _writes = <StreamSubscription<void>>[];
   Timer? _pending;
 
   @override
   void initState() {
     super.initState();
-    _lifecycle = AppLifecycleListener(onResume: _changed);
+    _drain = ref.read(drainServiceProvider);
+    _channel = ref.read(outsideChannelProvider);
+    // Native's drain job hands a live app engine the work (spec §2.4). A
+    // closure of this shell's own: every shell's `_drain.run` tear-off is
+    // equal, which would let an old shell unregister a newer one's.
+    _onDrainNow = () => _drain.run();
+    _channel.onDrainNow = _onDrainNow;
+    _lifecycle = AppLifecycleListener(onResume: () {
+      _drainNow();
+      _changed();
+    });
     ref.listenManual<AnalyticsEngine>(
       analyticsEngineProvider,
       (_, engine) => _follow(engine),
@@ -49,7 +65,11 @@ class _WidgetSyncState extends ConsumerState<WidgetSync> {
     );
     ref.listenManual(trackersProvider, (_, __) => _changed());
     ref.listenManual(settingsProvider, (_, __) => _changed());
-    WidgetsBinding.instance.addPostFrameCallback((_) => _changed());
+    // After the first frame, never before it: cold start stays in budget.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _drainNow();
+      _changed();
+    });
   }
 
   void _follow(AnalyticsEngine engine) {
@@ -68,16 +88,11 @@ class _WidgetSyncState extends ConsumerState<WidgetSync> {
     _pending = Timer(_debounce, () => unawaited(_write()));
   }
 
-  Future<void> _write() {
-    // Read now: the write may finish after this widget is gone.
-    final writer = ref.read(snapshotWriterProvider);
-    final channel = ref.read(outsideChannelProvider);
-    return reportingFailure(
-      'widget drain',
-      'while writing the widget snapshot',
-      () async => channel.writeSnapshot(await writer.build()),
-    );
-  }
+  void _drainNow() => unawaited(reportingFailure(
+      'widget drain', 'while draining the widget buffer', _drain.run));
+
+  Future<void> _write() => reportingFailure('widget drain',
+      'while writing the widget snapshot', _drain.refreshSnapshot);
 
   @override
   void dispose() {
@@ -86,6 +101,8 @@ class _WidgetSyncState extends ConsumerState<WidgetSync> {
       unawaited(subscription.cancel());
     }
     _lifecycle.dispose();
+    // A newer shell may have registered its own drain already.
+    if (identical(_channel.onDrainNow, _onDrainNow)) _channel.onDrainNow = null;
     super.dispose();
   }
 
