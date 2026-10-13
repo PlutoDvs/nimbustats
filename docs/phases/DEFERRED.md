@@ -22,6 +22,17 @@ blocked, and who can unblock it.
 | D22 | Tracker copy edge cases: tied boolean peaks, a stale "done" tap after midnight, English weekday names | Nothing hard-blocked; spoken and snackbar wording | On demand |
 | D23 | No app-level test that a tag edit stamps `transactions.updated_at` | The goals money watermark's claim that tag links need no term of their own (Phase 5, plan Decision 5) is pinned only by a one-time grep | On demand, or whoever next touches `TransactionRepository` |
 | D25 | Phase 5's deferred review findings | Test gaps and small hardening items across the goals domain, data and app code, none judged worth fixing before the merge | On demand |
+| D26 | WidgetRenderer.build reads the pending taps outside its try | Nothing hard-blocked | On demand |
+| D27 | A foreign in-flight requestPermissions would strand a queued Result | Nothing hard-blocked | On demand |
+| D28 | Process-death recreation can replay a notification route | Nothing hard-blocked | On demand |
+| D29 | A torn buffer append glues the next tap onto a partial line | Nothing hard-blocked | On demand |
+| D30 | The headless FlutterEngine boots on the main thread | Nothing hard-blocked | On demand |
+| D31 | Dialog polish | Nothing hard-blocked | On demand |
+| D32 | Persian digits cannot be typed in the dialog on the A53 | Nothing hard-blocked | On demand |
+| D33 | Below Android 12 the fixed two rows may clip | Nothing hard-blocked | On demand |
+| D34 | A reminder time change while that day's reminder is due can double it | Nothing hard-blocked | On demand |
+| D35 | Stale wording after F1 | Nothing hard-blocked | On demand |
+| D36 | The widget's midnight reset was not observed | Nothing hard-blocked | On demand |
 | D24 | ~~Goal screens: the savings card's sentence omits its run-rate; no tap-target or edit-route state tests~~ | — | **Resolved 2026-10-12** |
 | D13 | ~~The add-expense FAB carries no accessibility label~~ | — | **Resolved 2026-10-04** |
 | D14 | ~~Pinning offers a name a card on the dashboard already uses~~ | — | **Resolved 2026-10-04** |
@@ -1012,3 +1023,113 @@ final review. None was judged worth fixing before the merge.
 **Blocks:** nothing.
 
 **Unblocked by:** on demand; each line names the file to start from.
+
+## D26 — WidgetRenderer.build reads the pending taps outside its try
+
+**Status:** open. Found at the Phase 6 gate, 2026-10-13.
+
+**What:** `WidgetRenderer.build` reads `WidgetBuffer.pendingTaps` outside its `try`. An `IOException` there escapes `onAppWidgetOptionsChanged`, which is unguarded, and the P22 guards, which catch `RuntimeException` only.
+
+**Why deferred:** Low: needs an unreadable buffer file while the launcher resizes the widget.
+
+**Unblocked by:** Wrap the read like the rest of `build`, and guard `onAppWidgetOptionsChanged`; one JUnit test.
+
+## D27 — A foreign in-flight requestPermissions would strand a queued Result
+
+**Status:** open. Found at the Phase 6 gate, 2026-10-13.
+
+**What:** A foreign in-flight `requestPermissions` from `MainActivity` would leave a queued permission `Result` unanswered. No other caller exists today.
+
+**Why deferred:** Latent: nothing else asks for a permission.
+
+**Unblocked by:** Whoever adds a second permission request routes it through the same channel, or the channel learns to answer a displaced `Result`.
+
+## D28 — Process-death recreation can replay a notification route
+
+**Status:** open. Found at the Phase 6 gate, 2026-10-13.
+
+**What:** Recreating `MainActivity` after process death, without the Recents flag, can replay a notification's route.
+
+**Why deferred:** Low: the Recents case is handled and verified; this one needs process death while the route is the saved intent.
+
+**Unblocked by:** Clear the route extra once consumed, or ignore intents with a saved-state bundle; a device check by killing the process in the background.
+
+## D29 — A torn buffer append glues the next tap onto a partial line
+
+**Status:** open. Found at the Phase 6 gate, 2026-10-13.
+
+**What:** A power loss mid-append leaves a partial line; the next tap is glued onto it, the joined line is rejected and reported.
+
+**Why deferred:** Rare: needs power loss inside one small write; the rejection is reported, not silent.
+
+**Unblocked by:** Start each append on a fresh line when the file does not end in a newline.
+
+## D30 — The headless FlutterEngine boots on the main thread
+
+**Status:** open. Found at the Phase 6 gate, 2026-10-13.
+
+**What:** The headless FlutterEngine boots on the app process's main thread: about 650 ms, 78 frames skipped right after the dialog's Save. Nothing of ours is on screen then. Measured on the A53 (16:09:34).
+
+**Why deferred:** Off the tap path and invisible; the drain latency is still 541-871 ms.
+
+**Unblocked by:** Moving the boot off the main thread, if Flutter offers it, or a lighter drain entry point.
+
+## D31 — Dialog polish
+
+**Status:** open. Found at the Phase 6 gate, 2026-10-13.
+
+**What:** The 4th category chip is clipped at the dialog's edge (no wrap or scroll). Cancel and Save use the platform's button colours, not the widget tokens. The flat window background loses the rounded corners.
+
+**Why deferred:** Cosmetic; found at the gate.
+
+**Unblocked by:** A chip row that wraps or scrolls, themed buttons, and a rounded window background.
+
+## D32 — Persian digits cannot be typed in the dialog on the A53
+
+**Status:** open. Found at the Phase 6 gate, 2026-10-13.
+
+**What:** Samsung's number keypad offers Latin digits only, so Review Focus 2 end to end (typing a Persian amount) was not exercised. It is covered by `AmountParserTest` and by the dialog's widened key listener.
+
+**Why deferred:** Not checkable on this device.
+
+**Unblocked by:** A device or keyboard that offers Persian digits in a numeric field.
+
+## D33 — Below Android 12 the fixed two rows may clip
+
+**Status:** open. Found at the Phase 6 gate, 2026-10-13.
+
+**What:** Below Android 12 the widget's fixed 2 rows (168 dp) may clip in a default 4x2 cell (about 110-130 dp).
+
+**Why deferred:** Not checkable on the A53 (Android 16); minSdk is 26.
+
+**Unblocked by:** A device or emulator on Android 11 or older.
+
+## D34 — A reminder time change while that day's reminder is due can double it
+
+**Status:** open. Found at the Phase 6 gate, 2026-10-13.
+
+**What:** Changing the reminder time while that day's reminder is due but undelivered yields two reminders that day.
+
+**Why deferred:** The accepted cost of the F2 fix (a2ece7a), which stops a re-arm inside the delivery window from skipping the day.
+
+**Unblocked by:** Only if it proves annoying: track the delivered day and suppress the second.
+
+## D35 — Stale wording after F1
+
+**Status:** open. Found at the Phase 6 gate, 2026-10-13.
+
+**What:** `notification_prefs.dart:27-28` still says "The lock screen gets the discreet text either way", and the test name at `alert_router_test.dart:93-94` still promises a discreet lock screen. Commit 9624bb1 made the lock screen follow Android's own setting.
+
+**Why deferred:** Comment and test-name wording only.
+
+**Unblocked by:** Reword both with the next change to either file.
+
+## D36 — The widget's midnight reset was not observed
+
+**Status:** open. Found at the Phase 6 gate, 2026-10-13.
+
+**What:** The `widget.MIDNIGHT` alarm was armed and re-armed after the reboot and the zone change, but the reset itself was not seen inside the session.
+
+**Why deferred:** It cannot be shown inside one session.
+
+**Unblocked by:** The operator looks at the widget the morning after the gate.

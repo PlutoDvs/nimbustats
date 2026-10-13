@@ -1,6 +1,6 @@
 # Phase 6 — Outside the app — design
 
-**Status:** approved design. Implementation plan:
+**Status:** implemented; gate passed 2026-10-13 (see the brief's gate record). Implementation plan:
 `docs/superpowers/plans/2026-10-12-nimbustats-phase-6-outside-the-app.md`.
 **Brief:** `docs/phases/phase-6-outside-the-app.md`.
 **Prerequisites:** `phase-1-complete`, `phase-4-complete` and `phase-5-complete`
@@ -527,7 +527,7 @@ the time and undone afterwards.
 | Reminder survives a reboot | Arm a few minutes ahead, `adb reboot`, `dumpsys alarm` shows it re-armed, it fires |
 | Reminder survives a time-zone change | Change zone, `dumpsys alarm` shows the new local trigger, it fires; zone restored |
 | 80% crossing → exactly one notification; recomputation → none | App killed: widget expense → one notification (`dumpsys notification`); relaunch and a note edit → none. Repeated with the app backgrounded |
-| Discreet setting respected | `dumpsys notification --noredact` text with the setting off and on; lock screen discreet in both |
+| Discreet setting respected | `dumpsys notification --noredact` text with the setting off and on; the lock screen discreet when Android's own setting hides sensitive content (§4.3) |
 | Both locales, RTL and LTR | Widget and dialog screenshots in fa and en; widget digits match the Trackers tab |
 
 Also recorded, honestly: drain latency with the app killed, and whether

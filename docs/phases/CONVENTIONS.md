@@ -118,6 +118,8 @@ phase's files without saying so explicitly in the commit message.
 | `app/lib/features/backup/**` | Phase 7 |
 | `app/android/**/capture/**` | Phase 2 |
 | `app/android/**/widget/**` | Phase 6 |
+| `app/lib/features/widget/**` | Phase 6 |
+| `app/android/**/notifications/**` | Phase 6 |
 
 ### Shared files — the four real collision points
 
