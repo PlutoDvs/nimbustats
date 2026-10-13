@@ -335,4 +335,51 @@ void main() {
         isEmpty,
         reason: 'the card would flash its skeleton: $states');
   });
+
+  group('checkNow (Phase 6: the drain engines)', () {
+    /// The providers as the headless drain engine builds them: no shell, so
+    /// the watcher is never started.
+    GoalWatcher unstarted() {
+      final c = ProviderContainer(retry: nimbusNoRetry, overrides: [
+        appDatabaseProvider.overrideWithValue(db),
+        ...trackerOverrides(fake),
+      ]);
+      started = c;
+      final watcher = c.read(goalWatcherProvider);
+      final subscription = watcher.alerts.listen(alerts.add);
+      addTearDown(subscription.cancel);
+      return watcher;
+    }
+
+    test('emits a due alert once; a second call emits none', () async {
+      await service.save(spendingCap()); // the baseline: nothing spent
+      await spend(db, 850000, day5); // a widget expense, drained
+      final watcher = unstarted();
+
+      await watcher.checkNow();
+      // The broadcast stream delivers in a microtask.
+      await Future<void>.delayed(Duration.zero);
+      expect(percents(), [80]);
+
+      await watcher.checkNow();
+      await Future<void>.delayed(Duration.zero);
+      expect(percents(), [80],
+          reason: 'the crossing is recorded: a second check recomputes');
+    });
+
+    test('checks tracker goals too, without waiting for a debounce',
+        () async {
+      final trackers = repositoryFor(db, fake);
+      final cig = await trackers.create(cigarettes);
+      await service.save(habitGoal(cig)); // at most 5 a day
+      for (var i = 0; i < 4; i++) {
+        await trackers.logEntry(cig.id);
+      }
+      final watcher = unstarted();
+
+      await watcher.checkNow();
+      await Future<void>.delayed(Duration.zero);
+      expect(percents(), [80]);
+    });
+  });
 }

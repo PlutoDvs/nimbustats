@@ -11,8 +11,7 @@ import 'goal_providers.dart';
 /// Decides, while the app runs, that a goal has crossed one of its alert
 /// percents (spec §4.1).
 ///
-/// [alerts] is the stream Phase 6 subscribes to. Until then, the shell shows
-/// each alert as a snackbar.
+/// [alerts] is the stream Phase 6's `AlertRouter` subscribes to.
 ///
 /// It evaluates every active goal's current period:
 /// - once when [start]ed, for crossings made while the app was closed (a
@@ -20,6 +19,7 @@ import 'goal_providers.dart';
 /// - after a transaction, category or tag write, for money goals;
 /// - after a tracker entry write, for tracker goals;
 /// - when the day changes, because a new period may have begun.
+/// - on [checkNow], after Phase 6's widget drain.
 ///
 /// How it evaluates:
 /// - Every trigger waits [debounce] for the next, so a burst of taps is
@@ -96,6 +96,22 @@ final class GoalWatcher {
   void stop() {
     if (_holders == 0 || --_holders > 0) return;
     _teardown();
+  }
+
+  /// Evaluates every active goal's current period now, and completes when
+  /// that evaluation has. Any alert is on [alerts] by then (spec §2.5).
+  ///
+  /// For Phase 6's drain. The headless engine never [start]s the watcher, and
+  /// a drain in the app engine should not wait out the debounce. A debounced
+  /// evaluation already pending is folded into this one: it would evaluate a
+  /// subset of the same goals. Two checks of one crossing still alert once,
+  /// because `GoalService.check` records it in one transaction.
+  Future<void> checkNow() {
+    _pending?.cancel();
+    _pending = null;
+    _moneyDue = true;
+    _trackersDue = true;
+    return _evaluate();
   }
 
   void _teardown() {
