@@ -32,6 +32,9 @@ object DrainScheduler {
         ) {
             return
         }
+        if (Build.VERSION.SDK_INT >= 31) {
+            Log.w(TAG, "widget drain: expedited job refused; falling back to a plain job")
+        }
         val plain = scheduler.schedule(JobInfo.Builder(JOB_ID, component).setOverrideDeadline(0).build())
         if (plain != JobScheduler.RESULT_SUCCESS) {
             Log.e(TAG, "widget drain job was not scheduled; the next app start drains the buffer")

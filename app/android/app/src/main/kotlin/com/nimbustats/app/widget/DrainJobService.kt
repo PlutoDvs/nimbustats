@@ -29,12 +29,14 @@ class DrainJobService : JobService() {
     private var engine: FlutterEngine? = null
     private var params: JobParameters? = null
     private val timeout = Runnable {
-        Log.e(TAG, "widget drain: no drainFinished within 60 s; the buffer stays for the next app start")
+        Log.e(TAG, "widget drain: no result within 60 s; the buffer stays for the next app start")
         finish(ok = false)
     }
 
     override fun onStartJob(params: JobParameters): Boolean {
         this.params = params
+        // One budget for both paths: a drainNow reply that never comes must not hold the job.
+        main.postDelayed(timeout, TIMEOUT_MS)
         val app = OutsideChannelHandler.appChannel
         if (app == null) {
             runHeadless()
@@ -59,13 +61,14 @@ class DrainJobService : JobService() {
     }
 
     private fun runHeadless() {
+        // A late notImplemented/error reply after the job ended must not boot an engine nobody holds.
+        if (params == null) return
         // The constructor initialises the FlutterLoader and registers the plugins (path_provider).
         val engine = FlutterEngine(applicationContext)
         this.engine = engine
         MethodChannel(engine.dartExecutor.binaryMessenger, OutsideChannelHandler.CHANNEL).setMethodCallHandler(
             OutsideChannelHandler(applicationContext, onDrainFinished = { ok -> main.post { finish(ok) } }),
         )
-        main.postDelayed(timeout, TIMEOUT_MS)
         engine.dartExecutor.executeDartEntrypoint(
             DartExecutor.DartEntrypoint(
                 FlutterInjector.instance().flutterLoader().findAppBundlePath(),
@@ -82,8 +85,17 @@ class DrainJobService : JobService() {
         val finished = params ?: return
         params = null
         jobFinished(finished, false)
-        if (ok && WidgetBuffer.lines(applicationContext).isNotEmpty()) {
-            DrainScheduler.enqueue(applicationContext, force = true)
+        if (ok) {
+            // Posted behind jobFinished's own queued message: scheduling now would stop this still-running job.
+            main.post {
+                try {
+                    if (WidgetBuffer.lines(applicationContext).isNotEmpty()) {
+                        DrainScheduler.enqueue(applicationContext, force = true)
+                    }
+                } catch (e: Exception) {
+                    Log.e(TAG, "widget drain: the follow-up drain was not scheduled", e)
+                }
+            }
         }
     }
 
