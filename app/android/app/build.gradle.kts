@@ -50,3 +50,10 @@ kotlin {
 flutter {
     source = "../.."
 }
+
+dependencies {
+    // Host-only tests for Phase 6's pure Kotlin logic: ReminderTime,
+    // AmountParser, PendingOverlay, Uuid7. Test scope: never in the APK
+    // (Phase 6 spec §10). From Maven Central.
+    testImplementation("junit:junit:4.13.2")
+}

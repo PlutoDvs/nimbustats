@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:nimbus_data/nimbus_data.dart';
 
+import 'package:nimbustats/features/notifications/data/notification_prefs.dart';
+
 import '../../support/harness.dart';
 import 'support/fake_outside_channel.dart';
 
@@ -62,5 +64,30 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.widgetWithText(AppBar, 'Add expense'), findsOneWidget);
+  });
+
+  testWidgets('an armed reminder is re-pushed in the new language after a '
+      'switch (Review Focus 5)', (tester) async {
+    await NotificationPrefsRepository(db.settingsDao)
+        .setReminder(enabled: true, minuteOfDay: 1260);
+    await pumpApp(tester,
+        database: db,
+        seedFirstRun: true,
+        outside: outside,
+        initialLocation: '/settings',
+        locale: null);
+    expect(outside.reminders.last.text, 'امروز چیزی برای ثبت دارید؟');
+
+    await tester.tap(find.byKey(const Key('settings-locale')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('locale-en')));
+    await tester.pumpAndSettle();
+
+    expect(outside.reminders.last, (
+      enabled: true,
+      minuteOfDay: 1260,
+      text: 'Anything to log today?',
+      route: '/add',
+    ));
   });
 }

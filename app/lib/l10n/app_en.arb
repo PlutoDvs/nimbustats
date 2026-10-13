@@ -313,6 +313,7 @@
   "notificationsAlertsChannelName": "Goal alerts",
   "notificationsReminderChannelDescription": "Your daily reminder to log",
   "notificationsReminderChannelName": "Daily reminder",
+  "notificationsReminderText": "Anything to log today?",
   "onboardingCalendarTitle": "Calendar",
   "onboardingCurrencyTitle": "Currency",
   "onboardingFinish": "Start",

@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../l10n/app_localizations.dart';
 import '../application/outside_errors.dart';
+import '../application/reminder_controller.dart';
 import '../data/outside_channel.dart';
 
 /// Keeps Android's side of notifications in step with the app (spec §4.1,
@@ -14,7 +15,8 @@ import '../data/outside_channel.dart';
 ///   after a language switch;
 /// - opens the route of a notification that launched the app, once, after
 ///   the first frame;
-/// - opens the route of a notification tapped while the app runs.
+/// - opens the route of a notification tapped while the app runs;
+/// - re-sends the reminder's config, worded in the app's language.
 ///
 /// It sits on the shell (ruling R6): the routes need the router, and
 /// nothing posts before the app has run once, so the channels exist
@@ -70,6 +72,10 @@ class _NotificationsBridgeState extends ConsumerState<NotificationsBridge> {
         )),
       ),
     );
+    // The reminder's text is in the app's language, and native keeps a
+    // copy: re-send it at start and after a switch.
+    unawaited(reportingFailure('reminder', 'while pushing the reminder',
+        () => ref.read(reminderControllerProvider).push(l10n)));
   }
 
   void _open(String route) {

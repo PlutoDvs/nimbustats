@@ -561,6 +561,9 @@ class AppLocalizationsFa extends AppLocalizations {
   String get notificationsReminderChannelName => 'یادآور روزانه';
 
   @override
+  String get notificationsReminderText => 'امروز چیزی برای ثبت دارید؟';
+
+  @override
   String get onboardingCalendarTitle => 'تقویم';
 
   @override

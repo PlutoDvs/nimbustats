@@ -144,6 +144,7 @@
   "notificationsAlertsChannelName": "هشدارهای هدف",
   "notificationsReminderChannelDescription": "یادآور روزانه برای ثبت",
   "notificationsReminderChannelName": "یادآور روزانه",
+  "notificationsReminderText": "امروز چیزی برای ثبت دارید؟",
   "onboardingCalendarTitle": "تقویم",
   "onboardingCurrencyTitle": "واحد پول",
   "onboardingFinish": "شروع",

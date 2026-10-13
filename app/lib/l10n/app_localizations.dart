@@ -967,6 +967,12 @@ abstract class AppLocalizations {
   /// **'Daily reminder'**
   String get notificationsReminderChannelName;
 
+  /// No description provided for @notificationsReminderText.
+  ///
+  /// In en, this message translates to:
+  /// **'Anything to log today?'**
+  String get notificationsReminderText;
+
   /// No description provided for @onboardingCalendarTitle.
   ///
   /// In en, this message translates to:

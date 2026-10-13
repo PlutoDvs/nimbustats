@@ -73,6 +73,18 @@ object Notifier {
         context.getSystemService(NotificationManager::class.java).notify(tag, 1, notification)
     }
 
+    /** The daily reminder (spec §5). A tap opens [route]: the add-expense screen. */
+    fun postReminder(context: Context, text: String, route: String) {
+        if (!canPost(context, REMINDER, "reminder")) return
+        val notification = Notification.Builder(context, REMINDER)
+            .setSmallIcon(R.drawable.ic_stat_nimbus)
+            .setContentText(text)
+            .setContentIntent(routeIntent(context, route, "reminder"))
+            .setAutoCancel(true)
+            .build()
+        context.getSystemService(NotificationManager::class.java).notify("reminder", 1, notification)
+    }
+
     /** Opens [route] in the app: `MainActivity` passes it to Dart (launch or `openRoute`). */
     internal fun routeIntent(context: Context, route: String, key: String): PendingIntent =
         PendingIntent.getActivity(

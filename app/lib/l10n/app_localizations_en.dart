@@ -564,6 +564,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get notificationsReminderChannelName => 'Daily reminder';
 
   @override
+  String get notificationsReminderText => 'Anything to log today?';
+
+  @override
   String get onboardingCalendarTitle => 'Calendar';
 
   @override

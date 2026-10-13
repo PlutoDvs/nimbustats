@@ -3,6 +3,7 @@ package com.nimbustats.app
 import android.content.Context
 import android.util.Log
 import com.nimbustats.app.notifications.Notifier
+import com.nimbustats.app.notifications.ReminderScheduler
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 
@@ -55,6 +56,16 @@ class OutsideChannelHandler(
                         call.string("tag"),
                         call.string("text"),
                         call.string("publicText"),
+                        call.string("route"),
+                    )
+                    result.success(null)
+                }
+                "setReminder" -> {
+                    ReminderScheduler.configure(
+                        context,
+                        call.argument<Boolean>("enabled") ?: throw IllegalArgumentException("missing enabled"),
+                        call.argument<Int>("minuteOfDay") ?: throw IllegalArgumentException("missing minuteOfDay"),
+                        call.string("text"),
                         call.string("route"),
                     )
                     result.success(null)
