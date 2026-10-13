@@ -103,6 +103,12 @@ Additive edits to Phase 1's settings screen for the backup section.
   most recent — and most valuable — data. Force
   `PRAGMA wal_checkpoint(TRUNCATE)` before any backup or export, and verify by
   writing a transaction, exporting, and restoring into a fresh database.
+- **Phase 6 turned WAL on.** `AppDatabase.openAtPath` sets
+  `journal_mode=WAL` and `busy_timeout=5000` on every connection (Phase 6
+  spec §3), so from Phase 6 on every device has a live
+  `nimbustats.sqlite-wal`, and two engines (the app's and the widget's
+  headless drain) may hold the file at once. The checkpoint above is
+  therefore not hypothetical.
 - **Android Auto Backup has a 25 MB app-data cap.** Exceed it and backups stop
   — silently. Measure database growth per thousand transactions, project the
   ceiling, document it, and decide what happens when it is approached.

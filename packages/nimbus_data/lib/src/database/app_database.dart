@@ -64,8 +64,20 @@ class AppDatabase extends _$AppDatabase {
   /// `test/architecture_test.dart` assert that `app` depends on neither
   /// `drift` nor `sqlite3`: a screen that could construct a database would
   /// make the "UI cannot import the database" rule decoration.
-  factory AppDatabase.openAtPath(String path) =>
-      AppDatabase(NativeDatabase(File(path)));
+  ///
+  /// Two engines open this file: the app's, and Phase 6's headless drain.
+  /// WAL lets a read run beside a write, and the busy timeout makes a second
+  /// writer wait up to five seconds instead of failing with "database is
+  /// locked". Both are set in `setup`, which runs on each connection before
+  /// drift's own version check, so even two engines opening at the same
+  /// moment never contend unprotected. The `-wal` file this creates is what
+  /// Phase 7's backup must checkpoint first.
+  factory AppDatabase.openAtPath(String path) => AppDatabase(NativeDatabase(
+        File(path),
+        setup: (database) => database
+          ..execute('PRAGMA journal_mode = WAL')
+          ..execute('PRAGMA busy_timeout = 5000'),
+      ));
 
   /// An in-memory database, fresh per call.
   ///

@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:isolate';
 
 import 'package:nimbus_data/nimbus_data.dart';
 import 'package:test/test.dart';
@@ -56,4 +57,64 @@ void main() {
     final rows = await db.customSelect('PRAGMA foreign_keys').get();
     expect(rows.single.data.values.first, 1);
   });
+
+  group('a file-backed database shared with a second engine (Phase 6)', () {
+    late Directory dir;
+    late String path;
+
+    setUp(() {
+      dir = Directory.systemTemp.createTempSync('nimbus_wal_test');
+      path = '${dir.path}${Platform.pathSeparator}nimbustats.sqlite';
+    });
+    tearDown(() => dir.deleteSync(recursive: true));
+
+    Future<Object?> pragma(AppDatabase db, String name) async =>
+        (await db.customSelect('PRAGMA $name').get()).single.data.values.first;
+
+    test('runs in WAL mode with a five-second busy timeout', () async {
+      final db = AppDatabase.openAtPath(path);
+      addTearDown(db.close);
+      await db.settingsDao.put('k', 'v');
+
+      expect(await pragma(db, 'journal_mode'), 'wal');
+      expect(await pragma(db, 'busy_timeout'), 5000);
+      // The file Phase 7's backup must checkpoint, and device checks copy.
+      expect(File('$path-wal').existsSync(), isTrue);
+    });
+
+    test('a second engine writing at the same time waits rather than fails',
+        () async {
+      // The app engine opens (and migrates) first, as it does at start.
+      final app = AppDatabase.openAtPath(path);
+      addTearDown(app.close);
+      await app.settingsDao.get('warm');
+
+      // A real second isolate, like the headless drain engine: each opens its
+      // own SQLite connection, so the two write transactions truly overlap.
+      final drain = Isolate.run(() => _writeSettings(path, 'drain', 200));
+      await _writeSettingsOn(app, 'app', 200);
+      await drain;
+
+      final keys = (await app.settingsDao.getAll()).keys;
+      expect(keys.where((k) => k.startsWith('app-')), hasLength(200));
+      expect(keys.where((k) => k.startsWith('drain-')), hasLength(200));
+    });
+  });
+}
+
+/// Opens its own connection to [path] and writes [count] settings, one
+/// transaction each: what the headless drain engine does to the same file.
+Future<void> _writeSettings(String path, String prefix, int count) async {
+  final db = AppDatabase.openAtPath(path);
+  try {
+    await _writeSettingsOn(db, prefix, count);
+  } finally {
+    await db.close();
+  }
+}
+
+Future<void> _writeSettingsOn(AppDatabase db, String prefix, int count) async {
+  for (var i = 0; i < count; i++) {
+    await db.transaction(() => db.settingsDao.put('$prefix-$i', '$i'));
+  }
 }
