@@ -8,7 +8,10 @@ import 'package:nimbustats/app.dart';
 import 'package:nimbustats/bootstrap/database_provider.dart';
 import 'package:nimbustats/bootstrap/first_run.dart';
 import 'package:nimbustats/bootstrap/provider_retry.dart';
+import 'package:nimbustats/features/notifications/data/outside_channel.dart';
 import 'package:nimbustats/l10n/app_localizations.dart';
+
+import '../features/notifications/support/fake_outside_channel.dart';
 
 /// Pumps the real app against a fresh in-memory database.
 ///
@@ -20,6 +23,7 @@ Future<AppDatabase> pumpApp(
   WidgetTester tester, {
   AppDatabase? database,
   List<Override> overrides = const [],
+  OutsideChannel? outside,
   bool seedFirstRun = false,
   bool realFirstRunGate = false,
   String? initialLocation,
@@ -50,6 +54,9 @@ Future<AppDatabase> pumpApp(
     // Tests about first run itself ask for the real gate.
     if (!seedFirstRun && !realFirstRunGate)
       firstRunCompleteProvider.overrideWithValue(() async => true),
+    // No Android in a widget test. A test about the channel passes its own
+    // fake to read what was sent.
+    outsideChannelProvider.overrideWithValue(outside ?? FakeOutsideChannel()),
     ...overrides,
   ]);
   addTearDown(container.dispose);
