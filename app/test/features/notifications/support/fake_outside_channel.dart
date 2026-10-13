@@ -19,6 +19,9 @@ class FakeOutsideChannel implements OutsideChannel {
   /// Thrown by the next [postAlert], to test a failed post.
   Exception? postError;
 
+  /// Thrown by [takeBuffer] while set, to test a failed drain.
+  Exception? takeError;
+
   /// The native buffer's lines.
   List<String> buffer = [];
   String? launchRoute;
@@ -111,6 +114,8 @@ class FakeOutsideChannel implements OutsideChannel {
   @override
   Future<List<String>> takeBuffer() async {
     calls.add('takeBuffer');
+    final error = takeError;
+    if (error != null) throw error;
     return List.of(buffer);
   }
 

@@ -52,7 +52,22 @@ class _WidgetSyncState extends ConsumerState<WidgetSync> {
     // Native's drain job hands a live app engine the work (spec §2.4). A
     // closure of this shell's own: every shell's `_drain.run` tear-off is
     // equal, which would let an old shell unregister a newer one's.
-    _onDrainNow = () => _drain.run();
+    _onDrainNow = () async {
+      try {
+        return await _drain.run();
+      } on Object catch (error, stack) {
+        // The channel turns a throw into an error reply without reporting
+        // it. Rethrown, because that reply sends native to the headless
+        // engine.
+        FlutterError.reportError(FlutterErrorDetails(
+          exception: error,
+          stack: stack,
+          library: 'widget drain',
+          context: ErrorDescription('while draining for native (drainNow)'),
+        ));
+        rethrow;
+      }
+    };
     _channel.onDrainNow = _onDrainNow;
     _lifecycle = AppLifecycleListener(onResume: () {
       _drainNow();

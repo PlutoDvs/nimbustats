@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:nimbus_data/nimbus_data.dart';
@@ -101,6 +102,28 @@ void main() {
 
     expect(await answered, isTrue);
     expect(outside.buffer, isEmpty);
+  });
+
+  testWidgets('a drainNow that fails is reported, and native hears the error',
+      (tester) async {
+    await pumpApp(tester, database: db, seedFirstRun: true, outside: outside);
+    await tester.pumpAndSettle();
+    final reports = <FlutterErrorDetails>[];
+    final previous = FlutterError.onError;
+    FlutterError.onError = reports.add;
+    addTearDown(() => FlutterError.onError = previous);
+    outside.takeError = PlatformException(code: 'boom');
+
+    // Listened to before it fails. The error reply is what sends native's
+    // job to the headless engine.
+    final answered =
+        expectLater(outside.onDrainNow!(), throwsA(isA<PlatformException>()));
+    await tester.pumpAndSettle();
+    // Restored before any expect, or a failing one wedges the binding.
+    FlutterError.onError = previous;
+
+    await answered;
+    expect(reports.single.library, 'widget drain');
   });
 
   testWidgets('a resume drains', (tester) async {

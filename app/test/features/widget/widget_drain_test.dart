@@ -175,7 +175,9 @@ void main() {
 
     // The headless engine is a real second isolate with its own connection,
     // as on the device. Two connections on one isolate would stall: SQLite's
-    // busy handler sleeps on the only thread the other needs to commit.
+    // busy handler sleeps on the only thread the other needs to commit. It
+    // walks the lines from the other end, so the two meet mid-buffer rather
+    // than the later one finding every row already written.
     final acked = await Future.wait([
       drainOver(app).apply(lines).then((outcome) => outcome.ackIds.length),
       _headlessDrain(path, lines),
@@ -185,19 +187,25 @@ void main() {
     final rows = await app.transactionsDao.inRange(
         const DateRange(DateKey(20000101), DateKey(20991231)));
     expect(rows, hasLength(30));
+    expect({for (final row in rows) row.currencyCode},
+        {Currency.toman.code, Currency.usd.code},
+        reason: 'each engine wrote some of the rows');
   });
 }
 
-WidgetDrain _drainOver(AppDatabase database, FakeClock fake) => WidgetDrain(
+WidgetDrain _drainOver(AppDatabase database, FakeClock fake,
+        {Currency currency = Currency.toman}) =>
+    WidgetDrain(
       db: database,
       transactions: TransactionRepository(
-          database.transactionsDao, database.tagsDao, Currency.toman),
+          database.transactionsDao, database.tagsDao, currency),
       trackers: repositoryFor(database, fake),
     );
 
 /// In a second isolate, opens its own connection to [path] and drains
-/// [lines]: what the headless engine does to the same file. Returns how many
-/// lines it acked.
+/// [lines] last to first: what the headless engine does to the same file.
+/// Its rows are stamped in dollars, so the test can tell whose they are.
+/// Returns how many lines it acked.
 ///
 /// Spawned here, not in the test: a closure made in `main` carries `main`'s
 /// context, whose open database cannot be sent to an isolate.
@@ -205,7 +213,8 @@ Future<int> _headlessDrain(String path, List<String> lines) =>
     Isolate.run(() async {
       final db = AppDatabase.openAtPath(path);
       try {
-        return (await _drainOver(db, FakeClock()).apply(lines)).ackIds.length;
+        final drain = _drainOver(db, FakeClock(), currency: Currency.usd);
+        return (await drain.apply(lines.reversed.toList())).ackIds.length;
       } finally {
         await db.close();
       }
