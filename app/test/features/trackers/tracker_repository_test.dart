@@ -425,4 +425,29 @@ void main() {
       expect(await repo.totalOn(cig.id, const DateKey(20261006)), 0);
     });
   });
+
+  group('logEntry with a caller-supplied id (Phase 6 widget drain)', () {
+    test('a repeat writes nothing and the tap time decides the day', () async {
+      final tracker = await repo.create(cigarettes);
+      // 23:59 in Tehran on the 4th, drained at 12:30 on the 5th (the fake's
+      // now): the entry belongs to the 4th.
+      final at = DateTime.utc(2026, 10, 4, 20, 29);
+
+      expect(await repo.logEntry(tracker.id, at: at, id: 'w1'),
+          isA<EntryLogged>());
+      expect(await repo.logEntry(tracker.id, at: at, id: 'w1'),
+          isA<AlreadyLogged>());
+
+      final entries = await entriesOf(tracker.id);
+      expect(entries.single.id, 'w1');
+      expect(entries.single.localDateKey, const DateKey(20261004));
+    });
+
+    test('without an id, two taps are two entries', () async {
+      final tracker = await repo.create(cigarettes);
+      await repo.logEntry(tracker.id);
+      await repo.logEntry(tracker.id);
+      expect(await entriesOf(tracker.id), hasLength(2));
+    });
+  });
 }

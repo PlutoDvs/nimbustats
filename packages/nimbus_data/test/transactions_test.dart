@@ -134,4 +134,56 @@ void main() {
     expect(detail, contains('idx_tx_date'), reason: 'plan: $detail');
     expect(detail, isNot(contains('SCAN transactions')), reason: 'plan: $detail');
   });
+
+  group('insert only if absent (Phase 6 widget drain)', () {
+    const day = DateKey(20261012);
+
+    Future<bool> insertOnce(String id, {int amount = 1000}) =>
+        db.transactionsDao.insertTransaction(
+          id: id,
+          direction: TxDirection.expense,
+          amount: Money(amount),
+          currencyCode: 'IRT',
+          occurredAtUtc: day.toDateTime().millisecondsSinceEpoch,
+          localDateKey: day,
+          categoryId: 'food',
+          source: TxSource.widget,
+          onlyIfAbsent: true,
+        );
+
+    test('a second insert with the same id writes nothing', () async {
+      expect(await insertOnce('w1', amount: 1000), isTrue);
+      expect(await insertOnce('w1', amount: 9999), isFalse);
+      expect((await db.transactionsDao.byId('w1'))!.amount, const Money(1000));
+    });
+
+    test('a soft-deleted row still holds its id: no resurrection', () async {
+      await insertOnce('w2');
+      await db.transactionsDao.softDelete('w2');
+      expect(await insertOnce('w2'), isFalse);
+      expect((await db.transactionsDao.byId('w2'))!.deletedAt, isA<int>());
+    });
+
+    test('two inserts racing on one id write it once', () async {
+      final written = await Future.wait([insertOnce('w3'), insertOnce('w3')]);
+      expect(written.where((w) => w), hasLength(1));
+    });
+
+    test('without it, a duplicate id is still an error', () async {
+      final id = await addExpense(amount: 5, on: day);
+      expect(
+        () => db.transactionsDao.insertTransaction(
+          id: id,
+          direction: TxDirection.expense,
+          amount: const Money(5),
+          currencyCode: 'IRT',
+          occurredAtUtc: day.toDateTime().millisecondsSinceEpoch,
+          localDateKey: day,
+          categoryId: 'food',
+          source: TxSource.manual,
+        ),
+        throwsA(isA<Exception>()),
+      );
+    });
+  });
 }

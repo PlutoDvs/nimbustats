@@ -115,11 +115,16 @@ final class TrackerRepository {
   /// a boolean tracker already holds that day. Throws [ArgumentError] for a
   /// value that does not fit the type, or for a duration tracker without a
   /// value -- a duration's taps go through [startTimer] and [stopTimer].
+  ///
+  /// [id] is for a caller that must log each tap exactly once (Phase 6's
+  /// widget drain): an id written before -- even one deleted since -- returns
+  /// [AlreadyLogged] and writes nothing.
   Future<LogResult> logEntry(
     String trackerId, {
     double? value,
     DateTime? at,
     String? note,
+    String? id,
   }) async {
     final tracker = await _require(trackerId);
     final amount = value ??
@@ -132,7 +137,7 @@ final class TrackerRepository {
     }
     final atUtc = (at ?? _clock.nowUtc()).toUtc();
     return _entries.insertEntry((
-      id: Ids.newId(),
+      id: id ?? Ids.newId(),
       trackerId: trackerId,
       value: amount,
       occurredAtUtc: atUtc,
@@ -143,7 +148,7 @@ final class TrackerRepository {
       tzOffsetMinutes: _clock.offsetMinutesOf(atUtc),
       note: _validNote(note),
       oncePerDay: tracker.type == TrackerType.boolean,
-    ));
+    ), onlyIfAbsent: id != null);
   }
 
   /// Takes back today's "done" on a boolean tracker. Returns what to restore

@@ -220,4 +220,34 @@ void main() {
     );
     expect(await repo.total(wholeEra), const Money(13499));
   });
+
+  group('add with a caller-supplied id (Phase 6 widget drain)', () {
+    test('a repeat returns the first row and writes nothing', () async {
+      final first = await repo.add(draft(amount: const Money(1000)), id: 'w1');
+      final again = await repo.add(draft(amount: const Money(9999)), id: 'w1');
+
+      expect(first.id, 'w1');
+      expect(again.id, 'w1');
+      expect(again.amount, const Money(1000));
+      expect(await repo.total(wholeEra), const Money(1000));
+    });
+
+    test("a repeat leaves the row's tags and their usage alone", () async {
+      await repo.add(draft(tagIds: ['travel']), id: 'w2');
+      // An empty tag list would clear the first write's tags if it reached
+      // _attachTags.
+      await repo.add(draft(), id: 'w2');
+
+      expect(await repo.tagsOf('w2'), ['travel']);
+      expect((await db.tagsDao.byId('travel'))!.usageCount, 1);
+    });
+
+    test('a row deleted after it was written is not resurrected', () async {
+      await repo.add(draft(amount: const Money(700)), id: 'w3');
+      await repo.softDelete('w3');
+      await repo.add(draft(amount: const Money(700)), id: 'w3');
+
+      expect(await repo.total(wholeEra), Money.zero);
+    });
+  });
 }

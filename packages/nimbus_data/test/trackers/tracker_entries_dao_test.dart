@@ -238,4 +238,47 @@ void main() {
       expect(await offsetOf(db, 'e'), -240);
     });
   });
+
+  group('insert only if absent (Phase 6 widget drain)', () {
+    test('a second insert with the same id writes nothing', () async {
+      expect(await dao.insertEntry(newEntry('w1', 'cig'), onlyIfAbsent: true),
+          isA<EntryLogged>());
+      expect(
+          await dao.insertEntry(newEntry('w1', 'cig', value: 3),
+              onlyIfAbsent: true),
+          isA<AlreadyLogged>());
+      expect(await liveEntries(db, 'cig'), 1);
+    });
+
+    test('a soft-deleted entry still holds its id: no resurrection', () async {
+      await dao.insertEntry(newEntry('w2', 'cig'), onlyIfAbsent: true);
+      await dao.softDelete('w2');
+      expect(await dao.insertEntry(newEntry('w2', 'cig'), onlyIfAbsent: true),
+          isA<AlreadyLogged>());
+      expect(await liveEntries(db, 'cig'), 0);
+    });
+
+    test('two inserts racing on one id write it once', () async {
+      final results = await Future.wait([
+        dao.insertEntry(newEntry('w3', 'cig'), onlyIfAbsent: true),
+        dao.insertEntry(newEntry('w3', 'cig'), onlyIfAbsent: true),
+      ]);
+      expect(results.whereType<EntryLogged>(), hasLength(1));
+      expect(results.whereType<AlreadyLogged>(), hasLength(1));
+    });
+
+    test('a boolean already done that day is still AlreadyDoneToday', () async {
+      await dao.insertEntry(newEntry('a', 'gym', oncePerDay: true));
+      expect(
+          await dao.insertEntry(newEntry('w4', 'gym', oncePerDay: true),
+              onlyIfAbsent: true),
+          isA<AlreadyDoneToday>());
+    });
+
+    test('without it, a duplicate id is still an error', () async {
+      await dao.insertEntry(newEntry('w5', 'cig'));
+      expect(() => dao.insertEntry(newEntry('w5', 'cig')),
+          throwsA(isA<Exception>()));
+    });
+  });
 }

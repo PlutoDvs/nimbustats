@@ -3,6 +3,7 @@ import 'package:nimbus_domain/nimbus_domain.dart';
 import 'package:sqlite3/common.dart' show SqlExtendedError, SqliteException;
 
 import '../database/app_database.dart';
+import '../database/sqlite_errors.dart';
 
 /// An entry as the repository hands it over for insertion. [oncePerDay] is
 /// true for a boolean tracker's entries; the repository sets it.
@@ -28,11 +29,12 @@ class TrackerEntriesDao {
 
   final AppDatabase _db;
 
-  /// Inserts [entry], or reports that its day already holds a live "done".
+  /// Inserts [entry], or reports that its day already holds a live "done", or -- with [onlyIfAbsent] -- that its id was written before.
   ///
   /// The once-per-day index does the deciding, not a read before the write. A
   /// read first would let two fast taps both see "not done" and both write.
-  Future<LogResult> insertEntry(NewTrackerEntry entry) async {
+  Future<LogResult> insertEntry(NewTrackerEntry entry,
+      {bool onlyIfAbsent = false}) async {
     final now = _now();
     try {
       await _db.into(_db.trackerEntries).insert(
@@ -50,6 +52,11 @@ class TrackerEntriesDao {
             ),
           );
     } on Object catch (error) {
+      // An id the caller supplied was written before (Phase 6's widget
+      // drain): the primary key, not a read first, decides.
+      if (onlyIfAbsent && isPrimaryKeyViolation(error)) {
+        return const AlreadyLogged();
+      }
       if (_isOncePerDayViolation(error)) return const AlreadyDoneToday();
       rethrow;
     }

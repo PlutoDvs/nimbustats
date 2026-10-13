@@ -24,6 +24,7 @@ import '../trackers/trackers_dao.dart';
 import '../tree/materialized_path.dart';
 // Used by the generated part, which resolves imports through this library.
 import 'converters.dart';
+import 'sqlite_errors.dart';
 
 part 'app_database.g.dart';
 
@@ -935,7 +936,14 @@ class TransactionsDao {
 
   final AppDatabase _db;
 
-  Future<void> insertTransaction({
+  /// Writes one transaction and returns true.
+  ///
+  /// With [onlyIfAbsent], an [id] already in the table -- live or
+  /// soft-deleted -- writes nothing and returns false. The primary key
+  /// decides, not a read first, so two drains racing on one id still write it
+  /// once, and an expense deleted after it was drained is never brought back
+  /// (Phase 6 spec §2.2). Without it a duplicate id is a bug and throws.
+  Future<bool> insertTransaction({
     required String id,
     required TxDirection direction,
     required Money amount,
@@ -952,30 +960,37 @@ class TransactionsDao {
     Necessity? necessity,
     Satisfaction? satisfaction,
     String? captureId,
+    bool onlyIfAbsent = false,
   }) async {
     final now = DateTime.now().millisecondsSinceEpoch;
-    await _db.into(_db.transactions).insert(
-          TransactionsCompanion.insert(
-            id: id,
-            direction: direction,
-            amount: amount,
-            currencyCode: currencyCode,
-            occurredAtUtc: occurredAtUtc,
-            localDateKey: localDateKey,
-            tzOffsetMinutes: Value(tzOffsetMinutes),
-            categoryId: categoryId,
-            source: source,
-            isConfirmed: Value(isConfirmed),
-            paymentMethodId: Value(paymentMethodId),
-            merchant: Value(merchant),
-            note: Value(note),
-            necessity: Value(necessity),
-            satisfaction: Value(satisfaction),
-            captureId: Value(captureId),
-            createdAt: now,
-            updatedAt: now,
-          ),
-        );
+    try {
+      await _db.into(_db.transactions).insert(
+            TransactionsCompanion.insert(
+              id: id,
+              direction: direction,
+              amount: amount,
+              currencyCode: currencyCode,
+              occurredAtUtc: occurredAtUtc,
+              localDateKey: localDateKey,
+              tzOffsetMinutes: Value(tzOffsetMinutes),
+              categoryId: categoryId,
+              source: source,
+              isConfirmed: Value(isConfirmed),
+              paymentMethodId: Value(paymentMethodId),
+              merchant: Value(merchant),
+              note: Value(note),
+              necessity: Value(necessity),
+              satisfaction: Value(satisfaction),
+              captureId: Value(captureId),
+              createdAt: now,
+              updatedAt: now,
+            ),
+          );
+      return true;
+    } on Object catch (error) {
+      if (onlyIfAbsent && isPrimaryKeyViolation(error)) return false;
+      rethrow;
+    }
   }
 
   Future<Transaction?> byId(String id) =>

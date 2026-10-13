@@ -27,6 +27,19 @@ final class AlreadyDoneToday extends LogResult {
   String toString() => 'AlreadyDoneToday()';
 }
 
+/// An entry with the caller's own id was written before, and may have been
+/// deleted since. Nothing was written.
+///
+/// Only a caller that supplies the id can get this: Phase 6's widget drain,
+/// whose buffer line id is the entry id so a repeated drain writes each tap
+/// once and never brings a deleted one back.
+final class AlreadyLogged extends LogResult {
+  const AlreadyLogged();
+
+  @override
+  String toString() => 'AlreadyLogged()';
+}
+
 sealed class TimerStartResult {
   const TimerStartResult();
 }

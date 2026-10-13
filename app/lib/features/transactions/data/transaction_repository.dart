@@ -27,11 +27,19 @@ final class TransactionRepository {
   /// was recorded in a different one.
   final Currency _currency;
 
-  Future<Transaction> add(TransactionDraft draft) async {
-    final id = Ids.newId();
+  /// Writes [draft] as a new transaction and returns it.
+  ///
+  /// [id] is for a caller that must write each item exactly once: Phase 6's
+  /// widget drain, whose buffer line id becomes the row id. With it, an id
+  /// already in the table -- live or deleted -- writes nothing, and the row
+  /// as it stands is returned with its tags untouched (re-attaching the
+  /// draft's would clear any the user has added since). Without it, every
+  /// call is a new row.
+  Future<Transaction> add(TransactionDraft draft, {String? id}) async {
+    final rowId = id ?? Ids.newId();
     final local = draft.occurredAtUtc.toLocal();
-    await _dao.insertTransaction(
-      id: id,
+    final written = await _dao.insertTransaction(
+      id: rowId,
       direction: draft.direction,
       amount: draft.amount,
       currencyCode: _currency.code,
@@ -51,15 +59,16 @@ final class TransactionRepository {
       necessity: draft.necessity,
       satisfaction: draft.satisfaction,
       captureId: draft.captureId,
+      onlyIfAbsent: id != null,
     );
-    await _attachTags(id, draft.tagIds, countUsage: true);
+    if (written) await _attachTags(rowId, draft.tagIds, countUsage: true);
 
-    final row = await _dao.byId(id);
+    final row = await _dao.byId(rowId);
     if (row == null) {
       // Not defensive noise: a row that vanishes between insert and read means
       // the write did not commit, and returning a fabricated object would let
       // the UI show an expense that does not exist.
-      throw StateError('Transaction $id was not persisted');
+      throw StateError('Transaction $rowId was not persisted');
     }
     return row;
   }

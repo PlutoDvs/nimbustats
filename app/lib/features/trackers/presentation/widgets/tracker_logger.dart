@@ -49,9 +49,10 @@ final class TrackerLogger {
                   tracker.name, format.total(tracker, total)),
           () => repository.deleteEntry(entry.id),
         );
-      case AlreadyDoneToday():
-        // A double-tap on "done". The first tap's entry already holds the
-        // day, and the tile shows it.
+      case AlreadyDoneToday() || AlreadyLogged():
+        // A double-tap on "done": the first tap's entry already holds the
+        // day, and the tile shows it. AlreadyLogged needs a caller-supplied
+        // id, which the tab never passes.
         break;
     }
   }
