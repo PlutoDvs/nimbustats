@@ -46,9 +46,9 @@ class WidgetSnapshot(
          *   start rewrites the snapshot (spec 6.5).
          */
         fun read(context: Context): WidgetSnapshot? {
-            val json = WidgetBuffer.readSnapshot(context) ?: return null
             return try {
-                parse(json)
+                // The file read is inside the try too: an IOException is the error state, not a crash.
+                parse(WidgetBuffer.readSnapshot(context) ?: return null)
             } catch (error: Exception) {
                 Log.e(TAG, "widget snapshot unreadable; showing the loading state until the app rewrites it", error)
                 null

@@ -3,6 +3,8 @@ package com.nimbustats.app.notifications
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.util.Log
+import com.nimbustats.app.OutsideChannelHandler.Companion.TAG
 import com.nimbustats.app.widget.WidgetRenderer
 
 /**
@@ -14,6 +16,10 @@ class RearmReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
         ReminderScheduler.rearm(context)
         // A zone or clock change can move today; re-render so the rows follow it.
-        WidgetRenderer.renderAll(context)
+        try {
+            WidgetRenderer.renderAll(context)
+        } catch (error: Exception) {
+            Log.e(TAG, "widget render failed after a re-arm", error)
+        }
     }
 }

@@ -4,6 +4,8 @@ import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProvider
 import android.content.Context
 import android.os.Bundle
+import android.util.Log
+import com.nimbustats.app.OutsideChannelHandler.Companion.TAG
 import com.nimbustats.app.notifications.ReminderScheduler
 
 /**
@@ -12,7 +14,12 @@ import com.nimbustats.app.notifications.ReminderScheduler
  */
 class ExpenseWidgetProvider : AppWidgetProvider() {
     override fun onUpdate(context: Context, manager: AppWidgetManager, ids: IntArray) {
-        WidgetRenderer.renderAll(context)
+        // A render failure must not skip arming the midnight refresh.
+        try {
+            WidgetRenderer.renderAll(context)
+        } catch (error: Exception) {
+            Log.e(TAG, "widget render failed on update", error)
+        }
         ReminderScheduler.armMidnight(context)
     }
 
