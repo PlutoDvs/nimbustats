@@ -17,6 +17,7 @@ import 'package:nimbustats/features/trackers/application/tracker_providers.dart'
 import 'package:nimbustats/features/trackers/data/tracker_draft.dart';
 import 'package:nimbustats/features/trackers/data/tracker_repository.dart';
 
+import '../notifications/support/fake_outside_channel.dart';
 import '../trackers/support/tracker_fixture.dart';
 import 'support/goal_test_app.dart';
 
@@ -737,5 +738,37 @@ void main() {
       await choose(tester, kind);
       expect(tester.takeException(), isNull, reason: kind.name);
     }
+  });
+
+  group('the notification permission (Phase 6, spec §4.2)', () {
+    Future<void> saveACap(WidgetTester tester) async {
+      await tester.tap(find.byKey(const Key('goals-new')));
+      await tester.pumpAndSettle();
+      await choose(tester, GoalKind.spendingCap);
+      await tester.enterText(
+          find.byKey(const Key('tx-amount-field')), '2000000');
+      await tester.pump();
+      await tester.tap(find.byKey(const Key('goal-save')));
+      await tester.pumpAndSettle();
+    }
+
+    testWidgets("the first goal's save asks, once", (tester) async {
+      final outside = FakeOutsideChannel();
+      await pumpGoals(tester, db, fake, outside: outside);
+      await saveACap(tester);
+
+      expect(outside.permissionRequests, 1);
+      expect(find.byKey(const Key('goals-list')), findsOneWidget,
+          reason: 'the save still closes the editor');
+    });
+
+    testWidgets("a later goal's save does not ask", (tester) async {
+      await service.save(spendingCap());
+      final outside = FakeOutsideChannel();
+      await pumpGoals(tester, db, fake, outside: outside);
+      await saveACap(tester);
+
+      expect(outside.permissionRequests, 0);
+    });
   });
 }

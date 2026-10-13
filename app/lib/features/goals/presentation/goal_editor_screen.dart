@@ -11,6 +11,9 @@ import 'package:nimbus_domain/nimbus_domain.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../categories/application/category_providers.dart';
 import '../../categories/data/category_tree.dart';
+import '../../notifications/application/outside_errors.dart';
+import '../../notifications/application/permission_request.dart';
+import '../../notifications/data/outside_channel.dart';
 import '../../settings/application/settings_providers.dart';
 import '../../tags/application/tag_providers.dart';
 import '../../tags/presentation/widgets/tag_chip_row.dart';
@@ -158,6 +161,8 @@ class _GoalFormState extends ConsumerState<_GoalForm> {
     final messenger = ScaffoldMessenger.of(context);
     final router = GoRouter.of(context);
     final service = ref.read(goalServiceProvider);
+    final outside = ref.read(outsideChannelProvider);
+    final isNew = widget.seed.goal == null;
     // Awaited before leaving, as the add-expense screen does. If the write
     // fails, the user is still holding the form. No spinner: a local write
     // is sub-millisecond (screen contract §1.3).
@@ -166,10 +171,25 @@ class _GoalFormState extends ConsumerState<_GoalForm> {
       l10n: l10n,
       write: () => service.save(goal),
     );
+    // Not awaited: Android's dialog shows over the list the editor returns
+    // to, and the save is already done.
+    if (isNew) unawaited(_askIfFirstGoal(service, outside));
     if (router.canPop()) {
       router.pop();
     } else {
       router.go(goalsRoute);
+    }
+  }
+
+  /// The first goal is when notifications start to matter (Phase 6 spec
+  /// §4.2). Counted after the write, so this goal is the one and a failed
+  /// read can never abort the save; that failure is reported, and no ask.
+  static Future<void> _askIfFirstGoal(
+      GoalService service, OutsideChannel outside) async {
+    final goals = await reportingFailure('alert router',
+        'while counting goals for the notification ask', service.goals);
+    if (goals?.length == 1) {
+      await askForNotifications(outside, library: 'alert router');
     }
   }
 

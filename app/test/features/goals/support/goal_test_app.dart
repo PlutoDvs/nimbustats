@@ -5,6 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:nimbus_data/nimbus_data.dart';
 import 'package:nimbus_domain/nimbus_domain.dart';
 import 'package:nimbustats/features/goals/routes.dart';
+import 'package:nimbustats/features/notifications/data/outside_channel.dart';
 import 'package:nimbustats/features/transactions/data/transaction_draft.dart';
 import 'package:nimbustats/features/transactions/data/transaction_repository.dart';
 
@@ -148,6 +149,7 @@ Future<AppDatabase> pumpGoals(
   String location = goalsRoute,
   Locale locale = const Locale('en'),
   List<Override> overrides = const [],
+  OutsideChannel? outside,
   void Function(ProviderContainer container)? onContainer,
 }) =>
     pumpApp(tester,
@@ -155,6 +157,7 @@ Future<AppDatabase> pumpGoals(
         initialLocation: location,
         locale: locale,
         overrides: [...trackerOverrides(fake), ...overrides],
+        outside: outside,
         onContainer: onContainer);
 
 /// A goals row whose scope is not JSON, which the list must show as
