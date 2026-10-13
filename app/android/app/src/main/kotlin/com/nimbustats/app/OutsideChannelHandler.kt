@@ -92,6 +92,13 @@ class OutsideChannelHandler(
                     )
                     result.success(null)
                 }
+                "drainFinished" -> {
+                    val done = onDrainFinished
+                        ?: throw IllegalStateException("drainFinished outside the headless drain engine")
+                    val ok = call.argument<Boolean>("ok") ?: throw IllegalArgumentException("missing ok")
+                    result.success(null)
+                    done(ok)
+                }
                 "takeLaunchRoute" ->result.success(takeLaunchRoute())
                 else -> result.notImplemented()
             }
