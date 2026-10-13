@@ -8,6 +8,7 @@ import android.content.Context
 import android.content.Intent
 import com.nimbustats.app.widget.ExpenseWidgetProvider
 import com.nimbustats.app.widget.WidgetActionReceiver
+import java.time.Instant
 import java.time.ZonedDateTime
 
 /**
@@ -16,7 +17,9 @@ import java.time.ZonedDateTime
  * It keeps Dart's last config in SharedPreferences, so [RearmReceiver] can re-arm after a reboot
  * or a zone change without starting Flutter. The alarm is `setAndAllowWhileIdle(RTC_WAKEUP)`:
  * inexact, delivered in Doze, needing no exact-alarm permission. It is one-shot, and each firing
- * arms the next.
+ * arms the next. It also keeps the trigger it armed last (`armedAt`, epoch ms): a re-arm that
+ * lands after that time but before Android delivers it fires now instead of skipping the day
+ * ([ReminderTime.rearmTrigger]).
  */
 object ReminderScheduler {
     private const val PREFS = "nimbus_reminder"
@@ -24,6 +27,7 @@ object ReminderScheduler {
     private const val MINUTE = "minuteOfDay"
     private const val TEXT = "text"
     private const val ROUTE = "route"
+    private const val ARMED_AT = "armedAt"
 
     fun configure(context: Context, enabled: Boolean, minuteOfDay: Int, text: String, route: String) {
         require(minuteOfDay in 0 until 24 * 60) { "minuteOfDay $minuteOfDay is outside the day" }
@@ -42,16 +46,31 @@ object ReminderScheduler {
         armMidnight(context)
     }
 
-    fun armReminder(context: Context) {
+    /**
+     * Arms the reminder, or cancels it when disabled. [afterFiring] is the receiver's own arm: the
+     * trigger it was armed for has just been delivered, so it arms the next occurrence; every
+     * other caller is a re-arm and keeps an overdue, undelivered `armedAt` from today.
+     */
+    fun armReminder(context: Context, afterFiring: Boolean = false) {
         val alarms = context.getSystemService(AlarmManager::class.java)
         val intent = reminderIntent(context)
         val prefs = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
         if (!prefs.getBoolean(ENABLED, false)) {
             alarms.cancel(intent)
+            prefs.edit().remove(ARMED_AT).apply()
             return
         }
-        val at = ReminderTime.nextTrigger(ZonedDateTime.now(), prefs.getInt(MINUTE, 21 * 60))
-        alarms.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, at.toInstant().toEpochMilli(), intent)
+        val now = ZonedDateTime.now()
+        val minute = prefs.getInt(MINUTE, 21 * 60)
+        val at = if (afterFiring) {
+            ReminderTime.nextTrigger(now, minute)
+        } else {
+            val armedAt = if (prefs.contains(ARMED_AT)) prefs.getLong(ARMED_AT, 0) else null
+            ReminderTime.rearmTrigger(now, minute, armedAt?.let(Instant::ofEpochMilli))
+        }
+        val atMillis = at.toInstant().toEpochMilli()
+        alarms.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, atMillis, intent)
+        prefs.edit().putLong(ARMED_AT, atMillis).apply()
     }
 
     /**

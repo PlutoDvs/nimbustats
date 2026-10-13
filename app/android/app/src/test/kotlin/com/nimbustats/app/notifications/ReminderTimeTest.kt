@@ -1,5 +1,6 @@
 package com.nimbustats.app.notifications
 
+import java.time.Instant
 import java.time.ZoneId
 import java.time.ZoneOffset
 import java.time.ZonedDateTime
@@ -76,5 +77,55 @@ class ReminderTimeTest {
     @Test(expected = IllegalArgumentException::class)
     fun aMinuteOutsideTheDayIsRefused() {
         ReminderTime.nextTrigger(at(tehran, 2026, 10, 12, 9, 0), 1440)
+    }
+
+    @Test
+    fun aRearmWithNothingPendingArmsTheNextOccurrence() {
+        val now = at(tehran, 2026, 10, 13, 9, 30)
+        assertEquals(ReminderTime.nextTrigger(now, nine), ReminderTime.rearmTrigger(now, nine, null))
+    }
+
+    @Test
+    fun aRearmAfterTheArmedTimeButBeforeDeliveryFiresNow() {
+        // The A53: armed for 22:46, a network clock sync at 22:48:59 re-armed before delivery.
+        val now = ZonedDateTime.of(2026, 10, 13, 22, 48, 59, 0, tehran)
+        val pending = at(tehran, 2026, 10, 13, 22, 46).toInstant()
+        assertEquals(now, ReminderTime.rearmTrigger(now, 22 * 60 + 46, pending))
+    }
+
+    @Test
+    fun aPendingTriggerFromAnEarlierDayIsNotFiredNow() {
+        val yesterdays = at(tehran, 2026, 10, 12, 21, 0).toInstant()
+        val morning = at(tehran, 2026, 10, 13, 9, 30)
+        assertEquals(at(tehran, 2026, 10, 13, 21, 0), ReminderTime.rearmTrigger(morning, nine, yesterdays))
+        val evening = at(tehran, 2026, 10, 13, 21, 30)
+        assertEquals(at(tehran, 2026, 10, 14, 21, 0), ReminderTime.rearmTrigger(evening, nine, yesterdays))
+    }
+
+    @Test
+    fun aPendingTriggerStillAheadIsTheNextOccurrence() {
+        val now = at(tehran, 2026, 10, 13, 9, 30)
+        val pending = at(tehran, 2026, 10, 13, 21, 0)
+        assertEquals(pending, ReminderTime.rearmTrigger(now, nine, pending.toInstant()))
+    }
+
+    @Test
+    fun aPendingTriggerExactlyNowFiresNow() {
+        val now = at(tehran, 2026, 10, 13, 21, 0)
+        assertEquals(now, ReminderTime.rearmTrigger(now, nine, now.toInstant()))
+    }
+
+    @Test
+    fun aZoneChangeKeepsAnOverduePendingTriggerThatIsStillToday() {
+        // Armed for 21:00 Tehran = 13:30 in New York; at 14:00 there it is overdue and still today.
+        val pending = at(tehran, 2026, 10, 13, 21, 0).toInstant()
+        val now = at(newYork, 2026, 10, 13, 14, 0)
+        assertEquals(now, ReminderTime.rearmTrigger(now, nine, pending))
+    }
+
+    @Test(expected = IllegalArgumentException::class)
+    fun aRearmWithAMinuteOutsideTheDayIsRefused() {
+        val now = at(tehran, 2026, 10, 13, 22, 0)
+        ReminderTime.rearmTrigger(now, 1440, now.toInstant())
     }
 }
