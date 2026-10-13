@@ -7,6 +7,7 @@ import 'package:nimbus_domain/nimbus_domain.dart';
 
 import '../../../l10n/app_localizations.dart';
 import '../../categories/routes.dart';
+import '../../notifications/presentation/notifications_section.dart';
 import '../../payment_methods/routes.dart';
 import '../../tags/routes.dart';
 import '../application/settings_providers.dart';
@@ -198,6 +199,9 @@ class _Body extends ConsumerWidget {
           onSelected: (value) =>
               _save(context, ref, settings.copyWith(themeMode: value)),
         ),
+        // Phase 6 (additive): the reminder, its time and notification detail.
+        const Divider(),
+        const NotificationsSection(),
         const Divider(),
         ListTile(
           key: const Key('settings-categories'),

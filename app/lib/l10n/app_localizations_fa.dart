@@ -554,6 +554,15 @@ class AppLocalizationsFa extends AppLocalizations {
   String get notificationsAlertsChannelName => 'هشدارهای هدف';
 
   @override
+  String get notificationsBlocked => 'اعلان‌ها مسدود است';
+
+  @override
+  String get notificationsLoadFailed => 'تنظیمات اعلان خوانده نشد';
+
+  @override
+  String get notificationsOpenSettings => 'باز کردن تنظیمات';
+
+  @override
   String get notificationsReminderChannelDescription =>
       'یادآور روزانه برای ثبت';
 
@@ -562,6 +571,22 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get notificationsReminderText => 'امروز چیزی برای ثبت دارید؟';
+
+  @override
+  String get notificationsSettingsDetails => 'نمایش جزئیات در اعلان‌ها';
+
+  @override
+  String get notificationsSettingsDetailsHint =>
+      'نام و مبلغ هدف‌ها. صفحهٔ قفل بدون جزئیات می‌ماند.';
+
+  @override
+  String get notificationsSettingsReminder => 'یادآور روزانه';
+
+  @override
+  String get notificationsSettingsReminderTime => 'ساعت یادآور';
+
+  @override
+  String get notificationsSettingsTitle => 'اعلان‌ها';
 
   @override
   String get onboardingCalendarTitle => 'تقویم';

@@ -557,6 +557,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get notificationsAlertsChannelName => 'Goal alerts';
 
   @override
+  String get notificationsBlocked => 'Notifications are blocked';
+
+  @override
+  String get notificationsLoadFailed =>
+      'Notification settings could not be read';
+
+  @override
+  String get notificationsOpenSettings => 'Open settings';
+
+  @override
   String get notificationsReminderChannelDescription =>
       'Your daily reminder to log';
 
@@ -565,6 +575,22 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get notificationsReminderText => 'Anything to log today?';
+
+  @override
+  String get notificationsSettingsDetails => 'Show details in notifications';
+
+  @override
+  String get notificationsSettingsDetailsHint =>
+      'Goal names and amounts. The lock screen stays discreet.';
+
+  @override
+  String get notificationsSettingsReminder => 'Daily reminder';
+
+  @override
+  String get notificationsSettingsReminderTime => 'Reminder time';
+
+  @override
+  String get notificationsSettingsTitle => 'Notifications';
 
   @override
   String get onboardingCalendarTitle => 'Calendar';

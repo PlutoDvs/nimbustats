@@ -955,6 +955,24 @@ abstract class AppLocalizations {
   /// **'Goal alerts'**
   String get notificationsAlertsChannelName;
 
+  /// No description provided for @notificationsBlocked.
+  ///
+  /// In en, this message translates to:
+  /// **'Notifications are blocked'**
+  String get notificationsBlocked;
+
+  /// No description provided for @notificationsLoadFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Notification settings could not be read'**
+  String get notificationsLoadFailed;
+
+  /// No description provided for @notificationsOpenSettings.
+  ///
+  /// In en, this message translates to:
+  /// **'Open settings'**
+  String get notificationsOpenSettings;
+
   /// No description provided for @notificationsReminderChannelDescription.
   ///
   /// In en, this message translates to:
@@ -972,6 +990,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Anything to log today?'**
   String get notificationsReminderText;
+
+  /// No description provided for @notificationsSettingsDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'Show details in notifications'**
+  String get notificationsSettingsDetails;
+
+  /// No description provided for @notificationsSettingsDetailsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Goal names and amounts. The lock screen stays discreet.'**
+  String get notificationsSettingsDetailsHint;
+
+  /// No description provided for @notificationsSettingsReminder.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily reminder'**
+  String get notificationsSettingsReminder;
+
+  /// No description provided for @notificationsSettingsReminderTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Reminder time'**
+  String get notificationsSettingsReminderTime;
+
+  /// No description provided for @notificationsSettingsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Notifications'**
+  String get notificationsSettingsTitle;
 
   /// No description provided for @onboardingCalendarTitle.
   ///
