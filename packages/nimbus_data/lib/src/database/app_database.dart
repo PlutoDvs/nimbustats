@@ -76,8 +76,8 @@ class AppDatabase extends _$AppDatabase {
   factory AppDatabase.openAtPath(String path) => AppDatabase(NativeDatabase(
         File(path),
         setup: (database) => database
-          ..execute('PRAGMA journal_mode = WAL')
-          ..execute('PRAGMA busy_timeout = 5000'),
+          ..execute('PRAGMA busy_timeout = 5000')
+          ..execute('PRAGMA journal_mode = WAL'),
       ));
 
   /// An in-memory database, fresh per call.
