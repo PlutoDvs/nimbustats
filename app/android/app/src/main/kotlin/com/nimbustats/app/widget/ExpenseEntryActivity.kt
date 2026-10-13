@@ -7,8 +7,8 @@ import android.util.Log
 import android.text.Editable
 import android.text.InputType
 import android.text.TextWatcher
+import android.text.method.DigitsKeyListener
 import android.view.View
-import android.view.WindowManager
 import android.view.inputmethod.EditorInfo
 import android.widget.Button
 import android.widget.EditText
@@ -55,11 +55,13 @@ class ExpenseEntryActivity : Activity() {
         findViewById<TextView>(R.id.entry_title).text = snapshot.string("entryTitle")
         val amount = findViewById<EditText>(R.id.entry_amount)
         amount.hint = snapshot.currencyLabel
-        amount.inputType = if (snapshot.currencyDecimalDigits > 0) {
-            InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_FLAG_DECIMAL
-        } else {
-            InputType.TYPE_CLASS_NUMBER
-        }
+        val decimal = snapshot.currencyDecimalDigits > 0
+        // A numeric inputType alone installs a 0-9 filter that drops the IME's Persian digits and
+        // separators before AmountParser sees them; the raw type keeps the numeric keyboard.
+        amount.keyListener = DigitsKeyListener.getInstance(AMOUNT_CHARS + if (decimal) "." else "")
+        amount.setRawInputType(
+            if (decimal) InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_FLAG_DECIMAL else InputType.TYPE_CLASS_NUMBER,
+        )
         val save = findViewById<Button>(R.id.entry_save).also { saveButton = it }.apply {
             text = snapshot.string("save")
             isEnabled = false
@@ -108,7 +110,6 @@ class ExpenseEntryActivity : Activity() {
         }
 
         amount.requestFocus()
-        window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE)
     }
 
     private fun parse(text: String): Long? = AmountParser.parse(text, snapshot.currencyDecimalDigits)
@@ -148,5 +149,8 @@ class ExpenseEntryActivity : Activity() {
 
     private companion object {
         const val MAX_CHIPS = 4
+
+        /** What [AmountParser] reads, bar `.`: Latin, Persian, Arabic-Indic digits and the separators it drops. */
+        const val AMOUNT_CHARS = "0123456789۰۱۲۳۴۵۶۷۸۹٠١٢٣٤٥٦٧٨٩,\u066C \u00A0"
     }
 }
