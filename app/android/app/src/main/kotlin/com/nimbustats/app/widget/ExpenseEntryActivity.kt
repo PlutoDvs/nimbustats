@@ -3,6 +3,7 @@ package com.nimbustats.app.widget
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.text.Editable
 import android.text.InputType
 import android.text.TextWatcher
@@ -15,7 +16,9 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
 import android.widget.ToggleButton
+import java.io.IOException
 import com.nimbustats.app.MainActivity
+import com.nimbustats.app.OutsideChannelHandler.Companion.TAG
 import com.nimbustats.app.R
 
 /**
@@ -31,7 +34,9 @@ import com.nimbustats.app.R
 class ExpenseEntryActivity : Activity() {
     private lateinit var snapshot: WidgetSnapshot
     private val chips = mutableListOf<ToggleButton>()
+    private lateinit var saveButton: Button
     private var categoryId: String? = null
+    private var saved = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -55,7 +60,7 @@ class ExpenseEntryActivity : Activity() {
         } else {
             InputType.TYPE_CLASS_NUMBER
         }
-        val save = findViewById<Button>(R.id.entry_save).apply {
+        val save = findViewById<Button>(R.id.entry_save).also { saveButton = it }.apply {
             text = snapshot.string("save")
             isEnabled = false
             setOnClickListener { save(amount.text.toString()) }
@@ -76,7 +81,7 @@ class ExpenseEntryActivity : Activity() {
         }
 
         val row = findViewById<LinearLayout>(R.id.entry_chips)
-        for (chip in snapshot.chips) {
+        for (chip in snapshot.chips.take(MAX_CHIPS)) {
             val button = ToggleButton(this).apply {
                 textOn = chip.name
                 textOff = chip.name
@@ -110,12 +115,38 @@ class ExpenseEntryActivity : Activity() {
 
     private fun save(text: String) {
         val minor = parse(text) ?: return
-        WidgetBuffer.appendExpense(this, System.currentTimeMillis(), minor, categoryId)
-        DrainScheduler.enqueue(this)
+        // finish() does not stop queued clicks or the Done key, and each append has a new id.
+        if (saved) return
+        saved = true
+        saveButton.isEnabled = false
+        try {
+            WidgetBuffer.appendExpense(this, System.currentTimeMillis(), minor, categoryId)
+        } catch (e: IOException) {
+            return keepOpen(e)
+        } catch (e: RuntimeException) {
+            return keepOpen(e)
+        }
+        try {
+            DrainScheduler.enqueue(this)
+        } catch (e: RuntimeException) {
+            // The line is buffered; the next app start or drain picks it up.
+            Log.e(TAG, "expense buffered but the drain could not be enqueued", e)
+        }
         // The application context: the toast outlives this dialog.
         Toast.makeText(applicationContext, snapshot.string("saved"), Toast.LENGTH_SHORT).show()
         finish()
     }
 
+    /** The append failed: nothing was written, so the dialog stays open with what the user typed. */
+    private fun keepOpen(e: Exception) {
+        Log.e(TAG, "could not buffer the expense", e)
+        saved = false
+        saveButton.isEnabled = true
+    }
+
     private fun dp(value: Int): Int = (value * resources.displayMetrics.density).toInt()
+
+    private companion object {
+        const val MAX_CHIPS = 4
+    }
 }

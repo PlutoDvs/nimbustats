@@ -60,8 +60,10 @@ class WidgetSnapshot(
             val version = root.getInt("v")
             require(version == VERSION) { "snapshot version $version is not $VERSION" }
             val currency = root.getJSONObject("currency")
+            val digits = currency.getInt("decimalDigits")
+            require(digits in 0..3) { "currency.decimalDigits $digits is not in 0..3" }
             val strings = root.getJSONObject("strings")
-            val missing = REQUIRED_STRINGS.filterNot { strings.has(it) }
+            val missing = REQUIRED_STRINGS.filter { strings.isNull(it) }
             require(missing.isEmpty()) { "the snapshot has no string(s) $missing" }
             val trackers = root.getJSONArray("trackers")
             val chips = root.getJSONArray("chips")
@@ -69,7 +71,7 @@ class WidgetSnapshot(
                 dayKey = root.getInt("dayKey"),
                 localeTag = root.getString("localeTag"),
                 rtl = root.getBoolean("rtl"),
-                currencyDecimalDigits = currency.getInt("decimalDigits"),
+                currencyDecimalDigits = digits,
                 currencyLabel = currency.getString("label"),
                 trackers = List(trackers.length()) { i ->
                     val t = trackers.getJSONObject(i)
