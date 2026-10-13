@@ -1,9 +1,13 @@
 package com.nimbustats.app.notifications
 
 import android.app.AlarmManager
+import android.appwidget.AppWidgetManager
 import android.app.PendingIntent
+import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
+import com.nimbustats.app.widget.ExpenseWidgetProvider
+import com.nimbustats.app.widget.WidgetActionReceiver
 import java.time.ZonedDateTime
 
 /**
@@ -35,6 +39,7 @@ object ReminderScheduler {
     /** Everything this app keeps armed, re-armed from the local clock now. */
     fun rearm(context: Context) {
         armReminder(context)
+        armMidnight(context)
     }
 
     fun armReminder(context: Context) {
@@ -47,6 +52,29 @@ object ReminderScheduler {
         }
         val at = ReminderTime.nextTrigger(ZonedDateTime.now(), prefs.getInt(MINUTE, 21 * 60))
         alarms.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, at.toInstant().toEpochMilli(), intent)
+    }
+
+    /**
+     * The widget's local-midnight refresh (spec §6.3). It uses inexact, non-waking `RTC`: a
+     * sleeping phone shows the widget at its next wake, and yesterday's totals clear then. It is
+     * armed only while a widget is placed.
+     */
+    fun armMidnight(context: Context) {
+        val widgets = AppWidgetManager.getInstance(context)
+            .getAppWidgetIds(ComponentName(context, ExpenseWidgetProvider::class.java))
+        if (widgets.isEmpty()) {
+            cancelMidnight(context)
+            return
+        }
+        context.getSystemService(AlarmManager::class.java).setAndAllowWhileIdle(
+            AlarmManager.RTC,
+            ReminderTime.nextMidnight(ZonedDateTime.now()).toInstant().toEpochMilli(),
+            WidgetActionReceiver.midnightIntent(context),
+        )
+    }
+
+    fun cancelMidnight(context: Context) {
+        context.getSystemService(AlarmManager::class.java).cancel(WidgetActionReceiver.midnightIntent(context))
     }
 
     /** The stored text and route, or null when Dart never configured the reminder. */

@@ -59,6 +59,22 @@
             android:taskAffinity="com.nimbustats.app.entry"
             android:theme="@style/EntryDialogTheme"
             android:windowSoftInputMode="stateAlwaysVisible|adjustResize" />
+        <!-- The home-screen widget. Exported for the system's update
+             broadcast only; taps go to the receiver below (ruling R9). -->
+        <receiver
+            android:name=".widget.ExpenseWidgetProvider"
+            android:exported="true"
+            android:label="NimbuStats">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/expense_widget_info" />
+        </receiver>
+        <receiver
+            android:name=".widget.WidgetActionReceiver"
+            android:exported="false" />
         <service
             android:name=".widget.DrainJobService"
             android:exported="false"

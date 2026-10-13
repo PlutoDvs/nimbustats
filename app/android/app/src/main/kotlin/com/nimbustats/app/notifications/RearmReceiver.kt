@@ -3,6 +3,7 @@ package com.nimbustats.app.notifications
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import com.nimbustats.app.widget.WidgetRenderer
 
 /**
  * Re-arms after the events that silently clear or move an alarm: a reboot, a time-zone change, a
@@ -12,5 +13,7 @@ import android.content.Intent
 class RearmReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
         ReminderScheduler.rearm(context)
+        // A zone or clock change can move today; re-render so the rows follow it.
+        WidgetRenderer.renderAll(context)
     }
 }

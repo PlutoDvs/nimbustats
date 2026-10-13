@@ -1,6 +1,8 @@
 package com.nimbustats.app.widget
 
 import android.content.Context
+import android.util.Log
+import com.nimbustats.app.OutsideChannelHandler.Companion.TAG
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
@@ -47,7 +49,7 @@ object WidgetBuffer {
         runCatching {
             JSONObject(raw).takeIf { it.optString("kind") == "tracker" }
                 ?.let { PendingTap(it.getString("trackerId"), it.getLong("atUtc")) }
-        }.getOrNull()
+        }.onFailure { Log.e(TAG, "unreadable buffer line", it) }.getOrNull()
     }
 
     @Synchronized

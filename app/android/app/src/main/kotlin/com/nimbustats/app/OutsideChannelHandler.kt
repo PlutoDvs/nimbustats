@@ -5,6 +5,7 @@ import android.util.Log
 import com.nimbustats.app.notifications.Notifier
 import com.nimbustats.app.notifications.ReminderScheduler
 import com.nimbustats.app.widget.WidgetBuffer
+import com.nimbustats.app.widget.WidgetRenderer
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 
@@ -74,6 +75,7 @@ class OutsideChannelHandler(
                 "takeBuffer" -> result.success(WidgetBuffer.lines(context))
                 "writeSnapshot" -> {
                     WidgetBuffer.writeSnapshot(context, call.string("snapshot"))
+                    WidgetRenderer.renderAll(context)
                     result.success(null)
                 }
                 "commitDrain" -> {
@@ -90,6 +92,7 @@ class OutsideChannelHandler(
                                 (it["reason"] ?: throw IllegalArgumentException("rejected without reason"))
                         },
                     )
+                    WidgetRenderer.renderAll(context)
                     result.success(null)
                 }
                 "drainFinished" -> {
