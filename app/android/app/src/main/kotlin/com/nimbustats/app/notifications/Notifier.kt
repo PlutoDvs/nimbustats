@@ -40,8 +40,12 @@ object Notifier {
     ) {
         context.getSystemService(NotificationManager::class.java).createNotificationChannels(
             listOf(
-                NotificationChannel(ALERTS, alertsName, NotificationManager.IMPORTANCE_DEFAULT)
-                    .apply { description = alertsDescription },
+                NotificationChannel(ALERTS, alertsName, NotificationManager.IMPORTANCE_DEFAULT).apply {
+                    description = alertsDescription
+                    // Spec §4.3: the lock screen always gets the public version, even when the
+                    // user's global setting shows all content. Android fixes it at first creation.
+                    lockscreenVisibility = Notification.VISIBILITY_PRIVATE
+                },
                 NotificationChannel(REMINDER, reminderName, NotificationManager.IMPORTANCE_DEFAULT)
                     .apply { description = reminderDescription },
             ),
