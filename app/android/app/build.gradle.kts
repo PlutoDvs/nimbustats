@@ -19,7 +19,10 @@ android {
         applicationId = "com.nimbustats.app"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
-        minSdk = flutter.minSdkVersion
+        // 26, not Flutter's 24: Phase 6's reminder and widget compute local
+        // times with java.time, which is API 26+ without desugaring (operator
+        // decision, 2026-10-12; spec §5).
+        minSdk = 26
         targetSdk = flutter.targetSdkVersion
         // Uses the version code from pubspec.yaml. When using split APKs, 1000 * ABI_VERSION
         // is added automatically by Flutter. (https://developer.android.com/studio/build/configure-apk-splits#configure-APK-versions)
