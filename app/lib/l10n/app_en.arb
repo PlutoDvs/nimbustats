@@ -318,7 +318,7 @@
   "notificationsReminderChannelName": "Daily reminder",
   "notificationsReminderText": "Anything to log today?",
   "notificationsSettingsDetails": "Show details in notifications",
-  "notificationsSettingsDetailsHint": "Goal names and amounts. The lock screen stays discreet.",
+  "notificationsSettingsDetailsHint": "Goal names and amounts. Your phone's lock-screen settings decide what shows there.",
   "notificationsSettingsReminder": "Daily reminder",
   "notificationsSettingsReminderTime": "Reminder time",
   "notificationsSettingsTitle": "Notifications",

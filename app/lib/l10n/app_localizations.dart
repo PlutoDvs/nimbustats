@@ -1000,7 +1000,7 @@ abstract class AppLocalizations {
   /// No description provided for @notificationsSettingsDetailsHint.
   ///
   /// In en, this message translates to:
-  /// **'Goal names and amounts. The lock screen stays discreet.'**
+  /// **'Goal names and amounts. Your phone\'s lock-screen settings decide what shows there.'**
   String get notificationsSettingsDetailsHint;
 
   /// No description provided for @notificationsSettingsReminder.

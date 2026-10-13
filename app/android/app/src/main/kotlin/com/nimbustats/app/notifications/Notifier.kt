@@ -40,12 +40,8 @@ object Notifier {
     ) {
         context.getSystemService(NotificationManager::class.java).createNotificationChannels(
             listOf(
-                NotificationChannel(ALERTS, alertsName, NotificationManager.IMPORTANCE_DEFAULT).apply {
-                    description = alertsDescription
-                    // Spec §4.3: the lock screen always gets the public version, even when the
-                    // user's global setting shows all content. Android fixes it at first creation.
-                    lockscreenVisibility = Notification.VISIBILITY_PRIVATE
-                },
+                NotificationChannel(ALERTS, alertsName, NotificationManager.IMPORTANCE_DEFAULT)
+                    .apply { description = alertsDescription },
                 NotificationChannel(REMINDER, reminderName, NotificationManager.IMPORTANCE_DEFAULT)
                     .apply { description = reminderDescription },
             ),
@@ -54,7 +50,8 @@ object Notifier {
 
     /**
      * A goal alert (spec §4.3). Tag `goal:<id>` and id 1, so a 100% crossing replaces that goal's
-     * 80% one. The lock screen shows [publicText], never a name or an amount.
+     * 80% one. A lock screen set to hide sensitive content shows [publicText], never a name or an
+     * amount.
      *
      * A post Android would drop is logged instead: the crossing is already recorded, so it is
      * not retried (spec §9).
@@ -69,6 +66,8 @@ object Notifier {
             .setSmallIcon(R.drawable.ic_stat_nimbus)
             .setContentText(text)
             .setStyle(Notification.BigTextStyle().bigText(text))
+            // Android shows the discreet public version on a lock screen set to hide sensitive
+            // content; the channel's own lock-screen visibility is system-only.
             .setVisibility(Notification.VISIBILITY_PRIVATE)
             .setPublicVersion(public)
             .setContentIntent(routeIntent(context, route, tag))

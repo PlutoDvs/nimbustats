@@ -581,7 +581,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get notificationsSettingsDetailsHint =>
-      'Goal names and amounts. The lock screen stays discreet.';
+      'Goal names and amounts. Your phone\'s lock-screen settings decide what shows there.';
 
   @override
   String get notificationsSettingsReminder => 'Daily reminder';

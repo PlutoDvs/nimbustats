@@ -577,7 +577,7 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get notificationsSettingsDetailsHint =>
-      'نام و مبلغ هدف‌ها. صفحهٔ قفل بدون جزئیات می‌ماند.';
+      'نام و مبلغ هدف‌ها. تنظیمات صفحهٔ قفل گوشی تعیین می‌کند چه چیزی آنجا نمایش داده شود.';
 
   @override
   String get notificationsSettingsReminder => 'یادآور روزانه';

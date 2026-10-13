@@ -57,7 +57,7 @@ decides *where* it is shown. It adds no firing logic.
 | The widget's add-expense surface | Native dialog: amount (focused, number keyboard) + up to 4 predicted category chips; no chip = Uncategorized |
 | Which trackers the widget shows | The first N in the Trackers tab's order, as many as the widget's size fits; no new setting |
 | An alert while the app is on screen | Phase 5's snackbar only; a notification only when the app is not in the foreground |
-| What "discreet by default" means | No goal name or amount anywhere by default; a "Show details in notifications" setting turns the full text on; the lock screen always gets the discreet version |
+| What "discreet by default" means | No goal name or amount anywhere by default; a "Show details in notifications" setting turns the full text on. With details on, the notification is `VISIBILITY_PRIVATE` with the discreet public version, which Android shows on a lock screen set to hide sensitive content; with "show all content" Android shows the full text, because an app cannot set a channel's lock-screen visibility (found on the Galaxy A53, Android 16; operator decision 2026-10-13) |
 | The daily reminder | Off by default; 21:00 default time; fires every day around that time whether or not anything was logged |
 | Implementation approach | Native Kotlin on Android framework APIs + one MethodChannel; no new pub or runtime Gradle dependency |
 | Kotlin tests | `junit:junit:4.13.2` as a **test-only** Gradle dependency (Maven Central), never in the APK |
@@ -308,8 +308,11 @@ is kept. A denied permission leaves the reminder off and shows the blocked row
   - Text: discreet `notificationsAlertDiscreet` ("A goal needs a look") by
     default; with `notification_detail` on, Phase 5's
     `GoalFormat.alertMessage(l10n, alert, period)`.
-  - `VISIBILITY_PRIVATE`, with the discreet text as the public version, so the
-    lock screen never shows a name or an amount.
+  - `VISIBILITY_PRIVATE`, with the discreet text as the public version, which
+    Android shows on a lock screen set to hide sensitive content. With "show all
+    content" Android shows the full text: an app cannot set a channel's
+    lock-screen visibility (found on the Galaxy A53, Android 16; operator
+    decision 2026-10-13).
   - Tap: opens `goalDetailRoute(goalId)`.
 
 ---
