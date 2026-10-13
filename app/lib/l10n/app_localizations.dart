@@ -937,6 +937,30 @@ abstract class AppLocalizations {
   /// **'Trackers'**
   String get navTrackers;
 
+  /// No description provided for @notificationsAlertsChannelDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Budget and limit warnings'**
+  String get notificationsAlertsChannelDescription;
+
+  /// No description provided for @notificationsAlertsChannelName.
+  ///
+  /// In en, this message translates to:
+  /// **'Goal alerts'**
+  String get notificationsAlertsChannelName;
+
+  /// No description provided for @notificationsReminderChannelDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Your daily reminder to log'**
+  String get notificationsReminderChannelDescription;
+
+  /// No description provided for @notificationsReminderChannelName.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily reminder'**
+  String get notificationsReminderChannelName;
+
   /// No description provided for @onboardingCalendarTitle.
   ///
   /// In en, this message translates to:

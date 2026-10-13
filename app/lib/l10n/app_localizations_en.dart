@@ -547,6 +547,20 @@ class AppLocalizationsEn extends AppLocalizations {
   String get navTrackers => 'Trackers';
 
   @override
+  String get notificationsAlertsChannelDescription =>
+      'Budget and limit warnings';
+
+  @override
+  String get notificationsAlertsChannelName => 'Goal alerts';
+
+  @override
+  String get notificationsReminderChannelDescription =>
+      'Your daily reminder to log';
+
+  @override
+  String get notificationsReminderChannelName => 'Daily reminder';
+
+  @override
   String get onboardingCalendarTitle => 'Calendar';
 
   @override

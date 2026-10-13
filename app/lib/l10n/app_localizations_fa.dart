@@ -545,6 +545,19 @@ class AppLocalizationsFa extends AppLocalizations {
   String get navTrackers => 'عادت‌ها';
 
   @override
+  String get notificationsAlertsChannelDescription => 'هشدارهای بودجه و سقف';
+
+  @override
+  String get notificationsAlertsChannelName => 'هشدارهای هدف';
+
+  @override
+  String get notificationsReminderChannelDescription =>
+      'یادآور روزانه برای ثبت';
+
+  @override
+  String get notificationsReminderChannelName => 'یادآور روزانه';
+
+  @override
   String get onboardingCalendarTitle => 'تقویم';
 
   @override
