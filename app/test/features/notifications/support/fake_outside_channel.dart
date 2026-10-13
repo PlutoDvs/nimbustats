@@ -16,6 +16,9 @@ class FakeOutsideChannel implements OutsideChannel {
   int permissionRequests = 0;
   int settingsOpened = 0;
 
+  /// Thrown by the next [postAlert], to test a failed post.
+  Exception? postError;
+
   /// The native buffer's lines.
   List<String> buffer = [];
   String? launchRoute;
@@ -78,6 +81,8 @@ class FakeOutsideChannel implements OutsideChannel {
     required String route,
   }) async {
     calls.add('postAlert');
+    final error = postError;
+    if (error != null) throw error;
     posted.add((tag: tag, text: text, publicText: publicText, route: route));
   }
 

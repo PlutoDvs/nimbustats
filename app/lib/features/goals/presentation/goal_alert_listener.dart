@@ -8,14 +8,15 @@ import 'package:nimbus_design/nimbus_design.dart';
 import 'package:nimbus_domain/nimbus_domain.dart';
 
 import '../../../l10n/app_localizations.dart';
+import '../../notifications/application/alert_router.dart';
 import '../../trackers/presentation/widgets/tracker_day_rollover.dart';
 import '../application/goal_format.dart';
 import '../application/goal_providers.dart';
 import '../application/goal_watcher.dart';
 import '../routes.dart';
 
-/// Shows each goal alert as a snackbar, until Phase 6 makes them
-/// notifications (spec §4.2). It also keeps the goals' today current: the
+/// Shows each goal alert the app gets while on screen as a snackbar (Phase 5
+/// spec §4.2). Phase 6's `AlertRouter` posts the rest as notifications. It also keeps the goals' today current: the
 /// trackers' [TrackerDayRollover] moves `trackerTodayProvider`, which is
 /// `goalTodayProvider`, at local midnight and on every resume, and it is
 /// mounted here for as long as the shell is.
@@ -46,7 +47,10 @@ class _GoalAlertListenerState extends ConsumerState<GoalAlertListener> {
     // `read`, never `watch`: a provider whose only listener is a
     // TickerMode-paused widget under a pushed route pauses its subscriptions.
     _watcher = ref.read(goalWatcherProvider);
-    _alerts = _watcher.alerts.listen(_show);
+    // Phase 6: the router decides where each alert goes. This shows the
+    // ones it keeps on screen. Read before start(), so the router is
+    // subscribed before the watcher's first evaluation.
+    _alerts = ref.read(alertRouterProvider).foregroundAlerts.listen(_show);
     _watcher.start();
   }
 

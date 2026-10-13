@@ -33,4 +33,13 @@ abstract final class SettingsKeys {
   /// Bumped when the seeded default tree changes, so a future phase can decide
   /// whether to re-seed. Phase 1 writes it and never reads it back.
   static const seedVersion = 'seed_version';
+
+  /// Phase 6's notification settings. Outside [appSettings] on purpose: a
+  /// settings reset must not leave a reminder armed in Android's alarm
+  /// manager while the database says it is off (Phase 6 spec §8). Read by
+  /// `NotificationPrefsRepository`, which reports a bad value and reads its
+  /// default rather than failing.
+  static const reminderEnabled = 'reminder_enabled';
+  static const reminderMinuteOfDay = 'reminder_minute_of_day';
+  static const notificationDetail = 'notification_detail';
 }

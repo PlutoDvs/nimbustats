@@ -8,6 +8,7 @@ import 'package:nimbustats/app.dart';
 import 'package:nimbustats/bootstrap/database_provider.dart';
 import 'package:nimbustats/bootstrap/first_run.dart';
 import 'package:nimbustats/bootstrap/provider_retry.dart';
+import 'package:nimbustats/features/notifications/application/notification_providers.dart';
 import 'package:nimbustats/features/notifications/data/outside_channel.dart';
 import 'package:nimbustats/l10n/app_localizations.dart';
 
@@ -24,6 +25,7 @@ Future<AppDatabase> pumpApp(
   AppDatabase? database,
   List<Override> overrides = const [],
   OutsideChannel? outside,
+  bool Function()? isForeground,
   bool seedFirstRun = false,
   bool realFirstRunGate = false,
   String? initialLocation,
@@ -57,6 +59,9 @@ Future<AppDatabase> pumpApp(
     // No Android in a widget test. A test about the channel passes its own
     // fake to read what was sent.
     outsideChannelProvider.overrideWithValue(outside ?? FakeOutsideChannel()),
+    // A pumped app is on screen. The test binding reports no lifecycle
+    // state until a test sets one, which would read as "in the background".
+    isForegroundProvider.overrideWithValue(isForeground ?? () => true),
     ...overrides,
   ]);
   addTearDown(container.dispose);

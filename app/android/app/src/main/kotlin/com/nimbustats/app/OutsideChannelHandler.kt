@@ -49,6 +49,16 @@ class OutsideChannelHandler(
                     )
                     result.success(null)
                 }
+                "postAlert" -> {
+                    Notifier.postAlert(
+                        context,
+                        call.string("tag"),
+                        call.string("text"),
+                        call.string("publicText"),
+                        call.string("route"),
+                    )
+                    result.success(null)
+                }
                 "takeLaunchRoute" -> result.success(takeLaunchRoute())
                 else -> result.notImplemented()
             }

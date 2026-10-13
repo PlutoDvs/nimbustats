@@ -545,6 +545,9 @@ class AppLocalizationsFa extends AppLocalizations {
   String get navTrackers => 'عادت‌ها';
 
   @override
+  String get notificationsAlertDiscreet => 'یک هدف نیاز به بررسی دارد';
+
+  @override
   String get notificationsAlertsChannelDescription => 'هشدارهای بودجه و سقف';
 
   @override

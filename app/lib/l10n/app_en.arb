@@ -308,6 +308,7 @@
   "navHome": "Home",
   "navSettings": "Settings",
   "navTrackers": "Trackers",
+  "notificationsAlertDiscreet": "A goal needs a look",
   "notificationsAlertsChannelDescription": "Budget and limit warnings",
   "notificationsAlertsChannelName": "Goal alerts",
   "notificationsReminderChannelDescription": "Your daily reminder to log",

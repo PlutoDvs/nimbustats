@@ -547,6 +547,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get navTrackers => 'Trackers';
 
   @override
+  String get notificationsAlertDiscreet => 'A goal needs a look';
+
+  @override
   String get notificationsAlertsChannelDescription =>
       'Budget and limit warnings';
 

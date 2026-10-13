@@ -937,6 +937,12 @@ abstract class AppLocalizations {
   /// **'Trackers'**
   String get navTrackers;
 
+  /// No description provided for @notificationsAlertDiscreet.
+  ///
+  /// In en, this message translates to:
+  /// **'A goal needs a look'**
+  String get notificationsAlertDiscreet;
+
   /// No description provided for @notificationsAlertsChannelDescription.
   ///
   /// In en, this message translates to:
