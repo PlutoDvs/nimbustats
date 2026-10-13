@@ -6,15 +6,25 @@ import android.content.Intent
 import android.util.Log
 import com.nimbustats.app.OutsideChannelHandler.Companion.TAG
 
-/** The reminder's alarm: posts it, then arms tomorrow's from the local clock (spec §5). */
+/**
+ * The reminder's alarm: arms tomorrow's from the local clock, then posts (spec §5).
+ *
+ * Arming comes first because the alarm is one-shot: a failed post must not end the chain. It
+ * cannot re-fire this slot, since the next trigger is strictly after now.
+ */
 class ReminderReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
-        val content = ReminderScheduler.content(context)
-        if (content == null) {
-            Log.e(TAG, "reminder fired with no text stored; nothing posted")
-        } else {
-            Notifier.postReminder(context, content.first, content.second)
-        }
         ReminderScheduler.armReminder(context)
+        try {
+            val content = ReminderScheduler.content(context)
+            if (content == null) {
+                Log.e(TAG, "reminder fired with no text stored; nothing posted")
+            } else {
+                Notifier.postReminder(context, content.first, content.second)
+            }
+        } catch (e: Exception) {
+            // A receiver has no caller to report to (spec §9): log, do not crash.
+            Log.e(TAG, "posting the daily reminder failed", e)
+        }
     }
 }
