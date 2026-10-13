@@ -4,6 +4,8 @@ import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
+import android.util.Log
+import com.nimbustats.app.OutsideChannelHandler.Companion.TAG
 import com.nimbustats.app.notifications.Notifier
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
@@ -12,11 +14,16 @@ import io.flutter.plugin.common.MethodChannel
 class MainActivity : FlutterActivity() {
     /** The route a notification tap launched the app with, until Dart takes it. */
     private var launchRoute: String? = null
-    private var permissionResult: MethodChannel.Result? = null
+
+    /** This activity's channel to its engine; null while it has none. */
+    private var channel: MethodChannel? = null
+
+    /** Every Dart ask waiting on the one permission dialog. */
+    private val permissionResults = mutableListOf<MethodChannel.Result>()
 
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
-        launchRoute = intent?.getStringExtra(Notifier.EXTRA_ROUTE)
+        launchRoute = takeRoute(intent)
         val channel = MethodChannel(flutterEngine.dartExecutor.binaryMessenger, OutsideChannelHandler.CHANNEL)
         channel.setMethodCallHandler(
             OutsideChannelHandler(
@@ -25,10 +32,12 @@ class MainActivity : FlutterActivity() {
                 requestPermission = ::requestNotificationPermission,
             ),
         )
+        this.channel = channel
         OutsideChannelHandler.appChannel = channel
     }
 
     override fun cleanUpFlutterEngine(flutterEngine: FlutterEngine) {
+        channel = null
         OutsideChannelHandler.appChannel = null
         super.cleanUpFlutterEngine(flutterEngine)
     }
@@ -36,8 +45,36 @@ class MainActivity : FlutterActivity() {
     /** A notification tapped while the app runs (`singleTop`): Dart navigates. */
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
-        val route = intent.getStringExtra(Notifier.EXTRA_ROUTE) ?: return
-        OutsideChannelHandler.appChannel?.invokeMethod("openRoute", route)
+        val route = takeRoute(intent) ?: return
+        val channel = channel ?: run {
+            launchRoute = route
+            return
+        }
+        channel.invokeMethod(
+            "openRoute",
+            route,
+            object : MethodChannel.Result {
+                override fun success(result: Any?) = Unit
+
+                override fun error(errorCode: String, errorMessage: String?, errorDetails: Any?) {
+                    Log.e(TAG, "openRoute $route failed: $errorCode $errorMessage")
+                }
+
+                // Dart's bridge is not mounted yet; it takes the launch route when it mounts.
+                override fun notImplemented() {
+                    launchRoute = route
+                }
+            },
+        )
+    }
+
+    /**
+     * The route a notification put on [intent], read once. A launch from Recents replays the
+     * notification's intent, so it carries none.
+     */
+    private fun takeRoute(intent: Intent?): String? {
+        if (intent == null || (intent.flags and Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY) != 0) return null
+        return intent.getStringExtra(Notifier.EXTRA_ROUTE).also { intent.removeExtra(Notifier.EXTRA_ROUTE) }
     }
 
     /**
@@ -51,17 +88,21 @@ class MainActivity : FlutterActivity() {
             result.success(Notifier.enabled(this))
             return
         }
-        // A second ask while the dialog is up answers the first, so no Dart future waits forever.
-        permissionResult?.success(false)
-        permissionResult = result
-        requestPermissions(arrayOf(Manifest.permission.POST_NOTIFICATIONS), REQUEST_NOTIFICATIONS)
+        // One dialog answers every ask made while it is up: a second request would be answered at
+        // once with empty arrays. Added after the request, so one that throws leaves none waiting.
+        if (permissionResults.isEmpty()) {
+            requestPermissions(arrayOf(Manifest.permission.POST_NOTIFICATIONS), REQUEST_NOTIFICATIONS)
+        }
+        permissionResults += result
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (requestCode != REQUEST_NOTIFICATIONS) return
-        permissionResult?.success(grantResults.firstOrNull() == PackageManager.PERMISSION_GRANTED)
-        permissionResult = null
+        val granted = grantResults.firstOrNull() == PackageManager.PERMISSION_GRANTED
+        val waiting = permissionResults.toList()
+        permissionResults.clear()
+        waiting.forEach { it.success(granted) }
     }
 
     private companion object {
