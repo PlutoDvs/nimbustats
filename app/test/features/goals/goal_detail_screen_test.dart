@@ -7,6 +7,7 @@ import 'package:nimbus_data/nimbus_data.dart';
 import 'package:nimbus_domain/nimbus_domain.dart';
 import 'package:nimbustats/features/goals/application/goal_providers.dart';
 import 'package:nimbustats/features/goals/routes.dart';
+import 'package:nimbustats/features/trackers/application/tracker_providers.dart';
 
 import '../trackers/support/tracker_fixture.dart';
 import 'support/goal_test_app.dart';
@@ -339,5 +340,57 @@ void main() {
     expect(calls, 2);
     expect(find.byKey(const Key('goal-detail-progress-error')), findsNothing);
     expect(textOf(tester, 'goal-detail-amounts'), '300,000 of 1,000,000');
+  });
+
+  group("a tracker goal's tracker", () {
+    late Tracker w;
+
+    setUp(() async {
+      w = await repositoryFor(db, fake).create(water);
+      await service.save(habitGoal(w,
+          id: 'water',
+          metric: GoalMetric.trackerSum,
+          direction: GoalDirection.atLeast,
+          target: 2));
+    });
+
+    testWidgets('loading shows the skeleton', (tester) async {
+      final never = StreamController<Tracker?>();
+      addTearDown(never.close);
+
+      await pumpGoals(tester, db, fake,
+          location: goalDetailRoute('water'),
+          overrides: [
+            trackerByIdProvider(w.id).overrideWith((ref) => never.stream),
+          ]);
+
+      expect(find.byKey(const Key('goal-detail-tracker-loading')),
+          findsOneWidget);
+      expect(find.byKey(const Key('goal-detail')), findsNothing);
+    });
+
+    testWidgets('a failed read says so, hides the raw error, and Retry '
+        'reads again and shows the goal', (tester) async {
+      var calls = 0;
+      await pumpGoals(tester, db, fake,
+          location: goalDetailRoute('water'),
+          overrides: [
+            trackerByIdProvider(w.id).overrideWith((ref) {
+              if (++calls == 1) return Stream<Tracker?>.error(Exception('boom'));
+              return Stream.value(w);
+            }),
+          ]);
+
+      expect(find.byKey(const Key('goal-detail-tracker-error')),
+          findsOneWidget);
+      expect(find.text('Could not load your goals'), findsOneWidget);
+      expect(find.text('Exception: boom'), findsNothing);
+
+      await tester.tap(find.widgetWithText(FilledButton, 'Retry'));
+      await tester.pumpAndSettle();
+
+      expect(calls, 2);
+      expect(find.byKey(const Key('goal-detail')), findsOneWidget);
+    });
   });
 }

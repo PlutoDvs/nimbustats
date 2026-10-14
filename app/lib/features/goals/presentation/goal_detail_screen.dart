@@ -108,6 +108,7 @@ class _TrackerGoalDetail extends ConsumerWidget {
       return Scaffold(
         appBar: AppBar(),
         body: NimbusErrorState(
+          key: const Key('goal-detail-tracker-error'),
           title: l10n.goalsErrorTitle,
           retryLabel: l10n.commonRetry,
           detail: tracker.error.toString(),
@@ -116,7 +117,10 @@ class _TrackerGoalDetail extends ConsumerWidget {
       );
     }
     if (!tracker.hasValue) {
-      return Scaffold(appBar: AppBar(), body: const NimbusLoadingList());
+      return Scaffold(
+        appBar: AppBar(),
+        body: const NimbusLoadingList(key: Key('goal-detail-tracker-loading')),
+      );
     }
     final found = tracker.requireValue;
     // Deleted: the same card as on the tab (Review Focus 5).
