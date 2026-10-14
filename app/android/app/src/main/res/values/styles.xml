@@ -16,12 +16,13 @@
         <item name="android:windowBackground">?android:colorBackground</item>
     </style>
     <!-- Phase 6: the widget's add-expense dialog. Translucent, so the home
-         screen stays behind it; a tap outside cancels. -->
+         screen stays behind it; a tap outside cancels. Rounded like the
+         widget itself (D31). -->
     <style name="EntryDialogTheme" parent="@android:style/Theme.DeviceDefault.Light.Dialog">
         <item name="android:windowIsTranslucent">true</item>
         <item name="android:windowNoTitle">true</item>
         <item name="android:windowCloseOnTouchOutside">true</item>
-        <item name="android:windowBackground">@color/nimbus_widget_bg</item>
+        <item name="android:windowBackground">@drawable/widget_background</item>
         <item name="android:windowMinWidthMajor">90%</item>
         <item name="android:windowMinWidthMinor">90%</item>
     </style>

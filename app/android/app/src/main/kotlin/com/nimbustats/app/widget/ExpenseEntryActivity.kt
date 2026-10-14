@@ -6,13 +6,14 @@ import android.os.Bundle
 import android.util.Log
 import android.text.Editable
 import android.text.InputType
+import android.text.TextUtils
 import android.text.TextWatcher
 import android.text.method.DigitsKeyListener
 import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.widget.Button
 import android.widget.EditText
-import android.widget.LinearLayout
+import android.widget.GridLayout
 import android.widget.TextView
 import android.widget.Toast
 import android.widget.ToggleButton
@@ -82,13 +83,17 @@ class ExpenseEntryActivity : Activity() {
             (action == EditorInfo.IME_ACTION_DONE && save.isEnabled).also { if (it) save(amount.text.toString()) }
         }
 
-        val row = findViewById<LinearLayout>(R.id.entry_chips)
-        for (chip in snapshot.chips.take(MAX_CHIPS)) {
+        // Two equal columns, two rows at most (MAX_CHIPS): a long name ellipsizes in its own cell
+        // instead of pushing the fourth chip past the dialog's edge (D31).
+        val grid = findViewById<GridLayout>(R.id.entry_chips)
+        snapshot.chips.take(MAX_CHIPS).forEachIndexed { index, chip ->
             val button = ToggleButton(this).apply {
                 textOn = chip.name
                 textOff = chip.name
                 text = chip.name
                 minHeight = dp(48)
+                maxLines = 1
+                ellipsize = TextUtils.TruncateAt.END
                 setBackgroundResource(R.drawable.entry_chip)
                 setTextColor(getColorStateList(R.color.entry_chip_text))
                 // Single-select; tapping the chosen one again leaves no chip, which is Uncategorized.
@@ -102,10 +107,17 @@ class ExpenseEntryActivity : Activity() {
                 }
             }
             chips += button
-            row.addView(
+            grid.addView(
                 button,
-                LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT)
-                    .apply { marginEnd = dp(8) },
+                GridLayout.LayoutParams(
+                    GridLayout.spec(GridLayout.UNDEFINED),
+                    GridLayout.spec(GridLayout.UNDEFINED, 1f),
+                ).apply {
+                    // Width 0 and weight 1: the columns share the width equally.
+                    width = 0
+                    if (index % 2 == 0) marginEnd = dp(4) else marginStart = dp(4)
+                    if (index >= 2) topMargin = dp(8)
+                },
             )
         }
 

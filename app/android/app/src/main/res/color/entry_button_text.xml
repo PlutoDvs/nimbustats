@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The dialog's Cancel and Save (D31): the widget's accent, muted while disabled. -->
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:color="@color/nimbus_widget_muted" android:state_enabled="false" />
+    <item android:color="@color/nimbus_widget_accent" />
+</selector>
