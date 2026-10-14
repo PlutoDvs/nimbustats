@@ -23,8 +23,8 @@ Set<String> runtimeDeps(String packagePath) {
 /// counts in upper case anywhere, and in lower case only after a quote on
 /// the line, so Dart's `max(a, b)` or a method named `total` is not SQL.
 final aggregatePattern = RegExp(
-    r'\b(SUM|COUNT|AVG|MIN|MAX|TOTAL)\s*\(|\bGROUP\s+BY\b'
-    r'''|['"][^'"]*(\b(sum|count|avg|min|max|total)\s*\(|\bgroup\s+by\b)'''
+    r'\b(SUM|COUNT|AVG|MIN|MAX|TOTAL)\s*\(|GROUP\s+BY\b'
+    r'''|['"][^'"]*(\b(sum|count|avg|min|max|total)\s*\(|group\s+by\b)'''
     r'|\bcountAll\(|\.(sum|count|avg|min|max|total)\(\)|\.groupBy\(');
 
 void main() {
@@ -103,6 +103,11 @@ void main() {
       '"SELECT tracker_id, COUNT(*) FROM e "',
       'final m = e.value.max();',
       'q.groupBy([e.trackerId]);',
+      // Raw: the source text has a backslash-n, so no word boundary before G.
+      r"customSelect('select a from t\nGROUP BY y')",
+      'SELECT a FROM t GROUP BY y',
+      'SELECT AVG(v) FROM e',
+      'SELECT MIN(v) FROM e',
     ]) {
       expect(aggregatePattern.hasMatch(line), isTrue, reason: 'missed: $line');
     }
