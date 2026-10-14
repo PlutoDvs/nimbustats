@@ -45,6 +45,9 @@ void main() {
     test('moves when a category moves under another parent',
         () => expectMovedBy(() => f.db.categoriesDao.move('dining', 'rent')));
 
+    test('moves when a tag moves under another parent',
+        () => expectMovedBy(() => f.db.tagsDao.move('trip', 'work')));
+
     test(
         'moves when a transaction is re-saved with new tags',
         () => expectMovedBy(() async {

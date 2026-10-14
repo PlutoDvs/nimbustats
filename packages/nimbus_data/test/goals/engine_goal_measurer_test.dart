@@ -149,6 +149,24 @@ void main() {
             const DateKey(20260201): const MoneyAmount(Money(400)),
           });
     });
+
+    test('net savings across the seams subtracts each expense once',
+        () async {
+      // The windows of the test above. 5 January ends the first and 6
+      // January starts the second, both with expenses. A window overlap
+      // would read a seam day twice: harmless to moneySum's by-day map, but
+      // net savings subtracts every expense bucket it is given.
+      expect(
+          await f.measurer.measureDaily(GoalMetric.netSavings, everything,
+              const DateRange(DateKey(20251206), DateKey(20260228))),
+          {
+            const DateKey(20260105): const MoneyAmount(Money(-1500)),
+            const DateKey(20260106): const MoneyAmount(Money(-2000)),
+            const DateKey(20260107): const MoneyAmount(Money(-300)),
+            const DateKey(20260110): const MoneyAmount(Money(3000)),
+            const DateKey(20260201): const MoneyAmount(Money(-400)),
+          });
+    });
   });
 
   group('stored paths follow their nodes (Review Focus 1)', () {
@@ -186,6 +204,45 @@ void main() {
 
       expect(await f.measurer.measure(GoalMetric.moneySum, dining, january),
           const MoneyAmount(Money(1300)));
+    });
+  });
+
+  group('nothing to measure', () {
+    test('a stored path whose node has no row matches nothing', () async {
+      // Not even a deleted row: the path stays as stored, which matches
+      // nothing. Dropping it instead would widen the goal to every category.
+      final gone = MoneyScope(const QueryFilters(
+          direction: MoneyDirection.expense,
+          categorySubtreePaths: ['/gone/']));
+      final goneTag = MoneyScope(QueryFilters(
+          direction: MoneyDirection.expense, tags: TagsAny(const ['/gone/'])));
+
+      expect(await f.measurer.measure(GoalMetric.moneySum, gone, january),
+          const MoneyAmount(Money.zero));
+      expect(await f.measurer.measureDaily(GoalMetric.moneySum, gone, january),
+          isEmpty);
+      expect(await f.measurer.measure(GoalMetric.moneySum, goneTag, january),
+          const MoneyAmount(Money.zero));
+      expect(
+          await f.measurer
+              .measure(GoalMetric.trackerCount, TrackerScope('gone'), january),
+          const QuantityAmount(0));
+    });
+
+    test('a range with no rows measures zero, and no days', () async {
+      const march = DateRange(DateKey(20260301), DateKey(20260331));
+      for (final (metric, scope, zero) in <(GoalMetric, GoalScope, GoalAmount)>[
+        (GoalMetric.moneySum, food, const MoneyAmount(Money.zero)),
+        (GoalMetric.txnCount, food, const QuantityAmount(0)),
+        (GoalMetric.trackerSum, TrackerScope('water'), const QuantityAmount(0)),
+        (GoalMetric.trackerCount, TrackerScope('cig'), const QuantityAmount(0)),
+        (GoalMetric.netSavings, everything, const MoneyAmount(Money.zero)),
+      ]) {
+        expect(await f.measurer.measure(metric, scope, march), zero,
+            reason: metric.name);
+        expect(await f.measurer.measureDaily(metric, scope, march), isEmpty,
+            reason: metric.name);
+      }
     });
   });
 

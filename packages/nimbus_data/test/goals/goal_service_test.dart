@@ -111,6 +111,24 @@ void main() {
       expect(later.outcomes,
           [...expected, spent(20260201, 20260228, 0, GoalStatus.met)]);
     });
+
+    test('a goal deleted mid-measure caches nothing', () async {
+      await seed();
+      await service.save(goal);
+      measurer.beforeFirstDaily = () => service.delete(goal.id);
+
+      final result = await service.history(goal);
+
+      expect(result.outcomes, expected,
+          reason: 'the caller still gets what it asked about');
+      expect(
+          [
+            for (final row in await f.db.goalPeriodResultsDao.forGoal(goal.id))
+              if (row.value != null) row.period,
+          ],
+          isEmpty,
+          reason: 'a deleted goal has no history to cache');
+    });
   });
 
   group('alert state', () {
@@ -158,6 +176,19 @@ void main() {
 
       expect(await service.check(savings), isNull);
       expect((await rowFor(savings, january))!.lastAlerted, isNull);
+    });
+
+    test('a fixed range not yet begun does not alert', () async {
+      // Today is 10 February; the range opens on 1 March. Income dated
+      // inside it already reaches the target, so only the open-period guard
+      // keeps it quiet.
+      const march = DateRange(DateKey(20260301), DateKey(20260331));
+      final savings = netSavingsGoal(march, target: 1000);
+      await service.save(savings);
+      await f.income(5000, const DateKey(20260305));
+
+      expect(await service.check(savings), isNull);
+      expect((await rowFor(savings, march))?.lastAlerted, isNull);
     });
 
     test('saving records what the goal already reaches, without an alert',

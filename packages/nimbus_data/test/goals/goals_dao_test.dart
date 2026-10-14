@@ -140,6 +140,12 @@ void main() {
     },
     'alert percents that are not a list': {'alert_percents': '80'},
     'an unknown period': {'period': 'fortnight'},
+    // QueryFilters reads confirmedOnly with an `as bool?` cast, so a string
+    // there is a TypeError, not a FormatException: an Error, which a caller
+    // catching exceptions would let take the whole list down.
+    'a filter value of the wrong JSON type': {
+      'scope_json': '{"type":"money","filters":{"confirmedOnly":"yes"}}',
+    },
   };
   for (final MapEntry(key: what, value: columns) in malformed.entries) {
     test('$what makes the row unreadable, not a guess', () async {
