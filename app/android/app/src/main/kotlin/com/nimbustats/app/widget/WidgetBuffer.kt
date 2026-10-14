@@ -6,6 +6,7 @@ import com.nimbustats.app.OutsideChannelHandler.Companion.TAG
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
+import java.io.RandomAccessFile
 import org.json.JSONObject
 
 /**
@@ -85,9 +86,22 @@ object WidgetBuffer {
     private fun line(kind: String, atUtc: Long): JSONObject =
         JSONObject().put("v", VERSION).put("id", Uuid7.shared.next()).put("kind", kind).put("atUtc", atUtc)
 
-    private fun append(context: Context, json: JSONObject) {
-        FileOutputStream(file(context, BUFFER), true).use { out ->
-            out.write((json.toString() + "\n").toByteArray())
+    private fun append(context: Context, json: JSONObject) = appendLine(file(context, BUFFER), json.toString())
+
+    /**
+     * Appends [line] and syncs it to disk. Its callers hold the lock.
+     *
+     * A file whose last byte is not a newline ends in a line torn by a crash or power loss
+     * mid-append. The new line then starts on a fresh line, so the drain rejects only the torn
+     * line, never the tap that would have been glued onto it (D29).
+     */
+    internal fun appendLine(target: File, line: String) {
+        val torn = target.length() > 0 && RandomAccessFile(target, "r").use { file ->
+            file.seek(file.length() - 1)
+            file.read() != '\n'.code
+        }
+        FileOutputStream(target, true).use { out ->
+            out.write(((if (torn) "\n" else "") + line + "\n").toByteArray())
             out.fd.sync()
         }
     }
