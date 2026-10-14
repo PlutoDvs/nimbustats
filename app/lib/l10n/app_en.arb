@@ -830,6 +830,14 @@
   "viewNameTaken": "A card on the dashboard already has this name",
   "viewRemoved": "Removed from the dashboard",
   "weekdayFriday": "Fri",
+  "weekdayLong": "{day, select, monday{Monday} tuesday{Tuesday} wednesday{Wednesday} thursday{Thursday} friday{Friday} saturday{Saturday} other{Sunday}}",
+  "@weekdayLong": {
+    "placeholders": {
+      "day": {
+        "type": "String"
+      }
+    }
+  },
   "weekdayMonday": "Mon",
   "weekdaySaturday": "Sat",
   "weekdaySunday": "Sun",

@@ -2465,6 +2465,12 @@ abstract class AppLocalizations {
   /// **'Fri'**
   String get weekdayFriday;
 
+  /// No description provided for @weekdayLong.
+  ///
+  /// In en, this message translates to:
+  /// **'{day, select, monday{Monday} tuesday{Tuesday} wednesday{Wednesday} thursday{Thursday} friday{Friday} saturday{Saturday} other{Sunday}}'**
+  String weekdayLong(String day);
+
   /// No description provided for @weekdayMonday.
   ///
   /// In en, this message translates to:

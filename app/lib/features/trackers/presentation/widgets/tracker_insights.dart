@@ -224,7 +224,7 @@ class _WeekdaySection extends ConsumerWidget {
           semanticsLabel: l10n.trackerInsightsWeekdaySummary(
             tracker.name,
             rangeLabel(view, format),
-            _weekdayName(l10n, order[peak]),
+            _weekdayLongName(l10n, order[peak]),
             format.total(tracker, values[peak]),
           ),
         );
@@ -247,3 +247,17 @@ String _weekdayName(AppLocalizations l10n, int isoWeekday) =>
       DateTime.saturday => l10n.weekdaySaturday,
       _ => l10n.weekdaySunday,
     };
+
+/// A weekday's full name, for the spoken summary: a screen reader has the
+/// room a chart label does not. Sunday reads through the select's `other`,
+/// as [_weekdayName]'s `_` arm does.
+String _weekdayLongName(AppLocalizations l10n, int isoWeekday) =>
+    l10n.weekdayLong(const [
+      'monday',
+      'tuesday',
+      'wednesday',
+      'thursday',
+      'friday',
+      'saturday',
+      'sunday',
+    ][isoWeekday - 1]);

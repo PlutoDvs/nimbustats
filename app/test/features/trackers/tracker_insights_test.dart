@@ -623,7 +623,23 @@ void main() {
       await scrollTo(tester, 'tracker-weekday-chart');
       expect(
           find.bySemanticsLabel(
-              'Cigarettes by day of week, 2026/10: most on Mon, 3'),
+              'Cigarettes by day of week, 2026/10: most on Monday, 3'),
+          findsOneWidget);
+      semantics.dispose();
+    });
+
+    testWidgets('the weekday peak is spoken in full in Persian too',
+        (tester) async {
+      // Persian's chart labels are already full names; the spoken summary
+      // now reads them through weekdayLong.
+      final semantics = tester.ensureSemantics();
+      final cig = await cigarettesAtNoonAndDawn();
+      await openInsights(tester, cig.id, locale: const Locale('fa'));
+
+      await scrollTo(tester, 'tracker-weekday-chart');
+      expect(
+          find.bySemanticsLabel(
+              'Cigarettes بر اساس روز هفته، ۱۴۰۵/۰۷: بیشترین در دوشنبه، ۳'),
           findsOneWidget);
       semantics.dispose();
     });

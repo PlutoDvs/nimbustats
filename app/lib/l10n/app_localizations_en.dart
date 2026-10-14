@@ -1437,6 +1437,20 @@ class AppLocalizationsEn extends AppLocalizations {
   String get weekdayFriday => 'Fri';
 
   @override
+  String weekdayLong(String day) {
+    String _temp0 = intl.Intl.selectLogic(day, {
+      'monday': 'Monday',
+      'tuesday': 'Tuesday',
+      'wednesday': 'Wednesday',
+      'thursday': 'Thursday',
+      'friday': 'Friday',
+      'saturday': 'Saturday',
+      'other': 'Sunday',
+    });
+    return '$_temp0';
+  }
+
+  @override
   String get weekdayMonday => 'Mon';
 
   @override
