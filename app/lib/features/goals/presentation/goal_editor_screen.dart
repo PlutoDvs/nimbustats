@@ -446,6 +446,8 @@ class _GoalFormState extends ConsumerState<_GoalForm> {
     Set<GoalEditorError> errors,
   ) => errors.contains(GoalEditorError.targetInvalid)
       ? l10n.goalsErrorTargetInvalid
+      : errors.contains(GoalEditorError.targetNotWhole)
+      ? l10n.goalsErrorTargetWhole
       : errors.contains(GoalEditorError.targetZero)
       ? l10n.goalsErrorTargetZero
       : null;

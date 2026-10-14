@@ -565,6 +565,12 @@ abstract class AppLocalizations {
   /// **'Enter a number'**
   String get goalsErrorTargetInvalid;
 
+  /// No description provided for @goalsErrorTargetWhole.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a whole number'**
+  String get goalsErrorTargetWhole;
+
   /// No description provided for @goalsErrorTargetZero.
   ///
   /// In en, this message translates to:

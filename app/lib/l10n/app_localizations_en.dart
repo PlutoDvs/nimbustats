@@ -335,6 +335,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get goalsErrorTargetInvalid => 'Enter a number';
 
   @override
+  String get goalsErrorTargetWhole => 'Enter a whole number';
+
+  @override
   String get goalsErrorTargetZero => 'The goal must be more than zero';
 
   @override

@@ -334,6 +334,9 @@ class AppLocalizationsFa extends AppLocalizations {
   String get goalsErrorTargetInvalid => 'یک عدد وارد کنید';
 
   @override
+  String get goalsErrorTargetWhole => 'یک عدد صحیح وارد کنید';
+
+  @override
   String get goalsErrorTargetZero => 'هدف باید بیشتر از صفر باشد';
 
   @override

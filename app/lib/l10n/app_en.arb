@@ -193,6 +193,7 @@
   "goalsErrorEndBeforeStart": "The end must not be before the start",
   "goalsErrorName": "Give the goal a name",
   "goalsErrorTargetInvalid": "Enter a number",
+  "goalsErrorTargetWhole": "Enter a whole number",
   "goalsErrorTargetZero": "The goal must be more than zero",
   "goalsErrorTitle": "Could not load your goals",
   "goalsFieldAlerts": "Alerts",

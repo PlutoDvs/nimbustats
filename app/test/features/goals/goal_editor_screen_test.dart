@@ -275,6 +275,38 @@ void main() {
     );
   });
 
+  testWidgets('a counter or boolean habit refuses a fraction; a quantity '
+      'keeps one', (tester) async {
+    // 2.5 cigarettes or 2.5 gym days is no target: their entries count
+    // whole times and days.
+    final cig = await trackers.create(cigarettes);
+    final g = await trackers.create(gym);
+    final w = await trackers.create(water);
+    for (final (kind, tracker) in [
+      (GoalKind.habitLimit, cig),
+      (GoalKind.habitGoal, g),
+    ]) {
+      await openNew(tester);
+      await choose(tester, kind);
+      await pickTracker(tester, tracker);
+      await tester.enterText(find.byKey(const Key('goal-target')), '2.5');
+      await tester.pump();
+      expect(find.text('Enter a whole number'), findsOneWidget,
+          reason: tracker.name);
+      expect(find.text('Enter a number'), findsNothing, reason: tracker.name);
+      expect(save(tester), isNull, reason: tracker.name);
+    }
+
+    await openNew(tester);
+    await choose(tester, GoalKind.habitGoal);
+    await pickTracker(tester, w);
+    await tester.enterText(find.byKey(const Key('goal-target')), '2.5');
+    await tester.pump();
+    expect(find.text('Enter a whole number'), findsNothing, reason: 'litres');
+    expect(find.text('Enter a number'), findsNothing, reason: 'litres');
+    expect(save(tester), isNotNull);
+  });
+
   testWidgets('a habit without a tracker says so; choosing one names it', (
     tester,
   ) async {

@@ -18,6 +18,7 @@ enum GoalEditorError {
   nameBlank,
   targetMissing,
   targetInvalid,
+  targetNotWhole,
   targetZero,
   endBeforeStart,
   trackerMissing,
@@ -136,6 +137,8 @@ Set<GoalEditorError> goalEditorErrors(
     if (state.name.trim().isEmpty) GoalEditorError.nameBlank,
     if (state.targetText.trim().isEmpty)
       GoalEditorError.targetMissing
+    else if (_fractionOfWholeCount(state))
+      GoalEditorError.targetNotWhole
     else if (target == null)
       GoalEditorError.targetInvalid
     else if (kind.direction == GoalDirection.atLeast && target.isZero)
@@ -203,11 +206,19 @@ GoalAmount? _targetOf(GoalEditorState state, MoneyFormatter money) {
   final value = double.tryParse(Digits.toLatin(state.targetText.trim())) == 0
       ? 0.0
       : TrackerValues.parseAmount(state.targetText);
-  if (value == null) return null;
+  if (value == null || _fractionOfWholeCount(state)) return null;
   // A duration is typed in minutes and measured in seconds.
   return QuantityAmount(
     state.tracker?.type == TrackerType.duration ? value * 60 : value,
   );
+}
+
+/// A counter counts times and a boolean days, so a fraction is no target.
+bool _fractionOfWholeCount(GoalEditorState state) {
+  final type = state.tracker?.type;
+  if (type != TrackerType.counter && type != TrackerType.boolean) return false;
+  final value = TrackerValues.parseAmount(state.targetText);
+  return value != null && value != value.roundToDouble();
 }
 
 /// Holds the editor's form. Auto-disposed, so a draft lives exactly as long
