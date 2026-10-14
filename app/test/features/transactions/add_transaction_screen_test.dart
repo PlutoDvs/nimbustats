@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:nimbus_data/nimbus_data.dart';
 import 'package:nimbus_domain/nimbus_domain.dart';
@@ -13,6 +12,7 @@ import 'package:nimbustats/features/transactions/data/transaction_draft.dart';
 import 'package:nimbustats/features/transactions/data/transaction_repository.dart';
 
 import '../../support/harness.dart';
+import '../trackers/support/tracker_fixture.dart' show captureHaptics;
 
 const everything = DateRange(DateKey(20000101), DateKey(20991231));
 
@@ -213,24 +213,31 @@ void main() {
     });
 
     testWidgets('save fires a haptic', (tester) async {
-      final haptics = <String>[];
-      tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
-        SystemChannels.platform,
-        (call) async {
-          if (call.method == 'HapticFeedback.vibrate') {
-            haptics.add(call.arguments.toString());
-          }
-          return null;
-        },
-      );
-      addTearDown(() => tester.binding.defaultBinaryMessenger
-          .setMockMethodCallHandler(SystemChannels.platform, null));
+      // D17: the A53 (Android 15) drops mediumImpact as "vibration absent";
+      // vibrate() is the one haptic it plays.
+      final haptics = captureHaptics(tester);
 
       await pumpApp(tester, seedFirstRun: true, initialLocation: '/add');
       await tester.enterText(find.byKey(const Key('tx-amount-field')), '1000');
       await tester.tap(find.byKey(const Key('tx-save')));
       await tester.pumpAndSettle();
-      expect(haptics, isNotEmpty);
+      expect(haptics, ['vibrate']);
+    });
+
+    testWidgets('a category chip fires a haptic', (tester) async {
+      // D17: selectionClick is silent on the A53 for the same reason.
+      final haptics = captureHaptics(tester);
+      final db = await pumpApp(tester, seedFirstRun: true);
+      await seedRepeatPurchases(db, categoryId: 'seed-food-coffee');
+
+      await tester.tap(find.byKey(const Key('tx-add-fab')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const Key('tx-chip-seed-food-coffee')));
+      await tester.pumpAndSettle();
+
+      expect(haptics, ['vibrate']);
+      expect(await db.transactionsDao.pageAfter(range: everything, limit: 50),
+          hasLength(5), reason: 'the chip alone saves nothing');
     });
   });
 

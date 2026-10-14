@@ -77,8 +77,9 @@ class CategoryChips extends ConsumerWidget {
               selected: id == selectedId,
               onSelected: () {
                 // Confirms the tap without the user looking up from the
-                // keypad, which is the point of a chip row at all.
-                unawaited(HapticFeedback.selectionClick());
+                // keypad, which is the point of a chip row at all. vibrate():
+                // the A53 drops selectionClick as "vibration absent" (D17).
+                unawaited(HapticFeedback.vibrate());
                 onSelected(id);
               },
             ),

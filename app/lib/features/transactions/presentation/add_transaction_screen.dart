@@ -82,7 +82,9 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
     final list = ref.read(transactionListControllerProvider.notifier);
 
     // Confirms the capture without the user waiting to look at the screen.
-    unawaited(HapticFeedback.mediumImpact());
+    // vibrate(): the one haptic a Galaxy A53 on Android 15 plays; it drops
+    // the impact constants as "vibration absent" (D17).
+    unawaited(HapticFeedback.vibrate());
 
     // Awaited before leaving, deliberately -- the plan called for popping
     // first. A local SQLite insert is sub-millisecond, so nothing is gained by
