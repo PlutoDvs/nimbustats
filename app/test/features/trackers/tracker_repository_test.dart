@@ -356,6 +356,31 @@ void main() {
       expect(await offsetOf(stopped.entry.id), 210);
     });
 
+    test('a session across a DST change keeps the offset at its start',
+        () async {
+      // D21: with one offset for every instant, "the offset at the start"
+      // and "the offset now" were the same number. New York leaves daylight
+      // time at 06:00 UTC on 1 November 2026: -4:00 before, -5:00 after.
+      final fallBack = DateTime.utc(2026, 11, 1, 6);
+      fake = FakeClock(
+        nowUtc: DateTime.utc(2026, 11, 1, 2), // 22:00 on 31 October, EDT
+        rule: (utc) => utc.isBefore(fallBack)
+            ? const Duration(hours: -4)
+            : const Duration(hours: -5),
+      );
+      repo = repositoryFor(db, fake);
+      final s = await repo.create(sleep);
+      await repo.startTimer(s.id);
+      fake.advance(const Duration(hours: 8)); // 05:00 EST
+      expect(fake.clock.offsetMinutesOf(fake.nowUtc), -300,
+          reason: 'the stop is under the new offset');
+
+      final stopped = await repo.stopTimer(s.id) as TimerStopped;
+
+      expect(await offsetOf(stopped.entry.id), -240);
+      expect(stopped.entry.localDateKey, const DateKey(20261031));
+    });
+
     test('a session added by hand takes the offset at its start', () async {
       final s = await repo.create(sleep);
       final added = await repo.addDuration(s.id, const Duration(minutes: 30))

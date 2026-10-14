@@ -16,7 +16,7 @@ import 'package:nimbustats/features/trackers/data/tracker_repository.dart';
 /// Starts at 2026-10-05 09:00 UTC, which is 12:30 in Tehran, the default zone
 /// here, so "today" is 20261005.
 final class FakeClock {
-  FakeClock({DateTime? nowUtc, this.offset = tehran})
+  FakeClock({DateTime? nowUtc, this.offset = tehran, this.rule})
       : nowUtc = nowUtc ?? DateTime.utc(2026, 10, 5, 9);
 
   static const tehran = Duration(hours: 3, minutes: 30);
@@ -27,16 +27,23 @@ final class FakeClock {
   /// The device's UTC offset. Change it to fly.
   Duration offset;
 
+  /// The zone's offset at each instant, as a daylight-saving rule gives it.
+  /// Null applies [offset] to every instant.
+  final Duration Function(DateTime utc)? rule;
+
   void advance(Duration by) => nowUtc = nowUtc.add(by);
 
   /// Reads this fake's fields on every call, so moving the fake also moves a
   /// clock already handed to a repository or a provider.
   TrackerClock get clock => TrackerClock(
         nowUtc: () => nowUtc,
-        toLocal: (utc) => utc.add(offset),
+        toLocal: (utc) => utc.add(rule?.call(utc) ?? offset),
+        // shortcut: a picked wall time maps with the offset in force now, not
+        // the rule's offset at that time, so a time across a DST change lands
+        // an hour off; upgrade when a test edits a time across one.
         fromLocal: (wall) => DateTime.utc(wall.year, wall.month, wall.day,
                 wall.hour, wall.minute, wall.second)
-            .subtract(offset),
+            .subtract(rule?.call(nowUtc) ?? offset),
       );
 }
 
