@@ -62,6 +62,9 @@ final class TrackerLogger {
     if (!done) return log();
     _haptic();
     final cleared = await _write(() => repository.clearToday(tracker.id));
+    // A stale "done" after midnight: today held nothing to take back, and
+    // "not done today" would announce a change that did not happen.
+    if (cleared.isEmpty) return;
     _showUndo(
       l10n.trackerMarkedNotDone(tracker.name),
       // DayWrite.dayAlreadyDone here means the day was marked done again in

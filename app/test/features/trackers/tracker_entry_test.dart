@@ -152,6 +152,24 @@ void main() {
       expect(textIn(tester, Key('tracker-total-${g.id}')), 'Done today');
       expect(tester.takeException(), isNull);
     });
+
+    testWidgets('a stale "done" after midnight says nothing and keeps the day',
+        (tester) async {
+      await repo.logEntry(g.id);
+      await openTab(tester);
+      expect(textIn(tester, Key('tracker-total-${g.id}')), 'Done today');
+
+      // Past midnight, before the tile hears of the new day (the rollover
+      // timer is not pumped): it still shows yesterday's "done", so the tap
+      // asks to take back a day with nothing in it.
+      fake.advance(const Duration(days: 1));
+      await tester.tap(action(g));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Gym · not done today'), findsNothing);
+      expect(find.byType(SnackBar), findsNothing);
+      expect(await count(g), 1, reason: "yesterday's done is left alone");
+    });
   });
 
   testWidgets('the buttons say what they do to a screen reader',
