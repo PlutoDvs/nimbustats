@@ -15,6 +15,7 @@ void main() {
   /// A valid spending cap unless told otherwise, so each test changes only
   /// the field it is about.
   Goal goal({
+    String id = 'g1',
     String name = 'Dining out',
     GoalMetric metric = GoalMetric.moneySum,
     GoalScope? scope,
@@ -25,7 +26,7 @@ void main() {
     List<int> alertPercents = Goal.defaultAlertPercents,
   }) =>
       Goal(
-        id: 'g1',
+        id: id,
         name: name,
         metric: metric,
         scope: scope ?? food,
@@ -162,6 +163,26 @@ void main() {
             isTrue);
         expect(rials(1).reaches(rials(0), percent), isTrue);
       }
+    });
+
+    test('exceeds is strictly over, with the tolerance reaches uses', () {
+      expect(rials(10001).exceeds(rials(10000)), isTrue);
+      expect(rials(10000).exceeds(rials(10000)), isFalse,
+          reason: 'exactly at a cap is within it');
+      expect(rials(1).exceeds(rials(0)), isTrue);
+      expect(rials(0).exceeds(rials(0)), isFalse);
+      // 0.1 + 0.2 is 0.30000000000000004: on the target, so it reaches 100%
+      // and is not over it. A value that reaches 100% is never also over.
+      final sum = const QuantityAmount(0.1) + const QuantityAmount(0.2);
+      expect(sum.reaches(const QuantityAmount(0.3), 100), isTrue);
+      expect(sum.exceeds(const QuantityAmount(0.3)), isFalse);
+      expect(const QuantityAmount(0.300001).exceeds(const QuantityAmount(0.3)),
+          isTrue,
+          reason: 'past the tolerance is over');
+      expect(const QuantityAmount(1).exceeds(const QuantityAmount(0)), isTrue);
+      expect(const QuantityAmount(0).exceeds(const QuantityAmount(0)), isFalse);
+      expect(() => rials(1).exceeds(const QuantityAmount(1)),
+          throwsArgumentError);
     });
 
     test('scaledBy keeps money integer, rounding half away from zero', () {
@@ -377,6 +398,32 @@ void main() {
       expect(goal(), isNot(goal(alertPercents: [50, 100])));
       expect(goal(), isNot(goal(weekStart: DateTime.monday)));
       expect(goal(), isNot(goal().copyWith(active: false)));
+    });
+
+    test('two goals differing in any one of the eleven fields are unequal',
+        () {
+      // A goal keys provider families and the history cache's content
+      // guard, so a field == ignored would serve one goal another's numbers.
+      // The base has no direction filter, so the metric can switch alone.
+      final base = goal(scope: everything);
+      final variants = <String, Goal>{
+        'id': goal(id: 'g2', scope: everything),
+        'name': base.copyWith(name: 'Eating out'),
+        'metric': base.copyWith(metric: GoalMetric.netSavings),
+        'scope': base.copyWith(scope: food),
+        'direction': base.copyWith(direction: GoalDirection.atLeast),
+        'target': base.copyWith(target: rials(20000)),
+        'period': base.copyWith(
+            period: const RecurringPeriod(PeriodType.week, DateKey(20261001))),
+        'calendar': base.copyWith(calendar: CalendarKind.gregorian),
+        'weekStart': base.copyWith(weekStart: DateTime.monday),
+        'alertPercents': base.copyWith(alertPercents: [50, 100]),
+        'active': base.copyWith(active: false),
+      };
+      for (final MapEntry(key: field, value: variant) in variants.entries) {
+        expect(variant, isNot(base), reason: field);
+        expect(base, isNot(variant), reason: '$field, the other way round');
+      }
     });
 
     test('alert percents survive being stored as JSON text', () {

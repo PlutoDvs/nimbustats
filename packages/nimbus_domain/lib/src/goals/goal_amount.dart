@@ -103,6 +103,7 @@ final class MoneyAmount extends GoalAmount {
   @override
   MoneyAmount scaledBy(int numerator, int denominator) {
     _checkPositive(denominator, 'denominator');
+    // shortcut: a plain 64-bit product, which wraps past ~2.5e16 minor units over a year-long range (~2.5e15 over a decade); move to BigInt if a goal can hold amounts that large.
     final scaled = money.minorUnits * numerator;
     final quotient = scaled ~/ denominator; // truncates toward zero
     final remainder = scaled.remainder(denominator); // takes scaled's sign
