@@ -1866,6 +1866,12 @@ abstract class AppLocalizations {
   /// **'{total} in all · {average} a day'**
   String trackerInsightsTotalCaption(String total, String average);
 
+  /// No description provided for @trackerInsightsUnderAMinute.
+  ///
+  /// In en, this message translates to:
+  /// **'<1 min'**
+  String get trackerInsightsUnderAMinute;
+
   /// No description provided for @trackerInsightsWeekdaySummary.
   ///
   /// In en, this message translates to:

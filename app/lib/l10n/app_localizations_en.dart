@@ -1079,6 +1079,9 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get trackerInsightsUnderAMinute => '<1 min';
+
+  @override
   String trackerInsightsWeekdaySummary(
     String name,
     String period,

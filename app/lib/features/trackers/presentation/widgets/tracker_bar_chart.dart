@@ -47,7 +47,10 @@ class TrackerBarChart extends StatelessWidget {
   final String? labelKeyPrefix;
   final double height;
 
-  /// The bottom axis's labels, under the bars.
+  /// The value axis's labels, beside the bars, at 1x text.
+  static const _leftTitlesSize = 44.0;
+
+  /// The bottom axis's labels, under the bars, at 1x text.
   static const _bottomTitlesSize = 28.0;
 
   /// fl_chart's own measure when it picks a step: one per 40 pixels of axis.
@@ -56,9 +59,12 @@ class TrackerBarChart extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    // The labels grow with the user's font size, so their room must too.
+    final scaler = MediaQuery.textScalerOf(context);
+    final bottomTitlesSize = scaler.scale(_bottomTitlesSize);
     final peak = values.fold<double>(0, math.max);
     final step = axisStepOf(
-        peak, math.max((height - _bottomTitlesSize) ~/ _pixelsPerStep, 1));
+        peak, math.max((height - bottomTitlesSize) ~/ _pixelsPerStep, 1));
     return Semantics(
       container: true,
       label: semanticsLabel,
@@ -88,13 +94,17 @@ class TrackerBarChart extends StatelessWidget {
               leftTitles: AxisTitles(
                 sideTitles: SideTitles(
                   showTitles: true,
-                  reservedSize: 44,
+                  reservedSize: scaler.scale(_leftTitlesSize),
                   interval: step,
                   getTitlesWidget: (value, meta) {
                     // fl_chart also labels the top of the axis, the highest
                     // bar, which is rarely a step: an hour and five minutes
-                    // would read 1:05 above 1:00.
-                    if (step != null && !_isStep(value, step)) {
+                    // would read 1:05 above 1:00. Below one step the top is
+                    // the axis's only label above 0, so it stays: a 4-minute
+                    // peak reads 0:04 rather than nothing.
+                    if (step != null &&
+                        meta.max >= step &&
+                        !_isStep(value, step)) {
                       return const SizedBox.shrink();
                     }
                     return Text(
@@ -108,7 +118,7 @@ class TrackerBarChart extends StatelessWidget {
               bottomTitles: AxisTitles(
                 sideTitles: SideTitles(
                   showTitles: true,
-                  reservedSize: _bottomTitlesSize,
+                  reservedSize: bottomTitlesSize,
                   getTitlesWidget: (value, meta) {
                     final index = value.round();
                     if (index % labelEvery != 0) return const SizedBox.shrink();

@@ -1073,6 +1073,9 @@ class AppLocalizationsFa extends AppLocalizations {
   }
 
   @override
+  String get trackerInsightsUnderAMinute => 'کمتر از یک دقیقه';
+
+  @override
   String trackerInsightsWeekdaySummary(
     String name,
     String period,

@@ -89,6 +89,7 @@ class _HistorySection extends ConsumerWidget {
         final values = [for (final bar in bars) bar.value];
         final peak = bars[peakIndex(values)];
         final days = elapsedDays(view.range, today);
+        final average = days == 0 ? 0.0 : result.sum / days;
         // A boolean's per-day average would be a fraction of a "done", so it
         // says on how many days it was done instead. The day count only picks
         // "day" or "days"; it is printed through format, in the settings'
@@ -98,7 +99,13 @@ class _HistorySection extends ConsumerWidget {
                 days, format.number(result.sum), format.digits(days))
             : l10n.trackerInsightsTotalCaption(
                 format.total(tracker, result.sum),
-                format.total(tracker, days == 0 ? 0 : result.sum / days));
+                // h:mm floors a duration under a minute to 0:00, which reads
+                // as nothing logged. A duration's value is in seconds.
+                tracker.type == TrackerType.duration &&
+                        average > 0 &&
+                        average < 60
+                    ? l10n.trackerInsightsUnderAMinute
+                    : format.total(tracker, average));
         return Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [

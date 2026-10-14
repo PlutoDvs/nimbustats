@@ -588,6 +588,7 @@
       }
     }
   },
+  "trackerInsightsUnderAMinute": "<1 min",
   "trackerInsightsWeekdaySummary": "{name} by day of week, {period}: most on {weekday}, {peakValue}",
   "@trackerInsightsWeekdaySummary": {
     "placeholders": {

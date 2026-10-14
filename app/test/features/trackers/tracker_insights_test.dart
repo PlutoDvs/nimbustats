@@ -181,6 +181,50 @@ void main() {
     });
   });
 
+  group('a duration at the edge of its scale', () {
+    /// One 4-minute Sleep session, logged now (the 5th).
+    Future<Tracker> fourMinutesOfSleep() async {
+      final s = await repo.create(sleep);
+      await repo.addDuration(s.id, const Duration(minutes: 4));
+      return s;
+    }
+
+    testWidgets('an average under a minute reads <1 min, not 0:00',
+        (tester) async {
+      // 4 minutes over the five days of October begun so far: 48 s a day.
+      // h:mm floors that to 0:00, which reads as nothing logged.
+      await useGregorianEnglish();
+      final s = await fourMinutesOfSleep();
+
+      await openInsights(tester, s.id);
+
+      expect(textOf(tester, 'tracker-history-caption'),
+          '0:04 in all · <1 min a day');
+    });
+
+    testWidgets('and in Persian', (tester) async {
+      // Review Focus 4. Default settings: Jalali, Persian digits. Mehr 1405
+      // began on 23 September, so 13 days have begun: 18 s a day.
+      final s = await fourMinutesOfSleep();
+
+      await openInsights(tester, s.id, locale: const Locale('fa'));
+
+      expect(textOf(tester, 'tracker-history-caption'),
+          '۰:۰۴ در کل · کمتر از یک دقیقه در روز');
+    });
+
+    testWidgets('a peak under one step still labels its top', (tester) async {
+      // The step is 15 minutes, above the 4-minute peak, so the top of the
+      // axis is its only label above 0.
+      await useGregorianEnglish();
+      final s = await fourMinutesOfSleep();
+
+      await openInsights(tester, s.id);
+
+      expect(axisLabelsOf(tester, 'tracker-history-chart'), ['0:00', '0:04']);
+    });
+  });
+
   testWidgets('a week draws seven days and a year twelve months',
       (tester) async {
     await useGregorianEnglish();
@@ -427,6 +471,26 @@ void main() {
     await openInsights(tester, w.id);
 
     expect(tester.takeException(), isNull);
+  });
+
+  testWidgets("at twice the font size the axes' room doubles too",
+      (tester) async {
+    tester.platformDispatcher.textScaleFactorTestValue = 2.0;
+    addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+    await useGregorianEnglish();
+    final cig = await repo.create(cigarettes);
+    await logDaysAgo(cig, 0);
+
+    await openInsights(tester, cig.id);
+
+    final titles = tester
+        .widget<BarChart>(find.descendant(
+            of: find.byKey(const Key('tracker-history-chart')),
+            matching: find.byType(BarChart)))
+        .data
+        .titlesData;
+    expect(titles.leftTitles.sideTitles.reservedSize, 88);
+    expect(titles.bottomTitles.sideTitles.reservedSize, 56);
   });
 
   testWidgets('the range controls are full-size tap targets', (tester) async {

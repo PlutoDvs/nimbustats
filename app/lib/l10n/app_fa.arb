@@ -292,6 +292,7 @@
   "trackerInsightsHourSummary": "{name} بر اساس ساعت، {period}: بیشترین حدود {hour}، {peakValue}",
   "trackerInsightsNothingLogged": "در این بازه چیزی ثبت نشده",
   "trackerInsightsTotalCaption": "{total} در کل · {average} در روز",
+  "trackerInsightsUnderAMinute": "کمتر از یک دقیقه",
   "trackerInsightsWeekdaySummary": "{name} بر اساس روز هفته، {period}: بیشترین در {weekday}، {peakValue}",
   "trackerLastEntryDaysAgo": "آخرین ثبت: {days} روز پیش",
   "trackerLastEntryToday": "آخرین ثبت: امروز",
