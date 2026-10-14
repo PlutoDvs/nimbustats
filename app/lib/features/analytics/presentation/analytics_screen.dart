@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart' show listEquals;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nimbus_design/nimbus_design.dart';
@@ -121,11 +122,13 @@ class _BreakdownTab extends ConsumerStatefulWidget {
 }
 
 class _BreakdownTabState extends ConsumerState<_BreakdownTab> {
-  /// The answer last drawn and the period it covers. A month step asks a new
-  /// question whose provider starts with no value; drawing this until it
+  /// The answer last drawn with the question it answered. A month step asks a
+  /// new question whose provider starts with no value; drawing this until it
   /// answers spares a skeleton frame and a from-scratch rebuild of the pie
-  /// and the rows on every step (D16).
-  (AnalyticsResult, DateRange)? _shown;
+  /// and the rows on every step (D16). It is kept only across a period change:
+  /// after a drill or a filter change the old rows would sit, still tappable,
+  /// under the new breadcrumb.
+  (AnalyticsResult, DateRange, List<CategoryCrumb>, bool)? _shown;
 
   @override
   Widget build(BuildContext context) {
@@ -134,7 +137,13 @@ class _BreakdownTabState extends ConsumerState<_BreakdownTab> {
     final controller = ref.read(breakdownControllerProvider.notifier);
     final result = ref.watch(analyticsResultProvider(view.spec));
     final nodes = ref.watch(categoryNodesByIdProvider);
-    if (result case AsyncData(value: final data)) _shown = (data, view.period);
+    if (result case AsyncData(value: final data)) {
+      _shown = (data, view.period, view.trail, view.confirmedOnly);
+    }
+    final kept = _shown;
+    final sameQuestion = kept != null &&
+        listEquals(kept.$3, view.trail) &&
+        kept.$4 == view.confirmedOnly;
 
     return Column(
       children: [
@@ -170,7 +179,7 @@ class _BreakdownTabState extends ConsumerState<_BreakdownTab> {
           // is an id on a chart, so there is nothing honest to draw until each
           // has arrived.
           // Between two answers, the last one stays on screen (D16).
-          child: switch ((result, nodes, _shown)) {
+          child: switch ((result, nodes, sameQuestion ? kept : null)) {
             (AsyncError(:final error), _, _) ||
             (_, AsyncError(:final error), _) =>
               NimbusErrorState(
@@ -180,7 +189,7 @@ class _BreakdownTabState extends ConsumerState<_BreakdownTab> {
                 onRetry: () =>
                     ref.invalidate(analyticsResultProvider(view.spec)),
               ),
-            (_, AsyncData(value: final byId), (final data, final period)?) =>
+            (_, AsyncData(value: final byId), (final data, final period, _, _)?) =>
               BreakdownBody(
                 result: data,
                 period: period,

@@ -298,6 +298,42 @@ void main() {
     expect(textOf(tester, 'breakdown-amount-seed-transport'), '۳۰۰');
   });
 
+  testWidgets('a drill does not keep the parent level while the next loads',
+      (tester) async {
+    // D16: the kept answer is scoped to the question. Parent rows left under
+    // the new breadcrumb stay tappable and a second tap would drill twice.
+    final db = await seededDb();
+    addTearDown(db.close);
+    await seedSpending(db);
+    await openBreakdown(tester, db);
+
+    await tester.tap(find.byKey(const Key('breakdown-row-seed-food')));
+    await tester.pump();
+
+    expect(find.byType(NimbusLoadingList), findsOneWidget);
+    expect(find.byKey(const Key('breakdown-row-seed-transport')), findsNothing);
+
+    await tester.pumpAndSettle();
+    expect(find.byKey(const Key('breakdown-row-seed-groceries')),
+        findsOneWidget);
+  });
+
+  testWidgets('a confirmed-only change does not keep the old answer',
+      (tester) async {
+    final db = await seededDb();
+    addTearDown(db.close);
+    await seedSpending(db, groceriesUnconfirmed: true);
+    await openBreakdown(tester, db);
+
+    await tester.tap(find.byKey(const Key('breakdown-confirmed-only')));
+    await tester.pump();
+
+    expect(find.byType(NimbusLoadingList), findsOneWidget);
+
+    await tester.pumpAndSettle();
+    expect(textOf(tester, 'breakdown-total-amount'), total750);
+  });
+
   testWidgets('on the current month the total is captioned "This month"',
       (tester) async {
     final db = await seededDb();
