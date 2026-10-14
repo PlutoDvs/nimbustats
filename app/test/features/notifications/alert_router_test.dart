@@ -90,8 +90,8 @@ void main() {
     ]);
   });
 
-  test('with details on, the text is the full alert; the lock screen still '
-      'gets the discreet one', () async {
+  test('with details on, the text is the full alert; the public version, for '
+      'a lock screen that hides sensitive content, stays discreet', () async {
     await NotificationPrefsRepository(db.settingsDao).setShowDetails(true);
     final (router, watcher) = await start();
     await cross(router, watcher);

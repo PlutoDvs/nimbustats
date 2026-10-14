@@ -24,8 +24,9 @@ final class NotificationPrefs {
   /// Minutes after local midnight, 0..1439.
   final int reminderMinuteOfDay;
 
-  /// Goal names and amounts in alert notifications. The lock screen gets the
-  /// discreet text either way.
+  /// Goal names and amounts in alert notifications. The discreet text is the
+  /// public version, which Android shows on a lock screen set to hide
+  /// sensitive content; the phone's own setting decides.
   final bool showDetails;
 
   @override
