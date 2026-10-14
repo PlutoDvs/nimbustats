@@ -122,15 +122,20 @@ class _HistorySection extends ConsumerWidget {
               axisLabelOf: (value) => format.axis(tracker, value),
               axisStepOf: (peak, intervals) =>
                   valueAxisStep(tracker.type, peak, intervals: intervals),
-              semanticsLabel: l10n.trackerInsightsHistorySummary(
-                tracker.name,
-                rangeLabel(view, format),
-                format.total(tracker, result.sum),
-                year
-                    ? format.month(peak.period.startInclusive)
-                    : format.date(peak.period.startInclusive),
-                format.total(tracker, peak.value),
-              ),
+              // A boolean's every done day is a tied peak of 1, so naming one
+              // says nothing; the caption is what it has to say.
+              semanticsLabel: tracker.type == TrackerType.boolean
+                  ? l10n.trackerInsightsDoneSummary(
+                      tracker.name, rangeLabel(view, format), caption)
+                  : l10n.trackerInsightsHistorySummary(
+                      tracker.name,
+                      rangeLabel(view, format),
+                      format.total(tracker, result.sum),
+                      year
+                          ? format.month(peak.period.startInclusive)
+                          : format.date(peak.period.startInclusive),
+                      format.total(tracker, peak.value),
+                    ),
             ),
             const SizedBox(height: NimbusTokens.space2),
             Text(caption,

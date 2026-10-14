@@ -536,6 +536,20 @@
       }
     }
   },
+  "trackerInsightsDoneSummary": "{name}, {period}: {caption}",
+  "@trackerInsightsDoneSummary": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "period": {
+        "type": "String"
+      },
+      "caption": {
+        "type": "String"
+      }
+    }
+  },
   "trackerInsightsEmptyMessage": "Log a few entries and your patterns show up here.",
   "trackerInsightsEmptyTitle": "No insights yet",
   "trackerInsightsErrorTitle": "Could not load this chart",

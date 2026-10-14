@@ -1813,6 +1813,12 @@ abstract class AppLocalizations {
   /// **'{count, plural, =1{Done on {done} of {days} day} other{Done on {done} of {days} days}}'**
   String trackerInsightsDoneCaption(int count, String done, String days);
 
+  /// No description provided for @trackerInsightsDoneSummary.
+  ///
+  /// In en, this message translates to:
+  /// **'{name}, {period}: {caption}'**
+  String trackerInsightsDoneSummary(String name, String period, String caption);
+
   /// No description provided for @trackerInsightsEmptyMessage.
   ///
   /// In en, this message translates to:

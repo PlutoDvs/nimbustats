@@ -361,6 +361,38 @@ void main() {
     semantics.dispose();
   });
 
+  testWidgets("a boolean's chart speaks its done caption, not a tied peak",
+      (tester) async {
+    // Every day done is a peak of 1, so a peak named the earliest of them.
+    final semantics = tester.ensureSemantics();
+    await useGregorianEnglish();
+    final g = await repo.create(gym);
+    await logDaysAgo(g, 0);
+    await logDaysAgo(g, 2);
+
+    await openInsights(tester, g.id);
+
+    expect(find.bySemanticsLabel('Gym, 2026/10: Done on 2 of 5 days'),
+        findsOneWidget);
+    semantics.dispose();
+  });
+
+  testWidgets("a boolean's spoken summary in Persian", (tester) async {
+    // Review Focus 4. Default settings: Jalali, Persian digits. Mehr 1405
+    // began on 23 September, so 13 days have begun.
+    final semantics = tester.ensureSemantics();
+    final g = await repo.create(gym);
+    await logDaysAgo(g, 0);
+    await logDaysAgo(g, 2);
+
+    await openInsights(tester, g.id, locale: const Locale('fa'));
+
+    expect(
+        find.bySemanticsLabel('Gym، ۱۴۰۵/۰۷: ۲ روز از ۱۳ روز انجام شد'),
+        findsOneWidget);
+    semantics.dispose();
+  });
+
   testWidgets('switching the calendar re-anchors the range', (tester) async {
     // Review Focus 5.
     await useEnglishDigits(db);

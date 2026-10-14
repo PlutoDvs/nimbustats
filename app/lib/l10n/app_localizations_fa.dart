@@ -1034,6 +1034,15 @@ class AppLocalizationsFa extends AppLocalizations {
   }
 
   @override
+  String trackerInsightsDoneSummary(
+    String name,
+    String period,
+    String caption,
+  ) {
+    return '$name، $period: $caption';
+  }
+
+  @override
   String get trackerInsightsEmptyMessage =>
       'چند بار ثبت کنید تا الگوهایتان اینجا دیده شود.';
 

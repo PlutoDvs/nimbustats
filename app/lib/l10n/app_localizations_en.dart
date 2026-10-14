@@ -1040,6 +1040,15 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String trackerInsightsDoneSummary(
+    String name,
+    String period,
+    String caption,
+  ) {
+    return '$name, $period: $caption';
+  }
+
+  @override
   String get trackerInsightsEmptyMessage =>
       'Log a few entries and your patterns show up here.';
 
