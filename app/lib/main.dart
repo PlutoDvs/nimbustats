@@ -6,6 +6,7 @@ import 'package:path_provider/path_provider.dart';
 
 import 'app.dart';
 import 'bootstrap/database_provider.dart';
+import 'bootstrap/error_hooks.dart';
 import 'bootstrap/provider_retry.dart';
 
 // Ruling R5: an AOT build compiles only what main reaches, and the drain
@@ -21,6 +22,7 @@ export 'drain_main.dart' show drainMain;
 /// this function stays short enough to be obviously correct.
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  installErrorHooks('nimbustats');
 
   final dir = await getApplicationDocumentsDirectory();
   final db = AppDatabase.openAtPath(p.join(dir.path, 'nimbustats.sqlite'));

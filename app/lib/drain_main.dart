@@ -5,6 +5,7 @@ import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 
 import 'bootstrap/database_provider.dart';
+import 'bootstrap/error_hooks.dart';
 import 'bootstrap/provider_retry.dart';
 import 'features/notifications/application/outside_errors.dart';
 import 'features/notifications/data/outside_channel.dart';
@@ -20,6 +21,8 @@ import 'features/widget/application/drain_service.dart';
 @pragma('vm:entry-point')
 Future<void> drainMain() async {
   WidgetsFlutterBinding.ensureInitialized();
+  // The drain job boots its own engine, so this isolate needs its own hook.
+  installErrorHooks('widget drain');
   final channel = OutsideChannel();
   AppDatabase? db;
   ProviderContainer? container;
