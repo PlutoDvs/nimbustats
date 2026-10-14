@@ -135,6 +135,24 @@ void main() {
     expect(textOf(tester, 'card-total-$breakdown'), total1750);
   });
 
+  testWidgets("a month step keeps each card's answer until the next arrives",
+      (tester) async {
+    // D16: a skeleton then a from-scratch preview, per card, per step.
+    final db = await categorisedDb();
+    addTearDown(db.close);
+    await seedSpending(db);
+    final (breakdown, _) = await pinStarters(db);
+    await openAnalytics(tester, db);
+
+    await tester.tap(find.byKey(const Key('dashboard-period-previous')));
+    await tester.pump();
+
+    expect(find.byKey(const Key('card-loading')), findsNothing);
+
+    await tester.pumpAndSettle();
+    expect(find.byKey(Key('card-empty-$breakdown')), findsOneWidget);
+  });
+
   testWidgets("a starter card's name stays true on a past month",
       (tester) async {
     // D15: the month bar moves every card, so a starter named "This month by

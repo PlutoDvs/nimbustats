@@ -113,16 +113,28 @@ class _AsyncChart<T> extends ConsumerWidget {
   }
 }
 
-class _BreakdownTab extends ConsumerWidget {
+class _BreakdownTab extends ConsumerStatefulWidget {
   const _BreakdownTab();
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<_BreakdownTab> createState() => _BreakdownTabState();
+}
+
+class _BreakdownTabState extends ConsumerState<_BreakdownTab> {
+  /// The answer last drawn and the period it covers. A month step asks a new
+  /// question whose provider starts with no value; drawing this until it
+  /// answers spares a skeleton frame and a from-scratch rebuild of the pie
+  /// and the rows on every step (D16).
+  (AnalyticsResult, DateRange)? _shown;
+
+  @override
+  Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final view = ref.watch(breakdownControllerProvider);
     final controller = ref.read(breakdownControllerProvider.notifier);
     final result = ref.watch(analyticsResultProvider(view.spec));
     final nodes = ref.watch(categoryNodesByIdProvider);
+    if (result case AsyncData(value: final data)) _shown = (data, view.period);
 
     return Column(
       children: [
@@ -157,8 +169,10 @@ class _BreakdownTab extends ConsumerWidget {
           // Both futures gate this tab: a bucket without its category's name
           // is an id on a chart, so there is nothing honest to draw until each
           // has arrived.
-          child: switch ((result, nodes)) {
-            (AsyncError(:final error), _) || (_, AsyncError(:final error)) =>
+          // Between two answers, the last one stays on screen (D16).
+          child: switch ((result, nodes, _shown)) {
+            (AsyncError(:final error), _, _) ||
+            (_, AsyncError(:final error), _) =>
               NimbusErrorState(
                 title: AppLocalizations.of(context).analyticsErrorTitle,
                 detail: error.toString(),
@@ -166,10 +180,10 @@ class _BreakdownTab extends ConsumerWidget {
                 onRetry: () =>
                     ref.invalidate(analyticsResultProvider(view.spec)),
               ),
-            (AsyncData(value: final data), AsyncData(value: final byId)) =>
+            (_, AsyncData(value: final byId), (final data, final period)?) =>
               BreakdownBody(
                 result: data,
-                period: view.period,
+                period: period,
                 nodesById: byId,
                 formatter: ref.watch(moneyFormatterProvider),
                 onDrill: controller.drillInto,

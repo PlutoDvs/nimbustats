@@ -266,6 +266,26 @@ void main() {
     expect(find.byType(NimbusEmptyState), findsOneWidget);
   });
 
+  testWidgets('a month step keeps the shown breakdown until the next arrives',
+      (tester) async {
+    // D16: a skeleton frame, then a from-scratch rebuild of the pie and the
+    // rows, cost two heavy frames per step on a 120 Hz screen.
+    final db = await seededDb();
+    addTearDown(db.close);
+    await seedSpending(db);
+    await seedLastMonth(db);
+    await openBreakdown(tester, db);
+
+    await tester.tap(find.byKey(const Key('breakdown-period-previous')));
+    await tester.pump();
+
+    expect(find.byType(NimbusLoadingList), findsNothing);
+    expect(find.byType(PieChart), findsOneWidget);
+
+    await tester.pumpAndSettle();
+    expect(textOf(tester, 'breakdown-amount-seed-transport'), '۳۰۰');
+  });
+
   testWidgets('on the current month the total is captioned "This month"',
       (tester) async {
     final db = await seededDb();

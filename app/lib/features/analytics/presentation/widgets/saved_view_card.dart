@@ -108,26 +108,43 @@ class _CardMenu extends ConsumerWidget {
   }
 }
 
-class _Readable extends ConsumerWidget {
+class _Readable extends ConsumerStatefulWidget {
   const _Readable({required this.view, required this.anchor});
 
   final SavedView view;
   final DateKey anchor;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<_Readable> createState() => _ReadableState();
+}
+
+class _ReadableState extends ConsumerState<_Readable> {
+  /// The question this card last answered, and its answer. A month step asks
+  /// a new question whose provider starts with no value; showing this until
+  /// it answers spares a skeleton and a from-scratch preview per card per step
+  /// (D16). The period label follows the shown question, so a card never
+  /// pairs one month's label with another month's total.
+  (QuerySpec, AnalyticsResult)? _shown;
+
+  @override
+  Widget build(BuildContext context) {
+    final view = widget.view;
     final l10n = AppLocalizations.of(context);
     final theme = Theme.of(context);
     final calendar = ref.watch(calendarProvider);
     final formatter = ref.watch(moneyFormatterProvider);
-    final spec = resolvedSpec(view, anchor, calendar,
+    final asked = resolvedSpec(view, widget.anchor, calendar,
         firstDayOfWeek: ref.watch(firstDayOfWeekProvider));
-    final result = ref.watch(analyticsResultProvider(spec));
+    final result = ref.watch(analyticsResultProvider(asked));
 
     // hasError/hasValue rather than a switch over the AsyncValue subtypes:
     // while an answer re-runs after a write it is a loading value that still
     // holds the old answer, and the card should keep showing it.
-    final data = result.hasError ? null : result.value;
+    final fresh = result.hasError ? null : result.value;
+    if (fresh != null) _shown = (asked, fresh);
+    final shown = result.hasError ? null : _shown;
+    final spec = shown?.$1 ?? asked;
+    final data = shown?.$2;
     final total = data == null || data.trueCount == 0
         ? null
         : formatter.format(data.trueTotal);
