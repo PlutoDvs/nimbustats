@@ -320,4 +320,33 @@ void main() {
 
     expect(tester.takeException(), isNull);
   });
+
+  testWidgets('at twice the font size the problem, unreadable and paused '
+      'cards overflow nothing', (tester) async {
+    tester.platformDispatcher.textScaleFactorTestValue = 2.0;
+    addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+    // 800 x 2000 logical: tall enough that the list lays out every card.
+    tester.view.physicalSize = const Size(2400, 6000);
+    addTearDown(tester.view.resetPhysicalSize);
+    final w = await trackers.create(water);
+    await service.save(habitGoal(w,
+        id: 'water',
+        metric: GoalMetric.trackerSum,
+        direction: GoalDirection.atLeast,
+        target: 2));
+    await db.customStatement(
+        'UPDATE trackers SET deleted_at = 1 WHERE id = ?', [w.id]);
+    await insertUnreadableGoal(db);
+    final fuel =
+        spendingCap(id: 'fuel', name: 'Fuel', paths: const [transportPath]);
+    await service.save(fuel);
+    await service.setActive(fuel, false);
+
+    await pumpGoals(tester, db, fake);
+
+    expect(find.byKey(const Key('goal-problem-water')), findsOneWidget);
+    expect(find.byKey(const Key('goal-problem-bad')), findsOneWidget);
+    expect(inCard('fuel', find.text('Paused')), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
 }

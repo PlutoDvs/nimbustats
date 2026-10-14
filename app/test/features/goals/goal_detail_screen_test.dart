@@ -252,6 +252,24 @@ void main() {
     handle.dispose();
   });
 
+  testWidgets('in Persian the bar speaks its percent in Persian digits',
+      (tester) async {
+    // A progress bar's own semantics must carry a Latin number (Flutter's
+    // debug check), so the bar's Persian percent lives on its container.
+    final handle = tester.ensureSemantics();
+    await seedHistory(); // default settings: Persian digits
+
+    await openDetail(tester, locale: const Locale('fa'));
+
+    final data = tester
+        .getSemantics(find.byType(LinearProgressIndicator))
+        .getSemanticsData();
+    expect(data.label, 'Dining out');
+    expect(data.value, '۳۰٪');
+    expect(tester.takeException(), isNull);
+    handle.dispose();
+  });
+
   testWidgets(
       'a fixed range not yet begun, or already over, has no pace to speak of',
       (tester) async {

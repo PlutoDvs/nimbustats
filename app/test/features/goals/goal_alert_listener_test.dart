@@ -156,6 +156,25 @@ void main() {
       expect(find.byKey(const Key('goal-detail')), findsOneWidget);
     });
 
+    testWidgets('an alert for a goal no longer listed reads plainly',
+        (tester) async {
+      // A goal deleted between its evaluation and its snackbar: the listener
+      // finds no period type, and the message's `other` case speaks. The
+      // empty list stands in for the goals stream after the delete; the
+      // watcher's own one-shot read still finds the goal.
+      await useEnglishDigits(db);
+      await service.save(spendingCap());
+      await spend(db, 850000, day5);
+
+      await pumpGoals(tester, db, fake, overrides: [
+        goalsProvider
+            .overrideWith((ref) => Stream<List<GoalRead>>.value(const [])),
+      ]);
+      await letTheWatcherRun(tester);
+
+      expect(find.text('Dining out: 85% of the limit'), findsOneWidget);
+    });
+
     testWidgets("the goals' day moves at midnight and on resume",
         (tester) async {
       late ProviderContainer container;

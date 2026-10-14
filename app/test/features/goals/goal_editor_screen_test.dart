@@ -651,13 +651,6 @@ void main() {
   });
 
   group('editing a goal that is still loading or failed to load', () {
-    /// Reports the watcher makes of a failed read are not under test here.
-    void muteReports() {
-      final previous = FlutterError.onError;
-      FlutterError.onError = (_) {};
-      addTearDown(() => FlutterError.onError = previous);
-    }
-
     testWidgets('the goals list loading shows the skeleton', (tester) async {
       final never = StreamController<List<GoalRead>>();
       addTearDown(never.close);
@@ -672,7 +665,6 @@ void main() {
 
     testWidgets('a failed goals read says so, hides the raw error, and Retry '
         'reads again and shows the form', (tester) async {
-      muteReports();
       await useEnglishDigits(db);
       await service.save(spendingCap());
       var calls = 0;
@@ -716,7 +708,6 @@ void main() {
 
     testWidgets("a failed tracker read says so, hides the raw error, and "
         'Retry reads again and shows the form', (tester) async {
-      muteReports();
       final w = await trackers.create(water);
       await service.save(habitGoal(w, id: 'water'));
       var calls = 0;

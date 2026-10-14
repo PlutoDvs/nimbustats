@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/misc.dart';
@@ -311,6 +313,29 @@ void main() {
     expect(reports, hasLength(1));
     expect(reports.single.library, 'goal watcher');
     expect(reports.single.exception, same(boom));
+  });
+
+  test('after a goals-stream error, the next list still evaluates', () async {
+    final reports = <FlutterErrorDetails>[];
+    final previous = FlutterError.onError;
+    FlutterError.onError = reports.add;
+    addTearDown(() => FlutterError.onError = previous);
+
+    await service.save(spendingCap()); // the baseline: nothing spent
+    await spend(db, 850000, day5); // crossed while the stream was down
+    final goals = StreamController<List<GoalRead>>();
+    addTearDown(goals.close);
+    await start(extra: [goalsProvider.overrideWith((ref) => goals.stream)]);
+
+    goals.addError(StateError('goals stream failed'));
+    await until(() => reports.isNotEmpty, 'the report');
+    await settle();
+    expect(alerts, isEmpty, reason: 'no list yet, nothing evaluated');
+
+    goals.add(await service.goals());
+    await until(() => alerts.length == 1, 'the evaluation after recovery');
+    expect(percents(), [80]);
+    expect(reports, hasLength(1));
   });
 
   test("a goal's progress re-runs on a write and keeps its value meanwhile",
