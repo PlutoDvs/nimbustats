@@ -17,6 +17,9 @@ final class MoneyFormatter {
   /// number of times [formatCompact] has divided by a thousand.
   static const _compactSuffixes = ['K', 'M', 'B'];
 
+  /// The largest int, 2^63 - 1.
+  static const _maxInt = 0x7FFFFFFFFFFFFFFF;
+
   String format(Money money) {
     final negative = money.isNegative;
     final units = money.abs().minorUnits;
@@ -80,7 +83,8 @@ final class MoneyFormatter {
     return persianDigits ? Digits.toPersian(text) : text;
   }
 
-  /// Returns null for input that is not a number. Never guesses.
+  /// Returns null for input that is not a number, or an amount too large to
+  /// hold in minor units. Never guesses.
   Money? parse(String input) {
     var text = _stripSeparators(Digits.toLatin(input));
     if (text.isEmpty) return null;
@@ -93,7 +97,13 @@ final class MoneyFormatter {
     if (parts.any((p) => p.isNotEmpty && !_isDigits(p))) return null;
     if (parts[0].isEmpty && (parts.length == 1 || parts[1].isEmpty)) return null;
 
-    final major = parts[0].isEmpty ? 0 : int.parse(parts[0]);
+    final major = parts[0].isEmpty ? 0 : int.tryParse(parts[0]);
+    // Below this bound whole * minorUnitsPerMajor + fraction always fits an
+    // int. Above it int.parse threw (inside the goal editor's build) or the
+    // product wrapped silently, so it is refused like any other non-amount.
+    if (major == null || major >= _maxInt ~/ currency.minorUnitsPerMajor) {
+      return null;
+    }
     var minor = 0;
     if (parts.length == 2 && currency.decimalDigits > 0) {
       final fraction = parts[1].padRight(currency.decimalDigits, '0');

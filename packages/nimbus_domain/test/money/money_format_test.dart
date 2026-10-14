@@ -124,6 +124,19 @@ void main() {
     test('rejects junk rather than guessing', () {
       expect(toman.parse('abc'), isNull);
       expect(toman.parse(''), isNull);
+      // Too large to hold in minor units (D25 triage). int.parse threw on
+      // these, inside the goal editor's build; a 17-digit dollar amount
+      // wrapped silently once scaled to cents.
+      expect(toman.parse('9' * 20), isNull);
+      expect(toman.parse('9223372036854775808'), isNull);
+      expect(usd.parse('99999999999999999'), isNull);
+    });
+
+    test('the largest amounts that fit still parse', () {
+      expect(toman.parse('9223372036854775806'),
+          const Money(9223372036854775806));
+      expect(usd.parse('92233720368547757.99'),
+          const Money(9223372036854775799));
     });
   });
 }

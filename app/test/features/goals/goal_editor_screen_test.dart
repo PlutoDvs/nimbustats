@@ -224,6 +224,22 @@ void main() {
     expect(save(tester), isNull);
   });
 
+  testWidgets('a target too large to hold says so; the form stays up', (
+    tester,
+  ) async {
+    // D25 triage: int.parse threw inside build, and the form became an
+    // ErrorWidget.
+    await openNew(tester);
+    await choose(tester, GoalKind.spendingCap);
+    await tester.enterText(find.byKey(const Key('tx-amount-field')), '9' * 20);
+    await tester.pump();
+
+    expect(tester.takeException(), isNull);
+    expect(find.byType(ErrorWidget), findsNothing);
+    expect(find.text('Enter a number'), findsOneWidget);
+    expect(save(tester), isNull);
+  });
+
   testWidgets('a habit goal refuses zero; a habit limit saves it', (
     tester,
   ) async {
