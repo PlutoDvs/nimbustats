@@ -89,11 +89,17 @@ class MainActivity : FlutterActivity() {
             return
         }
         // One dialog answers every ask made while it is up: a second request would be answered at
-        // once with empty arrays. Added after the request, so one that throws leaves none waiting.
-        if (permissionResults.isEmpty()) {
-            requestPermissions(arrayOf(Manifest.permission.POST_NOTIFICATIONS), REQUEST_NOTIFICATIONS)
-        }
+        // once with empty arrays. Queued before the request, so an answer Android gives at once
+        // (a cancel while another request is in flight) still reaches it, as false (D27).
         permissionResults += result
+        if (permissionResults.size > 1) return
+        try {
+            requestPermissions(arrayOf(Manifest.permission.POST_NOTIFICATIONS), REQUEST_NOTIFICATIONS)
+        } catch (error: Exception) {
+            // Not left waiting: the channel answers it with this error instead.
+            permissionResults.remove(result)
+            throw error
+        }
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
