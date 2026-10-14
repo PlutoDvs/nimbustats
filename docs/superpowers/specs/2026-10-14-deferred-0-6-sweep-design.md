@@ -26,7 +26,7 @@ operator decision — never by being forgotten.
 | D12 | Uncaught errors go to `FlutterError.reportError` (logcat) until Phase 8 picks crash reporting. Nothing persisted. |
 | D25 | Triage: fix every bug, add every missing test, close style and scale notes with a recorded reason. |
 | D16, D30 | Measured on the A53. |
-| D33 | Checked on an Android 11 emulator (`system-images;android-30;default;x86_64` r11, SHA-1 verified, installed under `C:\dev\android-sdk`). |
+| D33 | Checked on an Android 11 emulator (`system-images;android-30;default;x86_64` revision 10 (archive `x86_64-30_r11.zip`), SHA-1 verified, installed under `C:\dev\android-sdk`). |
 | Kotlin verification | Device checks; no Robolectric (it would put `android.*` into JUnit and add a dependency). |
 | D31 chips | A 2×2 grid. |
 
