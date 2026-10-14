@@ -162,6 +162,18 @@ void main() {
     expect(find.byType(PieChart), findsOneWidget);
   });
 
+  testWidgets('the pie is drawn at once, not animated in', (tester) async {
+    // D16: fl_chart's default 150 ms swap animation rebuilds and repaints the
+    // pie on every frame of a month step.
+    final db = await seededDb();
+    addTearDown(db.close);
+    await seedSpending(db);
+    await openBreakdown(tester, db);
+
+    expect(tester.widget<PieChart>(find.byType(PieChart)).duration,
+        Duration.zero);
+  });
+
   testWidgets('categories do not overlap, so no disclosure is shown',
       (tester) async {
     // The banner has to be absent here to mean anything when it appears on a

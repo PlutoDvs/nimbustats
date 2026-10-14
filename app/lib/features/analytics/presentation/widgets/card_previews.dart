@@ -143,6 +143,8 @@ class _BreakdownPreview extends ConsumerWidget {
                   ),
               ],
             ),
+            // Drawn at once, as on Breakdown (D16).
+            duration: Duration.zero,
           ),
         ),
         const SizedBox(width: NimbusTokens.space4),
@@ -220,6 +222,8 @@ class _TrendPreview extends StatelessWidget {
             ),
           ],
         ),
+        // Drawn at once, as the pies are (D16).
+        duration: Duration.zero,
       );
 }
 

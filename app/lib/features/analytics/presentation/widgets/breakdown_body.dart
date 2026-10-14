@@ -92,6 +92,9 @@ class BreakdownBody extends StatelessWidget {
                     ),
               ],
             ),
+            // Drawn at once: the default 150 ms swap animation rebuilds and
+            // repaints the pie on every frame of a month step (D16).
+            duration: Duration.zero,
           ),
         ),
         const SizedBox(height: NimbusTokens.space4),

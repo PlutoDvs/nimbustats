@@ -67,6 +67,19 @@ void main() {
         findsOneWidget);
   });
 
+  testWidgets('a breakdown card draws its pie at once, not animated in',
+      (tester) async {
+    final db = await categorisedDb();
+    addTearDown(db.close);
+    await seedSpending(db);
+    final id = await _pin(
+        db, BreakdownView(period: _month).spec, SavedViewChart.breakdown);
+    await openAnalytics(tester, db);
+
+    expect(tester.widget<PieChart>(_inCard(id, find.byType(PieChart))).duration,
+        Duration.zero);
+  });
+
   testWidgets('a trend card plots one point per month of its window',
       (tester) async {
     final db = await categorisedDb();
@@ -80,6 +93,23 @@ void main() {
     final chart = tester.widget<LineChart>(
         _inCard(id, find.byKey(const Key('card-trend-chart'))));
     expect(chart.data.lineBarsData.single.spots, hasLength(6));
+  });
+
+  testWidgets('a trend card draws its line at once, not animated in',
+      (tester) async {
+    // D16: once a month step updates the card in place, fl_chart's 150 ms
+    // swap animation redraws the line on every frame of the step.
+    final db = await categorisedDb();
+    addTearDown(db.close);
+    await seedSpending(db);
+    final id = await _pin(
+        db, TrendsView(periods: [_month]).spec, SavedViewChart.trend,
+        months: 6);
+    await openAnalytics(tester, db);
+
+    final chart = tester.widget<LineChart>(
+        _inCard(id, find.byKey(const Key('card-trend-chart'))));
+    expect(chart.duration, Duration.zero);
   });
 
   testWidgets('a cross-tab card names its top cells and says tags overlap',
