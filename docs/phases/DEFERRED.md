@@ -14,6 +14,8 @@ blocked, and who can unblock it.
 | D10 | No saved-view builder: views can only be pinned from what a tab shows | "#travel by category" and other tag-scoped views cannot be pinned | Next analytics phase, or on demand |
 | D37 | The transaction detail's Save skips an unreadable amount without a word | Nothing hard-blocked; a typo in an edited amount is silently dropped | On demand |
 | D38 | Adding a transaction writes its row, tag links and usage counts separately | Nothing today; a failed tag write leaves an untagged row | On demand, or whoever next touches `TransactionRepository` |
+| D39 | A widget resized below its default can clip below Android 12 | Nothing hard-blocked; a user who shrinks the widget on Android 8-11 | On demand |
+| D40 | Patterns and Trends chart axes ignore large text | Nothing hard-blocked; labels can wrap or clip at large text | On demand |
 | D12 | ~~No global uncaught-error handler: a rethrown write failure reaches only the console~~ | — | **Resolved 2026-10-14** |
 | D16 | ~~Month-change rebuilds drop frames on a 120 Hz display~~ | — | **Closed 2026-10-14** (operator decision) |
 | D17 | ~~Phase 1's haptics are silent on the A53~~ | — | **Resolved 2026-10-14** |
@@ -682,7 +684,8 @@ Existing installs keep their stored name.
 **Status:** closed 2026-10-14 by operator decision ("accept, close"), after
 `c51ce17`, `92cbd03` and `19ce103`. `c51ce17` gave `frame_timings.dart`
 `--budget-ms`; `92cbd03` keeps the shown answer on screen until the next month's
-arrives (no loading flash); `19ce103` draws the Breakdown pies and the trend
+arrives (no loading flash; a drill or a filter change shows the loading list,
+`e181cd6`); `19ce103` draws the Breakdown pies and the trend
 card's line at once instead of through fl_chart's 150 ms tween. Worst p99 build
 per pass on the A53 at 120 Hz (`--budget-ms 8.33`, a warm-up and three passes
 each), against the 8.33 ms bar this entry set:
@@ -697,7 +700,9 @@ one month step. (1) The tap frame rebuilds content whose answer has not changed
 yet (about 5 of Breakdown's 10.2 ms, about 6 of the dashboard's 16.5 ms); reusing
 the body or preview instance while the answer is unchanged, or making only the
 readable part depend on the anchor, would remove it. (2) The data frame updates
-rows and charts with the new answer, about 10-15 ms traced. Everything still
+rows and charts with the new answer, about 10-15 ms traced. Breakdown's raster p99 was 7.3-9.7 ms, often over
+8.33 ms (task-23-report.md), a pointer for whoever reopens the 120 Hz work.
+Everything still
 meets the 60 fps bar (16.67 ms) the task was judged against, so the operator
 accepted the numbers. Found 2026-10-04 during the Phase 3 performance pass
 (task 15) on the A53; the original finding follows.
@@ -812,7 +817,7 @@ was felt.
 
 **Status:** resolved 2026-10-14 by `d08fb14`: a duration average under a
 minute reads "<1 min" (`trackerInsightsUnderAMinute`), the value axis keeps its
-top label when a step fits under the peak, and the axes' reserved sizes follow
+top label when the peak is below one step (a 4-minute peak reads 0:04), and the axes' reserved sizes follow
 the text scale. Found 2026-10-09 in Phase 4b, on the A53 and in the final
 review; the original finding follows.
 
@@ -1010,7 +1015,9 @@ nothing.
 (2026-10-14): every bug fixed, every missing test added, and each style or scale
 note closed with its reason (the table at the end of this entry). Fixed: #38, a
 fractional habit target for a counter or boolean is invalid. Tests added: #5,
-#10, #14, #17, #19, #20, #22, #23, #30, #31, #44, #46, #49, #51. Found in the
+#10, #14, #17, #19, #20, #22, #23, #30, #31, #44, #46, #49. #51 was fixed by
+deleting `muteReports` (no test added; both editor-state tests pass without
+it). Found in the
 same triage and fixed: `MoneyFormatter.parse` returns null for a whole part too
 large for minor units, instead of throwing inside the goal editor's `build`
 (Toman) or wrapping silently (USD, EUR, TRY). Collected 2026-10-12 from the
@@ -1312,3 +1319,32 @@ id that no picker offers.
 
 **Unblocked by:** Run `add`'s writes inside `TransactionsDao.inTransaction`, as
 `update` does; an atomicity test with an unknown tag id.
+
+## D39 — A widget resized below its default can clip below Android 12
+
+**Status:** open. Found 2026-10-14 by the sweep's final review.
+
+**What:** `app/android/app/src/main/res/xml/expense_widget_info.xml:8` allows
+`minResizeHeight="120dp"`, while below Android 12 the fixed two-row layout needs
+168 dp. D33 verified only the default 4x2 size (349 x 220 dp on API 30), so a
+widget shrunk below about 168 dp clips there.
+
+**Why deferred:** Outside the sweep's scope; the default size is correct and
+nothing is lost, only cut off.
+
+**Unblocked by:** A `minResizeHeight` of at least 170 dp in `res/xml`, with
+120 dp kept in `res/xml-v31`; re-check on the API 30 emulator.
+
+## D40 — Patterns and Trends chart axes ignore large text
+
+**Status:** open. Found 2026-10-14 by the sweep's final review.
+
+**What:** `patterns_body.dart:262, 272` and `trends_body.dart:83` keep fixed
+`reservedSize`s that do not scale with the text size. D19 fixed the same thing
+on the tracker charts; the sweep's spec scoped these out. At large text the
+axis labels can wrap or clip.
+
+**Why deferred:** Scoped out of the sweep's spec; it never throws.
+
+**Unblocked by:** Scale the sizes with `MediaQuery.textScalerOf(context)` as D19
+did; a 2x text test.
