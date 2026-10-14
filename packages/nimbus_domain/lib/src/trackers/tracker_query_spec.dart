@@ -114,6 +114,6 @@ final class TrackerQuerySpec {
   }
 
   @override
-  String toString() =>
-      'TrackerQuerySpec($trackerIds, $groupBy, ${aggregate.name})';
+  String toString() => 'TrackerQuerySpec($trackerIds, '
+      '${dateRange ?? 'undated'}, $groupBy, ${aggregate.name})';
 }

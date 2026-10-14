@@ -119,6 +119,32 @@ void main() {
           throwsFormatException);
     });
 
+    test('a missing or non-object groupBy is refused', () {
+      final json = spec().toJson();
+      expect(() => TrackerQuerySpec.fromJson({...json}..remove('groupBy')),
+          throwsFormatException);
+      expect(() => TrackerQuerySpec.fromJson({...json, 'groupBy': 'day'}),
+          throwsFormatException);
+    });
+
+    test('a missing dateRange reads as undated, the form toJson stores', () {
+      final json = spec().toJson()..remove('dateRange');
+      expect(TrackerQuerySpec.fromJson(json).dateRange, isNull);
+    });
+
+    test('a non-object dateRange or a non-int end is refused', () {
+      final json = spec().toJson();
+      for (final bad in <Object>[
+        '20261001..20261031',
+        20261001,
+        {'start': 20261001, 'end': '20261031'},
+      ]) {
+        expect(() => TrackerQuerySpec.fromJson({...json, 'dateRange': bad}),
+            throwsFormatException,
+            reason: 'accepted dateRange "$bad"');
+      }
+    });
+
     test('an unknown aggregate is refused', () {
       expect(
           () => TrackerQuerySpec.fromJson(
@@ -139,6 +165,13 @@ void main() {
       expect(spec(ids: ['a', 'b']).hashCode, spec(ids: ['a', 'b']).hashCode);
       expect(spec(ids: ['a', 'b']), isNot(spec(ids: ['b', 'a'])));
       expect(spec(), isNot(spec(aggregate: Aggregate.count)));
+    });
+
+    test('two specs that differ only by range print differently', () {
+      // The spec keys a provider family, and Riverpod's debugging prints it.
+      const november = DateRange(DateKey(20261101), DateKey(20261130));
+      expect(spec().toString(), isNot(spec(range: november).toString()));
+      expect(spec().toString(), contains('$october'));
     });
 
     test('the ids cannot change after construction', () {
