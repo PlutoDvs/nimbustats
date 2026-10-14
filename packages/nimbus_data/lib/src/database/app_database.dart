@@ -1034,6 +1034,12 @@ class TransactionsDao {
     return Money.sum(rows.map((t) => t.amount));
   }
 
+  /// Runs [action] in one transaction: its writes through this DAO commit
+  /// together or not at all. A `transaction` inside it, as [setTags] opens,
+  /// becomes a savepoint.
+  Future<T> inTransaction<T>(Future<T> Function() action) =>
+      _db.transaction(action);
+
   /// Replaces the whole tag set for a transaction. Duplicates in [tagIds] are
   /// collapsed, and the join table's composite key would reject them anyway.
   Future<void> setTags(String transactionId, List<String> tagIds) async {

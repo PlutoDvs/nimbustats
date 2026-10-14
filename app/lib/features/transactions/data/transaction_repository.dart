@@ -78,30 +78,37 @@ final class TransactionRepository {
   /// [tagIds] null leaves the tag set alone; a list replaces it wholesale.
   /// Replacing rather than merging is what makes removing a tag possible at
   /// all -- there is no other gesture that would express it.
+  ///
+  /// The row and its links are one transaction (D23): a tag write that fails
+  /// leaves the row as it was, and the goals' money watermark never sees the
+  /// row's new stamp without its new links.
   Future<void> update(Transaction tx, {List<String>? tagIds}) async {
     final local =
         DateTime.fromMillisecondsSinceEpoch(tx.occurredAtUtc, isUtc: true)
             .toLocal();
-    await _dao.updateTransaction(
-      tx.id,
-      amount: tx.amount,
-      direction: tx.direction,
-      categoryId: tx.categoryId,
-      occurredAtUtc: tx.occurredAtUtc,
-      localDateKey: DateKey.fromDateTime(local),
-      tzOffsetMinutes: local.timeZoneOffset.inMinutes,
-      paymentMethodId: tx.paymentMethodId,
-      merchant: tx.merchant,
-      note: tx.note,
-      necessity: tx.necessity,
-      satisfaction: tx.satisfaction,
-      isConfirmed: tx.isConfirmed,
-    );
-    if (tagIds != null) {
-      // Usage is not re-counted on edit. The counter ranks how often a tag is
-      // reached for, and re-editing one transaction ten times is not ten uses.
-      await _attachTags(tx.id, tagIds, countUsage: false);
-    }
+    await _dao.inTransaction(() async {
+      await _dao.updateTransaction(
+        tx.id,
+        amount: tx.amount,
+        direction: tx.direction,
+        categoryId: tx.categoryId,
+        occurredAtUtc: tx.occurredAtUtc,
+        localDateKey: DateKey.fromDateTime(local),
+        tzOffsetMinutes: local.timeZoneOffset.inMinutes,
+        paymentMethodId: tx.paymentMethodId,
+        merchant: tx.merchant,
+        note: tx.note,
+        necessity: tx.necessity,
+        satisfaction: tx.satisfaction,
+        isConfirmed: tx.isConfirmed,
+      );
+      if (tagIds != null) {
+        // Usage is not re-counted on edit. The counter ranks how often a tag
+        // is reached for, and re-editing one transaction ten times is not ten
+        // uses.
+        await _attachTags(tx.id, tagIds, countUsage: false);
+      }
+    });
   }
 
   /// Sets both reflection axes, either of which may be null.

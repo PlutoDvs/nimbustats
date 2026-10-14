@@ -161,13 +161,6 @@ final class GoalPeriodResultsDao {
   /// `TransactionsDao.deleteTransaction` has no caller. The next ordinary
   /// write or any goal edit heals it. Upgrade to a write counter if a user
   /// report traces back to either.
-  ///
-  /// shortcut: `TransactionRepository.update` stamps the row before it
-  /// rewrites its tag links, in separate statements. A history load that
-  /// runs between them caches the old tag membership under the new
-  /// watermark, until the next money write. Upgrade to D23 (one drift
-  /// transaction for the row and its links) when a tag-scoped goal shows
-  /// stale history after a tag edit.
   Future<int> moneyWatermark() async {
     final row = await _db
         .customSelect('SELECT MAX(m) AS m FROM ('

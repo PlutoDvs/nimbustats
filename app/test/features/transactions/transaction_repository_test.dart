@@ -144,6 +144,37 @@ void main() {
     expect(await repo.tagsOf(tx.id), isEmpty);
   });
 
+  test("a tag edit moves the row's updated_at", () async {
+    // The goals' money watermark has no term for tag links: it counts on a
+    // tag edit stamping the row (D23).
+    final tx = await repo.add(draft(tagIds: const ['travel']));
+    await db.customStatement('UPDATE transactions SET updated_at = 1');
+
+    await repo.update(tx, tagIds: const ['food']);
+
+    expect((await db.transactionsDao.byId(tx.id))!.updatedAt, greaterThan(1));
+  });
+
+  test('an edit whose tags cannot be written changes nothing', () async {
+    // An unknown tag id is a foreign-key violation: foreign_keys is on in
+    // every database AppDatabase opens.
+    final tx = await repo.add(
+        draft(amount: const Money(1000), tagIds: const ['travel']));
+    await db.customStatement('UPDATE transactions SET updated_at = 1');
+
+    await expectLater(
+      repo.update(tx.copyWith(amount: const Money(2000)),
+          tagIds: const ['food', 'no-such-tag']),
+      throwsA(predicate((Object e) => '$e'.contains('FOREIGN KEY'),
+          'a foreign-key violation')),
+    );
+
+    final row = (await db.transactionsDao.byId(tx.id))!;
+    expect(row.amount, const Money(1000));
+    expect(row.updatedAt, 1);
+    expect(await repo.tagsOf(tx.id), ['travel']);
+  });
+
   test('a page carries a cursor only while more rows remain', () async {
     for (var i = 0; i < 45; i++) {
       await repo.add(draft(at: DateTime.utc(2026, 8, 21).subtract(
