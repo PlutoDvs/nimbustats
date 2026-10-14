@@ -253,4 +253,25 @@ void main() {
           isTrue);
     });
   });
+
+  group('the tracker repository', () {
+    test('survives a calendar switch', () async {
+      // D20: totalOn asks one day's total, which no calendar changes, so a
+      // switch must not rebuild the repository under a mounted screen.
+      await start();
+      final kept = container.listen(trackerRepositoryProvider, (_, __) {});
+      addTearDown(kept.close);
+      final before = container.read(trackerRepositoryProvider);
+
+      await SettingsRepository(db.settingsDao).save(AppSettings.defaults
+          .copyWith(calendarKind: CalendarKind.gregorian));
+      await until(
+          () => container.read(analyticsEngineProvider).calendar
+              is GregorianCalendar,
+          'the engine to take the new calendar');
+      await container.pump();
+
+      expect(container.read(trackerRepositoryProvider), same(before));
+    });
+  });
 }

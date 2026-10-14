@@ -13,8 +13,13 @@ final trackerClockProvider =
 
 final trackerRepositoryProvider = Provider<TrackerRepository>((ref) {
   final db = ref.watch(appDatabaseProvider);
+  // The engine is read, not watched: a calendar switch must not rebuild the
+  // repository, which re-subscribes the tracker lists and resets a live
+  // history (D20). Its one engine call, totalOn, asks one day's total with no
+  // grouping, which no calendar changes. A method that groups by period
+  // would need the watch back.
   return TrackerRepository(db.trackersDao, db.trackerEntriesDao,
-      ref.watch(analyticsEngineProvider), ref.watch(trackerClockProvider));
+      ref.read(analyticsEngineProvider), ref.watch(trackerClockProvider));
 });
 
 /// Today's local date, as the tracker screens see it.
