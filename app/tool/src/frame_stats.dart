@@ -88,9 +88,9 @@ final class PhaseStats {
       };
 }
 
-/// A run's frames against the 60 fps budget.
+/// A run's frames against a frame budget: 60 fps unless the caller sets one.
 final class FrameStats {
-  FrameStats._(List<FrameSample> samples)
+  FrameStats._(List<FrameSample> samples, this.budgetMicros)
       : count = samples.length,
         build = PhaseStats._([for (final s in samples) s.buildMicros],
             budgetMicros: budgetMicros),
@@ -106,17 +106,39 @@ final class FrameStats {
 
   /// Throws on an empty run rather than summarising it: zero frames contain
   /// zero slow frames, and "no data" must never read as "perfect".
-  factory FrameStats.of(List<FrameSample> samples) {
+  factory FrameStats.of(List<FrameSample> samples,
+      {int budgetMicros = sixtyFpsBudgetMicros}) {
     if (samples.isEmpty) {
       throw ArgumentError.value(samples, 'samples',
           'no frames were recorded -- screen off, wrong screen, or no stream');
     }
-    return FrameStats._(samples);
+    if (budgetMicros < 1) {
+      throw ArgumentError.value(
+          budgetMicros, 'budgetMicros', 'must be at least one microsecond');
+    }
+    return FrameStats._(samples, budgetMicros);
   }
 
   /// One sixtieth of a second, rounded up to whole microseconds, so a frame of
-  /// exactly 16.667 ms is on budget.
-  static const budgetMicros = 16667;
+  /// exactly 16.667 ms is on budget. The budget when none is given.
+  static const sixtyFpsBudgetMicros = 16667;
+
+  /// `--budget-ms`, as typed, in whole microseconds: `8.33` is 8,330 µs, the
+  /// 120 Hz bar D16 is judged on.
+  static int budgetMicrosFromMs(String text) {
+    final ms = double.tryParse(text);
+    // Up to a second: anything longer is a typo, not a frame budget.
+    final micros =
+        ms != null && ms > 0 && ms <= 1000 ? (ms * 1000).round() : 0;
+    if (micros < 1) {
+      throw FormatException(
+          '--budget-ms must be between 0.001 and 1000 milliseconds', text);
+    }
+    return micros;
+  }
+
+  /// What every phase of this run was judged against.
+  final int budgetMicros;
 
   final int count;
   final PhaseStats build;

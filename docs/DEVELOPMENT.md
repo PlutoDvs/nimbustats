@@ -179,8 +179,9 @@ never on an emulator.
   `adb shell dumpsys display | grep mActiveRenderFrameRate`.
   - The A53's display is adaptive (60/120 Hz).
   - Phase 1's run recorded 60 Hz. Phase 3's pass ran at 120 Hz.
-  - The frame tool's budget is fixed at 16.67 ms (60 fps). At 120 Hz a frame
-    has 8.33 ms; see D16.
+  - The frame tool judges against 16.67 ms (60 fps) unless given
+    `--budget-ms`. At 120 Hz a frame has 8.33 ms: pass `--budget-ms 8.33`
+    (D16).
 - Build the profile APK once (`flutter build apk --profile`) and reuse it
   with `--use-application-binary`, which skips Gradle — about 10 s a run.
   Debug and profile builds share the debug signing key, so

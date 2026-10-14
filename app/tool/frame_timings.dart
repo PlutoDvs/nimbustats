@@ -19,6 +19,8 @@
 ///    its "Dart VM service is listening on http://..." line.
 /// 2. From `app/`:
 ///    `dart run tool/frame_timings.dart --vm-service ADDRESS --serial SERIAL`
+///    Frames are judged against 16.67 ms (60 fps); on a 120 Hz display pass
+///    `--budget-ms 8.33` (D16).
 ///
 /// Exits non-zero, with the reason, when it cannot measure -- adb failing, the
 /// VM service unreachable, a button it cannot find, or no frames arriving (a
@@ -105,7 +107,7 @@ Future<(FrameStats, QueryStats?)> _measure(_Options options) async {
 
   final FrameStats frameStats;
   try {
-    frameStats = FrameStats.of(frames);
+    frameStats = FrameStats.of(frames, budgetMicros: options.budgetMicros);
   } on ArgumentError catch (e) {
     throw _MeasurementFailed('${e.message}');
   }
@@ -245,7 +247,8 @@ void _report(FrameStats stats, QueryStats? queries, _Options options) {
   stdout
     ..writeln('${options.scenario.name}: ${stats.count} frames over '
         '${options.swipes * 2} $steps; '
-        'budget ${ms(FrameStats.budgetMicros)} ms (60 fps)')
+        'budget ${ms(stats.budgetMicros)} ms '
+        '(${(1e6 / stats.budgetMicros).round()} fps)')
     ..writeln('          avg     p90     p99   worst  over budget')
     ..writeln(row('build', stats.build))
     ..writeln(row('raster', stats.raster))
@@ -299,6 +302,7 @@ final class _Options {
     required this.previousLabel,
     required this.nextLabel,
     required this.swipeY,
+    required this.budgetMicros,
     required this.out,
   });
 
@@ -306,7 +310,7 @@ final class _Options {
       '--vm-service <http://127.0.0.1:PORT/TOKEN=/> --serial <adb serial> '
       '[--adb path/to/adb] [--scenario scroll|months|tabs] [--swipes 20] '
       '[--previous-label "Previous month"] [--next-label "Next month"] '
-      '[--swipe-y PX] [--out results.json]';
+      '[--swipe-y PX] [--budget-ms 16.67] [--out results.json]';
 
   /// The WebSocket form of the address `flutter run` prints.
   final Uri vmService;
@@ -328,6 +332,10 @@ final class _Options {
   /// the screen's height: below the tab bar, on the tabs' headers and
   /// switches, above the content that scrolls sideways.
   final int? swipeY;
+
+  /// What build, raster and start delay are judged against: one sixtieth of
+  /// a second unless `--budget-ms` says otherwise.
+  final int budgetMicros;
   final String? out;
 
   static _Options parse(List<String> args) {
@@ -348,6 +356,7 @@ final class _Options {
       'previous-label',
       'next-label',
       'swipe-y',
+      'budget-ms',
       'out',
     };
     final unknown = values.keys.where((k) => !known.contains(k));
@@ -366,6 +375,10 @@ final class _Options {
     if (swipeYText != null && (swipeY == null || swipeY < 0)) {
       throw FormatException('--swipe-y must be a pixel row, 0 or more');
     }
+    final budgetText = values['budget-ms'];
+    final budgetMicros = budgetText == null
+        ? FrameStats.sixtyFpsBudgetMicros
+        : FrameStats.budgetMicrosFromMs(budgetText);
     final scenarioName = values['scenario'] ?? _Scenario.scroll.name;
     final scenario = _Scenario.values
             .where((s) => s.name == scenarioName)
@@ -382,6 +395,7 @@ final class _Options {
       previousLabel: values['previous-label'] ?? 'Previous month',
       nextLabel: values['next-label'] ?? 'Next month',
       swipeY: swipeY,
+      budgetMicros: budgetMicros,
       out: values['out'],
     );
   }

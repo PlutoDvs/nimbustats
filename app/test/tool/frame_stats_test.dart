@@ -45,10 +45,36 @@ void main() {
   });
 
   test('a frame of exactly one sixtieth of a second is on budget', () {
-    expect(FrameStats.budgetMicros, 16667);
+    expect(FrameStats.sixtyFpsBudgetMicros, 16667);
     final stats = FrameStats.of([frame(16667, 16667), frame(16668, 1000)]);
+    expect(stats.budgetMicros, 16667);
     expect(stats.build.overBudget, 1);
     expect(stats.raster.overBudget, 0);
+  });
+
+  test('a run can be judged against a 120 Hz budget', () {
+    // D16: at 120 Hz a frame has 8.33 ms, so a 12 ms build drops a frame
+    // there while it is on budget at 60 fps.
+    final samples = [frame(12000, 4000), frame(8330, 8331)];
+    final at60 = FrameStats.of(samples);
+    final at120 = FrameStats.of(samples, budgetMicros: 8330);
+
+    expect(at60.budgetMicros, 16667);
+    expect(at60.overBudgetEither, 0);
+    expect(at120.budgetMicros, 8330);
+    expect(at120.build.overBudget, 1);
+    expect(at120.raster.overBudget, 1);
+    expect(at120.overBudgetEither, 2);
+    expect(at120.toJson()['budgetMicros'], 8330);
+  });
+
+  test('--budget-ms reads milliseconds as typed', () {
+    expect(FrameStats.budgetMicrosFromMs('8.33'), 8330);
+    expect(FrameStats.budgetMicrosFromMs('16.67'), 16670);
+    for (final bad in ['', 'fast', '0', '-8', 'NaN', 'Infinity', '0.0001', '1001']) {
+      expect(() => FrameStats.budgetMicrosFromMs(bad), throwsFormatException,
+          reason: bad);
+    }
   });
 
   test('a late frame start is judged on its own, apart from build and raster',
