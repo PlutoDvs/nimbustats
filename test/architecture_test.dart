@@ -18,6 +18,15 @@ Set<String> runtimeDeps(String packagePath) {
   return deps.keys.cast<String>().toSet();
 }
 
+/// An aggregate written outside the analytics engine: drift's `countAll()`,
+/// a column aggregate (`x.sum()`, `x.total()`, ...), `groupBy`, or SQL. SQL
+/// counts in upper case anywhere, and in lower case only after a quote on
+/// the line, so Dart's `max(a, b)` or a method named `total` is not SQL.
+final aggregatePattern = RegExp(
+    r'\b(SUM|COUNT|AVG|MIN|MAX|TOTAL)\s*\(|\bGROUP\s+BY\b'
+    r'''|['"][^'"]*(\b(sum|count|avg|min|max|total)\s*\(|\bgroup\s+by\b)'''
+    r'|\bcountAll\(|\.(sum|count|avg|min|max|total)\(\)|\.groupBy\(');
+
 void main() {
   test('nimbus_domain is pure Dart with no infrastructure dependencies', () {
     final deps = runtimeDeps('packages/nimbus_domain');
@@ -85,12 +94,33 @@ void main() {
     }
   });
 
+  test('the aggregate pattern catches what it is for, and only that', () {
+    for (final line in [
+      'final n = countAll();',
+      'final t = x.total();',
+      "customSelect('select sum(v) from t')",
+      '"... group by ..."',
+      '"SELECT tracker_id, COUNT(*) FROM e "',
+      'final m = e.value.max();',
+      'q.groupBy([e.trackerId]);',
+    ]) {
+      expect(aggregatePattern.hasMatch(line), isTrue, reason: 'missed: $line');
+    }
+    for (final line in [
+      'final top = math.max(a, b);',
+      'format.total(t, 1)',
+      'String total(Tracker tracker, double total) => switch (tracker.type) {',
+      'TrackerGroupBy groupBy = const TrackerGroupByDay(),',
+    ]) {
+      expect(aggregatePattern.hasMatch(line), isFalse,
+          reason: 'flagged: $line');
+    }
+  });
+
   test('tracker code aggregates only through the analytics engine', () {
     // Phase 4b's definition of done, kept as a test rather than a one-off grep
     // so that no later change can quietly grow a second query engine beside
     // Phase 3's. Comment lines are skipped: they may name what they avoid.
-    final aggregate = RegExp(r'\b(SUM|COUNT|AVG|MIN|MAX)\s*\(|GROUP BY'
-        r'|\.(sum|count|avg|min|max)\(\)|\.groupBy\(');
     // Placing a new tracker at the end of the list as it is written. It reads
     // one column's maximum to choose a position and answers no analytical
     // question.
@@ -109,7 +139,7 @@ void main() {
         for (final (index, line) in file.readAsLinesSync().indexed) {
           final code = line.trim();
           if (code.startsWith('//')) continue;
-          if (aggregate.hasMatch(code) && !allowed.contains(code)) {
+          if (aggregatePattern.hasMatch(code) && !allowed.contains(code)) {
             offenders.add('${file.path}:${index + 1}: $code');
           }
         }
