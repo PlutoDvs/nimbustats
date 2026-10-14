@@ -4,6 +4,7 @@ import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
+import android.os.Bundle
 import android.util.Log
 import com.nimbustats.app.OutsideChannelHandler.Companion.TAG
 import com.nimbustats.app.notifications.Notifier
@@ -20,6 +21,14 @@ class MainActivity : FlutterActivity() {
 
     /** Every Dart ask waiting on the one permission dialog. */
     private val permissionResults = mutableListOf<MethodChannel.Result>()
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        // Recreated after process death, the activity gets its launching intent back, route
+        // included; that route was opened the first time and must not open again (D28). Before
+        // super, which reads it in configureFlutterEngine.
+        if (savedInstanceState != null) intent?.removeExtra(Notifier.EXTRA_ROUTE)
+        super.onCreate(savedInstanceState)
+    }
 
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
@@ -70,7 +79,7 @@ class MainActivity : FlutterActivity() {
 
     /**
      * The route a notification put on [intent], read once. A launch from Recents replays the
-     * notification's intent, so it carries none.
+     * notification's intent, so it carries none; a recreation drops it in [onCreate].
      */
     private fun takeRoute(intent: Intent?): String? {
         if (intent == null || (intent.flags and Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY) != 0) return null
