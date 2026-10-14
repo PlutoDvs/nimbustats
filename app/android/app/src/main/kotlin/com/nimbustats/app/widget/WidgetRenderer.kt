@@ -45,13 +45,15 @@ object WidgetRenderer {
     }
 
     private fun build(context: Context): RemoteViews {
-        // One lock hold for both reads (P18): a commit cannot land between them, so a tap is
-        // never counted twice (new snapshot + still pending) or not at all. Views are built outside.
-        val (snapshot, pending) = synchronized(WidgetBuffer) {
-            WidgetSnapshot.read(context) to WidgetBuffer.pendingTaps(context)
-        }
-        if (snapshot == null) return loading(context)
+        // The reads are inside the try too (D26): an unreadable buffer is the loading state, not
+        // an exception for the receiver, the channel or a resize to handle.
         return try {
+            // One lock hold for both reads (P18): a commit cannot land between them, so a tap is
+            // never counted twice (new snapshot + still pending) or not at all. Views are built outside.
+            val (snapshot, pending) = synchronized(WidgetBuffer) {
+                WidgetSnapshot.read(context) to WidgetBuffer.pendingTaps(context)
+            }
+            if (snapshot == null) return loading(context)
             val rows = rows(snapshot, pending)
             if (Build.VERSION.SDK_INT >= 31) {
                 RemoteViews(

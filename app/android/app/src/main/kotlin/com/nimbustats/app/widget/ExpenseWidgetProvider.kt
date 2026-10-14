@@ -24,7 +24,12 @@ class ExpenseWidgetProvider : AppWidgetProvider() {
     }
 
     override fun onAppWidgetOptionsChanged(context: Context, manager: AppWidgetManager, id: Int, options: Bundle) {
-        WidgetRenderer.renderAll(context)
+        // A resize is a system broadcast: anything escaping here would crash the app's process.
+        try {
+            WidgetRenderer.renderAll(context)
+        } catch (error: Exception) {
+            Log.e(TAG, "widget render failed on resize", error)
+        }
     }
 
     override fun onEnabled(context: Context) = ReminderScheduler.armMidnight(context)

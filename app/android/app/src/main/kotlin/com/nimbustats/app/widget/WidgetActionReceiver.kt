@@ -49,7 +49,7 @@ class WidgetActionReceiver : BroadcastReceiver() {
     private fun render(context: Context) {
         try {
             WidgetRenderer.renderAll(context)
-        } catch (error: RuntimeException) {
+        } catch (error: Exception) {
             Log.e(TAG, "widget render failed", error)
         }
     }

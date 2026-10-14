@@ -116,7 +116,7 @@ class OutsideChannelHandler(
     private fun renderWidget() {
         try {
             WidgetRenderer.renderAll(context)
-        } catch (error: RuntimeException) {
+        } catch (error: Exception) {
             Log.e(TAG, "widget render failed after the write", error)
         }
     }
