@@ -224,6 +224,26 @@ void main() {
     expect(textOf(tester, 'tracker-range-label'), '2026/10');
   });
 
+  testWidgets("one tracker's range never moves another's", (tester) async {
+    // D21: the range was one notifier for the whole app, so two trackers'
+    // Insights alive at once shared it.
+    await useGregorianEnglish();
+    final cig = await repo.create(cigarettes);
+    final w = await repo.create(water);
+    await logDaysAgo(cig, 0);
+    await openInsights(tester, cig.id);
+    final container = ProviderScope.containerOf(
+        tester.element(find.byType(TrackerDetailScreen)));
+    final other = container.listen(trackerInsightsProvider(w.id), (_, __) {});
+    addTearDown(other.close);
+
+    await tester.tap(find.byKey(const Key('tracker-range-previous')));
+    await tester.pumpAndSettle();
+
+    expect(textOf(tester, 'tracker-range-label'), '2026/09');
+    expect(container.read(trackerInsightsProvider(w.id)).range, october);
+  });
+
   testWidgets('a range with nothing in it says so', (tester) async {
     await useGregorianEnglish();
     final cig = await repo.create(cigarettes);

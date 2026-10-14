@@ -9,13 +9,16 @@ import '../../application/tracker_providers.dart';
 
 /// Week, month or year, and which one: the Insights tab's single control.
 class TrackerRangeBar extends ConsumerWidget {
-  const TrackerRangeBar({super.key});
+  const TrackerRangeBar({super.key, required this.trackerId});
+
+  /// Whose range this moves.
+  final String trackerId;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
-    final view = ref.watch(trackerInsightsProvider);
-    final controller = ref.read(trackerInsightsProvider.notifier);
+    final view = ref.watch(trackerInsightsProvider(trackerId));
+    final controller = ref.read(trackerInsightsProvider(trackerId).notifier);
     final today = ref.watch(trackerTodayProvider);
     final format = ref.watch(trackerFormatProvider);
     // Back in time is "previous" whichever way the script runs, so the glyph

@@ -50,12 +50,12 @@ class _TrackerInsightsState extends ConsumerState<TrackerInsights>
       );
     }
 
-    final view = ref.watch(trackerInsightsProvider);
+    final view = ref.watch(trackerInsightsProvider(tracker.id));
     return ListView(
       key: const Key('tracker-insights'),
       padding: const EdgeInsets.all(NimbusTokens.space4),
       children: [
-        const TrackerRangeBar(),
+        TrackerRangeBar(trackerId: tracker.id),
         _HistorySection(tracker: tracker, view: view),
         _HourSection(tracker: tracker, view: view),
         _WeekdaySection(tracker: tracker, view: view),

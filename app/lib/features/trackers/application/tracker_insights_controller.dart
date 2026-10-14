@@ -37,7 +37,7 @@ final class TrackerInsightsView {
   String toString() => 'TrackerInsightsView(${kind.name}, $range)';
 }
 
-/// The Insights tab's range.
+/// One tracker's Insights range.
 ///
 /// The history chart and both patterns read this one range, because they are
 /// three views of one question -- when this tracker's entries happened -- and
@@ -77,7 +77,9 @@ class TrackerInsightsController extends Notifier<TrackerInsightsView> {
 }
 
 /// Auto-disposed: the Insights tab keeps itself alive while its screen is up,
-/// so the range lasts as long as the screen does and no longer.
-final trackerInsightsProvider =
-    NotifierProvider.autoDispose<TrackerInsightsController, TrackerInsightsView>(
-        TrackerInsightsController.new);
+/// so the range lasts as long as the screen does and no longer. Keyed by
+/// tracker id, so two trackers' Insights never share a range; the controller
+/// itself reads no tracker.
+final trackerInsightsProvider = NotifierProvider.autoDispose
+    .family<TrackerInsightsController, TrackerInsightsView, String>(
+        (_) => TrackerInsightsController());
