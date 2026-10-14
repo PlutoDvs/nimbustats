@@ -299,7 +299,7 @@ What the numbers say:
   agreed 60 fps bar these pass. On this screen they are
   dropped frames during the rebuild. The operator chose to pass task 15 on
   the agreed bar and track the 120 Hz work as
-  [D16](DEFERRED.md#d16--month-change-rebuilds-drop-frames-on-a-120-hz-display).
+  [D16](DEFERRED.md#d16--month-change-rebuilds-drop-frames-on-a-120-hz-display--closed).
 
 The same session also closed two device checks:
 - D13: the add button is read as "Add expense".

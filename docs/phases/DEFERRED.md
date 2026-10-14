@@ -12,27 +12,29 @@ blocked, and who can unblock it.
 | D2 | Gradle distribution and large SDK packages need manual seeding on a fresh machine | Any new dev machine or CI | Operator (network) |
 | D4 | Claude Design token sheet does not exist | Nothing hard-blocked; visual polish | Operator (design) |
 | D10 | No saved-view builder: views can only be pinned from what a tab shows | "#travel by category" and other tag-scoped views cannot be pinned | Next analytics phase, or on demand |
-| D12 | No global uncaught-error handler: a rethrown write failure reaches only the console | Nothing user-facing; failures are surfaced but not recorded | Phase 8 hardening, or sooner if a real failure needs a record |
-| D16 | Month-change rebuilds drop frames on a 120 Hz display | Nothing under the agreed 60 fps bar; smoothness on 120 Hz screens | Next analytics phase, or on demand |
-| D17 | Phase 1's haptics are silent on the A53 | The expense save's and category chips' haptic feedback on Samsung Android 15 | Phase 1 follow-up, on demand |
-| D18 | Tracker haptics are too faint to feel at the lowest touch strength | Feeling a tracker tap on a phone set to the lowest touch feedback | Phase 6's Android work, or on demand |
-| D19 | Tracker charts misread at the edges of their scale: a sub-minute duration average, a small duration peak's axis, large text on the axes | The charts' labels in those cases; nothing else | Next trackers/insights work, or on demand |
-| D20 | A calendar switch rebuilds the tracker repository | Nothing today (unreachable); a tracker screen that stays mounted across a settings change | Whoever makes tracker screens stay mounted across settings, or Phase 5 |
-| D21 | 4b's test and guard gaps | Storing a `TrackerQuerySpec` as JSON (the `fromJson` tests), which nothing does yet; nothing else | Next trackers work, or on demand |
-| D22 | Tracker copy edge cases: tied boolean peaks, a stale "done" tap after midnight, English weekday names | Nothing hard-blocked; spoken and snackbar wording | On demand |
-| D23 | No app-level test that a tag edit stamps `transactions.updated_at` | The goals money watermark's claim that tag links need no term of their own (Phase 5, plan Decision 5) is pinned only by a one-time grep | On demand, or whoever next touches `TransactionRepository` |
-| D25 | Phase 5's deferred review findings | Test gaps and small hardening items across the goals domain, data and app code, none judged worth fixing before the merge | On demand |
-| D26 | WidgetRenderer.build reads the pending taps outside its try | Nothing hard-blocked | On demand |
-| D27 | A foreign in-flight requestPermissions would strand a queued Result | Nothing hard-blocked | On demand |
-| D28 | Process-death recreation can replay a notification route | Nothing hard-blocked | On demand |
-| D29 | A torn buffer append glues the next tap onto a partial line | Nothing hard-blocked | On demand |
-| D30 | The headless FlutterEngine boots on the main thread | Nothing hard-blocked | On demand |
-| D31 | Dialog polish | Nothing hard-blocked | On demand |
-| D32 | Persian digits cannot be typed in the dialog on the A53 | Nothing hard-blocked | On demand |
-| D33 | Below Android 12 the fixed two rows may clip | Nothing hard-blocked | On demand |
-| D34 | A reminder time change while that day's reminder is due can double it | Nothing hard-blocked | On demand |
-| D35 | Stale wording after F1 | Nothing hard-blocked | On demand |
-| D36 | The widget's midnight reset was not observed | Nothing hard-blocked | On demand |
+| D37 | The transaction detail's Save skips an unreadable amount without a word | Nothing hard-blocked; a typo in an edited amount is silently dropped | On demand |
+| D38 | Adding a transaction writes its row, tag links and usage counts separately | Nothing today; a failed tag write leaves an untagged row | On demand, or whoever next touches `TransactionRepository` |
+| D12 | ~~No global uncaught-error handler: a rethrown write failure reaches only the console~~ | — | **Resolved 2026-10-14** |
+| D16 | ~~Month-change rebuilds drop frames on a 120 Hz display~~ | — | **Closed 2026-10-14** (operator decision) |
+| D17 | ~~Phase 1's haptics are silent on the A53~~ | — | **Resolved 2026-10-14** |
+| D18 | ~~Tracker haptics are too faint to feel at the lowest touch strength~~ | — | **Closed 2026-10-14** (operator decision) |
+| D19 | ~~Tracker charts misread at the edges of their scale: a sub-minute duration average, a small duration peak's axis, large text on the axes~~ | — | **Resolved 2026-10-14** |
+| D20 | ~~A calendar switch rebuilds the tracker repository~~ | — | **Resolved 2026-10-14** |
+| D21 | ~~4b's test and guard gaps~~ | — | **Resolved 2026-10-14** |
+| D22 | ~~Tracker copy edge cases: tied boolean peaks, a stale "done" tap after midnight, English weekday names~~ | — | **Resolved 2026-10-14** |
+| D23 | ~~No app-level test that a tag edit stamps `transactions.updated_at`~~ | — | **Resolved 2026-10-14** |
+| D25 | ~~Phase 5's deferred review findings~~ | — | **Resolved 2026-10-14** |
+| D26 | ~~WidgetRenderer.build reads the pending taps outside its try~~ | — | **Resolved 2026-10-14** |
+| D27 | ~~A foreign in-flight requestPermissions would strand a queued Result~~ | — | **Resolved 2026-10-14** |
+| D28 | ~~Process-death recreation can replay a notification route~~ | — | **Resolved 2026-10-14** |
+| D29 | ~~A torn buffer append glues the next tap onto a partial line~~ | — | **Resolved 2026-10-14** |
+| D30 | ~~The headless FlutterEngine boots on the main thread~~ | — | **Closed 2026-10-14** (measured: no gain) |
+| D31 | ~~Dialog polish~~ | — | **Resolved 2026-10-14** |
+| D32 | ~~Persian digits cannot be typed in the dialog on the A53~~ | — | **Closed 2026-10-14** (operator decision) |
+| D33 | ~~Below Android 12 the fixed two rows may clip~~ | — | **Resolved 2026-10-14** |
+| D34 | ~~A reminder time change while that day's reminder is due can double it~~ | — | **Closed 2026-10-14** (operator decision) |
+| D35 | ~~Stale wording after F1~~ | — | **Resolved 2026-10-14** |
+| D36 | ~~The widget's midnight reset was not observed~~ | — | **Closed 2026-10-14** (operator decision) |
 | D24 | ~~Goal screens: the savings card's sentence omits its run-rate; no tap-target or edit-route state tests~~ | — | **Resolved 2026-10-12** |
 | D13 | ~~The add-expense FAB carries no accessibility label~~ | — | **Resolved 2026-10-04** |
 | D14 | ~~Pinning offers a name a card on the dashboard already uses~~ | — | **Resolved 2026-10-04** |
@@ -538,9 +540,15 @@ control, so its caption is the only thing on that screen saying which month
 the grid covers. Both bodies now share one `TotalHeader`
 (`presentation/widgets/total_header.dart`) instead of holding a copy each.
 
-## D12 — No global uncaught-error handler
+## D12 — No global uncaught-error handler — RESOLVED
 
-**Status:** open. Found 2026-09-27 while documenting D10 and D11.
+**Status:** resolved 2026-10-14 by `a6ae2f0`. `installErrorHooks`
+(`app/lib/bootstrap/error_hooks.dart`) sets `PlatformDispatcher.instance.onError`
+to report into `FlutterError.reportError`, so an uncaught error reaches logcat
+under its library: `nimbustats` from `main()`, `widget drain` from `drainMain`.
+Nothing is persisted; crash reporting stays Phase 8's choice (operator decision
+2026-10-14). Found 2026-09-27 while documenting D10 and D11; the original
+finding follows.
 
 `reportingFailure` (`app/lib/features/analytics/presentation/widgets/saved_view_write.dart`)
 matches the add-expense screen's older pattern: on a failed write it shows
@@ -669,10 +677,30 @@ name clash recorded under
 [D14](#d14--pinning-offers-a-name-a-card-on-the-dashboard-already-uses--resolved).
 Existing installs keep their stored name.
 
-## D16 — Month-change rebuilds drop frames on a 120 Hz display
+## D16 — Month-change rebuilds drop frames on a 120 Hz display — CLOSED
 
-**Status:** open. Found 2026-10-04 during the Phase 3 performance pass (task 15)
-on the A53.
+**Status:** closed 2026-10-14 by operator decision ("accept, close"), after
+`c51ce17`, `92cbd03` and `19ce103`. `c51ce17` gave `frame_timings.dart`
+`--budget-ms`; `92cbd03` keeps the shown answer on screen until the next month's
+arrives (no loading flash); `19ce103` draws the Breakdown pies and the trend
+card's line at once instead of through fl_chart's 150 ms tween. Worst p99 build
+per pass on the A53 at 120 Hz (`--budget-ms 8.33`, a warm-up and three passes
+each), against the 8.33 ms bar this entry set:
+
+| Screen | Phase 3 pass | Sweep baseline | After `92cbd03` | After `19ce103` |
+|---|---|---|---|---|
+| Dashboard | 12.98 ms | 12.57 ms | 12.08 ms | 11.55 ms |
+| Breakdown | 14.37 ms | 13.77 ms | 12.38 ms | 12.78 ms |
+
+The bar was not met, and two mechanisms remain, found in a profile timeline of
+one month step. (1) The tap frame rebuilds content whose answer has not changed
+yet (about 5 of Breakdown's 10.2 ms, about 6 of the dashboard's 16.5 ms); reusing
+the body or preview instance while the answer is unchanged, or making only the
+readable part depend on the anchor, would remove it. (2) The data frame updates
+rows and charts with the new answer, about 10-15 ms traced. Everything still
+meets the 60 fps bar (16.67 ms) the task was judged against, so the operator
+accepted the numbers. Found 2026-10-04 during the Phase 3 performance pass
+(task 15) on the A53; the original finding follows.
 
 **What was measured.** The pass was judged against the agreed bar, which is
 Phase 1's 60 fps budget of 16.67 ms per frame, and every pass met it. But the
@@ -712,9 +740,14 @@ its budget is fixed at 16.67 ms, which is why this doesn't show as over budget.
 Then re-run `--scenario months` on the dashboard and on Breakdown with the
 display at 120 Hz. The fix holds when p99 build is ≤ 8.33 ms in every pass.
 
-## D17 — Phase 1's haptics are silent on the A53
+## D17 — Phase 1's haptics are silent on the A53 — RESOLVED
 
-**Status:** open. Found 2026-10-05 during the Phase 4a device check.
+**Status:** resolved 2026-10-14 by `92f9c42`: the expense save and the
+category chips call `HapticFeedback.vibrate()`, as tracker taps do. Checked on
+the A53: no "vibration absent" in logcat after a chip tap and a save, and
+`dumpsys vibrator_manager` lists both as finished TOUCH vibrations from
+`com.nimbustats.app`. Found 2026-10-05 during the Phase 4a device check; the
+original finding follows.
 
 **What happens.** The A53 runs Android 15. On it, Android drops every Flutter
 haptic except `HapticFeedback.vibrate()`, logging "performHapticFeedback;
@@ -743,9 +776,11 @@ phone and, presumably, others like it.
 and `dumpsys vibrator_manager` shows a finished TOUCH effect from
 `com.nimbustats.app`. The fix is to use `vibrate()`, as trackers do.
 
-## D18 — Tracker haptics are too faint to feel at the lowest touch strength
+## D18 — Tracker haptics are too faint to feel at the lowest touch strength — CLOSED
 
-**Status:** open. Found 2026-10-05 during the Phase 4a device check.
+**Status:** closed 2026-10-14 by operator decision: the app follows the user's
+touch-feedback setting, as every app does. Found 2026-10-05 during the Phase 4a
+device check; the original finding follows.
 
 **What happens.** After the D17 finding, tracker taps use
 `HapticFeedback.vibrate()`. Android plays each one and logs it as a finished
@@ -773,10 +808,13 @@ interaction above the lowest step, confirm `adb shell settings get system
 VIB_FEEDBACK_MAGNITUDE` reads above 1, then tap a tracker and ask whether it
 was felt.
 
-## D19 — Tracker charts at the edges of their scale
+## D19 — Tracker charts at the edges of their scale — RESOLVED
 
-**Status:** open. Found 2026-10-09 in Phase 4b, on the A53 and in the final
-review.
+**Status:** resolved 2026-10-14 by `d08fb14`: a duration average under a
+minute reads "<1 min" (`trackerInsightsUnderAMinute`), the value axis keeps its
+top label when a step fits under the peak, and the axes' reserved sizes follow
+the text scale. Found 2026-10-09 in Phase 4b, on the A53 and in the final
+review; the original finding follows.
 
 **What happens.** Three cases, none of which throws:
 - **A duration's average under a minute.** The Sleep header for `1405/07` on the
@@ -797,9 +835,12 @@ reserved size follows the text scale.
 
 **Unblocked by:** the next trackers or insights work, or on demand.
 
-## D20 — A calendar switch rebuilds the tracker repository
+## D20 — A calendar switch rebuilds the tracker repository — RESOLVED
 
-**Status:** open. Found 2026-10-09 by the Phase 4b final review.
+**Status:** resolved 2026-10-14 by `f4d8605`: `trackerRepositoryProvider`
+reads the analytics engine instead of watching it, so a calendar switch keeps
+the same repository (`totalOn` asks a calendar-free question). Found 2026-10-09
+by the Phase 4b final review; the original finding follows.
 
 **What happens.** `trackerRepositoryProvider` watches `analyticsEngineProvider`
 (`app/lib/features/trackers/application/tracker_providers.dart`), so a change of
@@ -820,9 +861,15 @@ watching it.
 **Unblocked by:** whoever makes tracker screens stay mounted across settings, or
 Phase 5.
 
-## D21 — 4b's test and guard gaps
+## D21 — 4b's test and guard gaps — RESOLVED
 
-**Status:** open. Found 2026-10-09 by the Phase 4b final review. Re-scoped
+**Status:** resolved 2026-10-14 by `d8c93f4`, `72cc94d`, `d087125`, `905889a`, `e1e1f21`: `TrackerQuerySpec.fromJson`
+cases and a `toString` that includes `dateRange`; the architecture test's
+aggregate pattern is a self-checked top-level regex; `FakeClock` takes an offset
+rule; `trackerInsightsProvider` is a family keyed by tracker id. The original
+status follows.
+
+**Was:** open. Found 2026-10-09 by the Phase 4b final review. Re-scoped
 2026-10-10: Phase 5 stores a tracker goal's tracker id, not a
 `TrackerQuerySpec` (goals design, departure 7), so nothing here blocks it.
 
@@ -850,9 +897,12 @@ holds once they exist.
 
 **Unblocked by:** the next trackers work, or on demand.
 
-## D22 — Tracker copy edge cases
+## D22 — Tracker copy edge cases — RESOLVED
 
-**Status:** open. Found 2026-10-09 in Phase 4b.
+**Status:** resolved 2026-10-14 by `c59e336`, `c7beff8`, `3a7e694`: a boolean's spoken summary
+speaks its done caption, a stale "done" after midnight shows no snackbar, and
+English spoken weekday summaries use full names (`weekdayLong`). Found
+2026-10-09 in Phase 4b; the original finding follows.
 
 **What happens.**
 - A boolean's spoken history peak names the earliest of many tied days, which
@@ -871,9 +921,15 @@ day-of-week summary in English.
 
 **Unblocked by:** on demand.
 
-## D23 — A tag edit's `updated_at` stamp is not pinned by a test
+## D23 — A tag edit's `updated_at` stamp is not pinned by a test — RESOLVED
 
-**Status:** open. Found 2026-10-11 in Phase 5 Task 8.
+**Status:** resolved 2026-10-14 by `b8e4447`: `TransactionRepository.update`
+writes the row and its tag links in one transaction
+(`TransactionsDao.inTransaction`), pinned by a test that a tag edit moves
+`updated_at` and one that a failing link write leaves amount, stamp and tags
+unchanged. The `shortcut:` paragraph in `goal_period_results_dao.dart` is gone,
+its guarantee now true. Found 2026-10-11 in Phase 5 Task 8; the original finding
+follows.
 
 **What is missing.** `GoalPeriodResultsDao.moneyWatermark` reads the maximum
 `updated_at` of transactions, categories and tags, and has no term for the
@@ -948,10 +1004,17 @@ nothing.
 
 **Unblocked by:** on demand, or whoever next touches the goal screens.
 
-## D25 — Phase 5's deferred review findings
+## D25 — Phase 5's deferred review findings — RESOLVED
 
-**Status:** open. Collected 2026-10-12 from the Phase 5 task reviews and the
-final review. None was judged worth fixing before the merge.
+**Status:** resolved 2026-10-14 by `42c0a5f`, `9e6d528`, `3a9ae7d`, `981c1d4`, `7a39893`, `4aa99f2`, after the operator's triage
+(2026-10-14): every bug fixed, every missing test added, and each style or scale
+note closed with its reason (the table at the end of this entry). Fixed: #38, a
+fractional habit target for a counter or boolean is invalid. Tests added: #5,
+#10, #14, #17, #19, #20, #22, #23, #30, #31, #44, #46, #49, #51. Found in the
+same triage and fixed: `MoneyFormatter.parse` returns null for a whole part too
+large for minor units, instead of throwing inside the goal editor's `build`
+(Toman) or wrapping silently (USD, EUR, TRY). Collected 2026-10-12 from the
+Phase 5 task reviews and the final review; the original findings follow.
 
 **Domain** (`nimbus_domain/lib/src/goals/`)
 - `QuantityAmount` accepts NaN and infinity as a target; `==` and `compareTo`
@@ -1024,9 +1087,57 @@ final review. None was judged worth fixing before the merge.
 
 **Unblocked by:** on demand; each line names the file to start from.
 
-## D26 — WidgetRenderer.build reads the pending taps outside its try
+**Closed in the triage (operator, 2026-10-14).** The numbers follow the triage's enumeration of the findings above; STALE means the finding was already fixed or false.
 
-**Status:** open. Found at the Phase 6 gate, 2026-10-13.
+| # | Finding | Why closed |
+|---|---|---|
+| 1 | `QuantityAmount` accepts NaN/∞ | Unreachable: the editor parses with `TrackerValues.parseAmount`, which rejects non-finite values. |
+| 2 | `==`/`compareTo` disagree on -0.0 | Unreachable: no path produces -0.0. |
+| 3 | `scaledBy` overflow lacks a `shortcut:` comment | Limit ~2.5e16 minor units over a year-long range; the comment is added. |
+| 4 | `foldDaily` walks every day | Linear in the goal's age; a 10-year range is 3,650 steps. |
+| 6 | Negative numerator untested | No caller passes one; the negative branch is covered via `rials(-10)`. |
+| 7 | Crossing with a stale `lastAlerted` | Unreachable: every save drops the rows before re-baselining. |
+| 8 | `reachedPercent` for negative net savings | Covered through `reaches`, pinned at `goal_values_test.dart:140`. |
+| 9 | `engine.today()` untested | STALE: covered by `goal_engine_test.dart:57-68`. |
+| 11 | Zero-target branch repeated | Style. |
+| 12 | `.first` relies on sorted percents | STALE: enforced at `goal.dart:107-110` and documented. |
+| 13 | Kind-free grep flags trailing comments | Fails safe, at authoring time only. |
+| 15 | Net savings resolves paths twice | Two indexed lookups per call. |
+| 16 | `_leafId` outside `MaterializedPath` | Style. |
+| 18 | `GoalsDao` writes act on soft-deleted goals | No UI path holds a deleted goal; `restore` needs the unfiltered write. |
+| 21 | `deleteForGoal`'s hard delete unpinned | STALE: pinned by `goal_service_test.dart:174-191`. |
+| 24 | Stale `history(old)` after an edit | Only autoDispose providers keyed by the old goal, replaced on the next emission; nothing stale is written. |
+| 25 | DAO comment reads as a guarantee | Folded into D23. |
+| 26 | v32 migration defaults unasserted | STALE: `migrateAndValidate` checks column defaults. |
+| 27 | Watcher keeps old subscriptions? | The code cancels; a kept one would only add a debounced duplicate trigger. |
+| 28 | Evaluation at `stop()` still emits | Intended; the crossing write is idempotent. |
+| 29 | Failed one-shot read drops flags | Delayed to the next trigger, not lost. |
+| 32 | Card's `excludeSemantics` hides the bar's label | The card's sentence carries name, amounts and status. |
+| 33 | `error_outline` on two states | Excluded from semantics; the words differ. |
+| 34 | Pickers say "none yet" while loading | The lists are loaded before the form builds; only a failed local read shows it. |
+| 35 | Tag picker has no error handling | A failed local read reaches the zone handler, now recorded (D12). |
+| 37 | Editing an unreadable goal says "gone" | No UI path: the unreadable card cannot edit. |
+| 39 | Unknown tag id is a zone error | An invariant guard: every id comes from the same reads. |
+| 40 | Amount written twice; errors computed thrice | Trivial cost. |
+| 41 | Editor test hygiene | Test style; swap for an `until` poll if one flakes. |
+| 42 | "Gone" can flash during a delete | At most one frame; pop follows. |
+| 43 | Deleting from the problem card leaves the gone screen | That screen explains and offers Undo and the way back. |
+| 45 | "0 periods met in a row" | Accurate. |
+| 47 | Fourth skeleton/Retry copy | Style. |
+| 48 | Queued alert reads its period late | STALE: the text is built when the alert is raised. |
+| 50 | `dart format` not in the gate | 166 of 249 lib files would change; a repo-wide reformat is its own decision. |
+| 52 | Tap-target tests dispose inline | Leaks only in an already-failing test. |
+
+## D26 — WidgetRenderer.build reads the pending taps outside its try — RESOLVED
+
+**Status:** resolved 2026-10-14 by `e1a28d3`: the read is inside `build`'s
+`try`, `onAppWidgetOptionsChanged` is guarded like `onUpdate`, and the channel's
+and the receiver's render guards catch `Exception`. Checked on the A53 with a
+directory in place of the buffer file: a re-render, a resize and an app start
+each logged "widget render failed; showing the loading state", with no crash. A
+device check replaced the JUnit test asked for below: `build` is Android glue,
+and Robolectric was ruled out (operator decision 2026-10-14). Found at the
+Phase 6 gate, 2026-10-13; the original finding follows.
 
 **What:** `WidgetRenderer.build` reads `WidgetBuffer.pendingTaps` outside its `try`. An `IOException` there escapes `onAppWidgetOptionsChanged`, which is unguarded, and the P22 guards, which catch `RuntimeException` only.
 
@@ -1034,9 +1145,14 @@ final review. None was judged worth fixing before the merge.
 
 **Unblocked by:** Wrap the read like the rest of `build`, and guard `onAppWidgetOptionsChanged`; one JUnit test.
 
-## D27 — A foreign in-flight requestPermissions would strand a queued Result
+## D27 — A foreign in-flight requestPermissions would strand a queued Result — RESOLVED
 
-**Status:** open. Found at the Phase 6 gate, 2026-10-13.
+**Status:** resolved 2026-10-14 by `3de86f7`: `MainActivity` queues the
+`Result` before `requestPermissions` and asks only for the first, so a cancel
+Android answers at once still reaches it, as false; a throw takes it back out
+and reaches Dart as the channel's error. Verified by review: no second
+permission caller exists to exercise it on a device. Found at the Phase 6 gate,
+2026-10-13; the original finding follows.
 
 **What:** A foreign in-flight `requestPermissions` from `MainActivity` would leave a queued permission `Result` unanswered. No other caller exists today.
 
@@ -1044,9 +1160,14 @@ final review. None was judged worth fixing before the merge.
 
 **Unblocked by:** Whoever adds a second permission request routes it through the same channel, or the channel learns to answer a displaced `Result`.
 
-## D28 — Process-death recreation can replay a notification route
+## D28 — Process-death recreation can replay a notification route — RESOLVED
 
-**Status:** open. Found at the Phase 6 gate, 2026-10-13.
+**Status:** resolved 2026-10-14 by `a3b58f7`: `MainActivity.onCreate` drops
+the route extra from an intent that comes with saved state, before
+`configureFlutterEngine` reads it. Checked on the A53: a cold start on `/add`,
+back to Home, `am kill`, then the launcher icon opened Home, where the build
+before the fix reopened `/add`. Found at the Phase 6 gate, 2026-10-13; the
+original finding follows.
 
 **What:** Recreating `MainActivity` after process death, without the Recents flag, can replay a notification's route.
 
@@ -1054,9 +1175,12 @@ final review. None was judged worth fixing before the merge.
 
 **Unblocked by:** Clear the route extra once consumed, or ignore intents with a saved-state bundle; a device check by killing the process in the background.
 
-## D29 — A torn buffer append glues the next tap onto a partial line
+## D29 — A torn buffer append glues the next tap onto a partial line — RESOLVED
 
-**Status:** open. Found at the Phase 6 gate, 2026-10-13.
+**Status:** resolved 2026-10-14 by `1754d49`: an append to a file that does
+not end in a newline writes one first, so only the torn line is rejected
+(`WidgetBufferTest`). Found at the Phase 6 gate, 2026-10-13; the original
+finding follows.
 
 **What:** A power loss mid-append leaves a partial line; the next tap is glued onto it, the joined line is rejected and reported.
 
@@ -1064,9 +1188,15 @@ final review. None was judged worth fixing before the merge.
 
 **Unblocked by:** Start each append on a fresh line when the file does not end in a newline.
 
-## D30 — The headless FlutterEngine boots on the main thread
+## D30 — The headless FlutterEngine boots on the main thread — CLOSED
 
-**Status:** open. Found at the Phase 6 gate, 2026-10-13.
+**Status:** closed 2026-10-14 with its measurement. Moving the library-load wait
+off the main thread (`ensureInitializationCompleteAsync`, the only part Flutter
+lets leave it) was measured on the A53, five widget saves each with the app
+killed: median skipped frames after Save 41 before and 38 after, short of the
+30 % cut set to keep it, so the change was not committed. Nothing of ours is on
+screen during the boot. Found at the Phase 6 gate, 2026-10-13; the original
+finding follows.
 
 **What:** The headless FlutterEngine boots on the app process's main thread: about 650 ms, 78 frames skipped right after the dialog's Save. Nothing of ours is on screen then. Measured on the A53 (16:09:34).
 
@@ -1074,9 +1204,14 @@ final review. None was judged worth fixing before the merge.
 
 **Unblocked by:** Moving the boot off the main thread, if Flutter offers it, or a lighter drain entry point.
 
-## D31 — Dialog polish
+## D31 — Dialog polish — RESOLVED
 
-**Status:** open. Found at the Phase 6 gate, 2026-10-13.
+**Status:** resolved 2026-10-14 by `71b3481`: the chips sit in a
+two-column grid with single-line, ellipsized names; Cancel and Save use the
+accent, muted when disabled; the window background is the widget's rounded
+shape. Checked on the A53 in English and Persian, light and dark, with four long
+category names. Found at the Phase 6 gate, 2026-10-13; the original finding
+follows.
 
 **What:** The 4th category chip is clipped at the dialog's edge (no wrap or scroll). Cancel and Save use the platform's button colours, not the widget tokens. The flat window background loses the rounded corners.
 
@@ -1084,9 +1219,11 @@ final review. None was judged worth fixing before the merge.
 
 **Unblocked by:** A chip row that wraps or scrolls, themed buttons, and a rounded window background.
 
-## D32 — Persian digits cannot be typed in the dialog on the A53
+## D32 — Persian digits cannot be typed in the dialog on the A53 — CLOSED
 
-**Status:** open. Found at the Phase 6 gate, 2026-10-13.
+**Status:** closed 2026-10-14 by operator decision: disregarded.
+`AmountParserTest` and the dialog's key listener cover the Persian-digit path.
+Found at the Phase 6 gate, 2026-10-13; the original finding follows.
 
 **What:** Samsung's number keypad offers Latin digits only, so Review Focus 2 end to end (typing a Persian amount) was not exercised. It is covered by `AmountParserTest` and by the dialog's widened key listener.
 
@@ -1094,9 +1231,14 @@ final review. None was judged worth fixing before the merge.
 
 **Unblocked by:** A device or keyboard that offers Persian digits in a numeric field.
 
-## D33 — Below Android 12 the fixed two rows may clip
+## D33 — Below Android 12 the fixed two rows may clip — RESOLVED
 
-**Status:** open. Found at the Phase 6 gate, 2026-10-13.
+**Status:** resolved 2026-10-14, with no code change. On an Android 11 emulator
+(`system-images;android-30;default;x86_64`, AOSP launcher), the widget placed
+at its default 4 × 2 size (349 × 220 dp measured, against the 168 dp the two
+rows need) showed "+ Expense" and both rows uncut. Sizes below the default
+were not checked. Found at the Phase 6 gate, 2026-10-13; the
+original finding follows.
 
 **What:** Below Android 12 the widget's fixed 2 rows (168 dp) may clip in a default 4x2 cell (about 110-130 dp).
 
@@ -1104,9 +1246,11 @@ final review. None was judged worth fixing before the merge.
 
 **Unblocked by:** A device or emulator on Android 11 or older.
 
-## D34 — A reminder time change while that day's reminder is due can double it
+## D34 — A reminder time change while that day's reminder is due can double it — CLOSED
 
-**Status:** open. Found at the Phase 6 gate, 2026-10-13.
+**Status:** closed 2026-10-14 by operator decision: the accepted cost of
+`a2ece7a`, which stops a re-arm inside the delivery window from skipping the
+day. Found at the Phase 6 gate, 2026-10-13; the original finding follows.
 
 **What:** Changing the reminder time while that day's reminder is due but undelivered yields two reminders that day.
 
@@ -1114,9 +1258,12 @@ final review. None was judged worth fixing before the merge.
 
 **Unblocked by:** Only if it proves annoying: track the delivered day and suppress the second.
 
-## D35 — Stale wording after F1
+## D35 — Stale wording after F1 — RESOLVED
 
-**Status:** open. Found at the Phase 6 gate, 2026-10-13.
+**Status:** resolved 2026-10-14 by `2824f7c`: the comment in
+`notification_prefs.dart` and the test name in `alert_router_test.dart` say the
+lock screen follows the phone's setting. Found at the Phase 6 gate, 2026-10-13;
+the original finding follows.
 
 **What:** `notification_prefs.dart:27-28` still says "The lock screen gets the discreet text either way", and the test name at `alert_router_test.dart:93-94` still promises a discreet lock screen. Commit 9624bb1 made the lock screen follow Android's own setting.
 
@@ -1124,12 +1271,44 @@ final review. None was judged worth fixing before the merge.
 
 **Unblocked by:** Reword both with the next change to either file.
 
-## D36 — The widget's midnight reset was not observed
+## D36 — The widget's midnight reset was not observed — CLOSED
 
-**Status:** open. Found at the Phase 6 gate, 2026-10-13.
+**Status:** closed 2026-10-14 by operator decision: disregarded. The
+`widget.MIDNIGHT` alarm is armed and re-armed (Phase 6 gate record); the reset
+itself was not observed. Found at the Phase 6 gate, 2026-10-13; the original
+finding follows.
 
 **What:** The `widget.MIDNIGHT` alarm was armed and re-armed after the reboot and the zone change, but the reset itself was not seen inside the session.
 
 **Why deferred:** It cannot be shown inside one session.
 
 **Unblocked by:** The operator looks at the widget the morning after the gate.
+
+## D37 — The transaction detail's Save skips an unreadable amount without a word
+
+**Status:** open. Found 2026-10-14 while planning the deferred sweep.
+
+**What:** `transaction_detail_screen.dart:174-184`: Save with an amount that
+does not parse (or is zero) skips `setAmount`, still saves the note, and leaves
+the typed text in the field. Nothing tells the user the amount was not saved.
+
+**Why deferred:** Found while checking the money-parse fix's callers; out of the
+sweep's scope. It never throws and loses no stored data.
+
+**Unblocked by:** Validate the amount as the add screen does (`validate()` with
+an inline error) and keep Save from closing on a bad amount; one widget test.
+
+## D38 — Adding a transaction writes its row, tag links and usage counts separately
+
+**Status:** open. Found 2026-10-14 while planning the D23 fix.
+
+**What:** D23 made `TransactionRepository.update` write the row and its tag
+links in one drift transaction. `add` still writes the row, then the links,
+then the tag usage counts as separate statements, so a failing link write
+leaves an untagged row behind.
+
+**Why deferred:** The spec scoped D23 to `update`; `add`'s failure needs a tag
+id that no picker offers.
+
+**Unblocked by:** Run `add`'s writes inside `TransactionsDao.inTransaction`, as
+`update` does; an atomicity test with an unknown tag id.
