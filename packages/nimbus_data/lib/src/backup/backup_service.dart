@@ -9,6 +9,17 @@ import 'backup_crypto.dart';
 import 'backup_errors.dart';
 import 'backup_format.dart';
 
+/// A decrypted, migrated and checked backup, waiting in the cache for
+/// [BackupService.restore] (spec §3.2).
+final class PreparedRestore {
+  const PreparedRestore({required this.path, required this.createdAt});
+
+  final String path;
+
+  /// When the backup was made, for the restore sheet and its snackbar.
+  final DateTime createdAt;
+}
+
 /// Export and restore of the whole database file (Phase 7 spec §3).
 ///
 /// It treats the database as one file and never names a table, so a phase
@@ -62,6 +73,60 @@ class BackupService {
     return header;
   }
 
+  /// Decrypts [path] into the cache, brings it to today's schema and checks
+  /// it. The live database is not touched (spec §3.2).
+  ///
+  /// On any failure the decrypted file is deleted before the error leaves.
+  Future<PreparedRestore> prepare(String path, String passphrase) async {
+    final header = await readHeader(path);
+    final temp = _temp('import');
+    try {
+      await _unseal(path, temp, passphrase);
+      await _migrateAndCheck(temp);
+      return PreparedRestore(path: temp, createdAt: header.createdAt);
+    } on Object {
+      await _deleteDatabase(temp);
+      rethrow;
+    }
+  }
+
+  /// Deletes a prepared file the user decided not to restore.
+  Future<void> discard(PreparedRestore prepared) =>
+      _deleteDatabase(prepared.path);
+
+  /// Opens [path] once through [AppDatabase.openAtPath], so an older backup
+  /// runs the same migrations every install runs, and then checks it.
+  ///
+  /// A failure while opening or migrating is left as it is (ruling R8). The
+  /// content passed authentication, so such a failure is a bug, not damage.
+  /// In debug builds drift warns about a second AppDatabase. This one has its
+  /// own file and executor, which is not the race that warning is about.
+  Future<void> _migrateAndCheck(String path) async {
+    final imported = AppDatabase.openAtPath(path);
+    try {
+      final check = await imported.customSelect('PRAGMA integrity_check').get();
+      if (check.length != 1 || check.single.data.values.single != 'ok') {
+        throw const CorruptBackup('integrity check failed');
+      }
+      // SQLite's backup cannot copy into a WAL database of another page size.
+      if (await _pragma(imported, 'page_size') != await _pragma(_db, 'page_size')) {
+        throw const CorruptBackup('page size differs');
+      }
+    } finally {
+      await imported.close();
+    }
+  }
+
+  static Future<int> _pragma(AppDatabase db, String name) async =>
+      (await db.customSelect('PRAGMA $name').getSingle()).data.values.single
+          as int;
+
+  static Future<void> _deleteDatabase(String path) async {
+    for (final suffix in const ['', '-wal', '-shm', '-journal']) {
+      await _delete('$path$suffix');
+    }
+  }
+
   String _temp(String kind) {
     Directory(cacheDir).createSync(recursive: true);
     return '$cacheDir${Platform.pathSeparator}$kind-${_uuid.v4()}.sqlite';
@@ -97,3 +162,29 @@ Future<void> _seal(String snapshot, String outPath, String passphrase,
 int _userVersion(List<int> database) =>
     ByteData.sublistView(Uint8List.fromList(database.sublist(60, 64)))
         .getUint32(0);
+
+/// Opens the backup at [backupPath] and writes its database to [outPath], in
+/// an isolate (spec §3.2).
+///
+/// Throws [WrongPassphrase] or [CorruptBackup] before writing anything.
+Future<void> _unseal(String backupPath, String outPath, String passphrase) =>
+    Isolate.run(() async {
+      // shortcut: whole file in memory, upgrade to chunked encryption when a database passes ~50 MB
+      final file = File(backupPath).readAsBytesSync();
+      final payload = await openBackup(file, passphrase);
+      final List<int> plain;
+      try {
+        plain = gzip.decode(payload);
+      } on FormatException {
+        throw const CorruptBackup('payload is not gzip');
+      }
+      if (!_isSqlite(plain) ||
+          _userVersion(plain) != BackupHeader.decode(file).schemaVersion) {
+        throw const CorruptBackup('payload does not match its header');
+      }
+      File(outPath).writeAsBytesSync(plain, flush: true);
+    });
+
+bool _isSqlite(List<int> bytes) =>
+    bytes.length >= 100 &&
+    String.fromCharCodes(bytes.sublist(0, 16)) == 'SQLite format 3\u0000';
