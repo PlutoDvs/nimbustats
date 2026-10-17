@@ -1802,6 +1802,7 @@ Slug: `backup-restore`. Spec §3.2 steps 3–4, §3.3, §4.3, and the §7 tests 
 **Files:**
 - Modify: `packages/nimbus_data/lib/src/backup/backup_service.dart`
 - Modify: `packages/nimbus_data/test/backup/support/backup_fixture.dart`
+- Modify: `packages/nimbus_data/tool/make_backup_fixture.dart` (the new required constructor arguments only; the fixture file is never regenerated)
 - Test: `packages/nimbus_data/test/backup/backup_restore_test.dart`
 
 **Interfaces:**
@@ -2236,6 +2237,15 @@ After `discard`, add:
       {for (final table in _db.allTables) TableUpdate.onTable(table)});
 ```
 
+In `packages/nimbus_data/tool/make_backup_fixture.dart`, the `BackupService(…)` call needs the two new required arguments. After `db: db,` add:
+
+```dart
+        livePath: '${dir.path}/live.sqlite',
+        preRestorePath: '${dir.path}/nimbustats.pre-restore.sqlite',
+```
+
+Do **not** run the tool again. `test/fixtures/backup_v1.nimbus` stays byte-for-byte as committed in Task 4.
+
 - [ ] **Step 6: Run it and see GREEN**
 
 Run from `packages/nimbus_data/`: `dart test test/backup/`. Expected: every backup test passes, including Tasks 3 and 4 under the new constructor.
@@ -2249,7 +2259,7 @@ Run `dart test` in `packages/nimbus_data/`. From the repo root: `dart analyze --
 - [ ] **Step 8: Commit and merge**
 
 ```bash
-git add packages/nimbus_data/lib packages/nimbus_data/test/backup
+git add packages/nimbus_data/lib packages/nimbus_data/tool packages/nimbus_data/test/backup
 git commit -m "$(cat <<'EOF'
 feat(backup): swap a backup in atomically, with one step of undo
 
@@ -4597,7 +4607,11 @@ void main() {
     await tester.enterText(find.byKey(const Key('backup-passphrase')), first);
     await tester.enterText(find.byKey(const Key('backup-passphrase-repeat')), second);
     await tester.tap(find.byKey(const Key('backup-encrypt')));
-    settle ? await tester.pumpAndSettle() : await tester.pump();
+    if (settle) {
+      await tester.pumpAndSettle();
+    } else {
+      await tester.pump();
+    }
   }
 
   testWidgets('under 8 characters is refused, and nothing is exported',
@@ -5078,7 +5092,11 @@ void main() {
     await tester.enterText(
         find.byKey(const Key('backup-restore-passphrase')), passphrase);
     await tester.tap(find.byKey(const Key('backup-restore-go')));
-    settle ? await tester.pumpAndSettle() : await tester.pump();
+    if (settle) {
+      await tester.pumpAndSettle();
+    } else {
+      await tester.pump();
+    }
   }
 
   bool restoreEnabled(WidgetTester tester) => tester
