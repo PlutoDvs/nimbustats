@@ -33,12 +33,16 @@ class BackupSection extends ConsumerStatefulWidget {
 class _BackupSectionState extends ConsumerState<BackupSection> {
   Object? _reportedError;
 
+  /// An undo is running: the row is disabled, so a second tap does nothing.
+  bool _undoing = false;
+
   @override
   void initState() {
     super.initState();
     // A crash mid-export or mid-restore leaves plaintext in the cache (spec
-    // §3.3). Nothing is in flight here: each flow is a modal sheet that
-    // blocks navigation while it works.
+    // §3.3). The service runs one operation at a time, so an operation in
+    // flight, such as an undo from Home's snackbar, finishes before this
+    // sweep touches its files (Task 13b).
     unawaited(reportingFailure('backup', 'while sweeping stale backup files',
         ref.read(backupControllerProvider).sweep));
   }
@@ -87,11 +91,14 @@ class _BackupSectionState extends ConsumerState<BackupSection> {
   Future<void> _undo() async {
     final l10n = AppLocalizations.of(context);
     final messenger = ScaffoldMessenger.of(context);
+    setState(() => _undoing = true);
     try {
       await ref.read(backupControllerProvider).undo();
     } on Object catch (error, stack) {
       reportBackupFailure(error, stack, 'while undoing a restore');
       messenger.showSnackBar(SnackBar(content: Text(l10n.backupUndoFailed)));
+    } finally {
+      if (mounted) setState(() => _undoing = false);
     }
   }
 
@@ -184,6 +191,7 @@ class _BackupSectionState extends ConsumerState<BackupSection> {
         if (status != null && status.canUndo)
           ListTile(
             key: const Key('backup-undo'),
+            enabled: !_undoing,
             leading: const Icon(Icons.undo),
             title: Text(status.undoRedoes
                 ? l10n.backupRedoRestore

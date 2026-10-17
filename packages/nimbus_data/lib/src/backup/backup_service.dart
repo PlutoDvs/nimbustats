@@ -26,6 +26,10 @@ final class PreparedRestore {
 ///
 /// It treats the database as one file and never names a table, so a phase
 /// that adds tables needs nothing here. The app injects every path.
+///
+/// Operations that write or delete backup files run one at a time, across
+/// every instance: two overlapping undos, or a sweep during one, would
+/// destroy the data Undo protects (Task 13b). Reads run freely.
 class BackupService {
   BackupService({
     required this._db,
@@ -58,6 +62,20 @@ class BackupService {
   static const _uuid = Uuid();
   static const _tempPrefixes = ['export-', 'import-', 'picked-'];
 
+  static Future<void> _tail = Future<void>.value();
+
+  /// Runs [action] after every backup operation already started has
+  /// finished. The files are process-wide, so one lock serves every
+  /// instance (Task 13b). No exclusive operation may call another: it would
+  /// wait for itself.
+  static Future<T> _exclusive<T>(Future<T> Function() action) {
+    final run = _tail.then((_) => action());
+    // Keeps the chain alive after a failure; the error reaches the caller
+    // through `run`.
+    _tail = run.then<void>((_) {}, onError: (Object _, StackTrace _) {});
+    return run;
+  }
+
   /// The undo copy while it is being written. It is renamed into place only
   /// after a swap succeeds (ruling R4).
   String get _partPath => '$_preRestorePath.part';
@@ -66,18 +84,19 @@ class BackupService {
   bool get canUndo => File(_preRestorePath).existsSync();
 
   /// Writes an encrypted export of the live database to [outPath].
-  Future<void> exportTo(String outPath, String passphrase) async {
-    final snapshot = _temp('export');
-    try {
-      // A consistent single-file copy holding every committed WAL frame,
-      // taken while the drain engine stays connected. It replaces the
-      // brief's "checkpoint, then copy" (spec, departures).
-      await _db.customStatement('VACUUM INTO ?', [snapshot]);
-      await _seal(snapshot, outPath, passphrase, _clock().toUtc(), _kdf);
-    } finally {
-      await _delete(snapshot);
-    }
-  }
+  Future<void> exportTo(String outPath, String passphrase) =>
+      _exclusive(() async {
+        final snapshot = _temp('export');
+        try {
+          // A consistent single-file copy holding every committed WAL frame,
+          // taken while the drain engine stays connected. It replaces the
+          // brief's "checkpoint, then copy" (spec, departures).
+          await _db.customStatement('VACUUM INTO ?', [snapshot]);
+          await _seal(snapshot, outPath, passphrase, _clock().toUtc(), _kdf);
+        } finally {
+          await _delete(snapshot);
+        }
+      });
 
   /// The header of the file at [path]. A newer schema is refused here,
   /// before any passphrase is asked for (spec §2.4).
@@ -100,25 +119,27 @@ class BackupService {
   /// it. The live database is not touched (spec §3.2).
   ///
   /// On any failure the decrypted file is deleted before the error leaves.
-  Future<PreparedRestore> prepare(String path, String passphrase) async {
-    final header = await readHeader(path);
-    final temp = _temp('import');
-    try {
-      await _unseal(path, temp, passphrase);
-      await _migrateAndCheck(temp);
-      return PreparedRestore(path: temp, createdAt: header.createdAt);
-    } on Object {
-      await _deleteDatabase(temp);
-      rethrow;
-    }
-  }
+  Future<PreparedRestore> prepare(String path, String passphrase) =>
+      _exclusive(() async {
+        final header = await readHeader(path);
+        final temp = _temp('import');
+        try {
+          await _unseal(path, temp, passphrase);
+          await _migrateAndCheck(temp);
+          return PreparedRestore(path: temp, createdAt: header.createdAt);
+        } on Object {
+          await _deleteDatabase(temp);
+          rethrow;
+        }
+      });
 
   /// Deletes a prepared file the user decided not to restore.
   Future<void> discard(PreparedRestore prepared) =>
-      _deleteDatabase(prepared.path);
+      _exclusive(() => _deleteDatabase(prepared.path));
 
   /// Swaps [prepared]'s content into the live database (spec §3.2 step 3).
-  Future<void> restore(PreparedRestore prepared) => _swapIn(prepared.path);
+  Future<void> restore(PreparedRestore prepared) =>
+      _exclusive(() => _swapIn(prepared.path));
 
   /// Swaps the live data with the undo copy. It never destroys data: the copy
   /// then holds what the undo replaced, so another undo puts that back.
@@ -126,17 +147,17 @@ class BackupService {
   /// The copy is staged in the cache and brought to today's schema first, as
   /// an app update may have come between the restore and this undo. On any
   /// failure the live data and the copy stay as they were.
-  Future<void> undo() async {
-    final staged = _temp('import');
-    try {
-      await File(_preRestorePath).copy(staged);
-      await _migrateAndCheck(staged);
-    } on Object {
-      await _deleteDatabase(staged);
-      rethrow;
-    }
-    await _swapIn(staged);
-  }
+  Future<void> undo() => _exclusive(() async {
+        final staged = _temp('import');
+        try {
+          await File(_preRestorePath).copy(staged);
+          await _migrateAndCheck(staged);
+        } on Object {
+          await _deleteDatabase(staged);
+          rethrow;
+        }
+        await _swapIn(staged);
+      });
 
   /// Copies the live content aside as the next undo copy, then swaps
   /// [staged] in and deletes it.
@@ -169,16 +190,19 @@ class BackupService {
   /// Deletes plaintext a crash left behind mid-export or mid-restore (spec
   /// §3.3). Finished exports in `out/` stay: a share target may still be
   /// reading the latest.
-  Future<void> sweep() async {
-    final dir = Directory(cacheDir);
-    if (dir.existsSync()) {
-      for (final file in dir.listSync().whereType<File>()) {
-        final name = file.uri.pathSegments.last;
-        if (_tempPrefixes.any(name.startsWith)) await file.delete();
-      }
-    }
-    await _delete(_partPath);
-  }
+  ///
+  /// It waits for any operation in flight, so it never deletes that
+  /// operation's files.
+  Future<void> sweep() => _exclusive(() async {
+        final dir = Directory(cacheDir);
+        if (dir.existsSync()) {
+          for (final file in dir.listSync().whereType<File>()) {
+            final name = file.uri.pathSegments.last;
+            if (_tempPrefixes.any(name.startsWith)) await file.delete();
+          }
+        }
+        await _delete(_partPath);
+      });
 
   /// SQLite's online backup from [source] onto the live file.
   ///

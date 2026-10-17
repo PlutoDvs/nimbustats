@@ -147,6 +147,76 @@ void main() {
     });
   });
 
+  group('one backup operation at a time (13b)', () {
+    /// Restored over 'original', then 'later' = X entered since.
+    Future<void> restoreThenWrite() async {
+      await source.db.settingsDao.put('who', 'backup');
+      await target.db.settingsDao.put('who', 'original');
+      await target.service.restore(await carry(source, target));
+      await target.db.settingsDao.put('later', 'X');
+    }
+
+    /// The undo copy's value for [key], read from the file itself.
+    String? copied(String key) {
+      final copy = sqlite3.open(target.preRestorePath, mode: OpenMode.readOnly);
+      try {
+        final rows =
+            copy.select('SELECT value FROM settings WHERE key = ?', [key]);
+        return rows.isEmpty ? null : rows.single['value'] as String;
+      } finally {
+        copy.close();
+      }
+    }
+
+    test('two undos at once lose nothing: the second swaps back', () async {
+      await restoreThenWrite();
+
+      await Future.wait([target.service.undo(), target.service.undo()]);
+
+      expect(await target.db.settingsDao.get('who'), 'backup');
+      expect(await target.db.settingsDao.get('later'), 'X');
+      expect(copied('who'), 'original');
+      expect(copied('later'), isNull);
+      expect(target.service.canUndo, isTrue);
+    });
+
+    test('an undo overlapping a sweep keeps the swap', () async {
+      await restoreThenWrite();
+      var undone = false;
+      final undo = target.service.undo().whenComplete(() => undone = true);
+      // Sweep once the undo has staged its copy: the window the race needs.
+      while (!undone && target.cacheFiles().isEmpty) {
+        await Future<void>.delayed(Duration.zero);
+      }
+      expect(undone, isFalse, reason: 'the sweep must overlap the undo');
+
+      await Future.wait([undo, target.service.sweep()]);
+
+      expect(await target.db.settingsDao.get('who'), 'original');
+      expect(copied('who'), 'backup');
+      expect(copied('later'), 'X');
+    });
+
+    test('a failed operation does not wedge the lock, and its caller gets the '
+        'error', () async {
+      // SQLite's backup refuses another page size: the undo fails.
+      sqlite3.open(target.preRestorePath)
+        ..execute('PRAGMA page_size = 8192')
+        ..execute('CREATE TABLE t (x)')
+        ..close();
+      final out = target.path('out.nimbus');
+
+      final undo = target.service.undo();
+      final sweep = target.service.sweep();
+      final export = target.service.exportTo(out, 'correct horse');
+
+      await expectLater(undo, throwsA(isA<CorruptBackup>()));
+      await sweep;
+      await export;
+      expect(File(out).existsSync(), isTrue);
+    });
+  });
+
   group('a restore that fails midway leaves the live database as it was', () {
     setUp(() => target.db.settingsDao.put('who', 'original'));
 

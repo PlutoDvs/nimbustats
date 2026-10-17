@@ -121,6 +121,23 @@ void main() {
     expect(restarts.single, isA<RestoreRedone>());
   });
 
+  testWidgets('while an undo runs, a second tap on the row does nothing (13b)',
+      (tester) async {
+    service
+      ..undoable = true
+      ..undoGate = Completer<void>();
+    await open(tester, row: 'backup-undo');
+    await tester.tap(find.byKey(const Key('backup-undo')));
+    await tester.pump();
+    await tester.tap(find.byKey(const Key('backup-undo')));
+    await tester.pump();
+    expect(service.calls.where((call) => call == 'undo'), hasLength(1));
+
+    service.undoGate!.complete();
+    await tester.pumpAndSettle();
+    expect(restarts.single, isA<RestoreUndone>());
+  });
+
   testWidgets('a failed undo is reported and said', (tester) async {
     service
       ..undoable = true

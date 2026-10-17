@@ -24,6 +24,9 @@ class FakeBackupService implements BackupService {
   Object? headerError;
   Object? prepareError;
   Object? undoError;
+
+  /// Holds [undo] open until completed, to test the busy row.
+  Completer<void>? undoGate;
   bool undoable = false;
   int bytes = 4 * 1024 * 1024;
   BackupHeader header = BackupHeader(
@@ -90,6 +93,7 @@ class FakeBackupService implements BackupService {
   @override
   Future<void> undo() async {
     calls.add('undo');
+    await undoGate?.future;
     if (undoError case final error?) throw error;
   }
 
