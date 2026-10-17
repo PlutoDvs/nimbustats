@@ -1,6 +1,8 @@
 // Fakes throw whatever object a test sets, including non-Exceptions.
 // ignore_for_file: only_throw_errors
 
+import 'dart:async';
+
 import 'package:nimbustats/features/backup/data/backup_channel.dart';
 
 /// [BackupChannel] without Android: records each call and answers as a test
@@ -10,6 +12,9 @@ class FakeBackupChannel implements BackupChannel {
 
   /// What Save's picker answers: true saved, false cancelled.
   bool saveAnswer = true;
+
+  /// When set, Save's picker stays open until it completes.
+  Completer<void>? saveGate;
 
   /// The cache copy Open answers with. Null is a cancelled picker.
   String? picked;
@@ -21,6 +26,7 @@ class FakeBackupChannel implements BackupChannel {
   Future<bool> saveDocument(String path) async {
     calls.add('saveDocument $path');
     _fail();
+    await saveGate?.future;
     return saveAnswer;
   }
 

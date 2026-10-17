@@ -27,6 +27,8 @@ class _ExportSheetState extends ConsumerState<ExportSheet> {
   var _step = _Step.passphrase;
   String? _error;
   String? _path;
+  // A Save or Share is in the picker: a second tap must not start another.
+  var _handingOff = false;
 
   @override
   void dispose() {
@@ -74,26 +76,51 @@ class _ExportSheetState extends ConsumerState<ExportSheet> {
     final l10n = AppLocalizations.of(context);
     final messenger = ScaffoldMessenger.of(context);
     final navigator = Navigator.of(context);
+    if (_handingOff) return;
+    setState(() {
+      _handingOff = true;
+      _error = null;
+    });
     try {
       // False: the picker was cancelled. Not an error, so the choice stays.
-      if (!await ref.read(backupControllerProvider).save(_path!)) return;
+      if (!await ref.read(backupControllerProvider).save(_path!)) {
+        if (mounted) setState(() => _handingOff = false);
+        return;
+      }
+      if (!mounted) return;
       navigator.pop();
       messenger.showSnackBar(SnackBar(content: Text(l10n.backupSaved)));
     } on Object catch (error, stack) {
       reportBackupFailure(error, stack, 'while saving a backup');
-      if (mounted) setState(() => _error = l10n.backupSaveFailed);
+      if (mounted) {
+        setState(() {
+          _handingOff = false;
+          _error = l10n.backupSaveFailed;
+        });
+      }
     }
   }
 
   Future<void> _share() async {
     final l10n = AppLocalizations.of(context);
     final navigator = Navigator.of(context);
+    if (_handingOff) return;
+    setState(() {
+      _handingOff = true;
+      _error = null;
+    });
     try {
       await ref.read(backupControllerProvider).share(_path!);
+      if (!mounted) return;
       navigator.pop();
     } on Object catch (error, stack) {
       reportBackupFailure(error, stack, 'while sharing a backup');
-      if (mounted) setState(() => _error = l10n.backupShareFailed);
+      if (mounted) {
+        setState(() {
+          _handingOff = false;
+          _error = l10n.backupShareFailed;
+        });
+      }
     }
   }
 
@@ -103,7 +130,7 @@ class _ExportSheetState extends ConsumerState<ExportSheet> {
     final working = _step == _Step.working;
     return PopScope(
       // Not while the file is being written: closing would orphan the work.
-      canPop: !working,
+      canPop: !working && !_handingOff,
       child: BackupSheetFrame(
         title: l10n.backupExport,
         children: switch (_step) {
@@ -113,12 +140,14 @@ class _ExportSheetState extends ConsumerState<ExportSheet> {
                 key: const Key('backup-save'),
                 leading: const Icon(Icons.save_alt),
                 title: Text(l10n.backupSave),
+                enabled: !_handingOff,
                 onTap: () => unawaited(_save()),
               ),
               ListTile(
                 key: const Key('backup-share'),
                 leading: const Icon(Icons.share_outlined),
                 title: Text(l10n.backupShare),
+                enabled: !_handingOff,
                 onTap: () => unawaited(_share()),
               ),
               if (_error != null)

@@ -95,6 +95,22 @@ void main() {
     expect(find.textContaining('Last export: '), findsOneWidget);
   });
 
+  testWidgets('a double tap on Save hands over once and leaves Settings open',
+      (tester) async {
+    channel.saveGate = Completer<void>();
+    await openSheet(tester);
+    await encrypt(tester, 'correct horse', 'correct horse');
+    final save = find.byKey(const Key('backup-save'));
+    await tester.tap(save);
+    await tester.tap(save);
+    channel.saveGate!.complete();
+    await tester.pumpAndSettle();
+
+    expect(channel.calls.where((c) => c.startsWith('saveDocument')), hasLength(1));
+    expect(find.text('Backup saved.'), findsOneWidget);
+    expect(find.byKey(const Key('backup-section')), findsOneWidget);
+  });
+
   testWidgets('a cancelled Save is not an error: the choice stays, nothing '
       'is recorded', (tester) async {
     channel.saveAnswer = false;
