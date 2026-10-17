@@ -1,0 +1,2 @@
+# The golden backup fixture must never be EOL-converted: one changed byte fails its GCM tag.
+*.nimbus binary

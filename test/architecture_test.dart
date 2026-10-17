@@ -77,10 +77,12 @@ void main() {
     // database" boundary is decoration rather than a rule. Database
     // construction lives behind AppDatabase.openAtPath / .openInMemory.
     final deps = runtimeDeps('app');
-    for (final forbidden in ['drift', 'sqlite3']) {
+    // cryptography too: keys and ciphers stay behind nimbus_data's backup
+    // API, so no screen can mishandle a passphrase's derived bytes.
+    for (final forbidden in ['drift', 'sqlite3', 'cryptography']) {
       expect(deps, isNot(contains(forbidden)),
-          reason: 'app must open the database through AppDatabase.openAtPath; '
-              'remove $forbidden');
+          reason: 'app must reach the database and backup crypto only through '
+              'nimbus_data; remove $forbidden');
     }
     expect(deps, contains('nimbus_domain'));
     expect(deps, contains('nimbus_data'));
