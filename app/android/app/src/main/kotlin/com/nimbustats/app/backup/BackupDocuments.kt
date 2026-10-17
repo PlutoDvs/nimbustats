@@ -6,6 +6,7 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Handler
 import android.os.Looper
+import android.provider.DocumentsContract
 import android.util.Log
 import androidx.core.content.FileProvider
 import com.nimbustats.app.OutsideChannelHandler.Companion.TAG
@@ -114,7 +115,18 @@ class BackupDocuments(private val activity: Activity) : MethodChannel.MethodCall
         // "wt" truncates, so saving over a longer old file leaves no tail of it.
         val out = activity.contentResolver.openOutputStream(target, "wt")
             ?: throw IOException("no output stream")
-        out.use { stream -> source.inputStream().use { it.copyTo(stream) } }
+        try {
+            out.use { stream -> source.inputStream().use { it.copyTo(stream) } }
+        } catch (error: Exception) {
+            // A truncated backup would look whole in the user's folder until restored. Best
+            // effort: the copy's own error is what reaches Dart.
+            try {
+                DocumentsContract.deleteDocument(activity.contentResolver, target)
+            } catch (cleanup: Exception) {
+                Log.e(TAG, "deleting a partly saved backup failed", cleanup)
+            }
+            throw error
+        }
     }
 
     private fun copyIn(source: Uri): String {
