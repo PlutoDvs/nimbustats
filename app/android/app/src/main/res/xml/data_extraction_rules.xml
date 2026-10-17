@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Auto Backup and device-to-device transfer on Android 12+ (Phase 7 spec
+     §4.1). The same exclusions as backup_rules.xml. -->
+<data-extraction-rules>
+    <cloud-backup>
+        <exclude domain="root" path="app_flutter/nimbustats.sqlite-shm" />
+        <exclude domain="root" path="app_flutter/nimbustats.pre-restore.sqlite" />
+        <exclude domain="root" path="app_flutter/nimbustats.pre-restore.sqlite.part" />
+    </cloud-backup>
+    <device-transfer>
+        <exclude domain="root" path="app_flutter/nimbustats.sqlite-shm" />
+        <exclude domain="root" path="app_flutter/nimbustats.pre-restore.sqlite" />
+        <exclude domain="root" path="app_flutter/nimbustats.pre-restore.sqlite.part" />
+    </device-transfer>
+</data-extraction-rules>

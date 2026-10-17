@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Auto Backup on Android 8–11 (Phase 7 spec §4.1). Exclude-only: everything
+     else in the app's data is kept. That is the database, its WAL (emptied
+     by NimbusBackupAgent first), the widget's pending buffer, the reminder
+     prefs and backup_state.json. Keep in step with data_extraction_rules.xml;
+     android_wiring_test checks. -->
+<full-backup-content>
+    <!-- Rebuilt by SQLite on open. -->
+    <exclude domain="root" path="app_flutter/nimbustats.sqlite-shm" />
+    <!-- The local undo copy, and the copy being written. -->
+    <exclude domain="root" path="app_flutter/nimbustats.pre-restore.sqlite" />
+    <exclude domain="root" path="app_flutter/nimbustats.pre-restore.sqlite.part" />
+</full-backup-content>

@@ -6,10 +6,17 @@
          refresh) after a reboot. No exact-alarm permission: the reminder is
          inexact on purpose. -->
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <!-- Phase 7: Auto Backup, with the WAL checkpointed first by
+         NimbusBackupAgent, and the rules in res/xml (spec §4). -->
     <application
         android:label="nimbustats"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher"
+        android:allowBackup="true"
+        android:fullBackupOnly="true"
+        android:backupAgent=".backup.NimbusBackupAgent"
+        android:fullBackupContent="@xml/backup_rules"
+        android:dataExtractionRules="@xml/data_extraction_rules"
         android:supportsRtl="true">
         <activity
             android:name=".MainActivity"
