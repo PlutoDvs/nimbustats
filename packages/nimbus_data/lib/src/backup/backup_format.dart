@@ -15,8 +15,11 @@ final class KdfParams {
 
   /// What new exports use. Fixed after the Galaxy A53 measurement (plan
   /// Task 14): the strongest setting that derives in about 2 s there.
-  static const standard =
-      KdfParams(memoryKiB: 65536, iterations: 3, parallelism: 1);
+  static const standard = KdfParams(
+    memoryKiB: 65536,
+    iterations: 3,
+    parallelism: 1,
+  );
 
   final int memoryKiB;
   final int iterations;
@@ -124,10 +127,14 @@ final class BackupHeader {
     }
     final schemaVersion = data.getUint32(10);
     if (schemaVersion < 1) throw const UnsupportedFormat('schema version 0');
+    // DateTime holds +-8.64e15 ms; getUint64 is negative with the top bit set.
+    final createdMs = data.getUint64(14);
+    if (createdMs < 0 || createdMs > 8640000000000000) {
+      throw const UnsupportedFormat('created-at out of range');
+    }
     return BackupHeader(
       schemaVersion: schemaVersion,
-      createdAt: DateTime.fromMillisecondsSinceEpoch(data.getUint64(14),
-          isUtc: true),
+      createdAt: DateTime.fromMillisecondsSinceEpoch(createdMs, isUtc: true),
       kdf: kdf,
       salt: Uint8List.fromList(file.sublist(32, 48)),
       nonce: Uint8List.fromList(file.sublist(48, 60)),
