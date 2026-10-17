@@ -44,13 +44,13 @@ final class BackupController {
   /// False when the user cancelled the picker, which is not an error.
   Future<bool> save(String path) async {
     final saved = await _channel.saveDocument(path);
-    if (saved) _recordExport();
+    if (saved) await _recordExport();
     return saved;
   }
 
   Future<void> share(String path) async {
     await _channel.shareFile(path);
-    _recordExport();
+    await _recordExport();
   }
 
   /// Null when the picker was cancelled. A header error (not a backup, a
@@ -103,8 +103,11 @@ final class BackupController {
         wasRedo ? const RestoreRedone() : const RestoreUndone());
   }
 
-  void _recordExport() {
-    _store.recordExport(DateTime.now().toUtc());
+  /// The hand-off already happened: a failure recording it is reported and
+  /// does not turn it into a failed Save or Share.
+  Future<void> _recordExport() async {
+    await reportingFailure('backup', 'while recording an export',
+        () async => _store.recordExport(DateTime.now().toUtc()));
     _ref.invalidate(backupStatusProvider);
   }
 }

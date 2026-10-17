@@ -68,15 +68,16 @@ void main() {
 
   test('export writes one file, named by local time, in the cache out/ folder',
       () async {
-    final first = await controller().export('correct horse');
-    final second = await controller().export('correct horse');
+    final stale = File('${service.cacheDir}/out/nimbustats-20250101-0000.nimbus')
+      ..createSync(recursive: true);
+    final path = await controller().export('correct horse');
 
-    expect(File(second).parent.path, '${service.cacheDir}${Platform.pathSeparator}out');
-    expect(File(second).uri.pathSegments.last,
+    expect(File(path).parent.path, '${service.cacheDir}${Platform.pathSeparator}out');
+    expect(File(path).uri.pathSegments.last,
         matches(RegExp(r'^nimbustats-\d{8}-\d{4}\.nimbus$')));
     // Only the latest is kept for Share.
-    expect(File(second).parent.listSync(), hasLength(1));
-    expect(first == second || !File(first).existsSync(), isTrue);
+    expect(stale.existsSync(), isFalse);
+    expect(File(path).parent.listSync(), hasLength(1));
   });
 
   test('a saved export is recorded; a cancelled one is not (R9)', () async {
@@ -93,6 +94,15 @@ void main() {
     await controller().share('/x.nimbus');
     expect(channel.calls, ['shareFile /x.nimbus']);
     expect(store.lastExport(), isNotNull);
+  });
+
+  test('a hand-off whose time cannot be recorded still happened: the failure '
+      'is reported, not thrown', () async {
+    final reports = captureReports();
+    useBrokenStore();
+    expect(await controller().save('/x.nimbus'), isTrue);
+    await controller().share('/x.nimbus');
+    expect(reports.map((r) => r.library), ['backup', 'backup']);
   });
 
   group('pick', () {
