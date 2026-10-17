@@ -401,7 +401,7 @@ abstract class AppLocalizations {
   /// No description provided for @backupUnsupported.
   ///
   /// In en, this message translates to:
-  /// **'This backup needs a newer version of NimbuStats. Update the app, then restore it.'**
+  /// **'This backup file can\'t be read by this version of NimbuStats. It may be damaged, or need a newer version of the app.'**
   String get backupUnsupported;
 
   /// No description provided for @backupWrongPassphrase.

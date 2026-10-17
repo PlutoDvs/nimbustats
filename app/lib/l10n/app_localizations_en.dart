@@ -179,7 +179,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get backupUnsupported =>
-      'This backup needs a newer version of NimbuStats. Update the app, then restore it.';
+      'This backup file can\'t be read by this version of NimbuStats. It may be damaged, or need a newer version of the app.';
 
   @override
   String get backupWrongPassphrase => 'Wrong passphrase.';

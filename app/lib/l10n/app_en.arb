@@ -71,7 +71,7 @@
   "backupTitle": "Backup",
   "backupUndoFailed": "The restore couldn't be undone.",
   "backupUndoRestore": "Undo the last restore",
-  "backupUnsupported": "This backup needs a newer version of NimbuStats. Update the app, then restore it.",
+  "backupUnsupported": "This backup file can't be read by this version of NimbuStats. It may be damaged, or need a newer version of the app.",
   "backupWrongPassphrase": "Wrong passphrase.",
   "breakdownAllCategories": "All categories",
   "breakdownConfirmedOnly": "Confirmed only",

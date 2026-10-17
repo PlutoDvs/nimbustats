@@ -179,7 +179,7 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get backupUnsupported =>
-      'این پشتیبان به نسخهٔ جدیدتری از نیمبوستتس نیاز دارد. برنامه را به‌روز کنید و سپس بازیابی کنید.';
+      'این نسخه از نیمبوستتس نمی‌تواند این فایل پشتیبان را بخواند. ممکن است فایل آسیب دیده باشد یا به نسخهٔ جدیدتری از برنامه نیاز داشته باشد.';
 
   @override
   String get backupWrongPassphrase => 'عبارت عبور نادرست است.';
