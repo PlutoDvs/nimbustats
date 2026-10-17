@@ -74,7 +74,13 @@ class BackupDocuments(private val activity: Activity) : MethodChannel.MethodCall
             return
         }
         waiting = next
-        activity.startActivityForResult(intent, next.request)
+        try {
+            activity.startActivityForResult(intent, next.request)
+        } catch (error: RuntimeException) {
+            // The channel turns the throw into an error reply; the picker must not stay marked busy.
+            waiting = null
+            throw error
+        }
     }
 
     /** MainActivity hands over every activity result. True when it was one of ours. */
