@@ -2,6 +2,8 @@ import 'dart:io';
 import 'dart:isolate';
 import 'dart:typed_data';
 
+import 'package:drift/drift.dart' show TableUpdate;
+import 'package:sqlite3/sqlite3.dart';
 import 'package:uuid/uuid.dart';
 
 import '../database/app_database.dart';
@@ -27,20 +29,38 @@ final class PreparedRestore {
 class BackupService {
   BackupService({
     required this._db,
+    required this._livePath,
     required this.cacheDir,
+    required this._preRestorePath,
     this._kdf = KdfParams.standard,
     this._clock = DateTime.now,
+    this._busyTimeout = const Duration(seconds: 5),
   });
 
   final AppDatabase _db;
+  final String _livePath;
+  final String _preRestorePath;
   final KdfParams _kdf;
   final DateTime Function() _clock;
+
+  /// How long the swap waits each time for a writer, such as the widget's
+  /// drain engine, to release the database. Five seconds, the same as every
+  /// connection `AppDatabase.openAtPath` makes.
+  final Duration _busyTimeout;
 
   /// Where plaintext temp files live. Android leaves the cache out of Auto
   /// Backup.
   final String cacheDir;
 
   static const _uuid = Uuid();
+  static const _tempPrefixes = ['export-', 'import-', 'picked-'];
+
+  /// The undo copy while it is being written. It is renamed into place only
+  /// after a swap succeeds (ruling R4).
+  String get _partPath => '$_preRestorePath.part';
+
+  /// Whether an undo copy exists: the last restore can be undone.
+  bool get canUndo => File(_preRestorePath).existsSync();
 
   /// Writes an encrypted export of the live database to [outPath].
   Future<void> exportTo(String outPath, String passphrase) async {
@@ -93,6 +113,78 @@ class BackupService {
   /// Deletes a prepared file the user decided not to restore.
   Future<void> discard(PreparedRestore prepared) =>
       _deleteDatabase(prepared.path);
+
+  /// Swaps [prepared]'s content into the live database (spec §3.2 step 3).
+  ///
+  /// First the live content is copied aside for undo. The swap is SQLite's
+  /// online backup, one write transaction that commits whole or rolls back,
+  /// so the drain engine's connection never sees half of it. Only a swap that
+  /// happened replaces the previous undo copy.
+  Future<void> restore(PreparedRestore prepared) async {
+    try {
+      await _delete(_partPath);
+      await _db.customStatement('VACUUM INTO ?', [_partPath]);
+      await _copyInto(prepared.path);
+    } on Object {
+      await _delete(_partPath);
+      rethrow;
+    } finally {
+      await _deleteDatabase(prepared.path);
+    }
+    await File(_partPath).rename(_preRestorePath);
+    _notifyAll();
+  }
+
+  /// Puts back what the last restore replaced, and spends the undo copy.
+  Future<void> undo() async {
+    await _copyInto(_preRestorePath);
+    await File(_preRestorePath).delete();
+    _notifyAll();
+  }
+
+  /// The database's size as Auto Backup will copy it, after the agent's
+  /// checkpoint has emptied the WAL into the file (spec §4.3).
+  Future<int> databaseBytes() async =>
+      await _pragma(_db, 'page_count') * await _pragma(_db, 'page_size');
+
+  /// Deletes plaintext a crash left behind mid-export or mid-restore (spec
+  /// §3.3). Finished exports in `out/` stay: a share target may still be
+  /// reading the latest.
+  Future<void> sweep() async {
+    final dir = Directory(cacheDir);
+    if (dir.existsSync()) {
+      for (final file in dir.listSync().whereType<File>()) {
+        final name = file.uri.pathSegments.last;
+        if (_tempPrefixes.any(name.startsWith)) await file.delete();
+      }
+    }
+    await _delete(_partPath);
+  }
+
+  /// SQLite's online backup from [source] onto the live file.
+  ///
+  /// `sqlite3` retries a busy lock every 250 ms until it gets it. With
+  /// `nPage: -1` it writes nothing before then, so a concurrent writer delays
+  /// the swap and never splits it (ruling R1).
+  Future<void> _copyInto(String source) async {
+    final from = sqlite3.open(source, mode: OpenMode.readOnly);
+    try {
+      final to = sqlite3.open(_livePath);
+      try {
+        to.execute('PRAGMA busy_timeout = ${_busyTimeout.inMilliseconds}');
+        await from.backup(to, nPage: -1).drain<void>();
+      } finally {
+        to.close();
+      }
+    } finally {
+      from.close();
+    }
+  }
+
+  /// Every table changed underneath drift. Its open streams re-read, and
+  /// none keeps a cached value from before the swap.
+  void _notifyAll() => _db.notifyUpdates(
+      {for (final table in _db.allTables) TableUpdate.onTable(table)});
 
   /// Opens [path] once through [AppDatabase.openAtPath], so an older backup
   /// runs the same migrations every install runs, and then checks it.

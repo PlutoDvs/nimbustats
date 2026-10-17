@@ -16,6 +16,8 @@ Future<void> main() async {
       await db.settingsDao.put('fixture', 'golden v1');
       await BackupService(
         db: db,
+        livePath: '${dir.path}/live.sqlite',
+        preRestorePath: '${dir.path}/nimbustats.pre-restore.sqlite',
         cacheDir: '${dir.path}/cache',
         kdf: const KdfParams(memoryKiB: 1024, iterations: 1, parallelism: 1),
         clock: () => DateTime.utc(2026, 10, 17, 12),

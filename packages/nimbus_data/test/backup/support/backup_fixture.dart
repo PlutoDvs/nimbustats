@@ -12,7 +12,10 @@ const fastKdf = KdfParams(memoryKiB: 64, iterations: 1, parallelism: 1);
 final class BackupFixture {
   BackupFixture._(this.dir, this.db, this.service);
 
-  factory BackupFixture.open({DateTime Function()? clock}) {
+  factory BackupFixture.open({
+    DateTime Function()? clock,
+    Duration busyTimeout = const Duration(seconds: 5),
+  }) {
     final dir = Directory.systemTemp.createTempSync('nimbus_backup');
     String at(String name) => '${dir.path}${Platform.pathSeparator}$name';
     final db = AppDatabase.openAtPath(at('nimbustats.sqlite'));
@@ -21,9 +24,12 @@ final class BackupFixture {
       db,
       BackupService(
         db: db,
+        livePath: at('nimbustats.sqlite'),
         cacheDir: at('cache'),
+        preRestorePath: at('nimbustats.pre-restore.sqlite'),
         kdf: fastKdf,
         clock: clock ?? DateTime.now,
+        busyTimeout: busyTimeout,
       ),
     );
   }
@@ -33,6 +39,8 @@ final class BackupFixture {
   final BackupService service;
 
   String get livePath => path('nimbustats.sqlite');
+
+  String get preRestorePath => path('nimbustats.pre-restore.sqlite');
 
   String path(String name) => '${dir.path}${Platform.pathSeparator}$name';
 
