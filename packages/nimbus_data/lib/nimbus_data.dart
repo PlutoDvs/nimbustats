@@ -12,6 +12,7 @@ export 'src/analytics/saved_view.dart';
 export 'src/backup/backup_crypto.dart';
 export 'src/backup/backup_errors.dart';
 export 'src/backup/backup_format.dart';
+export 'src/backup/backup_service.dart';
 export 'src/database/app_database.dart';
 export 'src/database/columns.dart';
 export 'src/database/converters.dart';
