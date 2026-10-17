@@ -92,10 +92,7 @@ class _RestoreSheetState extends ConsumerState<RestoreSheet> {
             enabled: open,
           ),
           if (_working) BackupProgress(label: l10n.backupDecrypting),
-          if (_failed != null)
-            Text(_failed!,
-                key: const Key('backup-sheet-error'),
-                style: TextStyle(color: Theme.of(context).colorScheme.error)),
+          if (_failed case final failed?) BackupSheetError(failed),
           FilledButton(
             key: const Key('backup-restore-go'),
             onPressed: open ? () => unawaited(_restore()) : null,

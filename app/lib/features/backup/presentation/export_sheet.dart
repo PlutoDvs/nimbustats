@@ -150,10 +150,7 @@ class _ExportSheetState extends ConsumerState<ExportSheet> {
                 enabled: !_handingOff,
                 onTap: () => unawaited(_share()),
               ),
-              if (_error != null)
-                Text(_error!,
-                    key: const Key('backup-sheet-error'),
-                    style: TextStyle(color: Theme.of(context).colorScheme.error)),
+              if (_error case final error?) BackupSheetError(error),
             ],
           _Step.passphrase || _Step.working => [
               PassphraseField(

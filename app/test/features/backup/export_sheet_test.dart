@@ -10,6 +10,7 @@ import '../../support/harness.dart';
 import 'support/fake_backup_channel.dart';
 import 'support/fake_backup_service.dart';
 import 'support/gregorian_english.dart';
+import 'support/small_phone.dart';
 
 void main() {
   late AppDatabase db;
@@ -40,6 +41,8 @@ void main() {
         backupChannel: channel,
         backupState: store);
     await tester.scrollUntilVisible(find.byKey(const Key('backup-export')), 200);
+    await tester.ensureVisible(find.byKey(const Key('backup-export')));
+    await tester.pumpAndSettle();
     await tester.tap(find.byKey(const Key('backup-export')));
     await tester.pumpAndSettle();
   }
@@ -146,6 +149,57 @@ void main() {
     expect(tester.takeException(), isA<StateError>());
     expect(find.text("The backup couldn't be saved."), findsOneWidget);
     expect(find.byKey(const Key('backup-share')), findsOneWidget);
+  });
+
+  testWidgets('a failed Save is announced (M7)', (tester) async {
+    final semantics = tester.ensureSemantics();
+    channel.error = StateError('copy failed');
+    await openSheet(tester);
+    await encrypt(tester, 'correct horse', 'correct horse');
+    await tester.tap(find.byKey(const Key('backup-save')));
+    await tester.pumpAndSettle();
+
+    expect(tester.takeException(), isA<StateError>());
+    expect(
+        tester
+            .getSemantics(find.bySemanticsLabel("The backup couldn't be saved."))
+            .getSemanticsData()
+            .flagsCollection
+            .isLiveRegion,
+        isTrue);
+    semantics.dispose();
+  });
+
+  testWidgets('on a small phone at twice the text size the sheet fits and '
+      'scrolls to Encrypt (I2)', (tester) async {
+    useSmallPhoneLargeText(tester);
+    await openSheet(tester);
+    expect(tester.takeException(), isNull);
+
+    await tester.enterText(find.byKey(const Key('backup-passphrase')), 'correct horse');
+    await tester.enterText(
+        find.byKey(const Key('backup-passphrase-repeat')), 'correct horse');
+    await tester.ensureVisible(find.byKey(const Key('backup-encrypt')));
+    await tester.tap(find.byKey(const Key('backup-encrypt')));
+    await tester.pumpAndSettle();
+    expect(service.calls, contains('exportTo'));
+  });
+
+  testWidgets('the navigation bar cannot take the app from under a working '
+      'sheet (M3)', (tester) async {
+    service.exportGate = Completer<void>();
+    await openSheet(tester);
+    await encrypt(tester, 'correct horse', 'correct horse', settle: false);
+
+    // Where Home's destination is: the sheet's barrier must cover it.
+    await tester.tapAt(tester.getCenter(find.byIcon(Icons.receipt_long_outlined)));
+    await tester.pump(const Duration(milliseconds: 300));
+    expect(find.text('Encrypting…'), findsOneWidget);
+    expect(find.byKey(const Key('tx-add-fab')), findsNothing);
+
+    service.exportGate!.complete();
+    await tester.pumpAndSettle();
+    expect(find.byKey(const Key('backup-save')), findsOneWidget);
   });
 
   testWidgets('a failed export is reported and the passphrase step returns',

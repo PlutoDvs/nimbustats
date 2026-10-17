@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:nimbus_design/nimbus_design.dart';
 
 /// The frame both backup sheets share: clear of the keyboard, a title, then
-/// the rows.
+/// the rows, scrolling when large text makes them taller than the screen.
 class BackupSheetFrame extends StatelessWidget {
   const BackupSheetFrame({super.key, required this.title, required this.children});
 
@@ -15,7 +15,7 @@ class BackupSheetFrame extends StatelessWidget {
         // under the keyboard.
         padding: EdgeInsets.only(bottom: MediaQuery.viewInsetsOf(context).bottom),
         child: SafeArea(
-          child: Padding(
+          child: SingleChildScrollView(
             padding: const EdgeInsets.all(NimbusTokens.space4),
             child: Column(
               mainAxisSize: MainAxisSize.min,
@@ -28,6 +28,22 @@ class BackupSheetFrame extends StatelessWidget {
             ),
           ),
         ),
+      );
+}
+
+/// A failure the sheet shows. A live region, so a screen reader announces it
+/// though the focus is elsewhere.
+class BackupSheetError extends StatelessWidget {
+  const BackupSheetError(this.text, {super.key});
+
+  final String text;
+
+  @override
+  Widget build(BuildContext context) => Semantics(
+        liveRegion: true,
+        child: Text(text,
+            key: const Key('backup-sheet-error'),
+            style: TextStyle(color: Theme.of(context).colorScheme.error)),
       );
 }
 

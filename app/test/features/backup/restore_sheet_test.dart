@@ -11,6 +11,7 @@ import '../../support/harness.dart';
 import 'support/fake_backup_channel.dart';
 import 'support/fake_backup_service.dart';
 import 'support/gregorian_english.dart';
+import 'support/small_phone.dart';
 
 void main() {
   late AppDatabase db;
@@ -114,13 +115,37 @@ void main() {
   });
 
   testWidgets('a damaged file says so and leaves only closing', (tester) async {
+    final semantics = tester.ensureSemantics();
     service.prepareError = const CorruptBackup('authentication failed');
     await tapRestore(tester);
     await restoreWith(tester, FakeBackupService.goodPassphrase);
-    expect(find.text("This backup file is damaged and can't be restored."),
-        findsOneWidget);
+    const damaged = "This backup file is damaged and can't be restored.";
+    expect(find.text(damaged), findsOneWidget);
     expect(restoreEnabled(tester), isFalse);
     expect(restarts, isEmpty);
+    // Announced: the focus is not on it when it appears (M7).
+    expect(
+        tester
+            .getSemantics(find.bySemanticsLabel(damaged))
+            .getSemanticsData()
+            .flagsCollection
+            .isLiveRegion,
+        isTrue);
+    semantics.dispose();
+  });
+
+  testWidgets('on a small phone at twice the text size the sheet fits and '
+      'scrolls to Restore (I2)', (tester) async {
+    useSmallPhoneLargeText(tester);
+    await tapRestore(tester);
+    expect(tester.takeException(), isNull);
+
+    await tester.enterText(find.byKey(const Key('backup-restore-passphrase')),
+        FakeBackupService.goodPassphrase);
+    await tester.ensureVisible(find.byKey(const Key('backup-restore-go')));
+    await tester.tap(find.byKey(const Key('backup-restore-go')));
+    await tester.pump();
+    expect(restarts.single, isA<BackupRestored>());
   });
 
   testWidgets('an unexpected failure is reported and said generically',

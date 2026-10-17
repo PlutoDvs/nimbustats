@@ -41,8 +41,12 @@ class _BackupSectionState extends ConsumerState<BackupSection> {
         ref.read(backupControllerProvider).sweep));
   }
 
+  // Both sheets go on the root navigator, over the shell's navigation bar:
+  // from inside the shell, a tap on the bar would swap the page under a
+  // working sheet and take the sheet with it.
   Future<void> _export() => showModalBottomSheet<void>(
         context: context,
+        useRootNavigator: true,
         isScrollControlled: true,
         enableDrag: false,
         builder: (_) => const ExportSheet(),
@@ -66,6 +70,7 @@ class _BackupSectionState extends ConsumerState<BackupSection> {
     if (mounted) {
       await showModalBottomSheet<void>(
         context: context,
+        useRootNavigator: true,
         isScrollControlled: true,
         enableDrag: false,
         builder: (_) => RestoreSheet(picked: chosen),
