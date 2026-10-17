@@ -14,7 +14,7 @@ final class BackupFixture {
 
   factory BackupFixture.open({
     DateTime Function()? clock,
-    Duration busyTimeout = const Duration(seconds: 5),
+    Duration busyTimeout = const Duration(milliseconds: 50),
   }) {
     final dir = Directory.systemTemp.createTempSync('nimbus_backup');
     String at(String name) => '${dir.path}${Platform.pathSeparator}$name';

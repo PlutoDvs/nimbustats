@@ -2,11 +2,13 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:drift_dev/api/migrations_native.dart';
 import 'package:nimbus_data/nimbus_data.dart';
 import 'package:nimbus_domain/nimbus_domain.dart';
 import 'package:sqlite3/sqlite3.dart';
 import 'package:test/test.dart';
 
+import '../generated/schema.dart';
 import 'support/backup_fixture.dart';
 
 void main() {
@@ -67,7 +69,8 @@ void main() {
   });
 
   group('undo', () {
-    test('puts back what the restore replaced, once', () async {
+    test('puts back what the restore replaced, and keeps what it replaced',
+        () async {
       await source.db.settingsDao.put('who', 'backup');
       await target.db.settingsDao.put('who', 'original');
       expect(target.service.canUndo, isFalse);
@@ -77,7 +80,58 @@ void main() {
 
       await target.service.undo();
       expect(await target.db.settingsDao.get('who'), 'original');
-      expect(target.service.canUndo, isFalse);
+      expect(target.service.canUndo, isTrue); // a swap: the copy now redoes
+      expect(File('${target.preRestorePath}.part').existsSync(), isFalse);
+      expect(target.cacheFiles(), isEmpty);
+    });
+
+    test('a late undo is undoable: nothing entered since is lost', () async {
+      await source.db.settingsDao.put('who', 'backup');
+      await target.db.settingsDao.put('who', 'original');
+      await target.service.restore(await carry(source, target));
+      await target.db.settingsDao.put('later', 'X'); // months of entries
+
+      await target.service.undo();
+      expect(await target.db.settingsDao.get('who'), 'original');
+      expect(await target.db.settingsDao.get('later'), isNull);
+      expect(target.service.canUndo, isTrue);
+
+      await target.service.undo();
+      expect(await target.db.settingsDao.get('who'), 'backup');
+      expect(await target.db.settingsDao.get('later'), 'X');
+    });
+
+    test('an undo copy from an older schema migrates (v32)', () async {
+      await target.db.settingsDao.put('who', 'original');
+      final v32 = await SchemaVerifier(GeneratedHelper()).schemaAt(32);
+      addTearDown(v32.close);
+      v32.rawDatabase
+        ..execute('PRAGMA user_version = 32')
+        ..execute("INSERT INTO settings (key, value) VALUES ('from', 'v32')")
+        ..execute('VACUUM INTO ?', [target.preRestorePath]);
+
+      await target.service.undo();
+      expect(await pragma(target.db, 'user_version'), target.db.schemaVersion);
+      expect(await target.db.settingsDao.get('from'), 'v32');
+      expect(target.cacheFiles(), isEmpty);
+    });
+
+    test('a failed undo changes nothing', () async {
+      await target.db.settingsDao.put('who', 'original');
+      // SQLite's backup refuses another page size: the swap cannot happen.
+      sqlite3.open(target.preRestorePath)
+        ..execute('PRAGMA page_size = 8192')
+        ..execute('CREATE TABLE t (x)')
+        ..close();
+      final copy = File(target.preRestorePath).readAsBytesSync();
+
+      await expectLater(target.service.undo(), throwsA(isA<CorruptBackup>()));
+      expect(await target.db.settingsDao.get('who'), 'original');
+      expect(await pragma(target.db, 'integrity_check'), 'ok');
+      expect(target.service.canUndo, isTrue);
+      expect(File(target.preRestorePath).readAsBytesSync(), copy);
+      expect(File('${target.preRestorePath}.part').existsSync(), isFalse);
+      expect(target.cacheFiles(), isEmpty);
     });
 
     test('a second restore replaces the copy: undo goes back one step',

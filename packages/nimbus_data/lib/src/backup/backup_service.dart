@@ -34,7 +34,7 @@ class BackupService {
     required this._preRestorePath,
     this._kdf = KdfParams.standard,
     this._clock = DateTime.now,
-    this._busyTimeout = const Duration(seconds: 5),
+    this._busyTimeout = const Duration(milliseconds: 50),
   });
 
   final AppDatabase _db;
@@ -43,9 +43,12 @@ class BackupService {
   final KdfParams _kdf;
   final DateTime Function() _clock;
 
-  /// How long the swap waits each time for a writer, such as the widget's
-  /// drain engine, to release the database. Five seconds, the same as every
-  /// connection `AppDatabase.openAtPath` makes.
+  /// How long each attempt of the swap blocks for a writer, such as the
+  /// widget's drain engine, to release the database.
+  ///
+  /// Short, because Dart runs on Android's main thread here, and a long block
+  /// is an ANR. `sqlite3` retries every 250 ms asynchronously until it holds
+  /// the lock, and the swap remains one transaction.
   final Duration _busyTimeout;
 
   /// Where plaintext temp files live. Android leaves the cache out of Auto
@@ -115,31 +118,47 @@ class BackupService {
       _deleteDatabase(prepared.path);
 
   /// Swaps [prepared]'s content into the live database (spec §3.2 step 3).
+  Future<void> restore(PreparedRestore prepared) => _swapIn(prepared.path);
+
+  /// Swaps the live data with the undo copy. It never destroys data: the copy
+  /// then holds what the undo replaced, so another undo puts that back.
   ///
-  /// First the live content is copied aside for undo. The swap is SQLite's
-  /// online backup, one write transaction that commits whole or rolls back,
-  /// so the drain engine's connection never sees half of it. Only a swap that
-  /// happened replaces the previous undo copy.
-  Future<void> restore(PreparedRestore prepared) async {
+  /// The copy is staged in the cache and brought to today's schema first, as
+  /// an app update may have come between the restore and this undo. On any
+  /// failure the live data and the copy stay as they were.
+  Future<void> undo() async {
+    final staged = _temp('import');
+    try {
+      await File(_preRestorePath).copy(staged);
+      await _migrateAndCheck(staged);
+    } on Object {
+      await _deleteDatabase(staged);
+      rethrow;
+    }
+    await _swapIn(staged);
+  }
+
+  /// Copies the live content aside as the next undo copy, then swaps
+  /// [staged] in and deletes it.
+  ///
+  /// The swap is SQLite's online backup, one write transaction that commits
+  /// whole or rolls back, so the drain engine's connection never sees half of
+  /// it. Only a swap that happened replaces the previous undo copy (R4), and
+  /// once it has, the copy and the streams are settled before the cleanup
+  /// that may still fail.
+  Future<void> _swapIn(String staged) async {
     try {
       await _delete(_partPath);
       await _db.customStatement('VACUUM INTO ?', [_partPath]);
-      await _copyInto(prepared.path);
+      await _copyInto(staged);
     } on Object {
       await _delete(_partPath);
+      await _deleteDatabase(staged);
       rethrow;
-    } finally {
-      await _deleteDatabase(prepared.path);
     }
     await File(_partPath).rename(_preRestorePath);
     _notifyAll();
-  }
-
-  /// Puts back what the last restore replaced, and spends the undo copy.
-  Future<void> undo() async {
-    await _copyInto(_preRestorePath);
-    await File(_preRestorePath).delete();
-    _notifyAll();
+    await _deleteDatabase(staged);
   }
 
   /// The database's size as Auto Backup will copy it, after the agent's
