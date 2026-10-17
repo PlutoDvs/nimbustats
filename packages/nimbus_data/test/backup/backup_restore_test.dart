@@ -148,6 +148,27 @@ void main() {
     });
   });
 
+  test('a missing live file fails the restore instead of being created',
+      () async {
+    await target.db.settingsDao.put('who', 'original');
+    final prepared = await carry(source, target);
+    final misconfigured = BackupService(
+      db: target.db,
+      livePath: target.path('missing.sqlite'),
+      cacheDir: target.path('cache'),
+      preRestorePath: target.preRestorePath,
+      kdf: fastKdf,
+    );
+
+    await expectLater(
+        misconfigured.restore(prepared), throwsA(isA<SqliteException>()));
+
+    expect(File(target.path('missing.sqlite')).existsSync(), isFalse);
+    expect(File(prepared.path).existsSync(), isFalse);
+    expect(await target.db.settingsDao.get('who'), 'original');
+    expect(misconfigured.canUndo, isFalse);
+  });
+
   test('a writer holding the lock delays the swap, which then lands whole (R1)',
       () async {
     await source.db.settingsDao.put('who', 'backup');

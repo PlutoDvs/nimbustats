@@ -169,7 +169,8 @@ class BackupService {
   Future<void> _copyInto(String source) async {
     final from = sqlite3.open(source, mode: OpenMode.readOnly);
     try {
-      final to = sqlite3.open(_livePath);
+      // readWrite, not create: a wrong livePath must fail, not make a new file.
+      final to = sqlite3.open(_livePath, mode: OpenMode.readWrite);
       try {
         to.execute('PRAGMA busy_timeout = ${_busyTimeout.inMilliseconds}');
         await from.backup(to, nPage: -1).drain<void>();
