@@ -1,6 +1,8 @@
 # Phase 7 — Backup — design
 
-**Status:** approved in conversation 2026-10-17; awaiting written-spec review.
+**Status:** approved 2026-10-17 (written spec reviewed). Plan:
+`docs/superpowers/plans/2026-10-17-nimbustats-phase-7-backup.md`. Its rulings
+R1–R5 record where the code forced a change to §3.3, §5 and §6.
 **Brief:** `docs/phases/phase-7-backup.md`.
 **Prerequisites:** `phase-0-complete` exists (all of 0–6 do).
 **Schema:** none · **Branch:** `phase/7-backup` · **Gate:** `phase-7-complete`
