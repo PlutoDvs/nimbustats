@@ -23,7 +23,7 @@ import 'support/gregorian_english.dart';
 /// Android and files.
 void main() {
   testWidgets('a restore lands on Home and says so; Undo restarts again and '
-      'says that', (tester) async {
+      'says that, and its own Undo redoes the restore', (tester) async {
     final db = AppDatabase.openInMemory();
     addTearDown(db.close);
     await FirstRunController(db)
@@ -69,6 +69,13 @@ void main() {
     await tester.pumpAndSettle();
     expect(service.calls.last, 'undo');
     expect(find.text('Restore undone. Your earlier data is back.'), findsOneWidget);
+    expect(find.byKey(const Key('tx-add-fab')), findsOneWidget);
+
+    // An undo is a swap, so it can be undone too.
+    await tester.tap(find.text('Undo'));
+    await tester.pumpAndSettle();
+    expect(service.calls.where((call) => call == 'undo'), hasLength(2));
+    expect(find.text('The restored backup is back.'), findsOneWidget);
     expect(find.byKey(const Key('tx-add-fab')), findsOneWidget);
 
     // Drift's stream teardown leaves zero-length timers.

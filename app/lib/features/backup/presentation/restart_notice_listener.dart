@@ -10,8 +10,8 @@ import '../application/backup_controller.dart';
 import '../application/restart.dart';
 import 'backup_messages.dart';
 
-/// Shows, once, why the app just restarted (spec §5.3): a restore with Undo,
-/// or an undone restore.
+/// Shows, once, why the app just restarted (spec §5.3): a restore, an undone
+/// restore or a redone one, each with Undo.
 ///
 /// It wraps the shell's body, under the shell's Scaffold, so it is up
 /// whenever Home is.
@@ -49,18 +49,18 @@ class _RestartNoticeListenerState extends ConsumerState<RestartNoticeListener> {
       if (!mounted) return;
       final l10n = AppLocalizations.of(context);
       final messenger = ScaffoldMessenger.of(context);
-      switch (notice) {
-        case BackupRestored(:final backupCreatedAt):
-          messenger.showSnackBar(nimbusUndoSnackBar(
-            message: l10n.backupRestored(whenLabel(
-                backupCreatedAt, ref.read(calendarProvider),
-                persianDigits: ref.read(moneyFormatterProvider).persianDigits)),
-            undoLabel: l10n.commonUndo,
-            onUndo: () => unawaited(_undo(messenger, l10n)),
-          ));
-        case RestoreUndone():
-          messenger.showSnackBar(SnackBar(content: Text(l10n.backupRestoreUndone)));
-      }
+      // Every swap can be swapped back, so each notice offers Undo.
+      messenger.showSnackBar(nimbusUndoSnackBar(
+        message: switch (notice) {
+          BackupRestored(:final backupCreatedAt) => l10n.backupRestored(
+              whenLabel(backupCreatedAt, ref.read(calendarProvider),
+                  persianDigits: ref.read(moneyFormatterProvider).persianDigits)),
+          RestoreUndone() => l10n.backupRestoreUndone,
+          RestoreRedone() => l10n.backupRestoreRedone,
+        },
+        undoLabel: l10n.commonUndo,
+        onUndo: () => unawaited(_undo(messenger, l10n)),
+      ));
     });
   }
 

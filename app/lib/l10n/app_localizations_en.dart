@@ -116,6 +116,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get backupPassphraseTooShort => 'Use at least 8 characters.';
 
   @override
+  String get backupRedoRestore => 'Redo the last restore';
+
+  @override
   String get backupRestore => 'Restore from a file';
 
   @override
@@ -129,6 +132,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String backupRestoreFrom(String when) {
     return 'Backup from $when';
   }
+
+  @override
+  String get backupRestoreRedone => 'The restored backup is back.';
 
   @override
   String get backupRestoreReplaces =>

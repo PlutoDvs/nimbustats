@@ -39,6 +39,7 @@
   "backupPassphraseMismatch": "The two passphrases differ.",
   "backupPassphraseRepeat": "Repeat the passphrase",
   "backupPassphraseTooShort": "Use at least 8 characters.",
+  "backupRedoRestore": "Redo the last restore",
   "backupRestore": "Restore from a file",
   "backupRestoreAction": "Restore",
   "backupRestoreFailed": "The backup couldn't be restored. Your data is unchanged.",
@@ -50,6 +51,7 @@
       }
     }
   },
+  "backupRestoreRedone": "The restored backup is back.",
   "backupRestoreReplaces": "Restoring replaces all data on this phone. You can undo it afterwards.",
   "backupRestoreUndone": "Restore undone. Your earlier data is back.",
   "backupRestored": "Restored the backup from {when}.",

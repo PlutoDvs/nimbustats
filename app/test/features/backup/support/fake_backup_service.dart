@@ -86,11 +86,11 @@ class FakeBackupService implements BackupService {
     undoable = true;
   }
 
+  /// A swap: the copy stays, so [undoable] does not change.
   @override
   Future<void> undo() async {
     calls.add('undo');
     if (undoError case final error?) throw error;
-    undoable = false;
   }
 
   @override

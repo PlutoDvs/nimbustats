@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:nimbus_data/nimbus_data.dart';
@@ -20,18 +21,21 @@ void main() {
   late List<RestartNotice> restarts;
   late ProviderContainer container;
 
+  ProviderContainer containerFor(BackupStateStore store) =>
+      ProviderContainer(overrides: [
+        backupServiceProvider.overrideWith((ref) async => service),
+        backupChannelProvider.overrideWithValue(channel),
+        backupStateStoreProvider.overrideWithValue(store),
+        appRestartProvider.overrideWithValue(restarts.add),
+      ]);
+
   setUp(() {
     service = FakeBackupService();
     channel = FakeBackupChannel();
     dir = Directory.systemTemp.createTempSync('nimbus_backup_controller');
     store = BackupStateStore('${dir.path}/backup_state.json');
     restarts = [];
-    container = ProviderContainer(overrides: [
-      backupServiceProvider.overrideWith((ref) async => service),
-      backupChannelProvider.overrideWithValue(channel),
-      backupStateStoreProvider.overrideWithValue(store),
-      appRestartProvider.overrideWithValue(restarts.add),
-    ]);
+    container = containerFor(store);
   });
   tearDown(() {
     container.dispose();
@@ -39,6 +43,22 @@ void main() {
   });
 
   BackupController controller() => container.read(backupControllerProvider);
+
+  /// A store that cannot write: its path is a folder.
+  void useBrokenStore() {
+    container.dispose();
+    container = containerFor(BackupStateStore(
+        (Directory('${dir.path}/state-dir')..createSync()).path));
+  }
+
+  /// What [FlutterError.reportError] receives during the test.
+  List<FlutterErrorDetails> captureReports() {
+    final reports = <FlutterErrorDetails>[];
+    final previous = FlutterError.onError;
+    FlutterError.onError = reports.add;
+    addTearDown(() => FlutterError.onError = previous);
+    return reports;
+  }
 
   String pickedFile() {
     final path = '${dir.path}/picked-1.nimbus';
@@ -106,33 +126,74 @@ void main() {
     });
 
     test('swaps, deletes the copy and restarts with the backup date', () async {
+      store.setUndoRedoes(true); // an earlier undo
       channel.picked = pickedFile();
       final picked = (await controller().pick())!;
       await controller().restore(picked, FakeBackupService.goodPassphrase);
 
       expect(service.calls, containsAllInOrder(['prepare', 'restore']));
       expect(File(picked.path).existsSync(), isFalse);
+      expect(store.undoRedoes(), isFalse); // the copy now undoes this restore
       expect(
           restarts.single,
           isA<BackupRestored>().having(
               (n) => n.backupCreatedAt, 'createdAt', service.header.createdAt));
     });
+
+    test('once swapped, a failure recording it is reported and the app still '
+        'restarts onto the restored data', () async {
+      final reports = captureReports();
+      useBrokenStore();
+      channel.picked = pickedFile();
+      final picked = (await controller().pick())!;
+
+      await controller().restore(picked, FakeBackupService.goodPassphrase);
+      expect(reports.single.library, 'backup');
+      expect(restarts.single, isA<BackupRestored>());
+    });
   });
 
-  test('undo restores and restarts saying so', () async {
-    await controller().undo();
-    expect(service.calls, ['undo']);
-    expect(restarts.single, isA<RestoreUndone>());
+  group('undo', () {
+    test('swaps, then the next one swaps back: Undone, then Redone', () async {
+      await controller().undo();
+      expect(service.calls, ['undo']);
+      expect(store.undoRedoes(), isTrue);
+      expect(restarts.single, isA<RestoreUndone>());
+
+      await controller().undo();
+      expect(service.calls, ['undo', 'undo']);
+      expect(store.undoRedoes(), isFalse);
+      expect(restarts.last, isA<RestoreRedone>());
+    });
+
+    test('a failed swap changes neither the flag nor the app', () async {
+      service.undoError = StateError('swap failed');
+      await expectLater(controller().undo(), throwsStateError);
+      expect(store.undoRedoes(), isFalse);
+      expect(restarts, isEmpty);
+    });
+
+    test('once swapped, a failure recording it is reported, not thrown',
+        () async {
+      final reports = captureReports();
+      useBrokenStore();
+      await controller().undo();
+      expect(reports.single.library, 'backup');
+      expect(restarts.single, isA<RestoreUndone>());
+    });
   });
 
   test('the status combines the store and the service', () async {
-    store.recordExport(DateTime.utc(2026, 10, 17));
+    store
+      ..recordExport(DateTime.utc(2026, 10, 17))
+      ..setUndoRedoes(true);
     service
       ..undoable = true
       ..bytes = 123;
     final status = await container.read(backupStatusProvider.future);
     expect(status.lastExport, DateTime.utc(2026, 10, 17));
     expect(status.canUndo, isTrue);
+    expect(status.undoRedoes, isTrue);
     expect(status.databaseBytes, 123);
   });
 }

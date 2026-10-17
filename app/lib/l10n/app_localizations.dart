@@ -290,6 +290,12 @@ abstract class AppLocalizations {
   /// **'Use at least 8 characters.'**
   String get backupPassphraseTooShort;
 
+  /// No description provided for @backupRedoRestore.
+  ///
+  /// In en, this message translates to:
+  /// **'Redo the last restore'**
+  String get backupRedoRestore;
+
   /// No description provided for @backupRestore.
   ///
   /// In en, this message translates to:
@@ -313,6 +319,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Backup from {when}'**
   String backupRestoreFrom(String when);
+
+  /// No description provided for @backupRestoreRedone.
+  ///
+  /// In en, this message translates to:
+  /// **'The restored backup is back.'**
+  String get backupRestoreRedone;
 
   /// No description provided for @backupRestoreReplaces.
   ///

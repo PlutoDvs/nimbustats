@@ -4,7 +4,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nimbus_data/nimbus_data.dart';
 import 'package:path/path.dart' as p;
 
+import '../../notifications/application/outside_errors.dart';
 import '../data/backup_channel.dart';
+import '../data/backup_state_store.dart';
 import 'backup_providers.dart';
 import 'restart.dart';
 
@@ -22,6 +24,7 @@ final class BackupController {
 
   Future<BackupService> get _service => _ref.read(backupServiceProvider.future);
   BackupChannel get _channel => _ref.read(backupChannelProvider);
+  BackupStateStore get _store => _ref.read(backupStateStoreProvider);
 
   /// Deletes plaintext a crash left in the cache (spec §3.3).
   Future<void> sweep() async => (await _service).sweep();
@@ -65,12 +68,17 @@ final class BackupController {
 
   /// Decrypts, checks and swaps in [picked], then restarts the app onto it.
   ///
-  /// [WrongPassphrase] keeps the copy, so the sheet can ask again.
+  /// [WrongPassphrase] keeps the copy, so the sheet can ask again. Once the
+  /// swap happened, a failure after it is reported and the app still
+  /// restarts onto the restored data.
   Future<void> restore(PickedBackup picked, String passphrase) async {
     final service = await _service;
     final prepared = await service.prepare(picked.path, passphrase);
     await service.restore(prepared);
-    discard(picked.path);
+    await reportingFailure('backup', 'while recording a restore',
+        () async => _store.setUndoRedoes(false));
+    await reportingFailure('backup', 'while deleting a restored backup file',
+        () async => discard(picked.path));
     _ref.read(appRestartProvider)(BackupRestored(picked.header.createdAt));
   }
 
@@ -83,13 +91,20 @@ final class BackupController {
     if (file.existsSync()) file.deleteSync();
   }
 
+  /// Swaps the live data with the undo copy, then restarts the app onto it.
+  /// After an undo the copy holds what it replaced, so the next one redoes.
   Future<void> undo() async {
+    final wasRedo = _store.undoRedoes();
     await (await _service).undo();
-    _ref.read(appRestartProvider)(const RestoreUndone());
+    // The swap happened: a failure recording it must not hide that.
+    await reportingFailure('backup', 'while recording an undo',
+        () async => _store.setUndoRedoes(!wasRedo));
+    _ref.read(appRestartProvider)(
+        wasRedo ? const RestoreRedone() : const RestoreUndone());
   }
 
   void _recordExport() {
-    _ref.read(backupStateStoreProvider).recordExport(DateTime.now().toUtc());
+    _store.recordExport(DateTime.now().toUtc());
     _ref.invalidate(backupStatusProvider);
   }
 }

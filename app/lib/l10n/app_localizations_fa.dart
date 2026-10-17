@@ -116,6 +116,9 @@ class AppLocalizationsFa extends AppLocalizations {
   String get backupPassphraseTooShort => 'دست‌کم ۸ نویسه وارد کنید.';
 
   @override
+  String get backupRedoRestore => 'انجام دوبارهٔ آخرین بازیابی';
+
+  @override
   String get backupRestore => 'بازیابی از فایل';
 
   @override
@@ -129,6 +132,9 @@ class AppLocalizationsFa extends AppLocalizations {
   String backupRestoreFrom(String when) {
     return 'پشتیبانِ $when';
   }
+
+  @override
+  String get backupRestoreRedone => 'پشتیبانِ بازیابی‌شده برگشت.';
 
   @override
   String get backupRestoreReplaces =>

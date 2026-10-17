@@ -35,14 +35,18 @@ final backupStateStoreProvider = Provider<BackupStateStore>((ref) =>
 typedef BackupStatus = ({
   DateTime? lastExport,
   bool canUndo,
+  // The undo copy holds what an undo replaced: tapping re-applies the restore.
+  bool undoRedoes,
   int databaseBytes,
 });
 
 final backupStatusProvider = FutureProvider<BackupStatus>((ref) async {
   final service = await ref.watch(backupServiceProvider.future);
+  final store = ref.watch(backupStateStoreProvider);
   return (
-    lastExport: ref.watch(backupStateStoreProvider).lastExport(),
+    lastExport: store.lastExport(),
     canUndo: service.canUndo,
+    undoRedoes: store.undoRedoes(),
     databaseBytes: await service.databaseBytes(),
   );
 });

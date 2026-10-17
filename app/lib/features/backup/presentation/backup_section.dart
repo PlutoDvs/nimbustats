@@ -163,7 +163,9 @@ class _BackupSectionState extends ConsumerState<BackupSection> {
           ListTile(
             key: const Key('backup-undo'),
             leading: const Icon(Icons.undo),
-            title: Text(l10n.backupUndoRestore),
+            title: Text(status.undoRedoes
+                ? l10n.backupRedoRestore
+                : l10n.backupUndoRestore),
             onTap: () => unawaited(_undo()),
           ),
         Padding(

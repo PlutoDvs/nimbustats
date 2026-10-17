@@ -15,6 +15,11 @@ final class RestoreUndone extends RestartNotice {
   const RestoreUndone();
 }
 
+/// An undo of an undo: the restored backup is back.
+final class RestoreRedone extends RestartNotice {
+  const RestoreRedone();
+}
+
 /// Rebuilds every provider over the same database, whose content a restore
 /// just replaced in place.
 ///

@@ -40,4 +40,54 @@ void main() {
         .writeAsStringSync('{"v":2,"lastExportUtcMs":1}');
     expect(store.lastExport, throwsFormatException);
   });
+
+  group('which way the undo copy points', () {
+    void write(String json) =>
+        File('${dir.path}/backup_state.json').writeAsStringSync(json);
+
+    test('no file, or no field, is an undo', () {
+      expect(store.undoRedoes(), isFalse);
+      write('{"v":1,"lastExportUtcMs":1}');
+      expect(store.undoRedoes(), isFalse);
+    });
+
+    test('a recorded value reads back', () {
+      store.setUndoRedoes(true);
+      expect(store.undoRedoes(), isTrue);
+      store.setUndoRedoes(false);
+      expect(store.undoRedoes(), isFalse);
+    });
+
+    test('an export never recorded reads as never, beside the flag', () {
+      write('{"v":1,"undoRedoes":true}');
+      expect(store.lastExport(), isNull);
+    });
+
+    test('each write keeps the other field', () {
+      final at = DateTime.utc(2026, 10, 17, 9, 30);
+      store
+        ..recordExport(at)
+        ..setUndoRedoes(true);
+      expect(store.lastExport(), at);
+      store.recordExport(DateTime.utc(2026, 11, 1));
+      expect(store.undoRedoes(), isTrue);
+    });
+
+    test('a field of the wrong type is an error, for either read', () {
+      for (final json in const [
+        '{"v":1,"undoRedoes":"yes"}',
+        '{"v":1,"lastExportUtcMs":"1"}',
+        '{"v":1,"lastExportUtcMs":null}',
+        '{"v":1,"other":1}',
+        '{"v":2,"undoRedoes":true}',
+        '[]',
+      ]) {
+        write(json);
+        expect(store.lastExport, throwsFormatException, reason: json);
+        expect(store.undoRedoes, throwsFormatException, reason: json);
+        expect(() => store.setUndoRedoes(true), throwsFormatException,
+            reason: json);
+      }
+    });
+  });
 }

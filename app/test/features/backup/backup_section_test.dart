@@ -97,10 +97,22 @@ void main() {
       (tester) async {
     service.undoable = true;
     await open(tester, row: 'backup-undo');
+    expect(find.text('Undo the last restore'), findsOneWidget);
     await tester.tap(find.byKey(const Key('backup-undo')));
     await tester.pumpAndSettle();
     expect(service.calls, contains('undo'));
     expect(restarts.single, isA<RestoreUndone>());
+  });
+
+  testWidgets('after an undo, the row says it redoes the restore',
+      (tester) async {
+    service.undoable = true;
+    store.setUndoRedoes(true);
+    await open(tester, row: 'backup-undo');
+    expect(find.text('Redo the last restore'), findsOneWidget);
+    await tester.tap(find.byKey(const Key('backup-undo')));
+    await tester.pumpAndSettle();
+    expect(restarts.single, isA<RestoreRedone>());
   });
 
   testWidgets('a failed undo is reported and said', (tester) async {
