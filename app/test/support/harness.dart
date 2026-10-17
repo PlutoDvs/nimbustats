@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 // Riverpod 3 keeps Override out of the main barrel.
@@ -8,10 +10,15 @@ import 'package:nimbustats/app.dart';
 import 'package:nimbustats/bootstrap/database_provider.dart';
 import 'package:nimbustats/bootstrap/first_run.dart';
 import 'package:nimbustats/bootstrap/provider_retry.dart';
+import 'package:nimbustats/features/backup/application/backup_providers.dart';
+import 'package:nimbustats/features/backup/data/backup_channel.dart';
+import 'package:nimbustats/features/backup/data/backup_state_store.dart';
 import 'package:nimbustats/features/notifications/application/notification_providers.dart';
 import 'package:nimbustats/features/notifications/data/outside_channel.dart';
 import 'package:nimbustats/l10n/app_localizations.dart';
 
+import '../features/backup/support/fake_backup_channel.dart';
+import '../features/backup/support/fake_backup_service.dart';
 import '../features/notifications/support/fake_outside_channel.dart';
 
 /// Pumps the real app against a fresh in-memory database.
@@ -25,6 +32,9 @@ Future<AppDatabase> pumpApp(
   AppDatabase? database,
   List<Override> overrides = const [],
   OutsideChannel? outside,
+  BackupService? backup,
+  BackupChannel? backupChannel,
+  BackupStateStore? backupState,
   bool Function()? isForeground,
   bool seedFirstRun = false,
   bool realFirstRunGate = false,
@@ -59,6 +69,12 @@ Future<AppDatabase> pumpApp(
     // No Android in a widget test. A test about the channel passes its own
     // fake to read what was sent.
     outsideChannelProvider.overrideWithValue(outside ?? FakeOutsideChannel()),
+    // No files and no Android in a widget test (Phase 7, ruling R13). Every
+    // settings test builds the backup section. A test about backup passes
+    // its own fakes to read what was asked.
+    backupServiceProvider.overrideWith((ref) async => backup ?? FakeBackupService()),
+    backupChannelProvider.overrideWithValue(backupChannel ?? FakeBackupChannel()),
+    backupStateStoreProvider.overrideWithValue(backupState ?? _tempBackupState()),
     // A pumped app is on screen. The test binding reports no lifecycle
     // state until a test sets one, which would read as "in the background".
     isForegroundProvider.overrideWithValue(isForeground ?? () => true),
@@ -78,4 +94,11 @@ Future<AppDatabase> pumpApp(
   );
   await tester.pumpAndSettle();
   return db;
+}
+
+/// A backup state file in a temp folder this test deletes.
+BackupStateStore _tempBackupState() {
+  final dir = Directory.systemTemp.createTempSync('nimbus_backup_state');
+  addTearDown(() => dir.deleteSync(recursive: true));
+  return BackupStateStore('${dir.path}/backup_state.json');
 }

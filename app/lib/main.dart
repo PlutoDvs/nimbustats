@@ -6,6 +6,7 @@ import 'package:path_provider/path_provider.dart';
 import 'app.dart';
 import 'bootstrap/database_provider.dart';
 import 'bootstrap/error_hooks.dart';
+import 'features/backup/application/backup_providers.dart';
 import 'features/backup/presentation/app_restart.dart';
 
 // Ruling R5: an AOT build compiles only what main reaches, and the drain
@@ -24,12 +25,16 @@ Future<void> main() async {
   installErrorHooks('nimbustats');
 
   final dir = await getApplicationDocumentsDirectory();
-  final db = AppDatabase.openAtPath(p.join(dir.path, 'nimbustats.sqlite'));
+  final path = p.join(dir.path, 'nimbustats.sqlite');
+  final db = AppDatabase.openAtPath(path);
 
   // Phase 7: the one ProviderScope lives inside AppRestart, which a restore
   // rebuilds over the same database (spec §5.3).
   runApp(AppRestart(
-    overrides: [appDatabaseProvider.overrideWithValue(db)],
+    overrides: [
+      appDatabaseProvider.overrideWithValue(db),
+      databaseFileProvider.overrideWithValue(path),
+    ],
     child: const NimbuStatsApp(),
   ));
 }
