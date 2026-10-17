@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nimbus_data/nimbus_data.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
@@ -7,7 +6,7 @@ import 'package:path_provider/path_provider.dart';
 import 'app.dart';
 import 'bootstrap/database_provider.dart';
 import 'bootstrap/error_hooks.dart';
-import 'bootstrap/provider_retry.dart';
+import 'features/backup/presentation/app_restart.dart';
 
 // Ruling R5: an AOT build compiles only what main reaches, and the drain
 // job boots `package:nimbustats/drain_main.dart`'s drainMain by name.
@@ -27,8 +26,9 @@ Future<void> main() async {
   final dir = await getApplicationDocumentsDirectory();
   final db = AppDatabase.openAtPath(p.join(dir.path, 'nimbustats.sqlite'));
 
-  runApp(ProviderScope(
-    retry: nimbusNoRetry,
+  // Phase 7: the one ProviderScope lives inside AppRestart, which a restore
+  // rebuilds over the same database (spec §5.3).
+  runApp(AppRestart(
     overrides: [appDatabaseProvider.overrideWithValue(db)],
     child: const NimbuStatsApp(),
   ));
