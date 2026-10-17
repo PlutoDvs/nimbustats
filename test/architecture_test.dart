@@ -63,6 +63,11 @@ void main() {
           reason: 'nimbus_data must stay pure; remove $forbidden');
     }
     expect(deps, contains('nimbus_domain'));
+    // cryptography is Phase 7's one new runtime dependency: Argon2id, HKDF
+    // and AES-GCM for the encrypted backup file, in pure Dart. Asserted here
+    // so that the choice of a real KDF and an AEAD stays visible in the
+    // boundary rules, not only in a pubspec.
+    expect(deps, contains('cryptography'));
   });
 
   test('app reaches the database only through nimbus_data', () {

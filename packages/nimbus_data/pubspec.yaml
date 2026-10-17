@@ -12,6 +12,9 @@ environment:
 # test/architecture_test.dart at the workspace root.
 dependencies:
   nimbus_domain: ^0.0.0
+  # Phase 7: Argon2id, HKDF and AES-GCM for the encrypted backup file.
+  # Pure Dart, so this layer stays free of Flutter.
+  cryptography: ^2.9.0
   drift: ^2.34.3
   sqlite3: ^3.5.2
   uuid: ^4.6.0
