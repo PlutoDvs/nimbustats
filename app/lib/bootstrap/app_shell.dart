@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../features/analytics/routes.dart';
 import '../features/goals/presentation/goal_alert_listener.dart';
 import '../features/goals/routes.dart';
+import '../features/backup/presentation/restart_notice_listener.dart';
 import '../features/notifications/presentation/notifications_bridge.dart';
 import '../features/settings/routes.dart';
 import '../features/trackers/routes.dart';
@@ -59,7 +60,8 @@ class AppShell extends StatelessWidget {
       child: WidgetSync(
         child: GoalAlertListener(
           child: Scaffold(
-            body: child,
+            // Phase 7: why the app just restarted, over Home (spec §5.3).
+            body: RestartNoticeListener(child: child),
             // Home's add button lives on this Scaffold, not on the list's. Snackbars
             // show on the outermost Scaffold, and a Scaffold only lifts its *own*
             // FAB clear of its snackbar -- on the list's Scaffold the button sat
