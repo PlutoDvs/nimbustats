@@ -76,14 +76,20 @@ void main() {
     expect(find.byKey(const Key('backup-loading')), findsOneWidget);
   });
 
-  testWidgets('an unreadable state file is an error with a retry',
-      (tester) async {
-    await open(tester, row: 'backup-section', overrides: [
+  testWidgets('an unreadable state file is an error with a retry, reported '
+      'once; Export and Restore stay (M5)', (tester) async {
+    service.undoable = true;
+    await open(tester, overrides: [
       backupStatusProvider.overrideWith(
           (ref) async => throw const FormatException('unreadable backup state')),
     ]);
     expect(find.byKey(const Key('backup-error')), findsOneWidget);
     expect(find.text("Couldn't read the backup status."), findsOneWidget);
+    expect(find.byKey(const Key('backup-export')), findsOneWidget);
+    expect(find.byKey(const Key('backup-restore')), findsOneWidget);
+    expect(find.byKey(const Key('backup-undo')), findsNothing);
+    expect(find.byKey(const Key('backup-last-export')), findsNothing);
+    expect(tester.takeException(), isFormatException);
   });
 
   testWidgets('past 20 MiB the section warns about the Auto Backup cap (R7)',

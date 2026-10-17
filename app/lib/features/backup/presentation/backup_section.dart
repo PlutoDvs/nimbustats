@@ -31,6 +31,8 @@ class BackupSection extends ConsumerStatefulWidget {
 }
 
 class _BackupSectionState extends ConsumerState<BackupSection> {
+  Object? _reportedError;
+
   @override
   void initState() {
     super.initState();
@@ -96,25 +98,26 @@ class _BackupSectionState extends ConsumerState<BackupSection> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
+    // Once per error: a refresh keeps the old one while it loads, and a
+    // retry that fails again brings a new one.
+    ref.listen(backupStatusProvider, (_, next) {
+      if (next.hasError && !identical(next.error, _reportedError)) {
+        _reportedError = next.error;
+        reportBackupFailure(next.error!, next.stackTrace ?? StackTrace.empty,
+            'while reading the backup status');
+      }
+    });
     final status = ref.watch(backupStatusProvider);
 
     final Widget body;
-    if (status.hasError) {
-      body = NimbusErrorState(
-        key: const Key('backup-error'),
-        title: l10n.backupLoadFailed,
-        retryLabel: l10n.commonRetry,
-        detail: status.error.toString(),
-        onRetry: () => ref.invalidate(backupStatusProvider),
-      );
-    } else if (!status.hasValue) {
+    if (!status.hasError && !status.hasValue) {
       body = const SizedBox(
         key: Key('backup-loading'),
         height: 3 * 72,
         child: NimbusLoadingList(rows: 3),
       );
     } else {
-      body = _rows(context, l10n, status.requireValue);
+      body = _rows(context, l10n, status);
     }
 
     return Column(
@@ -132,26 +135,40 @@ class _BackupSectionState extends ConsumerState<BackupSection> {
     );
   }
 
-  Widget _rows(BuildContext context, AppLocalizations l10n, BackupStatus status) {
+  /// The section's rows. A status that did not read is an error in place of
+  /// the rows that need it; Export and Restore need none of it (M5).
+  Widget _rows(BuildContext context, AppLocalizations l10n,
+      AsyncValue<BackupStatus> async) {
     final small = Theme.of(context).textTheme.bodySmall;
-    final last = status.lastExport;
+    final status = async.hasError ? null : async.requireValue;
+    final last = status?.lastExport;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        ListTile(
-          key: const Key('backup-last-export'),
-          leading: const Icon(Icons.history),
-          title: Text(last == null
-              ? l10n.backupNeverExported
-              : l10n.backupLastExport(whenLabel(last, ref.watch(calendarProvider),
-                  persianDigits: ref.watch(moneyFormatterProvider).persianDigits))),
-        ),
-        if (status.databaseBytes > autoBackupWarnBytes)
+        if (status == null)
+          NimbusErrorState(
+            key: const Key('backup-error'),
+            title: l10n.backupLoadFailed,
+            retryLabel: l10n.commonRetry,
+            detail: async.error.toString(),
+            onRetry: () => ref.invalidate(backupStatusProvider),
+          )
+        else ...[
           ListTile(
-            key: const Key('backup-size-warning'),
-            leading: const Icon(Icons.warning_amber_outlined),
-            title: Text(l10n.backupSizeWarning),
+            key: const Key('backup-last-export'),
+            leading: const Icon(Icons.history),
+            title: Text(last == null
+                ? l10n.backupNeverExported
+                : l10n.backupLastExport(whenLabel(last, ref.watch(calendarProvider),
+                    persianDigits: ref.watch(moneyFormatterProvider).persianDigits))),
           ),
+          if (status.databaseBytes > autoBackupWarnBytes)
+            ListTile(
+              key: const Key('backup-size-warning'),
+              leading: const Icon(Icons.warning_amber_outlined),
+              title: Text(l10n.backupSizeWarning),
+            ),
+        ],
         ListTile(
           key: const Key('backup-export'),
           leading: const Icon(Icons.upload_file_outlined),
@@ -164,7 +181,7 @@ class _BackupSectionState extends ConsumerState<BackupSection> {
           title: Text(l10n.backupRestore),
           onTap: () => unawaited(_restore()),
         ),
-        if (status.canUndo)
+        if (status != null && status.canUndo)
           ListTile(
             key: const Key('backup-undo'),
             leading: const Icon(Icons.undo),
