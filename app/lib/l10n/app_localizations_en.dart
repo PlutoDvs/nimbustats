@@ -48,6 +48,137 @@ class AppLocalizationsEn extends AppLocalizations {
   String get appTitle => 'NimbuStats';
 
   @override
+  String get backupChooseDestination => 'Encrypted. Where should it go?';
+
+  @override
+  String get backupCorrupt =>
+      'This backup file is damaged and can\'t be restored.';
+
+  @override
+  String get backupDecrypting => 'Decrypting…';
+
+  @override
+  String get backupEncrypting => 'Encrypting…';
+
+  @override
+  String get backupExport => 'Export a backup';
+
+  @override
+  String get backupExportAction => 'Encrypt';
+
+  @override
+  String get backupExportFailed => 'The backup couldn\'t be made.';
+
+  @override
+  String get backupForgottenPassphrase =>
+      'A forgotten passphrase can\'t be recovered, and without it the file can\'t be opened.';
+
+  @override
+  String get backupIncluded =>
+      'Included: every expense, category, tag, payment method, tracker, goal, saved view and setting — the daily reminder\'s time too.';
+
+  @override
+  String backupLastExport(String when) {
+    return 'Last export: $when';
+  }
+
+  @override
+  String get backupLoadFailed => 'Couldn\'t read the backup status.';
+
+  @override
+  String get backupNeverExported => 'Never exported';
+
+  @override
+  String get backupNewerSchema =>
+      'This backup is from a newer version of NimbuStats. Update the app, then restore it.';
+
+  @override
+  String get backupNotABackup => 'This isn\'t a NimbuStats backup file.';
+
+  @override
+  String get backupNotIncluded =>
+      'Not in the file: entries made on the home-screen widget that the app hasn\'t saved yet.';
+
+  @override
+  String get backupPassphrase => 'Passphrase';
+
+  @override
+  String get backupPassphraseHint =>
+      'At least 8 characters. Write it down: it can\'t be recovered.';
+
+  @override
+  String get backupPassphraseMismatch => 'The two passphrases differ.';
+
+  @override
+  String get backupPassphraseRepeat => 'Repeat the passphrase';
+
+  @override
+  String get backupPassphraseTooShort => 'Use at least 8 characters.';
+
+  @override
+  String get backupRestore => 'Restore from a file';
+
+  @override
+  String get backupRestoreAction => 'Restore';
+
+  @override
+  String get backupRestoreFailed =>
+      'The backup couldn\'t be restored. Your data is unchanged.';
+
+  @override
+  String backupRestoreFrom(String when) {
+    return 'Backup from $when';
+  }
+
+  @override
+  String get backupRestoreReplaces =>
+      'Restoring replaces all data on this phone. You can undo it afterwards.';
+
+  @override
+  String get backupRestoreUndone =>
+      'Restore undone. Your earlier data is back.';
+
+  @override
+  String backupRestored(String when) {
+    return 'Restored the backup from $when.';
+  }
+
+  @override
+  String get backupSave => 'Save to…';
+
+  @override
+  String get backupSaveFailed => 'The backup couldn\'t be saved.';
+
+  @override
+  String get backupSaved => 'Backup saved.';
+
+  @override
+  String get backupShare => 'Share…';
+
+  @override
+  String get backupShareFailed => 'The share sheet couldn\'t open.';
+
+  @override
+  String get backupSizeWarning =>
+      'Your data is nearing Android\'s 25 MB limit for automatic backup, which stops past it. Keep exporting to stay protected.';
+
+  @override
+  String get backupTitle => 'Backup';
+
+  @override
+  String get backupUndoFailed => 'The restore couldn\'t be undone.';
+
+  @override
+  String get backupUndoRestore => 'Undo the last restore';
+
+  @override
+  String get backupUnsupported =>
+      'This backup needs a newer version of NimbuStats. Update the app, then restore it.';
+
+  @override
+  String get backupWrongPassphrase => 'Wrong passphrase.';
+
+  @override
   String get breakdownAllCategories => 'All categories';
 
   @override

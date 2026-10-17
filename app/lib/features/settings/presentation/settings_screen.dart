@@ -6,6 +6,7 @@ import 'package:nimbus_design/nimbus_design.dart';
 import 'package:nimbus_domain/nimbus_domain.dart';
 
 import '../../../l10n/app_localizations.dart';
+import '../../backup/presentation/backup_section.dart';
 import '../../categories/routes.dart';
 import '../../notifications/presentation/notifications_section.dart';
 import '../../payment_methods/routes.dart';
@@ -193,6 +194,9 @@ class _Body extends ConsumerWidget {
         // Phase 6 (additive): the reminder, its time and notification detail.
         const Divider(),
         const NotificationsSection(),
+        // Phase 7 (additive): export, restore and the last export's time.
+        const Divider(),
+        const BackupSection(),
         const Divider(),
         ListTile(
           key: const Key('settings-categories'),

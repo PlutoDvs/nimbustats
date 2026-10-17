@@ -170,6 +170,234 @@ abstract class AppLocalizations {
   /// **'NimbuStats'**
   String get appTitle;
 
+  /// No description provided for @backupChooseDestination.
+  ///
+  /// In en, this message translates to:
+  /// **'Encrypted. Where should it go?'**
+  String get backupChooseDestination;
+
+  /// No description provided for @backupCorrupt.
+  ///
+  /// In en, this message translates to:
+  /// **'This backup file is damaged and can\'t be restored.'**
+  String get backupCorrupt;
+
+  /// No description provided for @backupDecrypting.
+  ///
+  /// In en, this message translates to:
+  /// **'Decrypting…'**
+  String get backupDecrypting;
+
+  /// No description provided for @backupEncrypting.
+  ///
+  /// In en, this message translates to:
+  /// **'Encrypting…'**
+  String get backupEncrypting;
+
+  /// No description provided for @backupExport.
+  ///
+  /// In en, this message translates to:
+  /// **'Export a backup'**
+  String get backupExport;
+
+  /// No description provided for @backupExportAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Encrypt'**
+  String get backupExportAction;
+
+  /// No description provided for @backupExportFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'The backup couldn\'t be made.'**
+  String get backupExportFailed;
+
+  /// No description provided for @backupForgottenPassphrase.
+  ///
+  /// In en, this message translates to:
+  /// **'A forgotten passphrase can\'t be recovered, and without it the file can\'t be opened.'**
+  String get backupForgottenPassphrase;
+
+  /// No description provided for @backupIncluded.
+  ///
+  /// In en, this message translates to:
+  /// **'Included: every expense, category, tag, payment method, tracker, goal, saved view and setting — the daily reminder\'s time too.'**
+  String get backupIncluded;
+
+  /// No description provided for @backupLastExport.
+  ///
+  /// In en, this message translates to:
+  /// **'Last export: {when}'**
+  String backupLastExport(String when);
+
+  /// No description provided for @backupLoadFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t read the backup status.'**
+  String get backupLoadFailed;
+
+  /// No description provided for @backupNeverExported.
+  ///
+  /// In en, this message translates to:
+  /// **'Never exported'**
+  String get backupNeverExported;
+
+  /// No description provided for @backupNewerSchema.
+  ///
+  /// In en, this message translates to:
+  /// **'This backup is from a newer version of NimbuStats. Update the app, then restore it.'**
+  String get backupNewerSchema;
+
+  /// No description provided for @backupNotABackup.
+  ///
+  /// In en, this message translates to:
+  /// **'This isn\'t a NimbuStats backup file.'**
+  String get backupNotABackup;
+
+  /// No description provided for @backupNotIncluded.
+  ///
+  /// In en, this message translates to:
+  /// **'Not in the file: entries made on the home-screen widget that the app hasn\'t saved yet.'**
+  String get backupNotIncluded;
+
+  /// No description provided for @backupPassphrase.
+  ///
+  /// In en, this message translates to:
+  /// **'Passphrase'**
+  String get backupPassphrase;
+
+  /// No description provided for @backupPassphraseHint.
+  ///
+  /// In en, this message translates to:
+  /// **'At least 8 characters. Write it down: it can\'t be recovered.'**
+  String get backupPassphraseHint;
+
+  /// No description provided for @backupPassphraseMismatch.
+  ///
+  /// In en, this message translates to:
+  /// **'The two passphrases differ.'**
+  String get backupPassphraseMismatch;
+
+  /// No description provided for @backupPassphraseRepeat.
+  ///
+  /// In en, this message translates to:
+  /// **'Repeat the passphrase'**
+  String get backupPassphraseRepeat;
+
+  /// No description provided for @backupPassphraseTooShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Use at least 8 characters.'**
+  String get backupPassphraseTooShort;
+
+  /// No description provided for @backupRestore.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore from a file'**
+  String get backupRestore;
+
+  /// No description provided for @backupRestoreAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore'**
+  String get backupRestoreAction;
+
+  /// No description provided for @backupRestoreFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'The backup couldn\'t be restored. Your data is unchanged.'**
+  String get backupRestoreFailed;
+
+  /// No description provided for @backupRestoreFrom.
+  ///
+  /// In en, this message translates to:
+  /// **'Backup from {when}'**
+  String backupRestoreFrom(String when);
+
+  /// No description provided for @backupRestoreReplaces.
+  ///
+  /// In en, this message translates to:
+  /// **'Restoring replaces all data on this phone. You can undo it afterwards.'**
+  String get backupRestoreReplaces;
+
+  /// No description provided for @backupRestoreUndone.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore undone. Your earlier data is back.'**
+  String get backupRestoreUndone;
+
+  /// No description provided for @backupRestored.
+  ///
+  /// In en, this message translates to:
+  /// **'Restored the backup from {when}.'**
+  String backupRestored(String when);
+
+  /// No description provided for @backupSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save to…'**
+  String get backupSave;
+
+  /// No description provided for @backupSaveFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'The backup couldn\'t be saved.'**
+  String get backupSaveFailed;
+
+  /// No description provided for @backupSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Backup saved.'**
+  String get backupSaved;
+
+  /// No description provided for @backupShare.
+  ///
+  /// In en, this message translates to:
+  /// **'Share…'**
+  String get backupShare;
+
+  /// No description provided for @backupShareFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'The share sheet couldn\'t open.'**
+  String get backupShareFailed;
+
+  /// No description provided for @backupSizeWarning.
+  ///
+  /// In en, this message translates to:
+  /// **'Your data is nearing Android\'s 25 MB limit for automatic backup, which stops past it. Keep exporting to stay protected.'**
+  String get backupSizeWarning;
+
+  /// No description provided for @backupTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Backup'**
+  String get backupTitle;
+
+  /// No description provided for @backupUndoFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'The restore couldn\'t be undone.'**
+  String get backupUndoFailed;
+
+  /// No description provided for @backupUndoRestore.
+  ///
+  /// In en, this message translates to:
+  /// **'Undo the last restore'**
+  String get backupUndoRestore;
+
+  /// No description provided for @backupUnsupported.
+  ///
+  /// In en, this message translates to:
+  /// **'This backup needs a newer version of NimbuStats. Update the app, then restore it.'**
+  String get backupUnsupported;
+
+  /// No description provided for @backupWrongPassphrase.
+  ///
+  /// In en, this message translates to:
+  /// **'Wrong passphrase.'**
+  String get backupWrongPassphrase;
+
   /// No description provided for @breakdownAllCategories.
   ///
   /// In en, this message translates to:

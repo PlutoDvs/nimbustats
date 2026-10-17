@@ -48,6 +48,137 @@ class AppLocalizationsFa extends AppLocalizations {
   String get appTitle => 'NimbuStats';
 
   @override
+  String get backupChooseDestination => 'رمزگذاری شد. کجا برود؟';
+
+  @override
+  String get backupCorrupt =>
+      'این فایل پشتیبان آسیب دیده است و بازیابی نمی‌شود.';
+
+  @override
+  String get backupDecrypting => 'در حال رمزگشایی…';
+
+  @override
+  String get backupEncrypting => 'در حال رمزگذاری…';
+
+  @override
+  String get backupExport => 'تهیهٔ پشتیبان';
+
+  @override
+  String get backupExportAction => 'رمزگذاری';
+
+  @override
+  String get backupExportFailed => 'پشتیبان تهیه نشد.';
+
+  @override
+  String get backupForgottenPassphrase =>
+      'عبارت عبورِ فراموش‌شده بازیابی نمی‌شود و بدون آن فایل باز نمی‌شود.';
+
+  @override
+  String get backupIncluded =>
+      'شامل: همهٔ هزینه‌ها، دسته‌بندی‌ها، برچسب‌ها، روش‌های پرداخت، عادت‌ها، اهداف، نماهای ذخیره‌شده و تنظیمات — ساعت یادآور روزانه هم.';
+
+  @override
+  String backupLastExport(String when) {
+    return 'آخرین پشتیبان: $when';
+  }
+
+  @override
+  String get backupLoadFailed => 'وضعیت پشتیبان خوانده نشد.';
+
+  @override
+  String get backupNeverExported => 'هنوز پشتیبانی تهیه نشده';
+
+  @override
+  String get backupNewerSchema =>
+      'این پشتیبان با نسخهٔ جدیدتری از نیمبوستتس ساخته شده است. برنامه را به‌روز کنید و سپس بازیابی کنید.';
+
+  @override
+  String get backupNotABackup => 'این فایل، پشتیبان نیمبوستتس نیست.';
+
+  @override
+  String get backupNotIncluded =>
+      'در فایل نیست: ثبت‌هایی از ابزارک صفحهٔ اصلی که برنامه هنوز ذخیره‌شان نکرده است.';
+
+  @override
+  String get backupPassphrase => 'عبارت عبور';
+
+  @override
+  String get backupPassphraseHint =>
+      'دست‌کم ۸ نویسه. یادداشتش کنید: بازیابی‌شدنی نیست.';
+
+  @override
+  String get backupPassphraseMismatch => 'دو عبارت عبور یکی نیستند.';
+
+  @override
+  String get backupPassphraseRepeat => 'تکرار عبارت عبور';
+
+  @override
+  String get backupPassphraseTooShort => 'دست‌کم ۸ نویسه وارد کنید.';
+
+  @override
+  String get backupRestore => 'بازیابی از فایل';
+
+  @override
+  String get backupRestoreAction => 'بازیابی';
+
+  @override
+  String get backupRestoreFailed =>
+      'پشتیبان بازیابی نشد. داده‌هایتان تغییری نکرده است.';
+
+  @override
+  String backupRestoreFrom(String when) {
+    return 'پشتیبانِ $when';
+  }
+
+  @override
+  String get backupRestoreReplaces =>
+      'بازیابی، همهٔ داده‌های این گوشی را جایگزین می‌کند. پس از آن می‌توانید برش گردانید.';
+
+  @override
+  String get backupRestoreUndone =>
+      'بازیابی برگردانده شد. داده‌های قبلی‌تان بازگشت.';
+
+  @override
+  String backupRestored(String when) {
+    return 'پشتیبانِ $when بازیابی شد.';
+  }
+
+  @override
+  String get backupSave => 'ذخیره در…';
+
+  @override
+  String get backupSaveFailed => 'پشتیبان ذخیره نشد.';
+
+  @override
+  String get backupSaved => 'پشتیبان ذخیره شد.';
+
+  @override
+  String get backupShare => 'اشتراک‌گذاری…';
+
+  @override
+  String get backupShareFailed => 'صفحهٔ اشتراک‌گذاری باز نشد.';
+
+  @override
+  String get backupSizeWarning =>
+      'داده‌هایتان به سقف ۲۵ مگابایتی پشتیبان خودکار اندروید نزدیک شده است؛ پس از آن، پشتیبان خودکار متوقف می‌شود. برای در امان ماندن، پشتیبان دستی را ادامه دهید.';
+
+  @override
+  String get backupTitle => 'پشتیبان‌گیری';
+
+  @override
+  String get backupUndoFailed => 'بازیابی برگردانده نشد.';
+
+  @override
+  String get backupUndoRestore => 'برگرداندن آخرین بازیابی';
+
+  @override
+  String get backupUnsupported =>
+      'این پشتیبان به نسخهٔ جدیدتری از نیمبوستتس نیاز دارد. برنامه را به‌روز کنید و سپس بازیابی کنید.';
+
+  @override
+  String get backupWrongPassphrase => 'عبارت عبور نادرست است.';
+
+  @override
   String get breakdownAllCategories => 'همه دسته‌ها';
 
   @override

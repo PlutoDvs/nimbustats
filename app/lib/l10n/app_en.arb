@@ -12,6 +12,65 @@
   "analyticsTabPatterns": "Patterns",
   "analyticsTabTrends": "Trends",
   "appTitle": "NimbuStats",
+  "backupChooseDestination": "Encrypted. Where should it go?",
+  "backupCorrupt": "This backup file is damaged and can't be restored.",
+  "backupDecrypting": "Decrypting…",
+  "backupEncrypting": "Encrypting…",
+  "backupExport": "Export a backup",
+  "backupExportAction": "Encrypt",
+  "backupExportFailed": "The backup couldn't be made.",
+  "backupForgottenPassphrase": "A forgotten passphrase can't be recovered, and without it the file can't be opened.",
+  "backupIncluded": "Included: every expense, category, tag, payment method, tracker, goal, saved view and setting — the daily reminder's time too.",
+  "backupLastExport": "Last export: {when}",
+  "@backupLastExport": {
+    "placeholders": {
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "backupLoadFailed": "Couldn't read the backup status.",
+  "backupNeverExported": "Never exported",
+  "backupNewerSchema": "This backup is from a newer version of NimbuStats. Update the app, then restore it.",
+  "backupNotABackup": "This isn't a NimbuStats backup file.",
+  "backupNotIncluded": "Not in the file: entries made on the home-screen widget that the app hasn't saved yet.",
+  "backupPassphrase": "Passphrase",
+  "backupPassphraseHint": "At least 8 characters. Write it down: it can't be recovered.",
+  "backupPassphraseMismatch": "The two passphrases differ.",
+  "backupPassphraseRepeat": "Repeat the passphrase",
+  "backupPassphraseTooShort": "Use at least 8 characters.",
+  "backupRestore": "Restore from a file",
+  "backupRestoreAction": "Restore",
+  "backupRestoreFailed": "The backup couldn't be restored. Your data is unchanged.",
+  "backupRestoreFrom": "Backup from {when}",
+  "@backupRestoreFrom": {
+    "placeholders": {
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "backupRestoreReplaces": "Restoring replaces all data on this phone. You can undo it afterwards.",
+  "backupRestoreUndone": "Restore undone. Your earlier data is back.",
+  "backupRestored": "Restored the backup from {when}.",
+  "@backupRestored": {
+    "placeholders": {
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "backupSave": "Save to…",
+  "backupSaveFailed": "The backup couldn't be saved.",
+  "backupSaved": "Backup saved.",
+  "backupShare": "Share…",
+  "backupShareFailed": "The share sheet couldn't open.",
+  "backupSizeWarning": "Your data is nearing Android's 25 MB limit for automatic backup, which stops past it. Keep exporting to stay protected.",
+  "backupTitle": "Backup",
+  "backupUndoFailed": "The restore couldn't be undone.",
+  "backupUndoRestore": "Undo the last restore",
+  "backupUnsupported": "This backup needs a newer version of NimbuStats. Update the app, then restore it.",
+  "backupWrongPassphrase": "Wrong passphrase.",
   "breakdownAllCategories": "All categories",
   "breakdownConfirmedOnly": "Confirmed only",
   "breakdownTransactionCount": "{count, plural, =1{1 transaction} other{{count} transactions}}",
