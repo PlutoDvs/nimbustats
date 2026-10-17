@@ -45,4 +45,15 @@ void main() {
       expect(manifest, contains(attribute));
     }
   });
+
+  test('FileProvider serves only finished exports (R5)', () {
+    final manifest =
+        File('android/app/src/main/AndroidManifest.xml').readAsStringSync();
+    expect(manifest, contains('android:authorities="\${applicationId}.backup"'));
+    expect(manifest, contains('android:resource="@xml/backup_file_paths"'));
+    final paths = File('$res/backup_file_paths.xml').readAsStringSync();
+    expect(RegExp(r'<(\w+-path)').allMatches(paths).map((m) => m[1]),
+        ['cache-path']);
+    expect(paths, contains('path="backup/out/"'));
+  });
 }

@@ -7,6 +7,7 @@ import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import com.nimbustats.app.OutsideChannelHandler.Companion.TAG
+import com.nimbustats.app.backup.BackupDocuments
 import com.nimbustats.app.notifications.Notifier
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
@@ -21,6 +22,9 @@ class MainActivity : FlutterActivity() {
 
     /** Every Dart ask waiting on the one permission dialog. */
     private val permissionResults = mutableListOf<MethodChannel.Result>()
+
+    /** Phase 7's Save, Share and Open. Null while there is no engine. */
+    private var backupDocuments: BackupDocuments? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         // Recreated after process death, the activity gets its launching intent back, route
@@ -43,11 +47,17 @@ class MainActivity : FlutterActivity() {
         )
         this.channel = channel
         OutsideChannelHandler.appChannel = channel
+        // Phase 7: the backup channel (spec §6).
+        val documents = BackupDocuments(this)
+        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, BackupDocuments.CHANNEL)
+            .setMethodCallHandler(documents)
+        backupDocuments = documents
     }
 
     override fun cleanUpFlutterEngine(flutterEngine: FlutterEngine) {
         channel = null
         OutsideChannelHandler.appChannel = null
+        backupDocuments = null
         super.cleanUpFlutterEngine(flutterEngine)
     }
 
@@ -75,6 +85,12 @@ class MainActivity : FlutterActivity() {
                 }
             },
         )
+    }
+
+    /** A backup picker's answer goes to BackupDocuments; anything else to Flutter's plugins. */
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        if (backupDocuments?.onActivityResult(requestCode, resultCode, data) == true) return
+        super.onActivityResult(requestCode, resultCode, data)
     }
 
     /**

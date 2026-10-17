@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- What the backup FileProvider may serve (Phase 7, ruling R5): finished,
+     encrypted exports only, never the plaintext temp files beside them. -->
+<paths>
+    <cache-path name="backup" path="backup/out/" />
+</paths>
