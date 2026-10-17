@@ -5,6 +5,7 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:typed_data';
 
+import 'package:flutter_test/flutter_test.dart';
 import 'package:nimbus_data/nimbus_data.dart';
 
 /// [BackupService] without files or crypto: it records each call and plays
@@ -35,8 +36,16 @@ class FakeBackupService implements BackupService {
   );
 
   @override
-  late final String cacheDir =
-      Directory.systemTemp.createTempSync('nimbus_fake_backup').path;
+  late final String cacheDir = _tempCacheDir();
+
+  /// Created on first use, inside a test, and deleted when that test ends.
+  static String _tempCacheDir() {
+    final dir = Directory.systemTemp.createTempSync('nimbus_fake_backup');
+    addTearDown(() {
+      if (dir.existsSync()) dir.deleteSync(recursive: true);
+    });
+    return dir.path;
+  }
 
   @override
   bool get canUndo => undoable;
