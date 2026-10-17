@@ -14,11 +14,14 @@ const minPassphraseRunes = 8;
 const _tagLength = 16;
 
 /// Spec §2.3, part of format version 1. The same visible passphrase typed on
-/// a Persian or an Arabic keyboard, in any digit set, derives the same key.
+/// a Persian or an Arabic keyboard, in any digit set, derives the same key:
+/// Arabic yeh, Arabic alef maksura (how a final Persian yeh is typed on an
+/// Arabic keyboard) and Arabic kaf fold to their Persian forms.
 /// Nothing is trimmed: a space is part of the passphrase.
 String normalizePassphrase(String passphrase) => Digits.toLatin(passphrase)
-    .replaceAll('ي', 'ی') // Arabic yeh -> Persian yeh
-    .replaceAll('ك', 'ک'); // Arabic kaf -> Persian keheh
+    .replaceAll('\u{064A}', '\u{06CC}') // Arabic yeh -> Persian yeh
+    .replaceAll('\u{0649}', '\u{06CC}') // Arabic alef maksura -> Persian yeh
+    .replaceAll('\u{0643}', '\u{06A9}'); // Arabic kaf -> Persian keheh
 
 /// The two keys one passphrase derives (spec §2.2).
 ///
@@ -63,20 +66,34 @@ Future<Uint8List> sealBackup({
   Uint8List randomBytes(int count) =>
       Uint8List.fromList([for (var i = 0; i < count; i++) random.nextInt(256)]);
   final salt = randomBytes(BackupHeader.saltLength);
+  final nonce = randomBytes(BackupHeader.nonceLength);
+  BackupHeader header({required Uint8List keyCheck}) => BackupHeader(
+        schemaVersion: schemaVersion,
+        createdAt: createdAt.toUtc(),
+        kdf: kdf,
+        salt: salt,
+        nonce: nonce,
+        keyCheck: keyCheck,
+      );
+  // Refuse, before any Argon2id work, a header that openBackup would reject
+  // or that encode() would silently truncate: such a file can never restore.
+  try {
+    final probe = BackupHeader.decode(
+        header(keyCheck: Uint8List(BackupHeader.keyCheckLength)).encode());
+    if (probe.kdf != kdf) {
+      throw ArgumentError('this export could never be restored: '
+          'KDF settings do not fit the header');
+    }
+  } on BackupException catch (e) {
+    throw ArgumentError('this export could never be restored: $e');
+  }
   final keys = await deriveBackupKeys(passphrase, kdf, salt);
-  final header = BackupHeader(
-    schemaVersion: schemaVersion,
-    createdAt: createdAt.toUtc(),
-    kdf: kdf,
-    salt: salt,
-    nonce: randomBytes(BackupHeader.nonceLength),
-    keyCheck: keys.check,
-  );
-  final headerBytes = header.encode();
+  final sealed = header(keyCheck: keys.check);
+  final headerBytes = sealed.encode();
   final box = await AesGcm.with256bits().encrypt(
     payload,
     secretKey: keys.encryption,
-    nonce: header.nonce,
+    nonce: nonce,
     aad: headerBytes,
   );
   return (BytesBuilder(copy: false)

@@ -71,8 +71,9 @@ void main() {
 
   group('passphrase normalisation, part of format v1', () {
     for (final (typed, normalised) in [
-      ('رمزي', 'رمزی'), // Arabic yeh -> Persian yeh
-      ('كتاب', 'کتاب'), // Arabic kaf -> Persian keheh
+      ('\u{064A}', '\u{06CC}'), // Arabic yeh -> Persian yeh
+      ('\u{0649}', '\u{06CC}'), // Arabic alef maksura -> Persian yeh
+      ('\u{0643}', '\u{06A9}'), // Arabic kaf -> Persian keheh
       ('۱۲۳٤٥٦', '123456'), // Persian and Arabic-Indic digits -> ASCII
       (' pass word ', ' pass word '), // nothing trimmed
       ('Pass', 'Pass'), // case kept
@@ -113,7 +114,8 @@ void main() {
         () async {
       final a = await seal([1, 2, 3]);
       final b = await seal([1, 2, 3]);
-      expect(a.sublist(32, 60), isNot(b.sublist(32, 60)));
+      expect(a.sublist(32, 48), isNot(b.sublist(32, 48))); // salt
+      expect(a.sublist(48, 60), isNot(b.sublist(48, 60))); // nonce
       expect(a.sublist(BackupHeader.length),
           isNot(b.sublist(BackupHeader.length)));
     });
@@ -160,6 +162,23 @@ void main() {
           throwsA(isA<CorruptBackup>()));
       await expectLater(openBackup(file.sublist(0, 40), 'correct horse'),
           throwsA(isA<NotABackup>()));
+    });
+
+    test('a seal the restore would refuse is refused up front', () async {
+      for (final bad in const [
+        KdfParams(memoryKiB: 64, iterations: 17, parallelism: 1),
+        // parallelism 257 would truncate to 1 in the header
+        KdfParams(memoryKiB: 64 * 257, iterations: 1, parallelism: 257),
+      ]) {
+        await expectLater(
+            sealBackup(
+                payload: [1],
+                passphrase: 'correct horse',
+                schemaVersion: 40,
+                createdAt: created,
+                kdf: bad),
+            throwsArgumentError);
+      }
     });
 
     test('derived keys never print', () async {
