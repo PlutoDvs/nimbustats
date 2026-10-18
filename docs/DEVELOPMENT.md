@@ -276,3 +276,33 @@ builds.
 
 The Chrome and Windows-desktop entries are irrelevant — this is an Android-only
 project.
+
+## Backup size and the Auto Backup ceiling (measured 2026-10-18)
+
+Android Auto Backup stops silently above 25 MB of app data (Phase 7
+brief). The database is all but the whole of it.
+
+| Measure | Value |
+|---|---|
+| Host, `DemoDataSeeder` 5,000 rows (2.5 tags each), vacuumed | 4,005,888 B (155,648 B with no rows) |
+| Per 1,000 transactions, vacuumed | 770,048 B |
+| Per 1,000 transactions, gzipped (the export's payload) | 160,962 B |
+| A53, after seeding 5,000 rows (5,002 rows, 12,453 tag links) | `page_count` 1047 x 4096 = 4,288,512 B (what Auto Backup copies after the checkpoint); vacuumed 4,014,080 B; live file 4,251,648 B + WAL 4,165,352 B before the checkpoint |
+
+Projection at a heavy 20 transactions a day (7,300 a year, about 5.6 MB a
+year): 25 MB in about 4.4 years. At 10 a day, about 8.8 years. Both are
+under the spec's ten-year line, so the Backup section warns once
+`page_count x page_size` passes 20 MiB (ruling R7). The export file is
+about a fifth of the database's size.
+
+### Argon2id on the Galaxy A53 (profile/AOT, 3 runs each, 2026-10-18)
+
+| Parameters | Runs (ms) | Median (ms) |
+|---|---|---|
+| 64 MiB, t=3 | 2093 / 1477 / 1235 | 1,477 |
+| 64 MiB, t=2 | 777 / 781 / 752 | 781 |
+| 46 MiB, t=1 | 307 / 284 / 289 | 289 |
+| 19 MiB, t=2 | 200 / 212 / 205 | 205 |
+
+The decision rule (median at most 2,000 ms) keeps `KdfParams.standard` at
+64 MiB, t=3, p=1.

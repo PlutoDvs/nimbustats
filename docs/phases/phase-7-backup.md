@@ -158,16 +158,134 @@ Additive edits to Phase 1's settings screen for the backup section.
 
 `CONVENTIONS.md` §5, plus:
 
-- [ ] Write a transaction, export, restore into a fresh install, and confirm the
+- [x] Write a transaction, export, restore into a fresh install, and confirm the
       transaction is present — **on a real device**. This is the test that
       catches the WAL mistake.
-- [ ] Wrong passphrase fails cleanly and distinguishably from corruption.
-- [ ] A backup with a higher schema version is refused with a clear message.
-- [ ] A restore interrupted midway leaves the original database intact.
-- [ ] No key material appears in any log at any level.
-- [ ] Database size per 1,000 transactions measured; the 25 MB projection is
+- [x] Wrong passphrase fails cleanly and distinguishably from corruption.
+- [x] A backup with a higher schema version is refused with a clear message.
+- [x] A restore interrupted midway leaves the original database intact.
+- [x] No key material appears in any log at any level.
+- [x] Database size per 1,000 transactions measured; the 25 MB projection is
       recorded in `docs/DEVELOPMENT.md`.
 - [ ] `git tag phase-7-complete`.
+
+### Gate record (2026-10-18, Galaxy A53)
+
+Against `CONVENTIONS.md` §5 on `3d9383e` (branch `phase/7-backup`). Device:
+Galaxy A53 SM-A536E (`RZCT209E3QX`), profile build. The destructive checks ran
+on a separate install, `com.nimbustats.app.p7check`, because the operator's real
+data is on the phone; `pm clear` stood in for a fresh install. The real app was
+force-stopped, safety-copied first, and verified byte-for-byte untouched after
+(listing identical, integrity ok, same row counts); the test install and its
+files were removed.
+
+- `dart analyze --fatal-infos` reports no issues.
+- Test suites, all green at `3d9383e`: architecture 7; `nimbus_domain` 424;
+  `nimbus_data` 413; `app` 781, run with `--no-pub --concurrency=4 --timeout
+  90s`; Kotlin JUnit 33 (`ReminderTimeTest` 14, `AmountParserTest` 6,
+  `PendingOverlayTest` 6, `Uuid7Test` 4, `WidgetBufferTest` 3).
+- **Persian review.** The operator approved all 40 new `fa` values as written
+  (2026-10-18), including `backupUndoFailed` unchanged (a rewording was offered,
+  not requested). No corrections, so no `feat/fa-review` commit.
+
+Definition of done:
+
+- [x] **Write, export, restore into a fresh install, confirm.** An expense of
+      12,345 was saved; Export (passphrase `roundtrip-7042`) saved
+      `Downloads/nimbustats-20261018-1228.nimbus` (5,768 B) with "Backup saved."
+      and "Last export: 2026/10/18 12:28". After `pm clear` the Home was empty.
+      Restore showed "Backup from 2026/10/18 12:28" and the consequence text; the
+      right passphrase went Decrypting, then restarted onto Home with 12,345
+      present and the snackbar "Restored the backup from 2026/10/18 12:28." with
+      Undo. `cache/backup` was empty afterwards. The host WAL test (commit
+      without closing, export, restore into a fresh database) covers the WAL
+      mistake.
+- [x] **Wrong passphrase fails cleanly and distinguishably.** "Wrong
+      passphrase." and the sheet stays. A non-backup `.txt` gave "This isn't a
+      NimbuStats backup file." and its copy was deleted. Host tests keep
+      `WrongPassphrase`, `CorruptBackup` and `NotABackup` apart (one exception
+      below).
+- [x] **A higher schema version is refused.** A v99 header gave "This backup is
+      from a newer version of NimbuStats. Update the app, then restore it." with
+      no sheet, and the picked copy was deleted.
+- [x] **An interrupted restore leaves the original intact.** Host: injected
+      failures plus a delayed writer (R1); the swap is one write transaction.
+      Not reproducible on the phone by design.
+- [x] **No key material in any log.** Fresh logcat over an export
+      (`hygiene-7042`), a wrong-passphrase restore (`hygiene-7043`) and a
+      restore: 13,311 lines; the only occurrence of either passphrase is `adbd`
+      logging the harness's own `input text` command; 0 lines outside `adbd`
+      contain either; 0 lines contain "passphrase"; the app logged nothing under
+      the flutter or NimbuStats tags. The host hygiene test covers exceptions
+      and error reports.
+- [x] **Size per 1,000 transactions, and the projection.** Host:
+      770,048 B vacuumed, 160,962 B gzipped. A53 with 5,002 rows and 12,453 tag
+      links: `page_count` 1047 x 4096 = 4,288,512 B, freelist 0, vacuumed
+      4,014,080 B (host 4,005,888 B), live file 4,251,648 B + WAL 4,165,352 B
+      before the checkpoint; far below the 20 MiB warning. The projection (about
+      4.4 years at 20 a day to 25 MB) is in `docs/DEVELOPMENT.md`.
+- [ ] `git tag phase-7-complete` — not part of this commit; the controller asks
+      the operator first.
+
+Also verified on the device:
+
+- **Argon2id timing** (profile/AOT, three runs, median): 64 MiB/t3 2093 / 1477 /
+  1235 ms (**1,477**); 64 MiB/t2 **781**; 46 MiB/t1 **289**; 19 MiB/t2 **205**.
+  The median is under 2,000 ms, so `KdfParams.standard` stays 64 MiB/t3/p1; no
+  `feat/kdf-params` commit.
+- **Undo is a swap.** "Undo the last restore" gave an empty Home and "Restore
+  undone. Your earlier data is back." (Undo), the copy kept, `undoRedoes` true;
+  the row then read "Redo the last restore" and brought 12,345 back with "The
+  restored backup is back." (Undo), `undoRedoes` false.
+- **R3.** After restore, undo and redo restarts, an `openRoute` intent
+  (`/goals`) reached the live Dart handler and the app pushed Goals.
+
+**Not verified on the device: Auto Backup** (the agent's
+`wal_checkpoint(TRUNCATE)`, no `android_metadata`, restore-at-install). Google's
+backup transport never answered from this network: `backupnow` hung at the
+`@pm@` send, then at `getBackupDestinationFromTransport`, across two attempts and
+a cancel/retry, also after a network change. The operator chose to defer it (D41).
+The checkpoint is covered by the host review and the wiring test only. The WAL
+before the checkpoint was 898,192 B beside a 4,096 B main file on the test
+install (the brief's trap), and 4,165,352 B beside the seeded database.
+
+Rulings, one line each (plan R1–R13, then the ones taken in execution):
+
+- **R1.** The interrupted-restore test is injected failures plus a delayed
+  writer; sqlite3's backup retries busy forever.
+- **R2.** No dialogs and no confirm step: bottom sheets, and Undo is the safety
+  net.
+- **R3.** `AppRestart` takes two frames so the old scope disposes before the new
+  one builds.
+- **R4.** The undo copy is written as `.part` and renamed only after a committed
+  swap.
+- **R5.** `saveDocument` and `shareFile` take only `path`; `FileProvider` serves
+  `cache/backup/out/` only.
+- **R6.** The header's KDF settings are bounded; out of bounds is
+  `UnsupportedFormat`.
+- **R7.** The size warning ships above 20 MiB.
+- **R8.** A `SqliteException` on the decrypted file is reported as unexpected,
+  not as corruption.
+- **R9.** "Last export" records the hand-off to Save or Share.
+- **R10.** The golden fixture uses 1 MiB/t1; tests use 64 KiB/t1.
+- **R11.** `VACUUM INTO` and the swap run on the main isolate. **Known limit:**
+  each busy attempt blocks the main thread for up to 50 ms, and a stuck lock
+  queues every later backup operation.
+- **R12.** The restart notice waits for the restored settings.
+- **R13.** The shared test harness gains backup fakes by default.
+- **R14.** Passphrase normalisation also folds U+0649 to U+06CC (format v1).
+- **Undo is a swap** (operator decision, 2026-10-17): the copy is never
+  destroyed; state in `undoRedoes`.
+- **Task 13b.** A process-wide single-flight lock serialises every backup
+  operation.
+- **Busy timeout 50 ms** (was 5 s in the spec): Dart runs on Android's main
+  thread here, so a 5 s wait is an ANR; the swap stays one transaction.
+- **Key-input bytes.** Damage to the header's salt, KDF settings or key-check
+  value reads as WrongPassphrase (or UnsupportedFormat via R6), not
+  CorruptBackup; inherent to the key-check design.
+- Spec amendments are recorded in the spec's "Amendments after implementation".
+
+**Carried forward:** D41–D45 in `DEFERRED.md`.
 
 ---
 

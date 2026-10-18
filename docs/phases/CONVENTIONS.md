@@ -120,6 +120,7 @@ phase's files without saying so explicitly in the commit message.
 | `app/android/**/widget/**` | Phase 6 |
 | `app/lib/features/widget/**` | Phase 6 |
 | `app/android/**/notifications/**` | Phase 6 |
+| `app/android/**/backup/**` | Phase 7 |
 
 ### Shared files — the four real collision points
 

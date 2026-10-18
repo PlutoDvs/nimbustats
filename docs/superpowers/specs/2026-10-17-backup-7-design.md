@@ -1,8 +1,9 @@
 # Phase 7 — Backup — design
 
-**Status:** approved 2026-10-17 (written spec reviewed). Plan:
-`docs/superpowers/plans/2026-10-17-nimbustats-phase-7-backup.md`. Its rulings
-R1–R5 record where the code forced a change to §3.3, §5 and §6.
+**Status:** implemented; gate passed 2026-10-18 (see the brief's gate record).
+The amendments below record where the build departed. Plan:
+`docs/superpowers/plans/2026-10-17-nimbustats-phase-7-backup.md`; see also
+"Amendments after implementation (2026-10-18)" at the end.
 **Brief:** `docs/phases/phase-7-backup.md`.
 **Prerequisites:** `phase-0-complete` exists (all of 0–6 do).
 **Schema:** none · **Branch:** `phase/7-backup` · **Gate:** `phase-7-complete`
@@ -62,11 +63,13 @@ passphrase-encrypted export file the user keeps anywhere and restores from.
   rename.** A rename under the drain engine's open handle would send its writes
   to an unlinked inode and lose them silently. The swap is SQLite's backup API,
   which commits the whole database as one write transaction or rolls back.
-- **The undo option dropped "or until the next export".** The option the
-  operator chose said the undo lasts "until the next restore or export"; an
-  export does not make the pre-restore data safe, so tying the copy's lifetime
-  to it is arbitrary. The copy lives until the next restore replaces it, or an
-  undo consumes it.
+- **Undo is a swap (operator decision 2026-10-17).** The option first chosen
+  said the undo lasts "until the next restore or export"; an export does not
+  make the pre-restore data safe, so that lifetime was arbitrary, and a
+  consuming undo was a one-tap permanent wipe of everything entered since the
+  restore. Undo now swaps: the copy is staged and migrated, the live data is
+  copied aside as the new copy, then the swap runs. Nothing is ever destroyed;
+  the copy lives until the next restore replaces it.
 
 ## 1. Architecture
 
@@ -156,7 +159,9 @@ Argon2id's cost dominates either way.
   restore.
 - Normalised before derivation so the same visible passphrase works across
   keyboards: Arabic `ي` (U+064A) → Persian `ی` (U+06CC), Arabic `ك` (U+0643) →
-  Persian `ک` (U+06A9), Persian and Arabic-Indic digits → ASCII. Nothing is
+  Persian `ک` (U+06A9), Arabic alef maksura `ى` (U+0649) → Persian `ی`
+  (U+06CC) (ruling R14: final `ی` is typed as `ى` on Arabic keyboards),
+  Persian and Arabic-Indic digits → ASCII. Nothing is
   trimmed. The rule is part of format version 1.
 - Never stored. The passphrase, `master`, `encKey`, `check` and anything
   derived from them never appear in a log, an error message, an exception's
@@ -203,19 +208,32 @@ passes ~50 MB` — a code comment at the read.
       runs; check `PRAGMA integrity_check` and the page size; close it.
    3. Return the header's created-at for the confirm dialog.
 3. **`restore(prepared)`**:
-   1. `VACUUM INTO` the pre-restore copy (replacing any previous one).
+   1. `VACUUM INTO` the pre-restore copy, written as
+      `….pre-restore.sqlite.part` and renamed over the previous copy only
+      after a committed swap (R4).
    2. Open a raw `sqlite3` connection to the live file with
-      `busy_timeout = 5000` and run
-      `tempDb.backup(liveRaw, nPage: -1)` — one write transaction.
+      `busy_timeout = 50` ms per attempt and run
+      `tempDb.backup(liveRaw, nPage: -1)` — one write transaction. sqlite3's
+      backup retries every 250 ms until it holds the lock; a 5 s wait would
+      block Android's main thread, where this Flutter runs Dart (an ANR).
    3. `finally`: close both raw connections, delete the temp file.
    4. `notifyUpdates` for every table of the live `AppDatabase`.
-4. **`undo()`**: the same backup step from the pre-restore copy, then delete it.
+4. **`undo()`** is a swap: the copy is staged and migrated to the current
+   schema, the live data is copied aside as the new copy, then the backup step
+   swaps the staged copy in. Nothing is destroyed; undoing again redoes. The
+   copy lives until the next restore. `backup_state.json` records `undoRedoes`
+   (optional; whether the copy holds what an undo replaced), so the Settings
+   row reads "Undo the last restore" or "Redo the last restore" across cold
+   starts, and every swap's snackbar offers Undo.
 
 `discard(prepared)` deletes the temp file when the user cancels at the
 confirm dialog.
 
 ### 3.3 Atomicity and leftovers
 
+- One backup operation at a time: a process-wide lock serialises export,
+  prepare, restore, undo, discard and sweep (Task 13b). It does not span
+  prepare→restore or pick→discard; those gaps rely on the modal sheet.
 - `backup(nPage: -1)` holds the destination's write lock and commits once; an
   error rolls it back. The drain engine's connection waits on its busy timeout
   and then reads the new content.
@@ -275,7 +293,8 @@ it is documented only.
 - "Last export: \<date and time in the active calendar\>" — or "Never exported"
   (empty state).
 - **Export** and **Restore** buttons.
-- **Undo last restore** — only while the pre-restore copy exists.
+- **Undo the last restore** / **Redo the last restore** — only while the
+  copy exists; the label follows `undoRedoes`.
 - "What's backed up": everything in the app — expenses, categories, tags,
   payment methods, trackers, goals, saved views and settings (the daily
   reminder's time included — it is a `settings` key). Not included in the
@@ -289,22 +308,24 @@ the app's knowledge.
 
 ### 5.2 Export flow
 
-Passphrase dialog (two obscured fields, ≥ 8, must match) → progress →
+Passphrase sheet (two obscured fields, ≥ 8, must match) → progress →
 sheet with **Save to…** / **Share…** → snackbar with the result. Cancelling the
 system picker is not an error.
 
 ### 5.3 Restore flow
 
 Pick a file → `readHeader` (a newer schema is refused here, with "update the
-app") → passphrase → `prepare` with progress → confirm: "Replace all data on
-this phone with the backup from \<date\>? You can undo this." → `restore` →
-the app restarts its `ProviderScope` and lands on Home with a snackbar.
+app") → passphrase → `prepare` with progress → `restore` → the app restarts its `ProviderScope` and lands on Home with a snackbar.
 
 The restart is a keyed wrapper around the root in `main.dart`: a new key
 rebuilds every provider while the `AppDatabase` object stays the same (its file
 content changed in place). Whatever Phase 6 runs at app start — re-arming the
 reminder, refreshing the widget snapshot — must run again through that
 rebuild; the plan verifies it rather than assuming it.
+
+Each step is a bottom sheet, not a dialog, and there is no separate confirm
+step: the restore sheet states that restoring replaces all data and can be
+undone (R2, `ux_rules_test`).
 
 ### 5.4 States, strings, accessibility
 
@@ -320,8 +341,8 @@ A new channel, separate from Phase 6's `outside` channel, registered in
 
 | Method | Does | Returns |
 |---|---|---|
-| `saveDocument(path, name)` | `ACTION_CREATE_DOCUMENT`, then copies the file into the chosen URI | `true` saved, `false` cancelled |
-| `shareFile(path, name)` | `FileProvider` URI (cache path only) + `ACTION_SEND` chooser | `null` when the chooser opened |
+| `saveDocument(path)` | `ACTION_CREATE_DOCUMENT`, then copies the file into the chosen URI | `true` saved, `false` cancelled |
+| `shareFile(path)` | `FileProvider` URI (`cache/backup/out/` only) + `ACTION_SEND` chooser | `null` when the chooser opened |
 | `openDocument()` | `ACTION_OPEN_DOCUMENT` (`*/*`), copies into the cache | the cache path, or `null` cancelled |
 
 I/O failures are returned as `PlatformException` with a code, never swallowed.
@@ -346,9 +367,9 @@ where WAL matters.
   truncated header); never confused with each other.
 - **WAL:** write a transaction on a file-backed WAL database without closing
   it, export, restore into a fresh database — the row is present.
-- **Interrupted restore:** a second connection holds a write transaction with
-  the restorer's busy timeout set short; the backup step fails; the live file's
-  content is unchanged.
+- **Interrupted restore:** injected failures plus a delayed writer (R1): a
+  failing step leaves the live file's content unchanged, and a writer that
+  releases its lock late makes the swap wait, then commit whole.
 - **Older schema:** a v32 database (built with the existing migration-test
   schema snapshots) exported and restored into v40 migrates.
 - **`local_date_key` travels:** restoring under a different `TZ` leaves every
@@ -379,3 +400,20 @@ where WAL matters.
 Sync of any kind; Google Drive upload (Phase 8 sends the same file to a new
 destination); showing when Auto Backup last ran; a passphrase strength meter;
 streaming / chunked encryption; live-database encryption.
+
+## Amendments after implementation (2026-10-18)
+
+- §2.3: normalisation also folds U+0649 → U+06CC (R14; part of format v1).
+- §3.2 step 3: busy timeout 50 ms per attempt, not 5000 ms; the undo copy is
+  written as `.part` and renamed after a committed swap (R4).
+- §3.2 step 4 and the undo departure: undo is a swap (operator decision
+  2026-10-17), tracked by `undoRedoes` in `backup_state.json`.
+- §3.3: a process-wide single-flight lock (Task 13b).
+- §5.2/§5.3: bottom sheets, no confirm step (R2).
+- §6: `saveDocument`/`shareFile` take only `path`; FileProvider serves
+  `cache/backup/out/` only (R5).
+- §7: the interrupted-restore test is injected failures plus a delayed writer
+  (R1).
+- §2.2 consequence: damage to the header's key-input bytes (salt, KDF
+  settings, key-check value) reads as WrongPassphrase, not CorruptBackup,
+  because those bytes decide the key; every other byte keeps its own error.

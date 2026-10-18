@@ -16,6 +16,11 @@ blocked, and who can unblock it.
 | D38 | Adding a transaction writes its row, tag links and usage counts separately | Nothing today; a failed tag write leaves an untagged row | On demand, or whoever next touches `TransactionRepository` |
 | D39 | A widget resized below its default can clip below Android 12 | Nothing hard-blocked; a user who shrinks the widget on Android 8-11 | On demand |
 | D40 | Patterns and Trends chart axes ignore large text | Nothing hard-blocked; labels can wrap or clip at large text | On demand |
+| D41 | Auto Backup is unverified on a device (agent checkpoint, no `android_metadata`, restore-at-install) | Nothing hard-blocked; the checkpoint is covered by host review and the wiring test only | Operator (a network that reaches Google's backup service) |
+| D42 | A corrupt `backup_state.json` has no in-app reset | Nothing hard-blocked; "last export" and the undo label stay unavailable until the file is removed | On demand |
+| D43 | The undo label can invert after a process kill or an overlapping Undo | Nothing hard-blocked; data is safe, the label reads the wrong way | On demand |
+| D44 | Post-commit cleanup edge cases in restore and undo | Nothing hard-blocked; a rare misleading error after a swap that happened | On demand |
+| D45 | Backup test-coverage gaps the reviews deferred | Nothing hard-blocked | On demand, or whoever next touches the backup code |
 | D12 | ~~No global uncaught-error handler: a rethrown write failure reaches only the console~~ | — | **Resolved 2026-10-14** |
 | D16 | ~~Month-change rebuilds drop frames on a 120 Hz display~~ | — | **Closed 2026-10-14** (operator decision) |
 | D17 | ~~Phase 1's haptics are silent on the A53~~ | — | **Resolved 2026-10-14** |
@@ -1348,3 +1353,93 @@ axis labels can wrap or clip.
 
 **Unblocked by:** Scale the sizes with `MediaQuery.textScalerOf(context)` as D19
 did; a 2x text test.
+
+## D41 — Auto Backup is unverified on a device
+
+**Status:** open. Found 2026-10-18 by the Phase 7 device pass.
+
+**What:** The agent's `wal_checkpoint(TRUNCATE)` before `onFullBackup`, the
+absence of an `android_metadata` table in the backed-up file, and a restore at
+install were never exercised on the A53. Before the checkpoint the database
+sat in a 4,251,648 B file plus a 4,165,352 B WAL. Covered meanwhile by
+`android_wiring_test` and a review of the agent code.
+
+**Why deferred:** Google's backup transport never answered from this network:
+`backupnow` hung at the `@pm@` send (`TaskException`), then at
+`getBackupDestinationFromTransport`, across two attempts and a cancel/retry,
+including after the operator changed networks (memory `network-google-access`).
+The operator chose to defer. No Auto Backup set was created.
+
+**Unblocked by:** A network that reaches Google's backup service: on a test
+install, `bmgr backupnow`, confirm the WAL is empty and no `android_metadata`
+exists, uninstall and reinstall, confirm the data returns, then `bmgr wipe` its
+set. Alternatively an operator-approved LocalTransport run on a test install.
+
+## D42 — A corrupt `backup_state.json` has no in-app reset
+
+**Status:** open. Parked 2026-10-17 by the final fix wave's re-review.
+
+**What:** Writes are temp plus rename, so only outside tampering can corrupt
+the file. Export and Restore stay usable and the error is reported, but "last
+export" and the undo label are unavailable and writes are blocked until the
+file is removed.
+
+**Why deferred:** It cannot happen through the app.
+
+**Unblocked by:** A reset action in the Backup section, or treating an
+unreadable file as absent with a visible report.
+
+## D43 — The undo label can invert
+
+**Status:** open. Parked 2026-10-17.
+
+**What:** The swap lives in the database files and `undoRedoes` lives in
+`backup_state.json` (two stores). A process kill between a swap and the flag
+write, or the Home snackbar's Undo overlapping the Settings row, leaves the row
+reading "Undo" where it means "Redo" or the reverse. Data is safe: swaps cancel
+out.
+
+**Why deferred:** It needs a kill inside a few milliseconds or two Undos at
+once, and loses nothing.
+
+**Unblocked by:** Deriving the label from the files (or one store), and an
+`if (_undoing) return;` guard on the row.
+
+## D44 — Post-commit cleanup edge cases
+
+**Status:** open. Parked 2026-10-17 (N2, N3).
+
+**What:** (a) A rename or temp delete that fails after a committed swap reports
+"couldn't be restored/undone" though the swap happened. (b) A cleanup error in
+undo's catch can mask the original error and leave a cache temp until the next
+sweep.
+
+**Why deferred:** The remaining trigger is a rename or delete failure in the
+app's own directory; the plaintext temp is in the cache and the next sweep
+deletes it.
+
+**Unblocked by:** Report a post-commit failure distinctly from a failed swap;
+keep the original error when cleanup throws.
+
+## D45 — Backup test-coverage gaps the reviews deferred
+
+**Status:** open. Collected 2026-10-18 from the reviews' minor findings.
+
+**What:** `integrity_check` other than `ok` is untested; the static lock's scope
+(a second instance over the same paths) and the exclusivity of restore,
+prepare, discard and export are unpinned; the hygiene test's secret list omits
+`master` and the passphrase's UTF-8 bytes; the delayed-writer test does not
+prove the swap waited; `prepare` leaving the live database untouched is
+unasserted; the missing-live test does not check the `.part` file directly;
+R6 bounds are tested only on the rejecting side; `UnsupportedFormat` and
+`CorruptBackup` `toString` are untested; no double-restart or
+`appRestartProvider`-not-overridden test; no system-back-during-restore test;
+`encode()` does not assert salt, nonce or key-check lengths. Also open: the
+busy wait blocks the main thread up to 50 ms per attempt (R11); a
+fire-and-forget caller's error would be swallowed by the lock's tail handler
+(no such caller exists); `app_shell.dart`'s backup import is out of
+alphabetical order.
+
+**Why deferred:** Each is a test or a nicety on code that is correct today.
+
+**Unblocked by:** Add them when the backup code is next touched.
