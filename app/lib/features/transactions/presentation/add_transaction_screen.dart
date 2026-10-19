@@ -19,12 +19,14 @@ import '../application/transaction_list_controller.dart';
 import '../application/transaction_providers.dart';
 import 'widgets/amount_field.dart';
 import 'widgets/category_chips.dart';
+import 'widgets/reflection_selectors.dart';
 
 /// The screen the whole app is judged on.
 ///
-/// Amount first, keypad already up, one predicted chip, save. Everything else
-/// is behind "more details", because a field that is on screen is a field
-/// someone feels obliged to fill in.
+/// Amount first, keypad already up, one predicted chip, save. The two
+/// reflection rows are on screen but optional; everything else is behind
+/// "more details", because a field that is on screen is a field someone feels
+/// obliged to fill in.
 class AddTransactionScreen extends ConsumerStatefulWidget {
   const AddTransactionScreen({super.key, this.initialAmount});
 
@@ -149,6 +151,14 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
             selectedId: state.categoryId,
             merchant: state.merchant,
             onSelected: controller.selectCategory,
+          ),
+          NecessitySelector(
+            value: state.necessity,
+            onChanged: controller.setNecessity,
+          ),
+          SatisfactionSelector(
+            value: state.satisfaction,
+            onChanged: controller.setSatisfaction,
           ),
           ExpansionTile(
             key: const Key('tx-more-details'),

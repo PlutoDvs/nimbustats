@@ -4,11 +4,10 @@ import 'package:nimbus_design/nimbus_design.dart';
 
 import '../../../../l10n/app_localizations.dart';
 
-/// The two reflection axes, on the edit screen and nowhere else.
+/// The two reflection axes, on the add and edit screens.
 ///
-/// They are the input Phase 3's regret matrix runs on, and they are exactly
-/// the sort of question that turns a three-second capture into a form. Asking
-/// them later, when the user chose to open the transaction, costs nothing.
+/// They are the input Phase 3's regret matrix runs on. On the add screen they
+/// stay optional, so the three-tap capture is still three taps.
 ///
 /// Both are clearable: tapping the selected option deselects it. The regret
 /// matrix reports unlabelled totals separately rather than dropping them, so

@@ -74,8 +74,7 @@ final class TransactionDraft {
   final String? note;
   final List<String> tagIds;
 
-  /// Set on the edit screen only. Asking for them in the add flow is what
-  /// turns a three-tap capture into a form nobody fills in twice.
+  /// Optional on the add screen, settable later on the edit screen.
   final Necessity? necessity;
   final Satisfaction? satisfaction;
 

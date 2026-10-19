@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart' show ValueGetter;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nimbus_data/nimbus_data.dart';
 import 'package:nimbus_domain/nimbus_domain.dart';
@@ -20,6 +21,8 @@ final class AddTransactionState {
     this.paymentMethodId,
     this.merchant,
     this.note,
+    this.necessity,
+    this.satisfaction,
     this.amountError = false,
   });
 
@@ -34,6 +37,11 @@ final class AddTransactionState {
   final String? paymentMethodId;
   final String? merchant;
   final String? note;
+
+  /// Optional, and clearable back to null: "no answer" is a state the
+  /// regret matrix reports on its own.
+  final Necessity? necessity;
+  final Satisfaction? satisfaction;
 
   /// Local wall-clock time of the transaction. Defaults to now, which is what
   /// makes "today" free rather than a field to fill in.
@@ -50,6 +58,10 @@ final class AddTransactionState {
     String? merchant,
     String? note,
     DateTime? date,
+    // Getters, because null here means "none" and must not read as
+    // "unchanged".
+    ValueGetter<Necessity?>? necessity,
+    ValueGetter<Satisfaction?>? satisfaction,
     bool? amountError,
   }) =>
       AddTransactionState(
@@ -61,6 +73,8 @@ final class AddTransactionState {
         merchant: merchant ?? this.merchant,
         note: note ?? this.note,
         date: date ?? this.date,
+        necessity: necessity == null ? this.necessity : necessity(),
+        satisfaction: satisfaction == null ? this.satisfaction : satisfaction(),
         amountError: amountError ?? this.amountError,
       );
 }
@@ -98,11 +112,19 @@ class AddTransactionController extends Notifier<AddTransactionState> {
         merchant: state.merchant,
         note: state.note,
         date: state.date,
+        necessity: state.necessity,
+        satisfaction: state.satisfaction,
       );
 
   void setMerchant(String? value) => state = state.copyWith(merchant: value);
 
   void setNote(String? value) => state = state.copyWith(note: value);
+
+  void setNecessity(Necessity? value) =>
+      state = state.copyWith(necessity: () => value);
+
+  void setSatisfaction(Satisfaction? value) =>
+      state = state.copyWith(satisfaction: () => value);
 
   /// Replaces the date, keeping the time of day already captured.
   void setDate(DateTime day) => state = state.copyWith(
@@ -137,6 +159,8 @@ class AddTransactionController extends Notifier<AddTransactionState> {
       merchant: _blankToNull(state.merchant),
       note: _blankToNull(state.note),
       tagIds: state.tagIds.toList(),
+      necessity: state.necessity,
+      satisfaction: state.satisfaction,
     );
   }
 

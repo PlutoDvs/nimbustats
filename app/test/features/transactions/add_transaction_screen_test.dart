@@ -12,7 +12,8 @@ import 'package:nimbustats/features/transactions/data/transaction_draft.dart';
 import 'package:nimbustats/features/transactions/data/transaction_repository.dart';
 
 import '../../support/harness.dart';
-import '../trackers/support/tracker_fixture.dart' show captureHaptics;
+import '../trackers/support/tracker_fixture.dart'
+    show captureHaptics, tapVisible;
 
 const everything = DateRange(DateKey(20000101), DateKey(20991231));
 
@@ -424,13 +425,24 @@ void main() {
               'not jump under the user thumb');
     });
 
-    testWidgets('necessity and satisfaction are absent from the add screen',
+    testWidgets('necessity and satisfaction can be set while adding',
         (tester) async {
-      // Deliberately absent: extra taps in the add path are what kill daily
-      // tracking. They belong on the edit screen only.
-      await pumpApp(tester, seedFirstRun: true, initialLocation: '/add');
-      expect(find.byKey(const Key('tx-necessity')), findsNothing);
-      expect(find.byKey(const Key('tx-satisfaction')), findsNothing);
+      // Optional: "amount is the only required field" still holds.
+      final db =
+          await pumpApp(tester, seedFirstRun: true, initialLocation: '/add');
+      await tester.enterText(find.byKey(const Key('tx-amount-field')), '1000');
+      await tester.tap(find.byKey(const Key('tx-necessity-avoidable')));
+      await tester.tap(find.byKey(const Key('tx-satisfaction-glad')));
+      // Tapping the chosen option again clears it, as on the edit screen.
+      await tester.tap(find.byKey(const Key('tx-satisfaction-glad')));
+      await tester.tap(find.byKey(const Key('tx-satisfaction-regret')));
+      await tester.tap(find.byKey(const Key('tx-save')));
+      await tester.pumpAndSettle();
+
+      final saved =
+          await db.transactionsDao.pageAfter(range: everything, limit: 5);
+      expect(saved.single.necessity, Necessity.avoidable);
+      expect(saved.single.satisfaction, Satisfaction.regret);
     });
 
     testWidgets('renders right-to-left with the amount reading correctly',
@@ -474,12 +486,10 @@ void main() {
     Future<void> openPicker(WidgetTester tester) async {
       final more = find.byKey(const Key('tx-more-details'));
       if (find.byKey(const Key('tx-payment-method')).evaluate().isEmpty) {
-        await tester.tap(more);
+        await tapVisible(tester, more);
         await tester.pumpAndSettle();
       }
-      final tile = find.byKey(const Key('tx-payment-method'));
-      await tester.ensureVisible(tile);
-      await tester.tap(tile);
+      await tapVisible(tester, find.byKey(const Key('tx-payment-method')));
       await tester.pumpAndSettle();
     }
 
@@ -501,6 +511,9 @@ void main() {
         (tester) async {
       final db =
           await pumpApp(tester, seedFirstRun: true, initialLocation: '/add');
+      // First: the picker sits below the reflection rows, and the list
+      // scrolls the amount field away to reach it.
+      await tester.enterText(find.byKey(const Key('tx-amount-field')), '1000');
       await openPicker(tester);
       await tester.tap(add);
       await tester.pumpAndSettle();
@@ -519,7 +532,6 @@ void main() {
         findsOneWidget,
       );
 
-      await tester.enterText(find.byKey(const Key('tx-amount-field')), '1000');
       await tester.tap(find.byKey(const Key('tx-save')));
       await tester.pumpAndSettle();
       final paypal = (await db.paymentMethodsDao.allLive())
