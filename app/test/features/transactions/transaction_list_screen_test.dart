@@ -62,6 +62,11 @@ Future<Transaction> addExpense(
       merchant: merchant,
     ));
 
+Future<void> openSearch(WidgetTester tester) async {
+  await tester.tap(find.byKey(const Key('tx-search-toggle')));
+  await tester.pumpAndSettle();
+}
+
 void main() {
   testWidgets('the empty state points at the add action rather than reading '
       'as a failure', (tester) async {
@@ -191,10 +196,33 @@ void main() {
     await pumpApp(tester, database: db);
     expect(find.byType(TransactionRow), findsNWidgets(2));
 
+    await openSearch(tester);
     await tester.enterText(find.byKey(const Key('tx-search')), 'Naderi');
     await tester.pumpAndSettle();
     expect(find.byType(TransactionRow), findsOneWidget);
     expect(find.text('Cafe Naderi'), findsOneWidget);
+  });
+
+  testWidgets('search is an icon until asked for, and closing it clears it',
+      (tester) async {
+    // Rarely used, so it does not take a row of the home screen.
+    final db = await seededDb();
+    await addExpense(db, amount: 1000, day: 1, merchant: 'Cafe Naderi');
+    await addExpense(db, amount: 2000, day: 1, merchant: 'Metro');
+
+    await pumpApp(tester, database: db);
+    expect(find.byKey(const Key('tx-search')), findsNothing);
+
+    await openSearch(tester);
+    await tester.enterText(find.byKey(const Key('tx-search')), 'Naderi');
+    await tester.pumpAndSettle();
+    expect(find.byType(TransactionRow), findsOneWidget);
+
+    await tester.tap(find.byKey(const Key('tx-search-toggle')));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const Key('tx-search')), findsNothing);
+    expect(find.byType(TransactionRow), findsNWidgets(2),
+        reason: 'a hidden search must not keep filtering the list');
   });
 
   testWidgets('emptying the search shows every row again', (tester) async {
@@ -205,6 +233,7 @@ void main() {
     await addExpense(db, amount: 2000, day: 1, merchant: 'Metro');
 
     await pumpApp(tester, database: db);
+    await openSearch(tester);
     await tester.enterText(find.byKey(const Key('tx-search')), 'Naderi');
     await tester.pumpAndSettle();
     expect(find.byType(TransactionRow), findsOneWidget);
@@ -220,6 +249,7 @@ void main() {
     await addExpense(db, amount: 1000, day: 1, merchant: 'Metro');
 
     await pumpApp(tester, database: db);
+    await openSearch(tester);
     await tester.enterText(find.byKey(const Key('tx-search')), 'zzzz');
     await tester.pumpAndSettle();
 

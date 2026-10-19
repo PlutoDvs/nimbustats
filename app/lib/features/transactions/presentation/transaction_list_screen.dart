@@ -26,6 +26,7 @@ class TransactionListScreen extends ConsumerStatefulWidget {
 class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
   final _scroll = ScrollController();
   final _search = TextEditingController();
+  bool _searching = false;
 
   @override
   void initState() {
@@ -40,6 +41,16 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
       ..dispose();
     _search.dispose();
     super.dispose();
+  }
+
+  /// Closing clears the filter: a list filtered by a field no longer on
+  /// screen would look like missing data.
+  void _toggleSearch() {
+    if (_searching) {
+      _search.clear();
+      ref.read(transactionListControllerProvider.notifier).setSearch('');
+    }
+    setState(() => _searching = !_searching);
   }
 
   void _onScroll() {
@@ -101,32 +112,47 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(l10n.txListTitle),
-        bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(kToolbarHeight),
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(
-              NimbusTokens.space4,
-              0,
-              NimbusTokens.space4,
-              NimbusTokens.space2,
-            ),
-            child: TextField(
-              key: const Key('tx-search'),
-              // Search matches either case; nothing here is a name.
-              textCapitalization: TextCapitalization.none,
-              controller: _search,
-              decoration: InputDecoration(
-                hintText: l10n.txSearchHint,
-                prefixIcon: const Icon(Icons.search),
-                isDense: true,
-                border: const OutlineInputBorder(),
-              ),
-              onChanged: (value) => ref
-                  .read(transactionListControllerProvider.notifier)
-                  .setSearch(value),
-            ),
+        // An icon rather than a standing field: search is rarely used, and
+        // the row it took belongs to the list.
+        actions: [
+          IconButton(
+            key: const Key('tx-search-toggle'),
+            icon: Icon(_searching ? Icons.close : Icons.search),
+            tooltip: _searching
+                ? MaterialLocalizations.of(context).closeButtonTooltip
+                : l10n.txSearchHint,
+            onPressed: _toggleSearch,
           ),
-        ),
+        ],
+        bottom: !_searching
+            ? null
+            : PreferredSize(
+                preferredSize: const Size.fromHeight(kToolbarHeight),
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(
+                    NimbusTokens.space4,
+                    0,
+                    NimbusTokens.space4,
+                    NimbusTokens.space2,
+                  ),
+                  child: TextField(
+                    key: const Key('tx-search'),
+                    // Search matches either case; nothing here is a name.
+                    textCapitalization: TextCapitalization.none,
+                    autofocus: true,
+                    controller: _search,
+                    decoration: InputDecoration(
+                      hintText: l10n.txSearchHint,
+                      prefixIcon: const Icon(Icons.search),
+                      isDense: true,
+                      border: const OutlineInputBorder(),
+                    ),
+                    onChanged: (value) => ref
+                        .read(transactionListControllerProvider.notifier)
+                        .setSearch(value),
+                  ),
+                ),
+              ),
       ),
       body: Column(
         children: [
