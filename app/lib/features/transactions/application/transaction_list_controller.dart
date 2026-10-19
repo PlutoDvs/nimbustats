@@ -151,8 +151,9 @@ class TransactionListController extends AsyncNotifier<TransactionListState> {
     );
   }
 
+  /// Blank clears the search; [_replace] reads null as "unchanged".
   Future<void> setSearch(String? text) =>
-      _replace(searchText: (text?.trim().isEmpty ?? true) ? null : text);
+      _replace(searchText: text?.trim() ?? '');
 
   Future<void> setFilters({TxDirection? direction, String? categoryId}) =>
       _replace(direction: direction, categoryId: categoryId, clearFilters: true);
@@ -180,7 +181,11 @@ class TransactionListController extends AsyncNotifier<TransactionListState> {
     // than as progress.
     state = await AsyncValue.guard(() => _load(
           period: period ?? current.period,
-          searchText: searchText ?? current.searchText,
+          searchText: switch (searchText) {
+            null => current.searchText,
+            '' => null,
+            _ => searchText,
+          },
           direction: clearFilters ? direction : direction ?? current.direction,
           categoryId:
               clearFilters ? categoryId : categoryId ?? current.categoryId,

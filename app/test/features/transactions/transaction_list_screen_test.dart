@@ -197,6 +197,23 @@ void main() {
     expect(find.text('Cafe Naderi'), findsOneWidget);
   });
 
+  testWidgets('emptying the search shows every row again', (tester) async {
+    // Found while making search an icon: an empty search read as "no change",
+    // so backspacing the field to nothing kept the last filter.
+    final db = await seededDb();
+    await addExpense(db, amount: 1000, day: 1, merchant: 'Cafe Naderi');
+    await addExpense(db, amount: 2000, day: 1, merchant: 'Metro');
+
+    await pumpApp(tester, database: db);
+    await tester.enterText(find.byKey(const Key('tx-search')), 'Naderi');
+    await tester.pumpAndSettle();
+    expect(find.byType(TransactionRow), findsOneWidget);
+
+    await tester.enterText(find.byKey(const Key('tx-search')), '');
+    await tester.pumpAndSettle();
+    expect(find.byType(TransactionRow), findsNWidgets(2));
+  });
+
   testWidgets('a search that matches nothing shows the empty state, not an '
       'error', (tester) async {
     final db = await seededDb();
