@@ -54,6 +54,18 @@ void main() {
     expect(names, contains('حقوق'));
   });
 
+  test('Gym is a top-level expense category', () async {
+    // Asked for by the operator: gym fees are their own line, not Health's.
+    await controller().ensureSeeded(en);
+    final gym = await db.categoriesDao.byId('seed-gym');
+    expect(gym!.name, 'Gym');
+    expect(gym.parentId, isNull);
+    expect(gym.kind, 'expense');
+    expect(gym.iconKey, 'fitness_center');
+
+    expect(fa.seedCategoryGym, 'باشگاه');
+  });
+
   test('the Uncategorized row takes its localized name', () async {
     await controller().ensureSeeded(fa);
     final row = await db.categoriesDao.byId(SystemCategoryIds.uncategorized);
@@ -89,7 +101,8 @@ void main() {
     final installedAt = await db.settingsDao.get(SettingsKeys.installedAt);
     expect(installedAt, isNotNull);
     expect(int.parse(installedAt!), greaterThan(0));
-    expect(await db.settingsDao.get(SettingsKeys.seedVersion), '1');
+    // 2 since Gym joined the tree; an install stamped 1 has no Gym row.
+    expect(await db.settingsDao.get(SettingsKeys.seedVersion), '2');
     // Set before the early-access cutoff: founding users keep full access
     // permanently, so this has to be written the moment the install exists.
     expect(await db.settingsDao.get(SettingsKeys.foundingUser), 'true');

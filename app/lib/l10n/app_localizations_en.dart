@@ -903,6 +903,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get seedCategoryGifts => 'Gifts & charity';
 
   @override
+  String get seedCategoryGym => 'Gym';
+
+  @override
   String get seedCategoryHealth => 'Health';
 
   @override

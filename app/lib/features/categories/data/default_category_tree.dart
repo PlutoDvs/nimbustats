@@ -151,6 +151,12 @@ List<SeedCategoryNode> defaultCategoryTree(AppLocalizations l10n) {
       color: swatch('green'),
     ),
     SeedCategoryNode(
+      id: 'seed-gym',
+      name: l10n.seedCategoryGym,
+      iconKey: 'fitness_center',
+      color: swatch('amber'),
+    ),
+    SeedCategoryNode(
       id: 'seed-gifts',
       name: l10n.seedCategoryGifts,
       iconKey: 'card_giftcard',

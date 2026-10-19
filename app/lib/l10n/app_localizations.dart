@@ -1585,6 +1585,12 @@ abstract class AppLocalizations {
   /// **'Gifts & charity'**
   String get seedCategoryGifts;
 
+  /// No description provided for @seedCategoryGym.
+  ///
+  /// In en, this message translates to:
+  /// **'Gym'**
+  String get seedCategoryGym;
+
   /// No description provided for @seedCategoryHealth.
   ///
   /// In en, this message translates to:

@@ -66,7 +66,7 @@ final class FirstRunController {
           SettingsKeys.installedAt,
           DateTime.now().toUtc().millisecondsSinceEpoch.toString(),
         );
-        await settings.put(SettingsKeys.seedVersion, '1');
+        await settings.put(SettingsKeys.seedVersion, '2');
         // Founding users retain full access permanently once gates are
         // switched on, so this has to be written the moment the install exists
         // rather than at some later point when the cutoff might already have

@@ -899,6 +899,9 @@ class AppLocalizationsFa extends AppLocalizations {
   String get seedCategoryGifts => 'هدیه و کمک';
 
   @override
+  String get seedCategoryGym => 'باشگاه';
+
+  @override
   String get seedCategoryHealth => 'سلامت';
 
   @override
