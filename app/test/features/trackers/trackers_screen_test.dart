@@ -10,6 +10,7 @@ import 'package:nimbustats/features/trackers/presentation/trackers_screen.dart';
 import 'package:nimbustats/features/trackers/routes.dart';
 
 import '../../support/harness.dart';
+import '../goals/support/goal_test_app.dart';
 import 'support/tracker_fixture.dart';
 
 void main() {
@@ -129,6 +130,33 @@ void main() {
       expect(textIn(tester, Key('tracker-total-${g.id}')), 'Not done today');
       expect(textIn(tester, Key('tracker-total-${w.id}')), '0.75 L today');
       expect(textIn(tester, Key('tracker-total-${s.id}')), '1:30 today');
+    });
+
+    testWidgets("a tracker with a goal shows the goal's progress",
+        (tester) async {
+      final db = await freshDb();
+      await useEnglishDigits(db);
+      final repo = repositoryFor(db, fake);
+      final [cig, w] = await repo.createAll([cigarettes, water]);
+      await repo.logEntry(cig.id);
+      await repo.logEntry(cig.id);
+      // Weekly: yesterday counts toward this week, not toward today.
+      await repo.logEntry(w.id,
+          at: fake.nowUtc.subtract(const Duration(days: 1)));
+      await repo.logEntry(w.id);
+      final goals = goalServiceFor(db, () => const DateKey(20261005));
+      await goals.save(habitGoal(cig, id: 'cig-limit'));
+      await goals.save(habitGoal(w,
+          id: 'water-goal',
+          metric: GoalMetric.trackerSum,
+          direction: GoalDirection.atLeast,
+          target: 10,
+          period: PeriodType.week));
+
+      await openTab(tester, db);
+
+      expect(textIn(tester, Key('tracker-total-${cig.id}')), '2 of 5');
+      expect(textIn(tester, Key('tracker-total-${w.id}')), '0.5 L of 10 L');
     });
 
     testWidgets('Persian digits, right to left, in Persian', (tester) async {

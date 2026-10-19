@@ -7,6 +7,7 @@ import 'package:nimbus_domain/nimbus_domain.dart';
 
 import '../../../bootstrap/database_provider.dart';
 import '../../../l10n/app_localizations.dart';
+import '../../goals/application/goal_providers.dart';
 import '../../settings/data/app_settings.dart';
 import '../../settings/data/settings_repository.dart';
 import '../../settings/presentation/currency_label.dart';
@@ -47,7 +48,9 @@ final class SnapshotWriter {
         // A timer cannot run from a widget (spec §6.1).
         if (tracker.type != TrackerType.duration) tracker,
     ].take(maxTrackers).toList();
-    final totals = await _totals(trackers, today, settings.calendar);
+    final engine = AnalyticsEngine(_db, calendar: settings.calendar);
+    final totals = await _totals(trackers, today, engine);
+    final goals = await _goals(trackers, today, engine);
     final language = settings.locale.languageCode;
 
     return jsonEncode({
@@ -63,7 +66,7 @@ final class SnapshotWriter {
         'label': currencyLabel(l10n, settings.currency),
       },
       'trackers': [
-        for (final tracker in trackers)
+        for (final (i, tracker) in trackers.indexed)
           {
             'id': tracker.id,
             'name': tracker.name,
@@ -75,6 +78,8 @@ final class SnapshotWriter {
             ),
             'unit': tracker.unit,
             'todayTotal': totals[tracker.id] ?? 0.0,
+            // Absent without a goal, so an older reader sees no change.
+            if (goals[i] case final goal?) 'goal': goal,
           },
       ],
       'chips': [
@@ -92,6 +97,7 @@ final class SnapshotWriter {
         // (spec §6.2), so a tap shows before the drain.
         'trackerAdd': l10n.widgetTrackerAdd('{name}', '{total}'),
         'trackerDone': l10n.widgetTrackerDone('{name}'),
+        'goalProgress': l10n.goalsProgressOf('{current}', '{target}'),
       },
     });
   }
@@ -99,10 +105,10 @@ final class SnapshotWriter {
   Future<Map<String, double>> _totals(
     List<Tracker> trackers,
     DateKey today,
-    AppCalendar calendar,
+    AnalyticsEngine engine,
   ) async {
     if (trackers.isEmpty) return const {};
-    final result = await AnalyticsEngine(_db, calendar: calendar).runTracker(
+    final result = await engine.runTracker(
       TrackerQueries.dayTotals([for (final t in trackers) t.id], today),
     );
     return {
@@ -110,6 +116,35 @@ final class SnapshotWriter {
         if (bucket.key case TrackerKey(:final trackerId))
           trackerId: bucket.value,
     };
+  }
+
+  /// Each tracker's goal progress, as the tab's tile shows it, or null for a
+  /// tracker without one. `step` is what one widget tap adds: an entry for
+  /// a count goal, the tap's amount for a sum.
+  Future<List<Map<String, double>?>> _goals(
+    List<Tracker> trackers,
+    DateKey today,
+    AnalyticsEngine analytics,
+  ) async {
+    final goals = await _db.goalsDao.all();
+    final engine = GoalEngine(EngineGoalMeasurer(_db, analytics),
+        today: () => today);
+    return Future.wait([
+      for (final tracker in trackers)
+        if (trackerGoal(goals, tracker.id, today) case final goal?)
+          engine.evaluateCurrent(goal).then((progress) => {
+                // A tracker goal measures quantities (Goal validates it).
+                'current': (progress.current as QuantityAmount).value,
+                'target': (progress.target as QuantityAmount).value,
+                'step': goal.metric == GoalMetric.trackerCount
+                    ? 1.0
+                    // Non-null: duration trackers are not on the widget.
+                    : TrackerValues.perTap(tracker.type,
+                        perTapValue: tracker.perTapValue)!,
+              })
+        else
+          Future.value(null),
+    ]);
   }
 
   /// The add screen's ranking, filtered as its chips are: live, unarchived,

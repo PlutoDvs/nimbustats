@@ -357,25 +357,32 @@ Written by Dart, read by native. Example (values illustrative):
   "currency": {"code": "IRT", "decimalDigits": 0, "label": "تومان"},
   "trackers": [
     {"id": "…", "name": "سیگار", "color": 4294198070, "type": "counter",
-     "perTap": 1.0, "unit": null, "todayTotal": 3.0}
+     "perTap": 1.0, "unit": null, "todayTotal": 3.0,
+     "goal": {"current": 3.0, "target": 5.0, "step": 1.0}}
   ],
   "chips": [{"id": "…", "name": "خوراک"}],
   "strings": {"addExpense": "…", "emptyTrackers": "…", "entryTitle": "…",
               "save": "…", "cancel": "…", "saved": "…",
-              "trackerAdd": "{name}، امروز {total}", "trackerDone": "…"}
+              "trackerAdd": "{name}، امروز {total}", "trackerDone": "…",
+              "goalProgress": "{current} از {target}"}
 }
 ```
 
 - **Trackers:** live, unarchived, in tab order, duration trackers excluded
   (a timer cannot run from a widget). At most 4 — the largest layout's rows.
+  `goal` (added 2026-10-19, optional) is the tracker's goal progress over the
+  goal's own period, as the Trackers tab shows it: the first active goal on
+  the tracker whose period is open today (`trackerGoal`). `step` is what one
+  tap adds: 1 for a count goal, `perTap` for a sum. Absent without a goal, so
+  `v` stays 1; `goalProgress` is required only when some tracker has a goal.
 - **Chips:** `CategoryPredictor.predict(at: now, limit: 4)`, resolved to names.
 - **Strings:** every label and content description the widget and dialog
   show, already in the app's language; templates carry `{name}` / `{total}`
   slots that native fills with already-formatted values.
 - **Written** after every drain (inside `commitDrain`), and by the app engine,
   debounced 300 ms, on: start-up, resume, `engine.changes()`,
-  `engine.trackerChanges()`, tracker list changes, and locale or currency
-  changes. (Nothing in the snapshot depends on the calendar: `dayKey` is
+  `engine.trackerChanges()`, tracker list changes, goal changes, and locale
+  or currency changes. (Nothing in the snapshot depends on the calendar: `dayKey` is
   Gregorian, like every `local_date_key`.)
 
 ### 6.2 Numbers on the native side
@@ -391,6 +398,11 @@ unit as `TrackerFormat.total` does.
 `PendingOverlay`: the snapshot's `todayTotal` if its `dayKey` is today (local
 Gregorian `yyyymmdd`), else 0, plus every pending tap for that tracker whose
 local day is today. A boolean shows ✓ — with no [+] — when either holds it.
+
+With a `goal`, the row shows `goalProgress` instead: the goal's `current`
+plus today's pending taps × `step`, "of" its `target`. A snapshot from
+another day shows today's value instead, since the goal's period may have
+rolled over; the next snapshot write brings the progress back.
 
 Re-rendered on every snapshot write, every tap, and at local midnight
 (`setAndAllowWhileIdle(RTC, nextMidnight)`, re-armed by `RearmReceiver`).

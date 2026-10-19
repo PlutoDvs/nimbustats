@@ -13,7 +13,11 @@ data class SnapTracker(
     val perTap: Double,
     val unit: String?,
     val todayTotal: Double,
+    val goal: SnapGoal?,
 )
+
+/** A tracker's goal progress over the goal's period, and what one tap adds to it. */
+data class SnapGoal(val current: Double, val target: Double, val step: Double)
 
 data class SnapChip(val id: String, val name: String)
 
@@ -63,9 +67,27 @@ class WidgetSnapshot(
             val digits = currency.getInt("decimalDigits")
             require(digits in 0..3) { "currency.decimalDigits $digits is not in 0..3" }
             val strings = root.getJSONObject("strings")
-            val missing = REQUIRED_STRINGS.filter { strings.isNull(it) }
+            val trackerArray = root.getJSONArray("trackers")
+            val trackers = List(trackerArray.length()) { i ->
+                val t = trackerArray.getJSONObject(i)
+                SnapTracker(
+                    id = t.getString("id"),
+                    name = t.getString("name"),
+                    color = t.getLong("color").toInt(), // ARGB stored as an unsigned 32-bit number
+                    type = t.getString("type"),
+                    perTap = t.getDouble("perTap"),
+                    unit = if (t.isNull("unit")) null else t.getString("unit"),
+                    todayTotal = t.getDouble("todayTotal"),
+                    // Absent when the tracker has no goal, and in snapshots older than goals.
+                    goal = if (t.isNull("goal")) null else t.getJSONObject("goal").let {
+                        SnapGoal(it.getDouble("current"), it.getDouble("target"), it.getDouble("step"))
+                    },
+                )
+            }
+            // goalProgress only where a goal needs it: a snapshot written before it existed still reads.
+            val required = if (trackers.any { it.goal != null }) REQUIRED_STRINGS + "goalProgress" else REQUIRED_STRINGS
+            val missing = required.filter { strings.isNull(it) }
             require(missing.isEmpty()) { "the snapshot has no string(s) $missing" }
-            val trackers = root.getJSONArray("trackers")
             val chips = root.getJSONArray("chips")
             return WidgetSnapshot(
                 dayKey = root.getInt("dayKey"),
@@ -73,18 +95,7 @@ class WidgetSnapshot(
                 rtl = root.getBoolean("rtl"),
                 currencyDecimalDigits = digits,
                 currencyLabel = currency.getString("label"),
-                trackers = List(trackers.length()) { i ->
-                    val t = trackers.getJSONObject(i)
-                    SnapTracker(
-                        id = t.getString("id"),
-                        name = t.getString("name"),
-                        color = t.getLong("color").toInt(), // ARGB stored as an unsigned 32-bit number
-                        type = t.getString("type"),
-                        perTap = t.getDouble("perTap"),
-                        unit = if (t.isNull("unit")) null else t.getString("unit"),
-                        todayTotal = t.getDouble("todayTotal"),
-                    )
-                },
+                trackers = trackers,
                 chips = List(chips.length()) { i ->
                     val c = chips.getJSONObject(i)
                     SnapChip(c.getString("id"), c.getString("name"))

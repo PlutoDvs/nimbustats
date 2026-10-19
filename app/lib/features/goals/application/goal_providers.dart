@@ -43,6 +43,35 @@ final goalServiceProvider = Provider<GoalService>((ref) {
 final goalsProvider = StreamProvider<List<GoalRead>>(
     (ref) => ref.watch(appDatabaseProvider).goalsDao.watchAll());
 
+/// The goal a tracker shows progress toward, on its tile and on the
+/// home-screen widget: the first active goal on [trackerId] whose current
+/// period is open [today], or null.
+///
+/// shortcut: one goal per tracker is shown, the oldest; others stay on the
+/// Goals tab. Upgrade if trackers commonly carry more than one goal.
+Goal? trackerGoal(Iterable<GoalRead> goals, String trackerId, DateKey today) {
+  for (final read in goals) {
+    if (read case GoalReadable(:final goal)) {
+      final scope = goal.scope;
+      if (goal.active &&
+          scope is TrackerScope &&
+          scope.trackerId == trackerId &&
+          GoalPeriods.current(goal, today).contains(today)) {
+        return goal;
+      }
+    }
+  }
+  return null;
+}
+
+/// [trackerGoal] for one tracker, following goal writes and the day.
+final trackerGoalProvider =
+    Provider.autoDispose.family<Goal?, String>((ref, trackerId) => trackerGoal(
+          ref.watch(goalsProvider).value ?? const [],
+          trackerId,
+          ref.watch(goalTodayProvider),
+        ));
+
 /// Re-runs the provider behind [ref] whenever a write could move [goal]'s
 /// numbers. For a money goal that is a transaction, category or tag write;
 /// for a tracker goal, a tracker entry write. Mirrors

@@ -77,6 +77,36 @@ void main() {
     expect(byName['Coffee']!['todayTotal'], 0.0);
   });
 
+  test("a tracker with a goal carries the goal's progress and its step",
+      () async {
+    final cig = await trackers.create(cigarettes);
+    final w = await trackers.create(water);
+    final plain = await trackers.create(gym);
+    await trackers.logEntry(cig.id);
+    await trackers.logEntry(w.id, at: DateTime.utc(2026, 10, 4, 12));
+    await trackers.logEntry(w.id);
+    final goals = goalServiceFor(db, () => day5);
+    await goals.save(habitGoal(cig, id: 'cig-limit'));
+    await goals.save(habitGoal(w,
+        id: 'water-goal',
+        metric: GoalMetric.trackerSum,
+        direction: GoalDirection.atLeast,
+        target: 10,
+        period: PeriodType.week));
+    // Paused: not shown.
+    await goals.save(habitGoal(plain, id: 'gym-paused').copyWith(active: false));
+
+    final s = await snapshot();
+    final byName = {for (final t in rows(s, 'trackers')) t['name']: t};
+    // A count goal moves by one entry per tap.
+    expect(byName['Cigarettes']!['goal'],
+        {'current': 1.0, 'target': 5.0, 'step': 1.0});
+    // A sum goal moves by the tap's amount, over its own period.
+    expect(byName['Water']!['goal'],
+        {'current': 0.5, 'target': 10.0, 'step': 0.25});
+    expect(byName['Gym']!.containsKey('goal'), isFalse);
+  });
+
   test('chips: up to four predicted categories, never Uncategorized',
       () async {
     await spend(db, 1000, day5); // Dining
@@ -114,6 +144,7 @@ void main() {
     final fa = (await snapshot())['strings']! as Map<String, Object?>;
     expect(fa['trackerAdd'], '{name}، امروز {total}. افزودن یکی');
     expect(fa['trackerDone'], '{name}، امروز انجام شد');
+    expect(fa['goalProgress'], '{current} از {target}');
 
     await useEnglishDigits(db);
     final en = (await snapshot())['strings']! as Map<String, Object?>;
@@ -126,6 +157,7 @@ void main() {
       'saved': 'Saved',
       'trackerAdd': '{name}, today {total}. Add one',
       'trackerDone': '{name}, done today',
+      'goalProgress': '{current} of {target}',
     });
   });
 

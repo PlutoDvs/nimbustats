@@ -31,6 +31,25 @@ object PendingOverlay {
         return base + taps * perTap
     }
 
+    /**
+     * A goal's progress over its own period: the snapshot's, plus today's pending taps at [step]
+     * each. Null once the snapshot is from another day, since the period may have rolled over;
+     * the row then shows today's value until the app rewrites the snapshot.
+     */
+    fun goalValue(
+        snapshotDayKey: Int,
+        snapshotCurrent: Double,
+        step: Double,
+        trackerId: String,
+        pending: List<PendingTap>,
+        zone: ZoneId,
+        now: Instant,
+    ): Double? = if (snapshotDayKey != dayKey(now, zone)) {
+        null
+    } else {
+        todayValue(snapshotDayKey, snapshotCurrent, step, trackerId, pending, zone, now)
+    }
+
     /** A boolean tracker is done once today holds anything. */
     fun isDone(type: String, value: Double): Boolean = type == "boolean" && value > 0.0
 

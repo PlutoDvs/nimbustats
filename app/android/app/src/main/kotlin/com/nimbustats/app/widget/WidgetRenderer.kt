@@ -34,7 +34,13 @@ import java.time.ZoneId
  * That is the CLDR data the app's `NumberFormat.decimalPattern` is built on (spec §6.2).
  */
 object WidgetRenderer {
-    private class Row(val tracker: SnapTracker, val value: String, val done: Boolean, val description: String)
+    private class Row(
+        val tracker: SnapTracker,
+        val value: String,
+        val showValue: Boolean,
+        val done: Boolean,
+        val description: String,
+    )
 
     fun renderAll(context: Context) {
         val manager = AppWidgetManager.getInstance(context)
@@ -85,13 +91,28 @@ object WidgetRenderer {
             )
             val done = PendingOverlay.isDone(tracker.type, value)
             // As TrackerFormat.total writes it: a quantity carries its unit.
-            val text = tracker.unit?.let { "${format.format(value)} $it" } ?: format.format(value)
+            fun withUnit(number: Double) = tracker.unit?.let { "${format.format(number)} $it" } ?: format.format(number)
+            val text = withUnit(value)
+            // With a goal the row shows its progress, "3 of 8", as the app's tile does.
+            val goal = tracker.goal
+            val goalValue = goal?.let {
+                PendingOverlay.goalValue(snapshot.dayKey, it.current, it.step, tracker.id, pending, zone, now)
+            }
+            val showsGoal = goal != null && goalValue != null
+            val shown = if (goal != null && goalValue != null) {
+                snapshot.string("goalProgress")
+                    .replace("{current}", withUnit(goalValue))
+                    .replace("{target}", withUnit(goal.target))
+            } else {
+                text
+            }
             val description = if (done) {
                 snapshot.string("trackerDone").replace("{name}", tracker.name)
             } else {
                 snapshot.string("trackerAdd").replace("{name}", tracker.name).replace("{total}", text)
             }
-            Row(tracker, text, done, description)
+            // A boolean says today with the tick, not a number; its goal's progress is still a number.
+            Row(tracker, shown, tracker.type != "boolean" || showsGoal, done, description)
         }
     }
 
@@ -118,8 +139,7 @@ object WidgetRenderer {
         RemoteViews(context.packageName, R.layout.widget_tracker_row).apply {
             setInt(R.id.row_dot, "setColorFilter", row.tracker.color)
             setTextViewText(R.id.row_name, row.tracker.name)
-            // A boolean says it with the tick, not a number.
-            setViewVisibility(R.id.row_value, if (row.tracker.type == "boolean") View.GONE else View.VISIBLE)
+            setViewVisibility(R.id.row_value, if (row.showValue) View.VISIBLE else View.GONE)
             setTextViewText(R.id.row_value, row.value)
             if (row.done) {
                 setViewVisibility(R.id.row_add, View.GONE)

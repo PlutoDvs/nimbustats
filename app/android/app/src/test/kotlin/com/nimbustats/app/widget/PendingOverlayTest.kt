@@ -4,6 +4,7 @@ import java.time.Instant
 import java.time.ZoneId
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
@@ -34,6 +35,19 @@ class PendingOverlayTest {
     @Test
     fun aQuantityTapAddsItsPerTapAmount() {
         assertEquals(1.0, value(20261012, 0.5, 0.25, listOf(tap("cig"), tap("cig"))), 1e-9)
+    }
+
+    private fun goal(dayKey: Int, current: Double, step: Double, pending: List<PendingTap>) =
+        PendingOverlay.goalValue(dayKey, current, step, "cig", pending, tehran, noon)
+
+    @Test
+    fun aGoalAddsTodaysTapsByItsStepToTheSnapshotsProgress() {
+        assertEquals(14.5, goal(20261012, 14.0, 0.25, listOf(tap("cig"), tap("cig"), tap("tea")))!!, 1e-9)
+    }
+
+    @Test
+    fun aGoalFromAnotherDaysSnapshotIsNotShown() { // its period may have rolled over
+        assertNull(goal(20261011, 14.0, 1.0, listOf(tap("cig"))))
     }
 
     @Test

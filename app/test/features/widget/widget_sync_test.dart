@@ -5,10 +5,12 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:nimbus_data/nimbus_data.dart';
+import 'package:nimbus_domain/nimbus_domain.dart';
 import 'package:nimbustats/features/trackers/routes.dart';
 import 'package:nimbustats/features/widget/presentation/widget_sync.dart';
 
 import '../../support/harness.dart';
+import '../goals/support/goal_test_app.dart';
 import '../notifications/support/fake_outside_channel.dart';
 import '../trackers/support/tracker_fixture.dart';
 import 'support/buffer_lines.dart';
@@ -59,6 +61,24 @@ void main() {
 
     final row = (last()['trackers']! as List<Object?>).single as Map;
     expect(row['todayTotal'], 1.0);
+  });
+
+  testWidgets('a new goal on a tracker rewrites it with the progress',
+      (tester) async {
+    final cig = await repositoryFor(db, fake).create(cigarettes);
+    await pumpApp(tester,
+        database: db,
+        seedFirstRun: true,
+        outside: outside,
+        overrides: trackerOverrides(fake));
+    await settleSnapshot(tester);
+
+    await tester.runAsync(() => goalServiceFor(db, () => const DateKey(20261005))
+        .save(habitGoal(cig)));
+    await settleSnapshot(tester);
+
+    final row = (last()['trackers']! as List<Object?>).single as Map;
+    expect(row['goal'], {'current': 0.0, 'target': 5.0, 'step': 1.0});
   });
 
   testWidgets('a language switch rewrites it in the new language',

@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nimbus_data/nimbus_data.dart';
 
 import '../../analytics/application/analytics_providers.dart';
+import '../../goals/application/goal_providers.dart';
 import '../../notifications/application/outside_errors.dart';
 import '../../notifications/data/outside_channel.dart';
 import '../../settings/application/settings_providers.dart';
@@ -17,6 +18,7 @@ import '../application/drain_service.dart';
 /// - resume;
 /// - a transaction, category or tag write (the chips);
 /// - a tracker entry write (today's totals);
+/// - a goal write (a tracker's goal progress);
 /// - a change to the tab's trackers;
 /// - a settings change (language, currency).
 ///
@@ -79,6 +81,7 @@ class _WidgetSyncState extends ConsumerState<WidgetSync> {
       fireImmediately: true,
     );
     ref.listenManual(trackersProvider, (_, __) => _changed());
+    ref.listenManual(goalsProvider, (_, __) => _changed());
     ref.listenManual(settingsProvider, (_, __) => _changed());
     // After the first frame, never before it: cold start stays in budget.
     WidgetsBinding.instance.addPostFrameCallback((_) {
