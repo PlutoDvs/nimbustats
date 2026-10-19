@@ -50,6 +50,20 @@ void main() {
     expect((await db.transactionsDao.byId(tx.id))!.amount, const Money(99000));
   });
 
+  testWidgets('save returns to the list it was opened from', (tester) async {
+    final db = await seededDb();
+    final tx = await seedOne(db);
+    await pumpApp(tester, database: db);
+
+    await tester.tap(find.byKey(Key('tx-${tx.id}')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('tx-detail-save')));
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(const Key('tx-detail-save')), findsNothing);
+    expect(find.byKey(Key('tx-${tx.id}')), findsOneWidget);
+  });
+
   testWidgets('necessity and satisfaction are settable here', (tester) async {
     final db = await seededDb();
     final tx = await seedOne(db);

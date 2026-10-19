@@ -172,6 +172,7 @@ class _TransactionDetailScreenState
               child: FilledButton(
                 key: const Key('tx-detail-save'),
                 onPressed: () async {
+                  final router = GoRouter.of(context);
                   final parsed = formatter.parse(_amount.text);
                   if (parsed != null && parsed.minorUnits != 0) {
                     await repository.setAmount(widget.id, parsed);
@@ -182,6 +183,8 @@ class _TransactionDetailScreenState
                     note.isEmpty ? null : note,
                   );
                   _afterWrite();
+                  // Back to where the edit started, as the add screen does.
+                  if (router.canPop()) router.pop();
                 },
                 child: Text(l10n.commonSave),
               ),
