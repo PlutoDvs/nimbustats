@@ -13,6 +13,8 @@ import '../../payment_methods/application/payment_method_providers.dart';
 import '../../payment_methods/data/default_payment_methods.dart';
 import '../../payment_methods/presentation/widgets/payment_method_editor_sheet.dart';
 import '../../settings/application/settings_providers.dart';
+import '../../tags/application/tag_providers.dart';
+import '../../tags/presentation/widgets/tag_chip_row.dart';
 import '../../tags/presentation/widgets/tag_picker_sheet.dart';
 import '../application/add_transaction_controller.dart';
 import '../application/transaction_list_controller.dart';
@@ -234,10 +236,13 @@ class _TagsTile extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
+    final allTags = ref.watch(tagPickerOptionsProvider).value ?? const [];
+    final chosen = allTags.where((t) => state.tagIds.contains(t.id)).toList();
     return ListTile(
       key: const Key('tx-tags'),
       title: Text(l10n.txTagsLabel),
-      subtitle: state.tagIds.isEmpty ? null : Text('${state.tagIds.length}'),
+      // As the edit screen shows them: by name, not as a bare count.
+      subtitle: chosen.isEmpty ? null : TagChipRow(tags: chosen),
       trailing: const Icon(Icons.chevron_right),
       onTap: () async {
         final chosen =

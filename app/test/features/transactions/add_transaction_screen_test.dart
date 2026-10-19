@@ -7,6 +7,8 @@ import 'package:nimbus_domain/nimbus_domain.dart';
 import 'package:nimbustats/features/payment_methods/data/default_payment_methods.dart';
 import 'package:nimbustats/features/payment_methods/data/payment_method_repository.dart';
 import 'package:nimbustats/features/settings/data/settings_keys.dart';
+import 'package:nimbustats/features/tags/data/tag_repository.dart';
+import 'package:nimbustats/features/tags/presentation/widgets/tag_chip_row.dart';
 import 'package:nimbustats/features/transactions/application/prediction_providers.dart';
 import 'package:nimbustats/features/transactions/data/transaction_draft.dart';
 import 'package:nimbustats/features/transactions/data/transaction_repository.dart';
@@ -477,6 +479,37 @@ void main() {
         findsNothing,
       );
     });
+  });
+
+  testWidgets('the tags tile names the tags chosen, not just a count',
+      (tester) async {
+    final db =
+        await pumpApp(tester, seedFirstRun: true, initialLocation: '/add');
+    final travel = await TagRepository(db.tagsDao).findOrCreate('Travel');
+    await tester.pumpAndSettle();
+
+    await tapVisible(tester, find.byKey(const Key('tx-more-details')));
+    await tester.pumpAndSettle();
+    await tapVisible(tester, find.byKey(const Key('tx-tags')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(Key('tag-option-${travel.id}')));
+    await tester.tap(find.byKey(const Key('tag-picker-done')));
+    await tester.pumpAndSettle();
+
+    expect(
+      find.descendant(
+        of: find.byKey(const Key('tx-tags')),
+        matching: find.byType(TagChip),
+      ),
+      findsOneWidget,
+    );
+    expect(
+      find.descendant(
+        of: find.byKey(const Key('tx-tags')),
+        matching: find.text('Travel'),
+      ),
+      findsOneWidget,
+    );
   });
 
   group('the payment method picker', () {
