@@ -115,6 +115,7 @@ class _CategoryEditorSheetState extends State<CategoryEditorSheet> {
             const SizedBox(height: NimbusTokens.space4),
             TextField(
               key: const Key('category-name-field'),
+              textCapitalization: TextCapitalization.sentences,
               controller: _name,
               enabled: _nameEditable,
               autofocus: _nameEditable,

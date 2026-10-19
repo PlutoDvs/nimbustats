@@ -103,6 +103,7 @@ class _TagPickerSheetState extends ConsumerState<TagPickerSheet> {
                   horizontal: NimbusTokens.space4),
               child: TextField(
                 key: const Key('tag-picker-search'),
+                textCapitalization: TextCapitalization.sentences,
                 controller: _search,
                 autofocus: true,
                 textInputAction: TextInputAction.done,

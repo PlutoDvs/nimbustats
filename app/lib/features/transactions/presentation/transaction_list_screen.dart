@@ -112,6 +112,8 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
             ),
             child: TextField(
               key: const Key('tx-search'),
+              // Search matches either case; nothing here is a name.
+              textCapitalization: TextCapitalization.none,
               controller: _search,
               decoration: InputDecoration(
                 hintText: l10n.txSearchHint,

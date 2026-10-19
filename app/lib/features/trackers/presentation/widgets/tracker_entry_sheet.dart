@@ -221,6 +221,7 @@ class _EntrySheetState extends ConsumerState<_EntrySheet> {
             const SizedBox(height: NimbusTokens.space4),
             TextField(
               key: const Key('tracker-entry-note'),
+              textCapitalization: TextCapitalization.sentences,
               controller: _note,
               decoration: InputDecoration(
                 labelText: l10n.trackerEntryNoteLabel,

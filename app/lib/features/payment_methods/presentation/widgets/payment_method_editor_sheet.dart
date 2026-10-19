@@ -121,6 +121,7 @@ class _PaymentMethodEditorSheetState extends State<PaymentMethodEditorSheet> {
             const SizedBox(height: NimbusTokens.space4),
             TextField(
               key: const Key('pay-name-field'),
+              textCapitalization: TextCapitalization.sentences,
               controller: _name,
               autofocus: true,
               decoration: InputDecoration(

@@ -150,6 +150,7 @@ class _TrackerEditorSheetState extends ConsumerState<TrackerEditorSheet> {
             const SizedBox(height: NimbusTokens.space4),
             TextField(
               key: const Key('tracker-name-field'),
+              textCapitalization: TextCapitalization.sentences,
               controller: _name,
               autofocus: true,
               decoration: InputDecoration(
@@ -204,6 +205,8 @@ class _TrackerEditorSheetState extends ConsumerState<TrackerEditorSheet> {
               const SizedBox(height: NimbusTokens.space4),
               TextField(
                 key: const Key('tracker-unit-field'),
+                // Units are written lower-case: ml, kg, km.
+                textCapitalization: TextCapitalization.none,
                 controller: _unit,
                 decoration: InputDecoration(
                   labelText: l10n.trackerUnitLabel,

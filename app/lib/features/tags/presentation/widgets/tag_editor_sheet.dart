@@ -96,6 +96,7 @@ class _TagEditorSheetState extends State<TagEditorSheet> {
             const SizedBox(height: NimbusTokens.space4),
             TextField(
               key: const Key('tag-name-field'),
+              textCapitalization: TextCapitalization.sentences,
               controller: _name,
               autofocus: true,
               textInputAction: TextInputAction.done,

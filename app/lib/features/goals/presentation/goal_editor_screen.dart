@@ -235,6 +235,7 @@ class _GoalFormState extends ConsumerState<_GoalForm> {
           children: [
             TextField(
               key: const Key('goal-name'),
+              textCapitalization: TextCapitalization.sentences,
               controller: _name,
               textInputAction: TextInputAction.next,
               decoration: InputDecoration(

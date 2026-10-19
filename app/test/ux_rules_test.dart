@@ -89,4 +89,36 @@ void main() {
         reason: 'the database stays behind nimbus_data:\n'
             '${offenders.join('\n')}');
   });
+
+  test('every text field says how its keyboard capitalises', () {
+    // Found on a device: names, titles and notes opened on a lower-case
+    // keyboard, unlike every other app. Flutter defaults to none, so each
+    // free-text field asks for sentences; a numeric or password field sets
+    // its keyboardType instead, which is what exempts it.
+    final offenders = <String>[];
+    for (final file in _dartSources('lib')) {
+      final source = file.readAsStringSync();
+      for (final match in 'TextField('.allMatches(source)) {
+        final args = _balancedArgs(source, match.end - 1);
+        if (!args.contains('keyboardType:') &&
+            !args.contains('textCapitalization:')) {
+          final line = '\n'.allMatches(source.substring(0, match.start)).length;
+          offenders.add('${file.path}:${line + 1}');
+        }
+      }
+    }
+    expect(offenders, isEmpty,
+        reason: 'set textCapitalization (or keyboardType) on:\n'
+            '${offenders.join('\n')}');
+  });
+}
+
+/// The source between the parenthesis at [open] and its match.
+String _balancedArgs(String source, int open) {
+  var depth = 0;
+  for (var i = open; i < source.length; i++) {
+    if (source[i] == '(') depth++;
+    if (source[i] == ')' && --depth == 0) return source.substring(open, i);
+  }
+  return source.substring(open);
 }

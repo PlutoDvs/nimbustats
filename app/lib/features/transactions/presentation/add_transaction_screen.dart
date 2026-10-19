@@ -178,6 +178,7 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
                     horizontal: NimbusTokens.space4),
                 child: TextField(
                   key: const Key('tx-merchant-field'),
+                  textCapitalization: TextCapitalization.sentences,
                   controller: _merchant,
                   decoration: InputDecoration(labelText: l10n.txMerchantLabel),
                   onChanged: controller.setMerchant,
@@ -189,6 +190,7 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
                     horizontal: NimbusTokens.space4),
                 child: TextField(
                   key: const Key('tx-note-field'),
+                  textCapitalization: TextCapitalization.sentences,
                   controller: _note,
                   decoration: InputDecoration(labelText: l10n.txNoteLabel),
                   onChanged: controller.setNote,

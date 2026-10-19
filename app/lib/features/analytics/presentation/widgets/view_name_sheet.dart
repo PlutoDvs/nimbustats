@@ -93,6 +93,7 @@ class _ViewNameSheetState extends State<_ViewNameSheet> {
           const SizedBox(height: NimbusTokens.space4),
           TextField(
             key: const Key('view-name-field'),
+            textCapitalization: TextCapitalization.sentences,
             controller: _name,
             autofocus: true,
             decoration: InputDecoration(labelText: l10n.viewNameLabel),

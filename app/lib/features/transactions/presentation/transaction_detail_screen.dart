@@ -141,6 +141,7 @@ class _TransactionDetailScreenState
                 const EdgeInsets.symmetric(horizontal: NimbusTokens.space4),
             child: TextField(
               key: const Key('tx-detail-note'),
+              textCapitalization: TextCapitalization.sentences,
               controller: _note,
               decoration: InputDecoration(labelText: l10n.txNoteLabel),
             ),
